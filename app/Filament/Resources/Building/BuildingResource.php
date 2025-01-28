@@ -7,9 +7,13 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\City;
+use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +43,6 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromo
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
-use App\Models\Master\City;
 
 class BuildingResource extends Resource
 {
@@ -58,18 +61,69 @@ class BuildingResource extends Resource
                     'md' => 2,
                     'lg' => 2,
                 ])->schema([
+                    // Select::make('owner_association_id')
+                    //     ->label('Owner Association') // Add or change the label
+                    //     ->native(false)
+                    //     ->required()
+                    //     ->rules([
+                    //         'required'
+                    //     ])
+                    //     ->options(function (callable $get) {
+
+                    //         return OwnerAssociation::where('resource','Default')->pluck('name', 'id');
+                    //     })
+                    //     ->searchable(),
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
+                        ->rules([
+                            'required'
+                        ])
                         // ->disabled()
                         ->placeholder('Name'),
-
+                        TextInput::make('slug')
+                                ->label('Slug')
+                                ->required()
+                                ->placeholder('Slug')
+                                ->rules([
+                                    'required',
+                                    'string',
+                                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                                    'min:4',
+                                    'max:30'
+                                ])
+                                ->validationMessages([
+                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
+                                ])
+                                ->unique('buildings', 'slug', ignoreRecord: true)
+                                ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
+                                        return false;
+                                    }
+                                
+                                    // For edit operation, apply your existing logic
+                                    return Role::where('id', auth()->user()->role_id)
+                                        ->first()->name != 'Admin' && 
+                                        DB::table('buildings')
+                                        ->where('slug', $get('slug'))
+                                        ->exists();
+                                }),
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
                         ->required()
+                        ->rules([
+                            'required'
+                        ])
                         // ->disabled()
                         ->placeholder('Property Group ID')
                         ->label('Property Group ID')
+                        ->rules([
+                            'required'
+                        ])
                         ->unique(
                             'buildings',
                             'property_group_id',
@@ -77,13 +131,13 @@ class BuildingResource extends Resource
                         ),
 
                     TextInput::make('address_line1')
-                        ->rules(['max:500', 'string'])
+                        ->rules(['required','max:500', 'string'])
                         ->required()
                         ->label('Address Line 1')
                         ->placeholder('Address line 1'),
 
                     TextInput::make('address_line2')
-                        ->rules(['max:500', 'string'])
+                        ->rules(['required','max:500', 'string'])
                         ->nullable()
                         ->label('Address line 2')
                         ->placeholder('Address Line 2'),
@@ -94,17 +148,15 @@ class BuildingResource extends Resource
                     TextInput::make('area')
                         ->rules(['max:100', 'string'])
                         ->required()
+                        ->rules([
+                            'required'
+                        ])
                         ->placeholder('Area'),
-
-                    // Select::make('city_id')
-                    //     ->rules(['exists:cities,id'])
-                    //     ->preload()
-                    //     ->relationship('cities', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('NA'),
-
                     TextInput::make('floors')
                         ->required()
+                        ->rules([
+                            'required'
+                        ])
                         ->numeric()
                         ->minValue(1)
                         ->maxValue(999)
@@ -121,6 +173,10 @@ class BuildingResource extends Resource
                     Select::make('city_id')
                         ->label('City') // Add or change the label
                         ->native(false)
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
                         ->options(function (callable $get) {
 
                             return City::pluck('name', 'id');
@@ -148,7 +204,7 @@ class BuildingResource extends Resource
                     Toggle::make('status')
                         ->rules(['boolean'])
                         ->default(true) // Sets the default value to true (active)
-                        ->label('Is Active?'),
+                        ->label('Status'),
 
                     MarkdownEditor::make('description')
                         ->toolbarButtons([
@@ -246,58 +302,72 @@ class BuildingResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Action::make('feature')
-                    ->label('Upload Budget') // Set a label for your action
-                    ->modalHeading('Upload Budget for Period') // Modal heading
-                    ->form([
-                        Forms\Components\Select::make('budget_period')
-                            ->label('Select Budget Period')
-                            ->options([
-                                'Jan 2024 - Dec 2024' => '2024',
-                                'Jan 2023 - Dec 2023' => '2023',
-                                'Jan 2022 - Dec 2022' => '2022',
-                                'Jan 2021 - Dec 2021' => '2021',
-                                'Jan 2020 - Dec 2020' => '2020',
-                                'Jan 2019 - Dec 2019' => '2019',
-                                'Jan 2018 - Dec 2018' => '2018',
-                            ])
-                            ->required(),
-                        Forms\Components\FileUpload::make('excel_file')
-                            ->label('Upload File')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
-                            ])
-                            ->required()
-                            ->disk('local') // or your preferred disk
-                            ->directory('budget_imports'), // or your preferred directory
-                    ])
-                    ->action(function ($record, array $data, $livewire) {
-                        // try {
-                        $budgetPeriod = $data['budget_period'];
-                        $filePath = $data['excel_file'];
-                        $fullPath = storage_path('app/' . $filePath);
+                // Action::make('feature')
+                //     ->label('Upload Budget') // Set a label for your action
+                //     ->modalHeading('Upload Budget for Period') // Modal heading
+                //     ->form([
+                //         Forms\Components\Select::make('budget_period')
+                //             ->label('Select Budget Period')
+                //             ->options([
+                //                 'Jan 2024 - Dec 2024' => '2024',
+                //                 'Jan 2023 - Dec 2023' => '2023',
+                //                 'Jan 2022 - Dec 2022' => '2022',
+                //                 'Jan 2021 - Dec 2021' => '2021',
+                //                 'Jan 2020 - Dec 2020' => '2020',
+                //                 'Jan 2019 - Dec 2019' => '2019',
+                //                 'Jan 2018 - Dec 2018' => '2018',
+                //             ])
+                //             ->required(),
+                //         Forms\Components\FileUpload::make('excel_file')
+                //             ->label('Upload File')
+                //             ->acceptedFileTypes([
+                //                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                //                 'application/vnd.ms-excel', // for .xls
+                //             ])
+                //             ->required()
+                //             ->disk('local') // or your preferred disk
+                //             ->directory('budget_imports'), // or your preferred directory
+                //     ])
+                //     ->action(function ($record, array $data, $livewire) {
+                //         // try {
+                //         $budgetPeriod = $data['budget_period'];
+                //         $filePath = $data['excel_file'];
+                //         $fullPath = storage_path('app/' . $filePath);
 
-                        if (!file_exists($fullPath)) {
-                            Log::error("File not found at path: ", [$fullPath]);
-                        }
+                //         if (!file_exists($fullPath)) {
+                //             Log::error("File not found at path: ", [$fullPath]);
+                //         }
 
-                        // Now import using the file path
-                        Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
+                //         // Now import using the file path
+                //         Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
 
-                        // } catch (\Exception $e) {
-                        //     // Log::error('Error during file import: ' . $e->getMessage());
-                        //     Notification::make()
-                        //     ->title($e->getMessage())
-                        //     ->danger()
-                        //     ->send();
-                        // }
-                    }),
+                //         // } catch (\Exception $e) {
+                //         //     // Log::error('Error during file import: ' . $e->getMessage());
+                //         //     Notification::make()
+                //         //     ->title($e->getMessage())
+                //         //     ->danger()
+                //         //     ->send();
+                //         // }
+                //     }),
+                    Action::make('delete')
+                    ->button()
+                    ->action(function ($record,) {
+                        $record->delete();
+
+                        Notification::make()
+                            ->title('Building Deleted Successfully')
+                            ->success()
+                            ->send()
+                            ->duration('4000');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to delete this ?')
+                    ->modalButton('Delete'),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
