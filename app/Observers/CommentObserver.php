@@ -53,7 +53,8 @@ class CommentObserver
                                 'sound' => 'default',
                                 'title' => 'New Comment',
                                 'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
-                                'data' => ['notificationType' => $notificationType],
+                                'data' => ['notificationType' => $notificationType,
+                                        'building_id' => $complaint->building_id],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -69,7 +70,7 @@ class CommentObserver
                                     'iconColor' => 'warning',
                                     'title' => 'New Comment',
                                     'view' => 'notifications::notification',
-                                    'viewData' => [],
+                                    'viewData' => ['building_id' => $complaint->building_id],
                                     'format' => 'filament',
                                     'url' => $notificationType,
                                 ]),
