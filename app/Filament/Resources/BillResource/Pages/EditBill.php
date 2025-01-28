@@ -21,7 +21,6 @@ class EditBill extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $bill       = $this->record;
-        $dewaNumber = $bill->bill_number;
         $flatId     = $bill->flat['property_number'];
         $buildingId = Flat::where('property_number', $flatId)->pluck('building_id')[0];
         $building   = Building::where('id', $buildingId)->pluck('name')[0];
@@ -36,7 +35,6 @@ class EditBill extends EditRecord
             'status'            => $bill->status,
             'uploaded_by'       => $bill->uploaded_by,
             'status_updated_by' => $bill->status_updated_by,
-            'bill_number'       => $dewaNumber ?? null,
 
         ];
     }

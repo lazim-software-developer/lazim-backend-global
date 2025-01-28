@@ -92,6 +92,7 @@ class ListFlats extends ListRecords
                         Column::make('dewa_number'),
                         Column::make('du/etisalat_number'),
                         Column::make('btu/ac_number'),
+                        Column::make('lpg_number')
                     ]),
             ])
                 ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))

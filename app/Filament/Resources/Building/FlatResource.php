@@ -193,6 +193,10 @@ class FlatResource extends Resource
                             ->placeholder('NA')
                             ->label('BTU/AC Number')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('lpg_number')
+                            ->placeholder('NA')
+                            ->label('LPG Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
             ]);
     }
