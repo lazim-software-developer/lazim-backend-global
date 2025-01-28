@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -133,6 +134,9 @@ class RentalChequeResource extends Resource
                 })->orderBy('created_at', 'desc');
             })
             ->columns([
+                TextColumn::make('rentalDetail.flat.building.name')
+                    ->label('Building')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('rentalDetail.flat.property_number')
                     ->label('Flat number')
                     ->searchable(),

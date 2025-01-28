@@ -34,6 +34,7 @@ class FlatImport implements ToCollection, WithHeadingRow
             'dewa_number',
             'duetisalat_number',
             'btuac_number',
+            'lpg_number',
         ];
 
         if ($rows->first() == null) {
@@ -120,6 +121,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                 'dewa_number'       => 'Dewa number',
                 'duetisalat_number' => 'BTU/Etisalat number',
                 'btuac_number'      => 'BTU/AC number',
+                'lpg_number'        => 'LPG number',
             ];
 
             foreach ($numericFields as $field => $label) {
@@ -181,6 +183,7 @@ class FlatImport implements ToCollection, WithHeadingRow
                     'dewa_number'          => $row['dewa_number'] ?: null,
                     'etisalat/du_number'   => $row['duetisalat_number'] ?: null,
                     'btu/ac_number'        => $row['btuac_number'] ?: null,
+                    'lpg_number'           => $row['lpg_number'] ?: null,
                 ]);
 
                 // Now use the flat's ID when creating the property_manager_flats record

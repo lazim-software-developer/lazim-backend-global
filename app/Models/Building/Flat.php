@@ -50,6 +50,7 @@ class Flat extends Model
         'dewa_number',
         'etisalat/du_number',
         'btu/ac_number',
+        'lpg_number',
     ];
 
     protected $searchableFields = ['*'];

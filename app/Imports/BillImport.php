@@ -22,7 +22,6 @@ class BillImport implements ToCollection, WithHeadingRow
         'amount'      => 'Amount',
         'due_date'    => 'Due Date',
         'status'      => 'Status',
-        'bill_number' => 'Bill Number',
     ];
 
     public function __construct($buildingId, $month, $type)
@@ -61,7 +60,7 @@ class BillImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         // Convert the expected headings to snake_case for Excel import
-        $expectedHeadings = ['unit_number', 'amount', 'due_date', 'status', 'bill_number'];
+        $expectedHeadings = ['unit_number', 'amount', 'due_date', 'status'];
         $validStatuses    = ['Pending', 'Paid', 'Overdue'];
         $recordsImported  = 0;
         $invalidRows      = [];
@@ -102,12 +101,6 @@ class BillImport implements ToCollection, WithHeadingRow
             if (! isset($row['unit_number']) || trim($row['unit_number']) === '') {
                 $validationErrors[] = "Unit Number cannot be empty";
             }
-            if (! isset($row['bill_number']) || trim($row['bill_number']) === '') {
-                $validationErrors[] = "Bill Number cannot be empty";
-            } elseif (strlen($row['bill_number']) < 4 || strlen($row['bill_number']) > 15) {
-                $validationErrors[] = "Bill Number must be between 4 and 15 characters";
-            }
-
             if (! isset($row['amount']) || trim($row['amount']) === '') {
                 $validationErrors[] = "Amount cannot be empty";
             }
@@ -182,7 +175,6 @@ class BillImport implements ToCollection, WithHeadingRow
 
             Bill::create([
                 'flat_id'           => $flat->id,
-                'bill_number'       => $row['bill_number'] ?? null,
                 'type'              => $this->type,
                 'amount'            => $row['amount'],
                 'month'             => $this->month,

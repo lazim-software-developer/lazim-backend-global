@@ -145,8 +145,6 @@ class ListBills extends ListRecords
                             ->heading('Amount'),
                         Column::make('due_date')
                             ->heading('Due Date'),
-                        Column::make('bill_number')
-                            ->heading('Bill Number'),
                         Column::make('status')
                             ->heading('Status'),
                     ])
@@ -154,7 +152,6 @@ class ListBills extends ListRecords
                         return DB::table(DB::raw('(SELECT 1) as dummy'))
                             ->select([
                                 DB::raw("'' as unit_number"),
-                                DB::raw("'' as bill_number"),
                                 DB::raw("'' as amount"),
                                 DB::raw("'' as due_date"),
                                 DB::raw("'' as status"),
