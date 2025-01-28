@@ -48,13 +48,14 @@ use App\Models\Accounting\OAMInvoice;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Visitor\FlatDomesticHelp;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
-    use HasFactory, Searchable;
+    use SoftDeletes,HasFactory, Searchable;
 
     protected $connection = 'mysql';
 
@@ -306,8 +307,8 @@ class Building extends Model
     {
         return $this->hasMany(LegalNotice::class);
     }
-    public function getCoverPhotoAttribute($value)
+    public function DeleteAssociatedRecord($value)
     {
-        return !empty($value) ? Storage::disk('s3')->url($value) : null;
+        echo "Enter";die;
     }
 }
