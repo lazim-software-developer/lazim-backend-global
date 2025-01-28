@@ -63,7 +63,8 @@ class EditOacomplaintReports extends EditRecord
                     'sound' => 'default',
                     'title' => 'Complaint closed',
                     'body'  => 'Complaint closed by OA.',
-                    'data'  => ['notificationType' => $code],
+                    'data'  => ['notificationType' => $code,
+                                'building_id' => $this->record->building_id],
                 ];
                 $this->expoNotification($message);
             }
@@ -80,8 +81,8 @@ class EditOacomplaintReports extends EditRecord
                     'iconColor' => 'warning',
                     'title'     => 'Complaint closed',
                     'view'      => 'notifications::notification',
-                    'viewData'  => ['building_id' => $this->record->flatVisitor->building_id,
-                                    'flat_id' => $this->record->flatVisitor->flat_id],
+                    'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format'    => 'filament',
                     'url'       => $code,
                 ]),

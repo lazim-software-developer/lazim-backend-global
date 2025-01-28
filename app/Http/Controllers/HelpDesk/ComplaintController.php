@@ -482,6 +482,7 @@ class ComplaintController extends Controller
                         'open_time' => $complaint?->open_time,
                         'close_time' => $complaint?->close_time,
                         'due_date' => $complaint?->due_date,
+                        'building_id' => $complaint?->building_id,
                     ],
                 ];
                 $this->expoNotification($message);
@@ -503,6 +504,7 @@ class ComplaintController extends Controller
                             'open_time' => $complaint?->open_time,
                             'close_time' => $complaint?->close_time,
                             'due_date' => $complaint?->due_date,
+                            'building_id' => $complaint?->building_id,
                         ],
                         'format'    => 'filament',
                         'url'       => 'ResolvedRequests',

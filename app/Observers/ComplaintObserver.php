@@ -185,7 +185,7 @@ class ComplaintObserver
                         'iconColor' => 'warning',
                         'title' => 'Complaint Received',
                         'view' => 'notifications::notification',
-                        'viewData' => [],
+                        'viewData' => ['building_id' => $complaint->building_id],
                         'format' => 'filament',
                         'url' => 'task',
                     ]),
@@ -207,7 +207,7 @@ class ComplaintObserver
                         'iconColor' => 'warning',
                         'title' => 'Complaint Received',
                         'view' => 'notifications::notification',
-                        'viewData' => [],
+                        'viewData' => ['building_id' => $complaint->building_id],
                         'format' => 'filament',
                         'url' => 'task',
                     ]),
@@ -236,7 +236,8 @@ class ComplaintObserver
                     'sound' => 'default',
                     'title' => $complaint->complaint_type == 'preventive_maintenance' ? 'Preventive Maintenance Schedule Assigned' : 'Task Assigned',
                     'body'  => $complaint->complaint_type == 'preventive_maintenance' ? 'Preventive Maintenance Schedule has been assigned' : 'Task has been assigned',
-                    'data'  => ['notificationType' => 'PendingRequests'],
+                    'data'  => ['notificationType' => 'PendingRequests',
+                            'building_id' => $complaint->building_id],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -252,7 +253,7 @@ class ComplaintObserver
                         'iconColor' => 'warning',
                         'title'     => $complaint->complaint_type == 'preventive_maintenance' ? 'Preventive Maintenance Schedule Assigned' : 'Task Assigned',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => ['building_id' => $complaint->building_id,],
                         'format'    => 'filament',
                         'url'       => 'PendingRequests',
                     ]),
@@ -363,7 +364,8 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => 'New '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assigned',
                                 'body' => 'A new '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' assigned to you.',
-                                'data' => ['notificationType' => 'PendingRequests'],
+                                'data' => ['notificationType' => 'PendingRequests',
+                                        'building_id' => $complaint->building_id],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -379,7 +381,7 @@ class ComplaintObserver
                                     'iconColor' => 'warning',
                                     'title' => 'New '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assigned',
                                     'view' => 'notifications::notification',
-                                    'viewData' => [],
+                                    'viewData' => ['building_id' => $complaint->building_id],
                                     'format' => 'filament',
                                     'url' => 'PendingRequests',
                                 ]),
@@ -400,7 +402,8 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assignment Status',
                                 'body' => 'You have been relived from the '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' by the vendor.',
-                                'data' => ['notificationType' => 'PendingRequests'],
+                                'data' => ['notificationType' => 'PendingRequests',
+                                        'building_id' => $complaint->building_id],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -416,7 +419,7 @@ class ComplaintObserver
                                     'iconColor' => 'warning',
                                     'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assignment Status',
                                     'view' => 'notifications::notification',
-                                    'viewData' => [],
+                                    'viewData' => ['building_id' => $complaint->building_id],
                                     'format' => 'filament',
                                     'url' => 'PendingRequests',
                                 ]),
@@ -437,7 +440,8 @@ class ComplaintObserver
                                 'sound' => 'default',
                                 'title' => 'New '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assigned',
                                 'body' => 'A new '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' assigned to you.',
-                                'data' => ['notificationType' => 'PendingRequests'],
+                                'data' => ['notificationType' => 'PendingRequests',
+                                        'building_id' => $complaint->building_id],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -453,7 +457,7 @@ class ComplaintObserver
                                     'iconColor' => 'warning',
                                     'title' => 'New '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' Assigned',
                                     'view' => 'notifications::notification',
-                                    'viewData' => [],
+                                    'viewData' => ['building_id' => $complaint->building_id],
                                     'format' => 'filament',
                                     'url' => 'PendingRequests',
                                 ]),
@@ -486,6 +490,7 @@ class ComplaintObserver
                                         'open_time' => $complaint?->open_time,
                                         'close_time' => $complaint?->close_time,
                                         'due_date' => $complaint?->due_date,
+                                        'building_id' => $complaint->building_id,
                                     ],
                                     'format' => 'filament',
                                     'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -513,7 +518,8 @@ class ComplaintObserver
                                     'sound' => 'default',
                                     'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                                     'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
-                                    'data' => ['notificationType' => 'ResolvedRequests'],
+                                    'data' => ['notificationType' => 'ResolvedRequests',
+                                'building_id' => $complaint->building_id],
                                 ];
                                 $this->expoNotification($message);
                                 DB::table('notifications')->insert([
@@ -529,7 +535,7 @@ class ComplaintObserver
                                         'iconColor' => 'warning',
                                         'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                                         'view' => 'notifications::notification',
-                                        'viewData' => [],
+                                        'viewData' => ['building_id' => $complaint->building_id],
                                         'format' => 'filament',
                                         'url' => 'ResolvedRequests',
                                     ]),
@@ -548,7 +554,8 @@ class ComplaintObserver
                                     'sound' => 'default',
                                     'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                                     'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
-                                    'data' => ['notificationType' => 'ResolvedRequests'],
+                                    'data' => ['notificationType' => 'ResolvedRequests',
+                                'building_id' => $complaint->building_id],
                                 ];
                                 $this->expoNotification($message);
                                 DB::table('notifications')->insert([
@@ -564,7 +571,7 @@ class ComplaintObserver
                                         'iconColor' => 'warning',
                                         'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                                         'view' => 'notifications::notification',
-                                        'viewData' => [],
+                                        'viewData' => ['building_id' => $complaint->building_id],
                                         'format' => 'filament',
                                         'url' => 'ResolvedRequests',
                                     ]),
@@ -592,6 +599,7 @@ class ComplaintObserver
                                         'open_time'        => $complaint?->open_time,
                                         'close_time'       => $complaint?->close_time,
                                         'due_date'         => $complaint?->due_date,
+                                        'building_id'      => $complaint->building_id,
                                     ],
                                 ];
                                 $this->expoNotification($message);
@@ -613,6 +621,7 @@ class ComplaintObserver
                                             'open_time'   => $complaint?->open_time,
                                             'close_time'  => $complaint?->close_time,
                                             'due_date'    => $complaint?->due_date,
+                                            'building_id' => $complaint->building_id,
                                         ],
                                         'format'    => 'filament',
                                         'url'       => 'PreventiveMaintenance',
@@ -640,7 +649,8 @@ class ComplaintObserver
                             'sound' => 'default',
                             'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Date has been updated',
                             'body' => 'Date for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'PendingRequests'],
+                            'data' => ['notificationType' => 'PendingRequests',
+                                    'building_id' => $complaint->building_id],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -656,7 +666,7 @@ class ComplaintObserver
                                 'iconColor' => 'warning',
                                 'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Date has been updated',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $complaint->building_id],
                                 'format' => 'filament',
                                 'url' => 'PendingRequests',
                             ]),
@@ -688,6 +698,7 @@ class ComplaintObserver
                                     'open_time' => $complaint?->open_time,
                                     'close_time' => $complaint?->close_time,
                                     'due_date' => $complaint?->due_date,
+                                    'building_id' => $complaint->building_id,
                                 ],
                                 'format' => 'filament',
                                 'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -711,7 +722,8 @@ class ComplaintObserver
                             'sound' => 'default',
                             'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Priority has been updated',
                             'body' => 'Priority for '.($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
-                            'data' => ['notificationType' => 'PendingRequests'],
+                            'data' => ['notificationType' => 'PendingRequests',
+                                    'building_id' => $complaint->building_id],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -727,7 +739,7 @@ class ComplaintObserver
                                 'iconColor' => 'warning',
                                 'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint').' Priority has been updated',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $complaint->building_id],
                                 'format' => 'filament',
                                 'url' => 'PendingRequests',
                             ]),
@@ -759,6 +771,7 @@ class ComplaintObserver
                                     'open_time' => $complaint?->open_time,
                                     'close_time' => $complaint?->close_time,
                                     'due_date' => $complaint?->due_date,
+                                    'building_id' => $complaint->building_id,
                                 ],
                                 'format' => 'filament',
                                 'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
@@ -791,7 +804,7 @@ class ComplaintObserver
                                 'iconColor' => 'warning',
                                 'title' => 'Complaint status',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $complaint->building_id],
                                 'format' => 'filament',
                                 'url' => 'task',
                             ]),
@@ -827,6 +840,7 @@ class ComplaintObserver
                                 'open_time' => $complaint?->open_time,
                                 'close_time' => $complaint?->close_time,
                                 'due_date' => $complaint?->due_date,
+                                'building_id' => $complaint->building_id,
                             ],
                             'format' => 'filament',
                             'url' => $complaint->complaint_type == 'preventive_maintenance' ? 'PreventiveMaintenance' : 'task',
