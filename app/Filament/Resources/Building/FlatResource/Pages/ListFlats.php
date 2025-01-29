@@ -115,16 +115,17 @@ class ListFlats extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        $othersRole = OwnerAssociation::where('id', auth()->user()->owner_association_id)
-            ->pluck('role')->toArray()['0'];
-
+            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return parent::getTableQuery();
+            }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             return parent::getTableQuery()->whereIn('id', $pmFlats);
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
-        } elseif ($othersRole == 'Property Manager') {
+        } elseif (OwnerAssociation::where('id', auth()->user()->owner_association_id)
+            ->pluck('role')->toArray()['0'] == 'Property Manager') {
             return parent::getTableQuery()->whereIn('id', $pmFlats);
         } else {
             return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
