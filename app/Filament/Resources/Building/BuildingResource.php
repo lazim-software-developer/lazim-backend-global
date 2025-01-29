@@ -61,18 +61,6 @@ class BuildingResource extends Resource
                     'md' => 2,
                     'lg' => 2,
                 ])->schema([
-                    // Select::make('owner_association_id')
-                    //     ->label('Owner Association') // Add or change the label
-                    //     ->native(false)
-                    //     ->required()
-                    //     ->rules([
-                    //         'required'
-                    //     ])
-                    //     ->options(function (callable $get) {
-
-                    //         return OwnerAssociation::where('resource','Default')->pluck('name', 'id');
-                    //     })
-                    //     ->searchable(),
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()

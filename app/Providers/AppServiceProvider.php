@@ -96,17 +96,6 @@ class AppServiceProvider extends ServiceProvider
         );
     }
 
-    // app/Providers/AppServiceProvider.php
-
-
-
-    // public function registers()
-    // {
-    //     $this->app->singleton(HttpService::class, function ($app) {
-    //         return new HttpService();
-    //     });
-    // }
-
 
     /**
      * Bootstrap any application services.

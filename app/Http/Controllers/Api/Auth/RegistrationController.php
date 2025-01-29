@@ -176,16 +176,6 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
         ]);
 
-        // $customer = $connection->table('customers')->where(['email'=> $request->email,
-        //     'contact' => $request->mobile])->first();
-        // $property = Flat::find($request->flat_id)?->property_number;
-        // $connection->table('customer_flat')->insert([
-        //     'customer_id' => $customer?->id,
-        //     'flat_id' => $request->flat_id,
-        //     'building_id' => $request->building_id,
-        //     'property_number' => $property
-        // ]);
-
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
@@ -248,17 +238,6 @@ class RegistrationController extends Controller
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
-
-        // Check if the given flat_id is already allotted to someone with active true
-        // $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
-
-        // if ($flatOwner) {
-        //     return (new CustomResponseResource([
-        //         'title' => 'flat_error',
-        //         'message' => 'Looks like this flat is already allocated to someone!',
-        //         'code' => 400,
-        //     ]))->response()->setStatusCode(400);
-        // }
 
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
@@ -369,18 +348,6 @@ class RegistrationController extends Controller
             'role' => $type,
             'owner_association_id' => $owner_association_id,
         ]);
-
-        // $customer = $connection->table('customers')->where([
-        //     'email' => $request->email,
-        //     'contact' => $request->mobile
-        // ])->first();
-        // $property = Flat::find($request->flat_id)?->property_number;
-        // $connection->table('customer_flat')->insert([
-        //     'customer_id' => $customer?->id,
-        //     'flat_id' => $request->flat_id,
-        //     'building_id' => $request->building_id,
-        //     'property_number' => $property
-        // ]);
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
