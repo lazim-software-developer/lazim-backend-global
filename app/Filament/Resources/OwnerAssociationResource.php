@@ -37,8 +37,7 @@ class OwnerAssociationResource extends Resource
     protected static ?string $modelLabel            = 'Owner Association';
     protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static bool $shouldRegisterNavigation = true;
-    // View for this page
-    // protected static string $view = 'filament.pages.custom-page';
+
 
     protected static bool $isScopedToTenant = false;
 
@@ -94,10 +93,6 @@ class OwnerAssociationResource extends Resource
                                         ->where('slug', $get('slug'))
                                         ->exists();
                                 }),
-                            // TextInput::make('mollak_id')->label('OA Number')
-                            //     ->required()
-                            //     ->disabled()
-                            //     ->placeholder('OA Number'),
                             TextInput::make('trn_number')->label('TRN Number')
                                 ->required()
                                 ->unique(table: 'owner_associations', ignoreRecord: true)
@@ -346,24 +341,10 @@ class OwnerAssociationResource extends Resource
     public static function table(Table $table): Table
     {
 
-        // $apiData = GenericHttpService::get('/owner-associations');
-        // $ownerAssociations = $apiData['success'] && isset($apiData['data']['data'])
-        //     ? $apiData['data']['data']
-        //     : [];
-        // dd($ownerAssociations);
-
-
-
         return $table
             ->poll('60s')
             ->query(OwnerAssociation::query())
             ->columns([
-                // Tables\Columns\TextColumn::make('mollak_id')
-                //     ->label('Mollak ID')
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
-
                 // Tables\Columns\ImageColumn::make('profile_photo')->width(50)->height(50)
                 //     ->searchable()
                 //     ->default('NA')
@@ -397,15 +378,6 @@ class OwnerAssociationResource extends Resource
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
-            // ->rows(function () use ($ownerAssociations) {
-            //     return collect($ownerAssociations)->map(function ($ownerAssociation) {
-            //         return [
-            //             'name' => $ownerAssociation['name'],
-            //             'email' => $ownerAssociation['email'],
-            //             // Aur data fields
-            //         ];
-            //     });
-            // })
             ->filters([
                 //
             ])

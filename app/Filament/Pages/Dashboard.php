@@ -76,10 +76,6 @@ class Dashboard extends BaseDashboard
 
     public function mount()
     {
-        // $token = SessionCryptoService::get("API_TOKEN_KEY");
-        // dd($token);
-        // $resposne = GenericHttpService::get("/owner-associations"); // api loggedin
-        // dd($resposne);
         $this->resetFilters();
     }
 }
