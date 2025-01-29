@@ -32,9 +32,13 @@ class ListGuestRegistrations extends ListRecords
             ->where('type', 'guest')
             ->pluck('id');
 
+        if (auth()->user()->role->name == 'Admin') {
+            return parent::getTableQuery();
+        }
+
         if (auth()->user()->role->name == 'Property Manager'
-        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-             ->pluck('role')[0] == 'Property Manager') {
+            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
             return parent::getTableQuery()->whereIn('flat_visitor_id', $pmFlatVisitors);
         } elseif (auth()->user()->role->name == 'OA') {
             return parent::getTableQuery()->whereIn('flat_visitor_id', $flatVisitorIds);

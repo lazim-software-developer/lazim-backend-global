@@ -24,6 +24,9 @@ class ListPolls extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
+        if(auth()->user()->role->name == 'Admin'){
+            return parent::getTableQuery();
+        }
         if(auth()->user()->role->name == 'Property Manager'
         || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                 ->pluck('role')[0] == 'Property Manager')
