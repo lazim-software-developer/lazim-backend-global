@@ -22,7 +22,7 @@ class FilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Filament::registerPages([
-            CustomPage::class, // Register your custom page here
+            // CustomPage::class, // Register your custom page here
         ]);
     }
 }
