@@ -85,6 +85,12 @@ class ServiceBookingResource extends Resource
                                     ->pluck('flat_id')
                                     ->toArray();
 
+                                if(auth()->user()->role->name == 'Admin'){
+                                    return DB::table('flats')
+                                        ->where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+
                                 if (auth()->user()->role->name == 'Property Manager'
                                 || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                                 ->pluck('role')[0] == 'Property Manager') {

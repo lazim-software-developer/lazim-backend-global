@@ -32,9 +32,13 @@ class ListFacilityBookings extends ListRecords
             ->pluck('flat_id')
             ->toArray();
 
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return parent::getTableQuery()
+                ->where('bookable_type', 'App\Models\WorkPermit');
+        }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
-        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                ->pluck('role')[0] == 'Property Manager') {
+            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
             return parent::getTableQuery()
                 ->where('bookable_type', 'App\Models\WorkPermit')->whereIn('flat_id', $pmFlats);
         }
