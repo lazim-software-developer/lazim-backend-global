@@ -11,24 +11,27 @@ use App\Models\UserApproval;
 use App\Models\Forms\SaleNOC;
 use App\Models\ApartmentOwner;
 use App\Models\CoolingAccount;
+use App\Models\Forms\MoveInOut;
+use App\Mail\OaUserRegistration;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
-use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Flat extends Model
 {
     use HasFactory;
     use Searchable;
+    use SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -87,14 +90,16 @@ class Flat extends Model
         return $this->belongsTo(OaUserRegistration::class);
     }
 
-    public function owners() {
+    public function owners()
+    {
         return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id')->where('active', 1);
     }
     public function documents()
     {
         return $this->hasMany(Document::class);
     }
-    public function mollakTenants() {
+    public function mollakTenants()
+    {
         return $this->hasMany(MollakTenant::class);
     }
     public function moveinOut()
