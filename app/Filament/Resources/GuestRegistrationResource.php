@@ -244,6 +244,9 @@ class GuestRegistrationResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } 
                                 if (auth()->user()->role->name == 'Property Manager'
                                 || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                                 ->pluck('role')[0] == 'Property Manager') {
