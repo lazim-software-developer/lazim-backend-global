@@ -176,16 +176,6 @@ class RegistrationController extends Controller
             'owner_association_id' => $building->owner_association_id,
         ]);
 
-        // $customer = $connection->table('customers')->where(['email'=> $request->email,
-        //     'contact' => $request->mobile])->first();
-        // $property = Flat::find($request->flat_id)?->property_number;
-        // $connection->table('customer_flat')->insert([
-        //     'customer_id' => $customer?->id,
-        //     'flat_id' => $request->flat_id,
-        //     'building_id' => $request->building_id,
-        //     'property_number' => $property
-        // ]);
-
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
@@ -204,10 +194,11 @@ class RegistrationController extends Controller
     {
         $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner') {
+            $ownerId=$request->get('owner_id');
             $userData->where('owner_id', $request->get('owner_id'));
+        }else{
+            $ownerId=NULL;
         }
-
-
         if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
@@ -248,17 +239,6 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        // Check if the given flat_id is already allotted to someone with active true
-        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
-
-        if ($flatOwner) {
-            return (new CustomResponseResource([
-                'title' => 'flat_error',
-                'message' => 'Looks like this flat is already allocated to someone!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
-        }
-
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
 
@@ -276,6 +256,7 @@ class RegistrationController extends Controller
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
             'active' => 0,
+            'owner_id' => $ownerId,
             'owner_association_id' => $owner_association_id,
         ]);
 
@@ -309,10 +290,26 @@ class RegistrationController extends Controller
             'primary' => $primary ? 0 : 1,
         ]);
 
+        if ($request->hasFile('emirates_document')) {
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+        }else{
+            $imagePath=null;
+        }
+        if ($request->hasFile('emirates_document')) {
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+        }else{
+            $emirates=null;
+        }
+        if ($request->hasFile('passport_document')) {
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        }else{
+            $passport=null; 
+        }
+        if ($request->hasFile('trade_license')) {
         $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
+        }else{
+            $tradeLicense=null;
+        }
 
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
         $oam = OwnerAssociation::find($oam_id->owner_association_id ?: auth()->user()->ownerAssociation->id);
@@ -351,18 +348,6 @@ class RegistrationController extends Controller
             'role' => $type,
             'owner_association_id' => $owner_association_id,
         ]);
-
-        // $customer = $connection->table('customers')->where([
-        //     'email' => $request->email,
-        //     'contact' => $request->mobile
-        // ])->first();
-        // $property = Flat::find($request->flat_id)?->property_number;
-        // $connection->table('customer_flat')->insert([
-        //     'customer_id' => $customer?->id,
-        //     'flat_id' => $request->flat_id,
-        //     'building_id' => $request->building_id,
-        //     'property_number' => $property
-        // ]);
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
@@ -498,6 +483,13 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
+        // If OTP matches, you can set the user's email as verified in the users table or any other logic you want to implement
+        
+        if($request->type == 'email') {
+            User::where('email', $request->contact_value)->update(['email_verified' => true]);
+        } else {
+            User::where('phone', $request->contact_value)->update(['phone_verified' => true]);
+        }
         // Delete the OTP entry after successful verification
         DB::table('otp_verifications')->where('id', $otpEntry->id)->delete();
 
