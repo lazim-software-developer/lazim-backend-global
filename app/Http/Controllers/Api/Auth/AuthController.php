@@ -14,6 +14,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\FlatTenant;
 use App\Models\ExpoPushNotification;
+use App\Models\OwnerAssociation;
 use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -85,7 +86,7 @@ class AuthController extends Controller
                         ]);
 
                         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
-                        return response(['token' => $token,'refresh_token' => $refreshToken,'user' => $user], 200);
+                        return response(['token' => $token, 'refresh_token' => $refreshToken, 'user' => $user], 200);
                     }
                 } else {
                     return response()->json([
@@ -161,6 +162,8 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
         ]);
 
+        $user->selectType = OwnerAssociation::find($user->owner_association_id)->resource == "Default"  ? 'globalOa' : 'OA';
+
         return response()->json([
             'token' => $token,
             'refresh_token' => $refreshToken,
@@ -168,7 +171,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // Refresh token 
+    // Refresh token
     public function refreshToken(Request $request)
     {
         $validatedData = $request->validate([
@@ -240,7 +243,7 @@ class AuthController extends Controller
         }
     }
 
-    // Gatekeeper login 
+    // Gatekeeper login
     public function gateKeeperLogin(GateKeeperLoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();

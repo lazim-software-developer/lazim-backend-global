@@ -7,9 +7,13 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\City;
+use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
@@ -47,7 +51,7 @@ class BuildingResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $modelLabel      = 'Buildings';
+    protected static ?string $modelLabel = 'Buildings';
     public static function form(Form $form): Form
     {
         return $form
@@ -55,98 +59,172 @@ class BuildingResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 2,
-                    'lg' => 2   ,
+                    'lg' => 2,
                 ])->schema([
-                            TextInput::make('name')
-                                ->rules(['max:50', 'string'])
+                    TextInput::make('name')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        // ->disabled()
+                        ->placeholder('Name'),
+                        TextInput::make('slug')
+                                ->label('Slug')
                                 ->required()
-                                ->disabled()
-                                ->placeholder('Name'),
-
-                            TextInput::make('property_group_id')
-                                ->rules(['max:50', 'string'])
-                                ->required()
-                                ->disabled()
-                                ->placeholder('Property Group ID')
-                                ->label('Property Group ID')
-                                ->unique(
-                                    'buildings',
-                                    'property_group_id',
-                                    fn(?Model $record) => $record,
-                                ),
-
-                            TextInput::make('address_line1')
-                                ->rules(['max:500', 'string'])
-                                ->required()
-                                ->label('Address Line 1')
-                                ->placeholder('Address line 1'),
-
-                            TextInput::make('address_line2')
-                                ->rules(['max:500', 'string'])
-                                ->nullable()
-                                ->label('Address line 2')
-                                ->placeholder('Address Line 2'),
-                            Hidden::make('owner_association_id')
-                                ->default(auth()->user()?->owner_association_id),
-
-                            TextInput::make('area')
-                                ->rules(['max:100', 'string'])
-                                ->required()
-                                ->placeholder('Area'),
-
-                            // Select::make('city_id')
-                            //     ->rules(['exists:cities,id'])
-                            //     ->preload()
-                            //     ->relationship('cities', 'name')
-                            //     ->searchable()
-                            //     ->placeholder('NA'),
-                            
-                            TextInput::make('floors')
-                                ->numeric()
-                                ->minValue(1)
-                                ->maxValue(999)
-                                ->disabled(function ($record) {
-                                    if($record?->floors == null){
+                                ->placeholder('Slug')
+                                ->rules([
+                                    'required',
+                                    'string',
+                                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                                    'min:4',
+                                    'max:30'
+                                ])
+                                ->validationMessages([
+                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
+                                ])
+                                ->unique('buildings', 'slug', ignoreRecord: true)
+                                ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
                                         return false;
                                     }
-                                    return true;
-                                })
-                                ->placeholder('Floors')
-                                ->label('Floor'),
+                                
+                                    // For edit operation, apply your existing logic
+                                    return Role::where('id', auth()->user()->role_id)
+                                        ->first()->name != 'Admin' && 
+                                        DB::table('buildings')
+                                        ->where('slug', $get('slug'))
+                                        ->exists();
+                                }),
+                    TextInput::make('property_group_id')
+                        ->rules(['max:50', 'string'])
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        // ->disabled()
+                        ->placeholder('Property Group ID')
+                        ->label('Property Group ID')
+                        ->rules([
+                            'required'
+                        ])
+                        ->unique(
+                            'buildings',
+                            'property_group_id',
+                            fn(?Model $record) => $record,
+                        ),
 
-                            Toggle::make('allow_postupload')
-                                ->rules(['boolean'])
-                                ->label('Allow post-upload'),
-                            Toggle::make('show_inhouse_services')
-                                ->rules(['boolean'])
-                                ->label('Show personal services'),
-                            MarkdownEditor::make('description')
-                                ->toolbarButtons([
-                                    'bold',
-                                    'bulletList',
-                                    'italic',
-                                    'link',
-                                    'orderedList',
-                                    'redo',
-                                    'undo',
-                                ])
-                                ->label('About')
-                                ->columnSpanFull(),
-                            FileUpload::make('cover_photo')
-                                ->disk('s3')
-                                ->rules(['file','mimes:jpeg,jpg,png',function () {
-                                    return function (string $attribute, $value, Closure $fail) {
-                                        if($value->getSize()/ 1024 > 2048){
-                                            $fail('The cover Photo field must not be greater than 2MB.');
-                                        }
-                                    };
-                                },])
-                                ->directory('dev')
-                                ->image()
-                                ->maxSize(2048)
-                                ->label('Cover Photo'),
+                    TextInput::make('address_line1')
+                        ->rules(['required','max:500', 'string'])
+                        ->required()
+                        ->label('Address Line 1')
+                        ->placeholder('Address line 1'),
 
-                        ]),
+                    TextInput::make('address_line2')
+                        ->rules(['required','max:500', 'string'])
+                        ->nullable()
+                        ->label('Address line 2')
+                        ->placeholder('Address Line 2'),
+
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()?->owner_association_id),
+
+                    TextInput::make('area')
+                        ->rules(['max:100', 'string'])
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        ->placeholder('Area'),
+                    TextInput::make('floors')
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(999)
+                        ->disabled(function ($record) {
+                            if ($record?->floors == null) {
+                                return false;
+                            }
+                            return true;
+                        })
+
+                        ->placeholder('Floors')
+                        ->label('Floor'),
+
+                    Select::make('city_id')
+                        ->label('City') // Add or change the label
+                        ->native(false)
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        ->options(function (callable $get) {
+
+                            return City::pluck('name', 'id');
+                        })
+                        ->searchable(),
+
+                    Toggle::make('allow_postupload')
+                        ->columnStart([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 1,
+                        ])
+                        ->rules(['boolean'])
+                        ->label('Allow post-upload'),
+
+                    Toggle::make('show_inhouse_services')
+                        ->columnStart([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 1,
+                        ])
+                        ->rules(['boolean'])
+                        ->label('Show personal services'),
+
+                    Toggle::make('status')
+                        ->rules(['boolean'])
+                        ->default(true) // Sets the default value to true (active)
+                        ->label('Status'),
+
+                    MarkdownEditor::make('description')
+                        ->toolbarButtons([
+                            'bold',
+                            'bulletList',
+                            'italic',
+                            'link',
+                            'orderedList',
+                            'redo',
+                            'undo',
+                        ])
+                        ->label('About')
+                        ->columnSpanFull(),
+                    FileUpload::make('cover_photo')
+                        ->disk('s3')
+                        ->rules([
+                            'file',
+                            'mimes:jpeg,jpg,png',
+                            function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value->getSize() / 1024 > 2048) {
+                                        $fail('The cover Photo field must not be greater than 2MB.');
+                                    }
+                                };
+                            },
+                        ])
+                        ->directory('dev')
+                        ->image()
+                        ->maxSize(2048)
+                        ->label('Cover Photo'),
+
+                ]),
             ]);
     }
 
@@ -212,58 +290,72 @@ class BuildingResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Action::make('feature')
-                    ->label('Upload Budget') // Set a label for your action
-                    ->modalHeading('Upload Budget for Period') // Modal heading
-                    ->form([
-                        Forms\Components\Select::make('budget_period')
-                            ->label('Select Budget Period')
-                            ->options([
-                                'Jan 2024 - Dec 2024' => '2024',
-                                'Jan 2023 - Dec 2023' => '2023',
-                                'Jan 2022 - Dec 2022' => '2022',
-                                'Jan 2021 - Dec 2021' => '2021',
-                                'Jan 2020 - Dec 2020' => '2020',
-                                'Jan 2019 - Dec 2019' => '2019',
-                                'Jan 2018 - Dec 2018' => '2018',
-                            ])
-                            ->required(),
-                        Forms\Components\FileUpload::make('excel_file')
-                            ->label('Upload File')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
-                            ])
-                            ->required()
-                            ->disk('local') // or your preferred disk
-                            ->directory('budget_imports'), // or your preferred directory
-                    ])
-                    ->action(function ($record, array $data, $livewire) {
-                        // try {
-                        $budgetPeriod = $data['budget_period'];
-                        $filePath = $data['excel_file'];
-                        $fullPath = storage_path('app/' . $filePath);
+                // Action::make('feature')
+                //     ->label('Upload Budget') // Set a label for your action
+                //     ->modalHeading('Upload Budget for Period') // Modal heading
+                //     ->form([
+                //         Forms\Components\Select::make('budget_period')
+                //             ->label('Select Budget Period')
+                //             ->options([
+                //                 'Jan 2024 - Dec 2024' => '2024',
+                //                 'Jan 2023 - Dec 2023' => '2023',
+                //                 'Jan 2022 - Dec 2022' => '2022',
+                //                 'Jan 2021 - Dec 2021' => '2021',
+                //                 'Jan 2020 - Dec 2020' => '2020',
+                //                 'Jan 2019 - Dec 2019' => '2019',
+                //                 'Jan 2018 - Dec 2018' => '2018',
+                //             ])
+                //             ->required(),
+                //         Forms\Components\FileUpload::make('excel_file')
+                //             ->label('Upload File')
+                //             ->acceptedFileTypes([
+                //                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                //                 'application/vnd.ms-excel', // for .xls
+                //             ])
+                //             ->required()
+                //             ->disk('local') // or your preferred disk
+                //             ->directory('budget_imports'), // or your preferred directory
+                //     ])
+                //     ->action(function ($record, array $data, $livewire) {
+                //         // try {
+                //         $budgetPeriod = $data['budget_period'];
+                //         $filePath = $data['excel_file'];
+                //         $fullPath = storage_path('app/' . $filePath);
 
-                        if (!file_exists($fullPath)) {
-                            Log::error("File not found at path: ", [$fullPath]);
-                        }
+                //         if (!file_exists($fullPath)) {
+                //             Log::error("File not found at path: ", [$fullPath]);
+                //         }
 
-                        // Now import using the file path
-                        Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
+                //         // Now import using the file path
+                //         Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
 
-                        // } catch (\Exception $e) {
-                        //     // Log::error('Error during file import: ' . $e->getMessage());
-                        //     Notification::make()
-                        //     ->title($e->getMessage())
-                        //     ->danger()
-                        //     ->send();
-                        // }
-                    }),
+                //         // } catch (\Exception $e) {
+                //         //     // Log::error('Error during file import: ' . $e->getMessage());
+                //         //     Notification::make()
+                //         //     ->title($e->getMessage())
+                //         //     ->danger()
+                //         //     ->send();
+                //         // }
+                //     }),
+                    Action::make('delete')
+                    ->button()
+                    ->action(function ($record,) {
+                        $record->delete();
+
+                        Notification::make()
+                            ->title('Building Deleted Successfully')
+                            ->success()
+                            ->send()
+                            ->duration('4000');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to delete this ?')
+                    ->modalButton('Delete'),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
@@ -277,7 +369,7 @@ class BuildingResource extends Resource
         return [
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
-                // BuildingResource\RelationManagers\BudgetRelationManager::class,
+            // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
             RuleregulationsRelationManager::class,

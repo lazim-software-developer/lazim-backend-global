@@ -31,7 +31,7 @@ class Login extends AuthLogin
         $subdomain = $this->getSubdomain($host);
 
         if (!$subdomain) {
-            Filament::auth()->logout(); 
+            Filament::auth()->logout();
             throw ValidationException::withMessages([
                 'data.email' => __('Subdomain is required.'),
             ]);

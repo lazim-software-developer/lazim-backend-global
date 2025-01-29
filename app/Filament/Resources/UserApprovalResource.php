@@ -90,7 +90,12 @@ class UserApprovalResource extends Resource
                     ->directory('dev')
                     ->openable(true)
                     ->downloadable(true)
-                    ->required()
+                    ->required(function(UserApproval $record){
+                        if ($record->ownerAssociation?->resource == 'Default'){
+                            return false;
+                        }
+                        return true;
+                    })
                     ->disabled(),
             ])
             ->columns(3),

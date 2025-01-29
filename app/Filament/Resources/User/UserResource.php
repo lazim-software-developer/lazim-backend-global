@@ -52,7 +52,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'email',
-                            fn (?Model $record) => $record
+                            fn(?Model $record) => $record
                         )
                         ->email()
                         ->placeholder('Email'),
@@ -65,7 +65,7 @@ class UserResource extends Resource
                         ->unique(
                             'users',
                             'phone',
-                            fn (?Model $record) => $record
+                            fn(?Model $record) => $record
                         )
                         ->placeholder('Phone'),
 
@@ -79,20 +79,20 @@ class UserResource extends Resource
                     //     )
                     //     ->placeholder('Lazim Id'),
                     Select::make('roles')
-                    ->relationship('roles', 'name')
-                    // ->multiple()
-                    ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Role::where('name', 'Admin')->pluck('name', 'id');
-                        } else {
-                            $oaId = auth()->user()?->owner_association_id;
-                            return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
-                                ->where('owner_association_id', $oaId)
-                                ->pluck('name', 'id');
-                        }
-                            })
-                    ->preload()->required()
-                    ->searchable(),
+                        ->relationship('roles', 'name')
+                        // ->multiple()
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Role::where('name', 'Admin')->pluck('name', 'id');
+                            } else {
+                                $oaId = auth()->user()?->owner_association_id;
+                                return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
+                                    ->where('owner_association_id', $oaId)
+                                    ->pluck('name', 'id');
+                            }
+                        })
+                        ->preload()->required()
+                        ->searchable(),
                     // Select::make('role_id')
                     // ->label('Role')
                     //     ->rules(['exists:roles,id'])
@@ -119,13 +119,13 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             $roles = Role::where('name', 'Admin')->pluck('id');
-        }else{
+        } else {
             $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
         }
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles)->where('id', '!=', auth()->user()->id))
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', $roles)->where('id', '!=', auth()->user()->id))
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
@@ -150,16 +150,16 @@ class UserResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('role_id')
-                ->options(function(){
-                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        return Role::all()->pluck('name', 'id');
-                    } else {
-                        return Role::where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->pluck('name', 'id');
-                    }
-                })
-                ->label('Role')
-                ->searchable(),
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Role::all()->pluck('name', 'id');
+                        } else {
+                            return Role::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
+                    ->label('Role')
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

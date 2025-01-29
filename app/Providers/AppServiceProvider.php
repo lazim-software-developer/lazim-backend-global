@@ -2,28 +2,39 @@
 
 namespace App\Providers;
 
+use HttpService;
+use App\Models\Item;
+use App\Models\Order;
 use App\Models\User\User;
-use App\Observers\VendorObserver;
 use Illuminate\View\View;
+use Filament\Tables\Table;
+use App\Models\AppFeedback;
 use App\Models\Forms\Guest;
+use App\Models\UserApproval;
 use App\Models\Forms\SaleNOC;
+use App\Models\Vendor\Vendor;
 use App\Models\Accounting\WDA;
 use App\Models\Community\Post;
 use App\Observers\WDAObserver;
 use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Vendor\Contract;
+use App\Observers\ItemObserver;
 use App\Observers\UserObserver;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianAssets;
 use App\Observers\GuestObserver;
+use App\Observers\OrderObserver;
+use App\Observers\SnagsObserver;
+use Filament\Resources\Resource;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Community\Comment;
 use App\Observers\TenderObserver;
+use App\Observers\VendorObserver;
 use App\Models\Accounting\Invoice;
 use App\Models\Building\Complaint;
 use App\Models\Community\PostLike;
@@ -31,7 +42,6 @@ use App\Observers\CommentObserver;
 use App\Observers\InvoiceObserver;
 use App\Observers\SaleNOCObserver;
 use App\Models\Accounting\Proposal;
-use App\Models\AppFeedback;
 use App\Observers\BuildingObserver;
 use App\Observers\ContractObserver;
 use App\Observers\DocumentObserver;
@@ -39,34 +49,28 @@ use App\Observers\PostLikeObserver;
 use App\Observers\ProposalObserver;
 use App\Observers\ComplaintObserver;
 use App\Observers\MoveInOutObserver;
+use App\Models\Gatekeeper\Patrolling;
 use App\Observers\AccessCardObserver;
 use App\Observers\FitOutFormObserver;
+use App\Observers\PatrollingObserver;
+use App\Models\Community\PollResponse;
+use App\Observers\AppFeedbackObserver;
 use Illuminate\Support\Facades\Schema;
 use App\Observers\AnnouncementObserver;
+use App\Observers\PollResponseObserver;
+use App\Observers\UserApprovalObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Building\FacilityBooking;
-use App\Models\Community\PollResponse;
-use App\Models\Gatekeeper\Patrolling;
-use App\Models\Item;
-use App\Models\Order;
-use App\Models\UserApproval;
-use App\Models\Vendor\Vendor;
-use App\Observers\AppFeedbackObserver;
+use Filament\Tables\Enums\FiltersLayout;
 use App\Observers\ResidentialFormObserver;
+use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
 use App\Observers\TechnicianAssetsObserver;
 use App\Observers\FacilityServiceBookingObserver;
-use App\Observers\ItemObserver;
-use App\Observers\OrderObserver;
-use App\Observers\PatrollingObserver;
-use App\Observers\PollResponseObserver;
-use App\Observers\SnagsObserver;
-use App\Observers\UserApprovalObserver;
-use Filament\Resources\Resource;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Table;
+use App\Services\GenericHttpService;
+use App\Services\SessionLocalService;
+use App\Services\SessionService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -75,11 +79,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register the SessionService as a singleton
+        $this->app->singleton(SessionLocalService::class, function ($app) {
+            return new SessionLocalService();
+        });
+
+        // Register the GenericHttpService as a singleton
+        $this->app->singleton(GenericHttpService::class, function ($app) {
+            return new GenericHttpService();
+        });
+
+
         FilamentView::registerRenderHook(
             'panels::footer',
-            fn (): View => view('filament.hooks.footer'),
+            fn(): View => view('filament.hooks.footer'),
         );
     }
+
 
     /**
      * Bootstrap any application services.

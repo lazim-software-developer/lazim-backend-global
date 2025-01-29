@@ -1,25 +1,27 @@
 <?php
 
-use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
-use App\Http\Controllers\OwnerAssociationReceipts;
-use App\Http\Controllers\TrialBalanceController;
-use App\Http\Controllers\Vendor\DelinquentController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Master\PDFController;
+use Livewire\Livewire;
+use Filament\Pages\Page;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
+use App\Filament\Pages\CustomPage;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
-use App\Filament\Pages\OAM\CreateTender;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\GeneralFundController;
-use App\Http\Controllers\OwnerAssociationInvoice;
-use App\Http\Controllers\ReserveFundController;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\Vendor\MasterController;
-use App\Models\Master\Role;
-use Filament\Pages\Page;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\Master\PDFController;
+use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\ReserveFundController;
+use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\OwnerAssociationInvoice;
+use App\Http\Controllers\Vendor\MasterController;
+use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Http\Controllers\Vendor\DelinquentController;
+use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,9 +34,13 @@ use Illuminate\Support\Facades\Session;
 |
 */
 
+Livewire::setUpdateRoute(function ($handle) {
+    return Route::post('GIT/lazim-backend/public/livewire/update', $handle);
+});
 Route::get('/', function () {
     return redirect('/admin');
 });
+// Route::get('/admin/custom-page', CustomPage::class)->name('filament.pages.custom-page');
 
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/dashboard', function () {
@@ -67,22 +73,22 @@ Route::get('/budget/{budget}/available-services/{subcategory}', [MasterControlle
 
 Route::post('/get-delinquent-owners', [DelinquentController::class, 'getDelinquentOwners']);
 
-Route::post('/get-general-fund',[GeneralFundController::class,'getGeneralFund']);
+Route::post('/get-general-fund', [GeneralFundController::class, 'getGeneralFund']);
 
-Route::post('/get-reserve-fund',[ReserveFundController::class,'getReserveFund']);
+Route::post('/get-reserve-fund', [ReserveFundController::class, 'getReserveFund']);
 
-Route::post('/get-general-fund-mollak',[GeneralFundController::class,'getGeneralFundMollak']);
+Route::post('/get-general-fund-mollak', [GeneralFundController::class, 'getGeneralFundMollak']);
 
-Route::post('/get-reserve-fund-mollak',[ReserveFundController::class,'getReserveFundMollak']);
+Route::post('/get-reserve-fund-mollak', [ReserveFundController::class, 'getReserveFundMollak']);
 
-Route::post('/get-trial-balance',[TrialBalanceController::class,'getTrialBalance']);
+Route::post('/get-trial-balance', [TrialBalanceController::class, 'getTrialBalance']);
 
-Route::get('/invoice',[OwnerAssociationInvoice::class,'invoice'])->name('invoice');
+Route::get('/invoice', [OwnerAssociationInvoice::class, 'invoice'])->name('invoice');
 
-Route::get('/receipt',[OwnerAssociationReceipts::class,'receipt'])->name('receipt');
+Route::get('/receipt', [OwnerAssociationReceipts::class, 'receipt'])->name('receipt');
 
 // Route::get('/test',[PDFController::class,'qrCode']);
-Route::get('/qr_code',function(){
+Route::get('/qr_code', function () {
     $data = Session::get('data');
     // Now you can use $data in your view or wherever you need it
     return view('pdf.qr-code', ['data' => $data]);
@@ -90,7 +96,7 @@ Route::get('/qr_code',function(){
 
 Route::post('/download', [TestController::class, 'download'])->name('download');
 
-Route::post('/upload',[TestController::class, 'uploadAll'])->name('uploadAll');
+Route::post('/upload', [TestController::class, 'uploadAll'])->name('uploadAll');
 // Route::get('/admin/ledgers/{invoice}/receipts', function () {
 //     return redirect()->to('/admin/ledgers/{invoice}/receipts');
 // })->name('admin.ledgers.receipts');
