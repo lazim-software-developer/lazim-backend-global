@@ -176,7 +176,6 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
-        App\Providers\FilamentServiceProvider::class,
         // ExpoPushNotificationsServiceProvider::class,
     ])->toArray(),
 
