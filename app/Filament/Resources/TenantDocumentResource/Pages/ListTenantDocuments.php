@@ -24,6 +24,10 @@ class ListTenantDocuments extends ListRecords
             ->pluck('flat_id')
             ->toArray();
 
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return parent::getTableQuery();
+        }
+
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
         || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                 ->pluck('role')[0] == 'Property Manager') {
