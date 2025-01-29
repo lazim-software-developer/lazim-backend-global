@@ -1,24 +1,21 @@
 <?php
-
 namespace App\Filament\Resources\UserApprovalResource\Pages;
 
-use Filament\Actions;
-use App\Models\User\User;
-use App\Models\Master\Role;
-use Illuminate\Support\Str;
-use App\Models\UserApproval;
+use App\Filament\Resources\UserApprovalResource;
 use App\Jobs\Residentapproval;
-use Filament\Facades\Filament;
 use App\Jobs\ResidentRejection;
-use App\Jobs\AccountsManagerJob;
-use App\Models\OwnerAssociation;
-use App\Models\UserApprovalAudit;
 use App\Models\AccountCredentials;
 use App\Models\Building\FlatTenant;
-use Illuminate\Support\Facades\Hash;
+use App\Models\RentalCheque;
+use App\Models\RentalDetail;
+use App\Models\UserApproval;
+use App\Models\UserApprovalAudit;
+use App\Models\User\User;
+use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\UserApprovalResource;
+use Illuminate\Support\Facades\DB;
 
 class EditUserApproval extends EditRecord
 {
@@ -34,42 +31,117 @@ class EditUserApproval extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $user = User::find($data['user_id']);
-        $data['user'] = $user->first_name;
+        $user          = User::find($data['user_id']);
+        $data['user']  = $user->first_name;
         $data['email'] = $user->email;
         $data['phone'] = $user->phone;
 
         return $data;
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if ($data['status'] === 'approved' &&
+            DB::table('flat_tenants')
+            ->where('tenant_id', $this->record->user_id)
+            ->where('role', 'Tenant')
+            ->exists()
+        ) {
+            // Check if rental details already exist
+            $existingRental = RentalDetail::where('flat_tenant_id', $this->record->id)->exists();
+
+
+
+            if (! $existingRental) {
+                // Create rental details
+                $rentalDetail = RentalDetail::create([
+                    'flat_id'                     => $this->record->flat_id,
+                    'flat_tenant_id'              => $this->record->id,
+                    'number_of_cheques'           => $data['number_of_cheques'],
+                    'admin_fee'                   => $data['admin_fee'] ?? null,
+                    'advance_amount'              => $data['advance_amount'],
+                    'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
+                    'status'                      => 'Active',
+                    'contract_start_date'         => $data['contract_start_date'],
+                    'contract_end_date'           => $data['contract_end_date'],
+                    'created_by'                  => auth()->user()->id,
+                    'status_updated_by'           => auth()->user()->id,
+                    'property_manager_id'         => auth()->user()->id,
+                ]);
+
+                // Create rental cheques
+                if (isset($data['cheques']) && is_array($data['cheques'])) {
+                    foreach ($data['cheques'] as $cheque) {
+                        RentalCheque::create([
+                            'rental_detail_id'  => $rentalDetail->id,
+                            'cheque_number'     => $cheque['cheque_number'],
+                            'amount'            => $cheque['amount'],
+                            'due_date'          => $cheque['due_date'],
+                            'status'            => 'Upcoming',
+                            'status_updated_by' => auth()->user()->id,
+                            'mode_payment'      => $cheque['mode_payment'] ?? 'Cheque',
+                        ]);
+                    }
+                }
+
+                Notification::make()
+                    ->title('Success')
+                    ->body('Rental details have been created successfully.')
+                    ->success()
+                    ->send();
+            }
+        }
+
+        // Validate cheque amounts
+        if (isset($data['cheques']) && isset($data['admin_fee'])) {
+            $chequesSum = collect($data['cheques'])->sum('amount');
+            if ($chequesSum != $data['admin_fee']) {
+                Notification::make()
+                    ->title('Incorrect Cheque Amounts')
+                    ->body('The sum of cheque amounts must equal the contract amount')
+                    ->danger()
+                    ->send();
+                $this->halt();
+            }
+        }
+        return $data;
+    }
+
     protected function beforeSave(): void
     {
         UserApproval::find($this->data['id'])->update([
-            'updated_by'  => auth()->user()->id,
+            'updated_by' => auth()->user()->id,
         ]);
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
 
         // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
         //     $emailCredentials = OwnerAssociation::find($this->record->owner_association_id)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         // }else{
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         // }
-        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $credentials     = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
-            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_host'         => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port'         => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username'     => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password'     => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption'   => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
             'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
         ];
 
-        $user = User::find($this->record->user_id);
+        $user  = User::find($this->record->user_id);
         $pm_oa = auth()->user()?->first_name ?? '';
-        if ($this->data['status'] == 'approved' && $this->record->status == null) {
+        if ($this->data['status'] == 'approved' &&
+            $this->record->status == null &&
+            DB::table('flat_tenants')
+            ->where('tenant_id', $this->record->user_id)
+            ->where('role', 'Tenant')
+            ->exists()
+        ) {
             $user->active = true;
             $user->save();
-            FlatTenant::where(['tenant_id'=>$user->id,'flat_id'=>$this->record->flat_id,'active'=>false])->latest()->first()?->update(['active'=>true]);
-            Residentapproval::dispatch($user, $mailCredentials,$pm_oa);
+            FlatTenant::where(['tenant_id' => $user->id, 'flat_id' => $this->record->flat_id, 'active' => false])->latest()->first()?->update(['active' => true]);
+            Residentapproval::dispatch($user, $mailCredentials, $pm_oa);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()
@@ -77,17 +149,17 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {
-            ResidentRejection::dispatch($user, $mailCredentials,$this->record,$pm_oa);
+            ResidentRejection::dispatch($user, $mailCredentials, $this->record, $pm_oa);
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()
                 ->body("Resident has been rejected")
                 ->send();
         }
-        if($this->record->status == null){
+        if ($this->record->status == null) {
             UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first()?->update([
-                'status' => $this->data['status'],
-                'remarks' => $this->data['remarks'],
+                'status'     => $this->data['status'],
+                'remarks'    => $this->data['remarks'],
                 'updated_by' => auth()->user()->id,
             ]);
         }
@@ -99,6 +171,6 @@ class EditUserApproval extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-    return null;
+        return null;
     }
 }

@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\Pages;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\AppartmentsafetyRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
@@ -20,6 +18,7 @@ use App\Models\Building\Building;
 use App\Models\Building\BuildingPoc;
 use App\Models\Building\Flat;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use Carbon\Carbon;
@@ -83,11 +82,11 @@ class BuildingResource extends Resource
 
                     Select::make('building_type')
                         ->options([
-                            'commercial'  => 'Commercial',
-                            'residential' => 'Residential',
+                            'commercial'             => 'Commercial',
+                            'residential'            => 'Residential',
                             'residential/commercial' => 'Residential+Commercial',
                         ])
-                        ->hidden(fn() => !in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
+                        ->hidden(fn() => ! in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
                     TextInput::make('property_group_id')
                         ->rules(['max:50'])
@@ -146,9 +145,9 @@ class BuildingResource extends Resource
                     TextInput::make('floors')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->placeholder('Floors')
-                        ->disabled(function($record){
-                            if($record){
-                                return $record->floors!=null;
+                        ->disabled(function ($record) {
+                            if ($record) {
+                                return $record->floors != null;
                             }return false;
                         })
                         ->label('Floor'),
@@ -156,8 +155,8 @@ class BuildingResource extends Resource
                     TextInput::make('parking_count')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
                         ->live(onBlur: true) // Only trigger on blur (when user leaves the field)
-                        ->afterStateUpdated(function($state, $record, Set $set) {
-                            if (!$state || !$record) {
+                        ->afterStateUpdated(function ($state, $record, Set $set) {
+                            if (! $state || ! $record) {
                                 return;
                             }
 
@@ -165,9 +164,9 @@ class BuildingResource extends Resource
                                 ->pluck('parking_count')
                                 ->toArray();
 
-                            $totalFlatParking = array_sum(array_filter($flatsParking, fn($value) => !is_null($value)));
+                            $totalFlatParking = array_sum(array_filter($flatsParking, fn($value) => ! is_null($value)));
 
-                            if ((int)$state < $totalFlatParking) {
+                            if ((int) $state < $totalFlatParking) {
                                 Notification::make()
                                     ->title('Invalid parking count')
                                     ->body("Total parking count cannot be less than sum of flat parking counts
@@ -295,7 +294,7 @@ class BuildingResource extends Resource
                                     'rotateControl'     => true,
                                     'fullscreenControl' => true,
                                     'searchBoxControl'  => false, // creates geocomplete field inside map
-                                    'zoomControl' => false,
+                                    'zoomControl'       => false,
                                     'mapTypeId'         => 'roadmap', // Use this instead of defaultMapType
                                 ])
                                 ->reactive()
@@ -361,10 +360,10 @@ class BuildingResource extends Resource
                     ->default('--')
                     ->formatStateUsing(function ($state) {
                         return match ($state) {
-                            'commercial'  => 'Commercial',
-                            'residential' => 'Residential',
+                            'commercial'             => 'Commercial',
+                            'residential'            => 'Residential',
                             'residential/commercial' => 'Residential+Commercial',
-                            default       => '--',
+                            default                  => '--',
                         };
                     }),
                 Tables\Columns\TextColumn::make('property_group_id')
@@ -422,7 +421,7 @@ class BuildingResource extends Resource
 
                         return $active
                         ? 'Are you sure you want to detach from this building?
-                            This will remove your management authority and deactivate related flat tenants.'
+                            This will remove your management authority and deactivate related flats and flat tenants.'
                         : 'Are you sure you want to attach to this building?
                              This will grant you management authority.';
                     })
@@ -432,7 +431,7 @@ class BuildingResource extends Resource
                             ->where('active', 1)
                             ->exists();
 
-                        if (!$active) {
+                        if (! $active) {
                             return [
                                 DatePicker::make('from')
                                     ->label('Contract Start Date')
@@ -462,13 +461,31 @@ class BuildingResource extends Resource
                             ->where('active', 1)
                             ->exists();
 
-                        if (!$active) {
+                        if (! $active) {
                             // Check if the building is already associated with another active owner association
                             $isAssociated = DB::table('building_owner_association')
                                 ->where('building_id', $record->id)
                                 ->where('active', 1)
                                 ->exists();
 
+                            $pmId = DB::table('building_owner_association')
+                                ->where('building_id', $record->id)
+                            // ->where('active', 1)
+                                ->pluck('owner_association_id')[0];
+                            $pmRole = OwnerAssociation::where('id', $pmId)->first()->role == 'Property Manager';
+
+                            if ($pmRole) {
+                                $pmFlats = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->whereIn('flat_id', function ($query) use ($record) {
+                                        $query->select('id')
+                                            ->from('flats')
+                                            ->where('building_id', $record->id);
+                                    })
+                                    ->where('active', 0);
+
+                                $pmFlats->update(['active' => 1]);
+                            }
                             if ($isAssociated) {
                                 Notification::make()
                                     ->title('Building is already associated with another property manager')
@@ -507,11 +524,11 @@ class BuildingResource extends Resource
 
                             // Make related vendor building active
                             $vendorAll = DB::table('owner_association_vendor')
-                                ->where(['owner_association_id'=> auth()->user()->owner_association_id, 'active'=> 1])
+                                ->where(['owner_association_id' => auth()->user()->owner_association_id, 'active' => 1])
                                 ->pluck('vendor_id');
                             DB::table('building_vendor')
                                 ->where('building_id', $record->id)
-                                ->whereIn('vendor_id',$vendorAll)
+                                ->whereIn('vendor_id', $vendorAll)
                                 ->update(['active' => 1, 'start_date' => $data['from'], 'end_date' => $data['to']]);
 
                             Notification::make()
@@ -542,7 +559,7 @@ class BuildingResource extends Resource
                         // Make related flat tenants inactive
                         $flatResidents = DB::table('flat_tenants')
                             ->whereIn('flat_id', $pmFlats->pluck('flat_id'));
-                        if($flatResidents->exists()) {
+                        if ($flatResidents->exists()) {
                             $tenantIds = $flatResidents->pluck('tenant_id');
                             foreach ($tenantIds as $tenantId) {
                                 $otherFlats = DB::table('flat_tenants')
@@ -551,7 +568,7 @@ class BuildingResource extends Resource
                                     ->where('active', 1)
                                     ->exists();
 
-                                if (!$otherFlats) {
+                                if (! $otherFlats) {
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $tenantId)
                                         ->delete();
@@ -564,7 +581,7 @@ class BuildingResource extends Resource
                         // Make related vendor building inactive
                         $vendorAssociated = DB::table('building_vendor')
                             ->where('building_id', $record->id);
-                        if($vendorAssociated->exists()) {
+                        if ($vendorAssociated->exists()) {
                             $vendorIds = $vendorAssociated->pluck('vendor_id');
                             foreach ($vendorIds as $vendorId) {
                                 $otherBuildings = DB::table('building_vendor')
@@ -574,7 +591,7 @@ class BuildingResource extends Resource
                                     ->exists();
 
                                 $vendor = Vendor::findOrFail($vendorId);
-                                if (!$otherBuildings) {
+                                if (! $otherBuildings) {
                                     $userId = $vendor->owner_id;
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $userId)
@@ -591,7 +608,7 @@ class BuildingResource extends Resource
                                         ->where('active', 1)
                                         ->exists();
 
-                                    $user = User::findOrFail($technicianId);
+                                    $user    = User::findOrFail($technicianId);
                                     $vendors = $user->technicianVendors()
                                         ->with(['vendor.buildings' => function ($query) {
                                             $query->wherePivot('active', 1);
@@ -601,7 +618,7 @@ class BuildingResource extends Resource
                                         return $technicianVendor->vendor->buildings;
                                     })->unique('id');
 
-                                    if (!$otherBuildings && $buildings->isEmpty()) {
+                                    if (! $otherBuildings && $buildings->isEmpty()) {
                                         DB::table('refresh_tokens')
                                             ->where('user_id', $technicianId)
                                             ->delete();
@@ -614,7 +631,7 @@ class BuildingResource extends Resource
                         $vendorAssociated->update(['active' => 0, 'end_date' => Carbon::now()->format('Y-m-d')]);
                         // Make related security guards inactive
                         $security = BuildingPoc::where('building_id', $record->id);
-                        if($security->exists()) {
+                        if ($security->exists()) {
                             $userIds = $security->pluck('user_id');
                             foreach ($userIds as $userId) {
                                 $otherBuildings = BuildingPoc::where('user_id', $userId)
@@ -622,7 +639,7 @@ class BuildingResource extends Resource
                                     ->where('active', 1)
                                     ->exists();
 
-                                if (!$otherBuildings) {
+                                if (! $otherBuildings) {
                                     DB::table('refresh_tokens')
                                         ->where('user_id', $userId)
                                         ->delete();
@@ -638,7 +655,7 @@ class BuildingResource extends Resource
                     }),
 
                 Action::make('feature')
-                    ->label('Upload Budget') // Set a label for your action
+                    ->label('Upload Budget')                   // Set a label for your action
                     ->modalHeading('Upload Budget for Period') // Modal headin
                     ->form([
                         Forms\Components\Select::make('budget_period')
@@ -658,10 +675,10 @@ class BuildingResource extends Resource
                             ->label('Upload File')
                             ->acceptedFileTypes([
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
+                                'application/vnd.ms-excel',                                          // for .xls
                             ])
                             ->required()
-                            ->disk('local') // or your preferred disk
+                            ->disk('local')                // or your preferred disk
                             ->directory('budget_imports'), // or your preferred directory
                     ])
                     ->action(function ($record, array $data, $livewire) {
@@ -670,11 +687,11 @@ class BuildingResource extends Resource
                         $filePath     = $data['excel_file'];
                         $fullPath     = storage_path('app/' . $filePath);
 
-                        if (!file_exists($fullPath)) {
+                        if (! file_exists($fullPath)) {
                             Log::error("File not found at path: ", [$fullPath]);
                         }
 
-                        // Now import using the file path
+                                                                                                // Now import using the file path
                         Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
 
                         // } catch (\Exception $e) {
@@ -731,7 +748,7 @@ class BuildingResource extends Resource
         ];
 
         // If user is not logged in, has no role, or is not a Property Manager, show all relations
-        if (!$user || !$user->role || $user->role->name !== 'Property Manager') {
+        if (! $user || ! $user->role || $user->role->name !== 'Property Manager') {
             return $allRelations;
         }
 
