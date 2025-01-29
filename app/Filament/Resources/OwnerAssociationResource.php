@@ -428,7 +428,6 @@ class OwnerAssociationResource extends Resource
             'index'  => Pages\ListOwnerAssociations::route('/'),
             'create' => Pages\CreateOwnerAssociation::route('/create'),
             'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
-            // 'custom-page' => \App\Filament\Pages\CustomPage::route('/custom-page'),
         ];
     }
     
