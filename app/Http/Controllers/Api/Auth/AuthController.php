@@ -427,15 +427,15 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        $buildingsExists = DB::table('building_vendor')->where(['vendor_id' => $user->vendors->first()->id, 'active' => 1])->exists();
+        // $buildingsExists = DB::table('building_vendor')->where(['vendor_id' => $user->vendors->first()->id, 'active' => 1])->exists();
 
-        if (!$buildingsExists && $user->vendors->first()->escalationMatrix()->exists()) {
-            return (new CustomResponseResource([
-                'title'   => 'Unauthorized!',
-                'message' => 'No active buildings. please contact admin.!',
-                'code'    => 400,
-            ]))->response()->setStatusCode(400);
-        }
+        // if (!$buildingsExists && $user->vendors->first()->escalationMatrix()->exists()) {
+        //     return (new CustomResponseResource([
+        //         'title'   => 'Unauthorized!',
+        //         'message' => 'No active buildings. please contact admin.!',
+        //         'code'    => 400,
+        //     ]))->response()->setStatusCode(400);
+        // }
 
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
