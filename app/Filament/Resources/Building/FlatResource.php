@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
@@ -34,6 +35,11 @@ class FlatResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Units';
     protected static ?string $navigationGroup = 'Flat Management';
+    protected static ?string $tenantRelationshipName = 'flats';
+    public static function getSlug(): string
+    {
+        return 'flats';
+    }
 
 
     public static function form(Form $form): Form
@@ -49,13 +55,8 @@ class FlatResource extends Resource
                         TextInput::make('floor')->label('Unit')
                             ->required()
                             ->placeholder('Floor'),
-                        Select::make('owner_association_id')
-                            ->label('Owner Association')
-                            ->preload()
-                            ->searchable()
-                            ->relationship('ownerAssociation', 'name')
-                            ->required()
-                            ->placeholder('Select an Owner Association'),
+                        Hidden::make('owner_association_id')
+                            ->default(auth()->user()?->owner_association_id),
                         TextInput::make('property_number')->label('Unit')
                             ->required()
                             ->placeholder('Unit Number'),
@@ -64,7 +65,9 @@ class FlatResource extends Resource
                             ->placeholder('Property'),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
-                            ->relationship('building', 'name')
+                            ->relationship('building', 'name', function ($query) {
+                                $query->where('owner_association_id', auth()->user()->owner_association_id)->where('resource', 'Default');
+                            })
                             ->reactive()
                             ->preload()
                             ->searchable()
@@ -80,9 +83,27 @@ class FlatResource extends Resource
                         TextInput::make('virtual_account_number')
                             ->default('NA')->placeholder('NA'),
                         TextInput::make('parking_count')
-                            ->default('NA')->placeholder('NA'),
+                        ->placeholder('Parking Count')
+                        ->numeric()
+                        ->rules([
+                            'numeric',
+                            'min:0',
+                            'integer',
+                            'regex:/^[0-9]+$/'
+                        ])
+                        ->minValue(0)
+                        ->maxValue(999),
                         TextInput::make('plot_number')
-                            ->default('NA')->placeholder('NA'),
+                        ->placeholder('Plot Number')
+                        ->numeric()
+                        ->rules([
+                            'numeric',
+                            'min:0',
+                            'integer',
+                            'regex:/^[0-9]+$/'
+                        ])
+                        ->minValue(0)
+                        ->maxValue(999),
                         Toggle::make('status')
                             ->rules(['boolean'])
                             ->label('Status'),
@@ -120,22 +141,30 @@ class FlatResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('suit_area')
-                    ->formatStateUsing(fn($record) => number_format($record->suit_area, 2))
+                    ->formatStateUsing(function($record) {
+                        return $record->suit_area === 'NA' ? 'NA' : number_format($record->suit_area, 2);
+                    })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('actual_area')
-                    ->formatStateUsing(fn($record) => number_format($record->actual_area, 2))
+                    ->formatStateUsing(function($record) {
+                        return $record->actual_area === 'NA' ? 'NA' : number_format($record->actual_area, 2);
+                    })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
-                    ->formatStateUsing(fn($record) => number_format($record->balcony_area, 2))
+                    ->formatStateUsing(function($record) {
+                        return $record->balcony_area === 'NA' ? 'NA' : number_format($record->balcony_area, 2);
+                    })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
-                    ->formatStateUsing(fn($record) => number_format($record->applicable_area, 2))
+                    ->formatStateUsing(function($record) {
+                        return $record->applicable_area === 'NA' ? 'NA' : number_format($record->applicable_area, 2);
+                    })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -202,7 +231,7 @@ class FlatResource extends Resource
     {
         return [
             // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            FlatResource\RelationManagers\FlatTenantRelationManager::class,
+            // FlatResource\RelationManagers\FlatTenantRelationManager::class,
             // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
             // FlatResource\RelationManagers\UserRelationManager::class,
         ];
