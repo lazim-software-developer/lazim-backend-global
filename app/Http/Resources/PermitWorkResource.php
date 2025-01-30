@@ -25,7 +25,7 @@ class PermitWorkResource extends JsonResource
             'end_time'      => Carbon::parse($this->end_time)->format('h:ia'),
             'approved'      => (bool) $this->approved,
             'description'   => $this->description,
-            'building'      => Building::where('id', $this->building_id)->first()->name,
+            'building_name'      => Building::where('id', $this->building_id)->first()->name,
         ];
     }
 }
