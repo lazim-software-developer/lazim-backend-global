@@ -46,7 +46,7 @@ class TechnicianController extends Controller
             'phone_verified' => true,
         ]);
 
-        $user = User::create($request->all());
+        $user = User::create($request->except('building_id'));
 
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $name = $vendor->name;
