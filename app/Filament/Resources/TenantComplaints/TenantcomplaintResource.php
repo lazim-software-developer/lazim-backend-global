@@ -60,7 +60,8 @@ class TenantcomplaintResource extends Resource
                         ->required()
                         ->placeholder('Category'),
                     FileUpload::make('photo')
-                        ->nullable(),
+                        ->nullable()
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB'),
                     TextInput::make('remarks'),
 
                     Select::make('status')

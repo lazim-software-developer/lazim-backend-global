@@ -364,6 +364,7 @@ class FacilitySupportComplaintResource extends Resource
                             ->image()
                             ->enableDownload()
                             ->enableOpen()
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->columnSpanFull()
                             ->downloadable()
                             ->previewable()

@@ -261,6 +261,7 @@ class OwnerAssociationResource extends Resource
                             ->image()
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->label('Logo')
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {

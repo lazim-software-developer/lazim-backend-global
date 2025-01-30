@@ -61,7 +61,8 @@ class ComplaintResource extends Resource
                         ->placeholder('Category'),
                     FileUpload::make('photo')
                         ->nullable()
-                        ->disk('s3'),
+                        ->disk('s3')
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB'),
                     TextInput::make('remarks'),
 
                     Select::make('status')

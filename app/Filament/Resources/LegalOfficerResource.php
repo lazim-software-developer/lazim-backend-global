@@ -69,6 +69,7 @@ class LegalOfficerResource extends Resource
                     ->maxLength(255),
                 FileUpload::make('profile_photo')
                     ->disk('s3')
+                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                     ->directory('dev')
                     ->image()
                     ->label('Profile Photo'),

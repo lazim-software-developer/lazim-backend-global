@@ -77,6 +77,7 @@ class BuildingPocsRelationManager extends RelationManager
                             FileUpload::make('profile_photo')
                                 ->disk('s3')
                                 ->directory('dev')
+                                ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                 ->image()
                                 ->label('Profile Photo'),
                             Toggle::make('active')
@@ -167,6 +168,7 @@ class BuildingPocsRelationManager extends RelationManager
                         FileUpload::make('profile_photo')
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->label('Profile Photo'),
                         Toggle::make('active')
@@ -271,6 +273,7 @@ class BuildingPocsRelationManager extends RelationManager
                         FileUpload::make('profile_photo')
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->label('Profile Photo'),
                         Toggle::make('active')

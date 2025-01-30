@@ -268,6 +268,7 @@ class ComplaintResource extends Resource
                             ->maxSize(2048)
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->enableDownload()
                             ->visible(function ($record) {

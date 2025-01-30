@@ -101,6 +101,7 @@ class ComplaintsenquiryResource extends Resource
                                     ->disk('s3')
                                     ->directory('dev')
                                     ->maxSize(2048)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),

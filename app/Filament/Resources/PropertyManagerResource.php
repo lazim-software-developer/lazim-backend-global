@@ -137,6 +137,7 @@ class PropertyManagerResource extends Resource
                             ->downloadable(true)
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->label('Company Logo')
                             ->columnSpanFull(),
 

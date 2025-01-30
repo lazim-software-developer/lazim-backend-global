@@ -152,6 +152,7 @@ class BuildingRelationManager extends RelationManager
                                                     };
                                                 }])
                                                 ->directory('dev')
+                                                ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                                 ->image()
                                                 ->maxSize(2048)
                                                 ->label('Cover Photo'),

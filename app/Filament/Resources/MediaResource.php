@@ -43,7 +43,7 @@ class MediaResource extends Resource
                         FileUpload::make('url')
                             ->disk('s3')
                             ->directory('dev')
-                            ->helperText('The uploaded image must be less than 2MB.')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->disabled()
                             ->required()
                             ->label('File'),
