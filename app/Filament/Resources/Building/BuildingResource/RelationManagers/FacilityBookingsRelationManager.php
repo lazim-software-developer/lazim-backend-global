@@ -153,7 +153,7 @@ class FacilityBookingsRelationManager extends RelationManager
 
                 if (auth()->user()->role->name == 'Property Manager'
                 || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                        ->pluck('role')[0] == 'Property Manager') {
+                        ->first()?->role == 'Property Manager') {
                     return $query->where('bookable_type', 'App\Models\Master\Facility')
                         ->whereIn('flat_id', $pmFlats)
                         ->withoutGlobalScopes();
