@@ -106,6 +106,7 @@ class UserApprovalResource extends Resource
                                 ->visible(function ($record) {
                                     $role = DB::table('flat_tenants')
                                         ->where('tenant_id', $record->user_id)
+                                        ->where('flat_id', $record->flat_id)
                                         ->value('role');
                                     return $role == 'Tenant';
                                 })
@@ -114,6 +115,7 @@ class UserApprovalResource extends Resource
                                     if ($record) {
                                         $startDate = DB::table('flat_tenants')
                                             ->where('tenant_id', $record->user_id)
+                                            ->where('flat_id', $record->flat_id)
                                             ->value('start_date');
                                         if ($startDate) {
                                             $startDate = Carbon::parse($startDate)->format('Y-m-d');
@@ -127,6 +129,7 @@ class UserApprovalResource extends Resource
                                 ->visible(function ($record) {
                                     $role = DB::table('flat_tenants')
                                         ->where('tenant_id', $record->user_id)
+                                        ->where('flat_id', $record->flat_id)
                                         ->value('role');
                                     return $role == 'Tenant';
                                 })
@@ -135,6 +138,7 @@ class UserApprovalResource extends Resource
                                     if ($record) {
                                         $endDate = DB::table('flat_tenants')
                                             ->where('tenant_id', $record->user_id)
+                                            ->where('flat_id', $record->flat_id)
                                             ->value('end_date');
                                         if ($endDate) {
                                             $endDate = Carbon::parse($endDate)->format('Y-m-d');
