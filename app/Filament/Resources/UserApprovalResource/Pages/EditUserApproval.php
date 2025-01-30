@@ -31,6 +31,10 @@ class EditUserApproval extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        if (auth()->user()?->role->name !== 'Property Manager') {
+            return $data;
+        }
+
         $user = User::find($data['user_id']);
         $data['user'] = $user->first_name;
         $data['email'] = $user->email;
@@ -76,6 +80,10 @@ class EditUserApproval extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        if (auth()->user()?->role->name !== 'Property Manager') {
+            return $data;
+        }
+
         if ($data['status'] === 'approved') {
             // Get the correct flat_tenant_id
             $flatTenant = DB::table('flat_tenants')

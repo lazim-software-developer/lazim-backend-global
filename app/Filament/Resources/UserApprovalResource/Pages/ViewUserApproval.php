@@ -22,6 +22,10 @@ class ViewUserApproval extends ViewRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        if (auth()->user()?->role->name !== 'Property Manager') {
+            return $data;
+        }
+
         $user = User::find($data['user_id']);
         $data['user'] = $user->first_name;
         $data['email'] = $user->email;
