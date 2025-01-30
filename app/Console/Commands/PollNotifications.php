@@ -51,8 +51,7 @@ class PollNotifications extends Command
                             'title' => 'New Poll!',
                             'body' => 'New Poll launched',
                             'data' => ['notificationType' =>  'ComunityPostTabPoll',
-                                        'building_id' => $scheduledAt->pluck('building_id'),
-                                        'flat_id' => $scheduledAt->building->flats->pluck('id'),
+                                        'building_id' => $buildings,
                             ],
                         ];
                         $this->expoNotification($message);
@@ -69,7 +68,7 @@ class PollNotifications extends Command
                                 'iconColor' => 'warning',
                                 'title' => 'New Poll!',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id'=>$buildings],
                                 'format' => 'filament',
                                 'url' => 'ComunityPostTabPoll',
                             ]),
