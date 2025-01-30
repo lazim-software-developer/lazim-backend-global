@@ -256,7 +256,7 @@ class RegistrationController extends Controller
             ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
             ->exists();
 
-            if($ownerResiding){
+            if($ownerResiding && $request->has('role') && $request->role == 'Property Manager'){
                 return (new CustomResponseResource([
                     'title' => 'flat_error',
                     'message' => 'Flat is already allocated to one owner residing in same flat!',
@@ -280,7 +280,7 @@ class RegistrationController extends Controller
                 ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant'])
                 ->exists();
 
-            if ($tenantExists) {
+            if ($tenantExists && $request->has('role') && $request->role == 'Property Manager') {
                 return (new CustomResponseResource([
                     'title' => 'flat_error',
                     'message' => 'Looks like this flat is already allocated to one tenant!',
