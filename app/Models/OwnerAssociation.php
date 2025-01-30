@@ -48,7 +48,8 @@ class OwnerAssociation extends Model
         'slug',
         'created_by',
         'updated_by',
-        'resource'
+        'resource',
+        'password',
     ];
 
     public function users()
