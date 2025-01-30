@@ -29,6 +29,7 @@ class ListUserApprovals extends ListRecords
 
         $flats = DB::table('flats')->whereIn('building_id', $pmbuildingIds)->pluck('id')->toArray();
 
+        // dd($pmbuildingIds);
         $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)

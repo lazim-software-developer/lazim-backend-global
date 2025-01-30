@@ -99,9 +99,6 @@ class TenantDocumentResource extends Resource
                             }
                             return false;
                         })
-                        ->disabled(function (Document $record) {
-                            return $record->status != 'submitted';
-                        })
                         ->required(),
                     FileUpload::make('url')
                         ->disk('s3')

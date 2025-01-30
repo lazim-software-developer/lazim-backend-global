@@ -103,6 +103,40 @@ class BillResource extends Resource
                     })
                     ->searchable()
                     ->required(),
+
+                TextInput::make('bill_number')
+                    ->label(function ($get) {
+                        if($get('type') == 'BTU') {
+                            return 'BTU/AC Number';
+                        } elseif($get('type') == 'DEWA') {
+                            return 'DEWA Number';
+                        } elseif($get('type') == 'Telecommunication') {
+                            return 'DU/Etisalat Number';
+                        } elseif($get('type') == 'lpg') {
+                            return 'LPG Number';
+                        } else {
+                            return 'Bill Number';
+                        }
+                    })
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->helperText('This will be automatically populated based on flat and bill type')
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record || !$record->flat) return '';
+
+                        if($record->type == 'BTU') {
+                            return $record->flat->getAttribute('btu/ac_number');
+                        } elseif($record->type == 'DEWA') {
+                            return $record->flat->dewa_number;
+                        } elseif($record->type == 'Telecommunication') {
+                            return $record->flat->getAttribute('etisalat/du_number');
+                        } elseif($record->type == 'lpg') {
+                            return $record->flat->lpg_number;
+                        } else {
+                            return '--';
+                        }
+                    }),
+
                 TextInput::make('amount')
                     ->required()
                     ->placeholder('Enter the total bill amount')
