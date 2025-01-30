@@ -14,12 +14,12 @@ use Filament\Facades\Filament;
 class ResidentialFormController extends Controller
 {
     public function store(ResidentialFormRequest $request)
-    {
+    { 
         $validated = $request->validated();
 
         $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
-        $validated['passport_url'] = optimizeDocumentAndUpload($request->file('file_passport_url'));
+        $validated['passport_url'] = $request->file('file_passport_url')?: optimizeDocumentAndUpload($request->file('file_passport_url'));
         $validated['emirates_url'] = optimizeDocumentAndUpload($request->file('file_emirates_url'));
 
         if ($request->hasFile('file_title_deed_url')) {
