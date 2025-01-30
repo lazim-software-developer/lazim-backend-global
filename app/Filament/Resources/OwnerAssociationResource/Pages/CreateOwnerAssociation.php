@@ -78,8 +78,7 @@ class CreateOwnerAssociation extends CreateRecord
         // check if entered email and phone number is already present for other users in users table
         $emailexists = User::where(['email' => $data->email, 'phone' => $data->phone])->exists();
         if (!$emailexists) {
-            $password = Str::random(12);
-
+            $password = $data->password;
             $user = User::firstorcreate(
                 [
                     'email'                => $data->email,
@@ -90,7 +89,7 @@ class CreateOwnerAssociation extends CreateRecord
                     'profile_photo'        => $data->profile_photo,
                     'role_id'              => Role::where('name', 'OA')->where('owner_association_id', $data->id)->value('id'),
                     'active'               => 1,
-                    'password' => Hash::make($password),
+                    'password' => $password,
                     'owner_association_id' => $data->id,
                     'email_verified' => 1,
                     'phone_verified' => 1,
@@ -118,7 +117,7 @@ class CreateOwnerAssociation extends CreateRecord
             'name' => $data->name,
             'email'                => $data->email,
             'email_verified_at' => now(),
-            'password'             => Hash::make($password),
+            'password'             => $data->email,
             'type' => 'company',
             'lang' => 'en',
             'created_by' => 1,

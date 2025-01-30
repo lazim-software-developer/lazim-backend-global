@@ -35,11 +35,54 @@ class AccountCreationJob implements ShouldQueue
      */
     public function handle()
     {
-        $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.oa-user_registration', ['user' => $this->user, 'password' => $this->password,'slug'=>$this->slug], function($message) {
-            $message
-                ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
-        });
+        try {
+            // Check if user exists
+            if (!$this->user) {
+                \Log::error('User object is null in email handler');
+                return false;
+            }
+
+            // Check if required user properties exist
+            if (!$this->user->email || !$this->user->first_name) {
+                \Log::error('Required user properties missing', [
+                    'email' => $this->user->email ?? 'missing',
+                    'first_name' => $this->user->first_name ?? 'missing'
+                ]);
+                return false;
+            }
+
+            // Check if password and slug exist
+            if (!$this->password || !$this->slug) {
+                \Log::error('Required parameters missing', [
+                    'password' => $this->password ? 'exists' : 'missing',
+                    'slug' => $this->slug ? 'exists' : 'missing'
+                ]);
+                return false;
+            }
+
+            $beautymail = app()->make(Beautymail::class);
+            
+            $data = [
+                'user' => $this->user,
+                'password' => $this->password,
+                'slug' => $this->slug
+            ];
+
+            $beautymail->send('emails.oa-user_registration', $data, function($message) {
+                $message
+                    ->to($this->user->email, $this->user->first_name)
+                    ->subject('Welcome to Lazim!');
+            });
+
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email', [
+                'error' => $e->getMessage(),
+                'user_id' => $this->user->id ?? null
+            ]);
+            
+            return false;
+        }
     }
 }
