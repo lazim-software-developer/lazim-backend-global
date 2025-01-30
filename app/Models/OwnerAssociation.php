@@ -29,6 +29,8 @@ class OwnerAssociation extends Model
 
     protected $connection = 'mysql';
 
+    const OA_TYPE = 'globalOa';
+
     protected $fillable = [
         'name',
         'phone',
