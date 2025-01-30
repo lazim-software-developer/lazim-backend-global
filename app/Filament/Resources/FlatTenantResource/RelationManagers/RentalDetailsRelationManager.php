@@ -83,7 +83,7 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
-                                    ->maxLength(10)
+                                    // ->maxLength(10)
                                     ->afterStateUpdated(function ($get, $set, $state) {
                                         // Get the number of cheques
                                         $numberOfCheques = $get('number_of_cheques');
@@ -403,16 +403,17 @@ class RentalDetailsRelationManager extends RelationManager
                 $this->handleCustomActionSave($data);
             })
             ->visible(function () {
-                $latestRentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)
-                    ->orderBy('contract_end_date', 'desc')
-                    ->first();
+                return false;
+                // $latestRentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)
+                //     ->orderBy('contract_end_date', 'desc')
+                //     ->first();
 
-                if (! $latestRentalDetail) {
-                    return true;
-                }
+                // if (! $latestRentalDetail) {
+                //     return true;
+                // }
 
-                $endDate = $latestRentalDetail->contract_end_date;
-                return $endDate < Carbon::now()->format('Y-m-d');
+                // $endDate = $latestRentalDetail->contract_end_date;
+                // return $endDate < Carbon::now()->format('Y-m-d');
             })
             ->form(function (Form $form) {
                 return $this->form($form);
