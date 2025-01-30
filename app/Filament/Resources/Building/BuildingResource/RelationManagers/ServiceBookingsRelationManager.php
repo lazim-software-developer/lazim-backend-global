@@ -73,9 +73,6 @@ class ServiceBookingsRelationManager extends RelationManager
 
                                 $userRole = Role::where('id', auth()->user()->role_id)->first()->name;
 
-                                $othersRole = OwnerAssociation::where('id', auth()->user()->owner_association_id)
-                                    ->pluck('role')->toArray()['0'];
-
                                 $pmFlats = DB::table('property_manager_flats')
                                     ->where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->where('active', true)
@@ -101,7 +98,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                         ->whereIn('id', $flatTenantId)
                                         ->where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('first_name', 'id');
-                                } elseif ($othersRole == 'Property Manager') {
+                                } elseif (OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                        ->pluck('role')->toArray()['0'] == 'Property Manager') {
                                     return User::whereIn('id', $pmflatTenantId)->pluck('first_name', 'id');
                                 } else {
                                     return User::whereIn('role_id', $roleId)
@@ -149,9 +147,13 @@ class ServiceBookingsRelationManager extends RelationManager
                     ->pluck('flat_id')
                     ->toArray();
 
-                $othersRole = OwnerAssociation::where('id', auth()->user()->owner_association_id)
-                    ->pluck('role')->toArray()['0'];
-                if (auth()->user()->role->name == 'Property Manager' || $othersRole == 'Property Manager') {
+                if (auth()->user()->role->name == 'Admin') {
+                    return $query->where('bookable_type', 'App\Models\Master\Service')
+                        ->withoutGlobalScopes();
+                }
+                if (auth()->user()->role->name == 'Property Manager' ||
+                    OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                    ->pluck('role')->toArray()['0'] == 'Property Manager') {
                     return $query->where('bookable_type', 'App\Models\Master\Service')
                         ->whereIn('flat_id', $pmFlats)
                         ->withoutGlobalScopes();
@@ -216,8 +218,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                                 'title' => $serviceName->name . ' Booking Status.',
                                                 'body'  => 'Your personal service booking request for ' . $serviceName->name . ' is approved',
                                                 'data'  => ['notificationType' => 'MyBookingsService',
-                                                    'building_id' => $user->building_id,
-                                                    'flat_id'     => $user->flat_id],
+                                                    'building_id'                  => $user->building_id,
+                                                    'flat_id'                      => $user->flat_id],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -236,7 +238,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'title'     => 'Personal Service Booking Status.',
                                             'view'      => 'notifications::notification',
                                             'viewData'  => ['building_id' => $this->record->building_id,
-                                                            'flat_id' => $this->record->flat_id],
+                                                'flat_id'                     => $this->record->flat_id],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsService',
                                         ]),
@@ -256,8 +258,8 @@ class ServiceBookingsRelationManager extends RelationManager
                                                 'title' => $serviceName->name . ' Booking Status.',
                                                 'body'  => 'Your personal service booking request for ' . $serviceName->name . ' is rejected',
                                                 'data'  => ['notificationType' => 'MyBookingsService',
-                                                    'building_id' => $user->building_id,
-                                                    'flat_id'     => $user->flat_id],
+                                                    'building_id'                  => $user->building_id,
+                                                    'flat_id'                      => $user->flat_id],
                                             ];
                                             $this->expoNotification($message);
                                         }
@@ -276,7 +278,7 @@ class ServiceBookingsRelationManager extends RelationManager
                                             'title'     => $serviceName->name . ' Booking Status.',
                                             'view'      => 'notifications::notification',
                                             'viewData'  => ['building_id' => $this->record->building_id,
-                                                            'flat_id' => $this->record->flat_id],
+                                                'flat_id'                     => $this->record->flat_id],
                                             'format'    => 'filament',
                                             'url'       => 'MyBookingsService',
                                         ]),

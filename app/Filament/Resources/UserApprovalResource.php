@@ -36,6 +36,8 @@ class UserApprovalResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isPropertyManager = auth()->user()?->role->name === 'Property Manager';
+
         return $form
             ->schema([
                 Section::make('User Information')
@@ -160,6 +162,7 @@ class UserApprovalResource extends Resource
 
                             // Add rental details section that shows when status is approved
                             Section::make('Rental Details')
+                                ->visible(fn () => $isPropertyManager)
                                 ->schema([
                                     TextInput::make('admin_fee')
                                         ->required()
@@ -169,8 +172,8 @@ class UserApprovalResource extends Resource
                                         ->suffix('AED')
                                         ->maxValue(999999999.99) // Max 9 digits before decimal, 2 after
                                         ->validationMessages([
-                                            'required' => 'Contract amount is required',
-                                            'numeric' => 'Contract amount must be a number',
+                                            'required'  => 'Contract amount is required',
+                                            'numeric'   => 'Contract amount must be a number',
                                             'max_value' => 'Contract amount cannot exceed 999,999,999.99 AED',
                                         ])
                                         ->afterStateUpdated(function ($get, $set, $state) {
@@ -194,7 +197,10 @@ class UserApprovalResource extends Resource
                                             }
                                         })
                                         ->disabled(function ($record) {
-                                            if (!$record) return false;
+                                            if (! $record) {
+                                                return false;
+                                            }
+
                                             $flatTenant = DB::table('flat_tenants')
                                                 ->where('tenant_id', $record->user_id)
                                                 ->where('flat_id', $record->flat_id)
@@ -242,13 +248,13 @@ class UserApprovalResource extends Resource
                                             }
                                             return null;
                                         }),
-                                        // ->disabled(fn ($record) =>
-                                        //     DB::table('flat_tenants')
-                                        //         ->where('tenant_id', $record?->user_id)
-                                        //         ->where('role', 'Tenant')
-                                        //         ->whereNotNull('start_date')
-                                        //         ->exists()
-                                        // ),
+                                    // ->disabled(fn ($record) =>
+                                    //     DB::table('flat_tenants')
+                                    //         ->where('tenant_id', $record?->user_id)
+                                    //         ->where('role', 'Tenant')
+                                    //         ->whereNotNull('start_date')
+                                    //         ->exists()
+                                    // ),
                                     DatePicker::make('contract_end_date')
                                         ->required()
                                         ->after('contract_start_date')
@@ -261,13 +267,13 @@ class UserApprovalResource extends Resource
                                             }
                                             return null;
                                         }),
-                                        // ->disabled(fn ($record) =>
-                                        //     DB::table('flat_tenants')
-                                        //         ->where('tenant_id', $record?->user_id)
-                                        //         ->where('role', 'Tenant')
-                                        //         ->whereNotNull('end_date')
-                                        //         ->exists()
-                                        // ),
+                                    // ->disabled(fn ($record) =>
+                                    //     DB::table('flat_tenants')
+                                    //         ->where('tenant_id', $record?->user_id)
+                                    //         ->where('role', 'Tenant')
+                                    //         ->whereNotNull('end_date')
+                                    //         ->exists()
+                                    // ),
                                     TextInput::make('advance_amount')
                                         ->required()
                                         ->numeric()
@@ -275,8 +281,8 @@ class UserApprovalResource extends Resource
                                         ->suffix('AED')
                                         ->maxValue(999999999.99)
                                         ->validationMessages([
-                                            'required' => 'Security deposit amount is required',
-                                            'numeric' => 'Security deposit must be a number',
+                                            'required'  => 'Security deposit amount is required',
+                                            'numeric'   => 'Security deposit must be a number',
                                             'max_value' => 'Security deposit cannot exceed 999,999,999.99 AED',
                                         ]),
                                     Select::make('advance_amount_payment_mode')
@@ -322,8 +328,8 @@ class UserApprovalResource extends Resource
                                         ->required()
                                         ->label('Contract Status')
                                         ->options([
-                                            'Active' => 'Active',
-                                            'Contract ended' => 'Ended',
+                                            'Active'            => 'Active',
+                                            'Contract ended'    => 'Ended',
                                             'Contract extended' => 'Extended',
                                         ])
                                         ->live()
@@ -353,6 +359,7 @@ class UserApprovalResource extends Resource
                                 }),
 
                             Section::make('Cheque Details')
+                                ->visible(fn () => $isPropertyManager)
                                 ->schema([
                                     Repeater::make('cheques')
                                         ->schema([
@@ -362,8 +369,8 @@ class UserApprovalResource extends Resource
                                                 ->minLength(6)
                                                 ->maxLength(12)
                                                 ->validationMessages([
-                                                    'required' => 'Cheque number is required',
-                                                    'numeric' => 'Cheque number must contain only numbers',
+                                                    'required'   => 'Cheque number is required',
+                                                    'numeric'    => 'Cheque number must contain only numbers',
                                                     'min_length' => 'Cheque number must be at least 6 digits',
                                                     'max_length' => 'Cheque number cannot exceed 12 digits',
                                                 ])
@@ -374,8 +381,8 @@ class UserApprovalResource extends Resource
                                                 ->numeric()
                                                 ->maxValue(999999999.99)
                                                 ->validationMessages([
-                                                    'required' => 'Cheque amount is required',
-                                                    'numeric' => 'Cheque amount must be a number',
+                                                    'required'  => 'Cheque amount is required',
+                                                    'numeric'   => 'Cheque amount must be a number',
                                                     'max_value' => 'Cheque amount cannot exceed 999,999,999.99 AED',
                                                 ])
                                                 ->placeholder('Enter amount')
@@ -402,7 +409,10 @@ class UserApprovalResource extends Resource
                                         ->deletable(false)
                                         ->defaultItems(0)
                                         ->disabled(function ($record) {
-                                            if (!$record) return false;
+                                            if (! $record) {
+                                                return false;
+                                            }
+
                                             $flatTenant = DB::table('flat_tenants')
                                                 ->where('tenant_id', $record->user_id)
                                                 ->where('flat_id', $record->flat_id)
@@ -518,7 +528,14 @@ class UserApprovalResource extends Resource
     // Add this helper method to the class
     private static function shouldDisableField($record): bool
     {
-        if (!$record) return false;
+        if (!auth()->user()?->role->name === 'Property Manager') {
+            return true;
+        }
+
+        if (! $record) {
+            return false;
+        }
+
         $flatTenant = DB::table('flat_tenants')
             ->where('tenant_id', $record->user_id)
             ->where('flat_id', $record->flat_id)

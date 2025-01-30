@@ -75,9 +75,6 @@ class FacilityBookingsRelationManager extends RelationManager
 
                                 $userRole = Role::where('id', auth()->user()->role_id)->first()->name;
 
-                                $othersRole = OwnerAssociation::where('id', auth()->user()->owner_association_id)
-                                    ->pluck('role')->toArray()['0'];
-
                                 $pmFlats = DB::table('property_manager_flats')
                                     ->where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->where('active', true)
@@ -103,7 +100,8 @@ class FacilityBookingsRelationManager extends RelationManager
                                         ->whereIn('id', $flatTenantId)
                                         ->where('owner_association_id', auth()->user()?->owner_association_id)
                                         ->pluck('first_name', 'id');
-                                } elseif ($othersRole == 'Property Manager') {
+                                } elseif (OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                    ->pluck('role')->toArray()['0'] == 'Property Manager') {
                                     return User::whereIn('id', $pmflatTenantId)->pluck('first_name', 'id');
                                 } else {
                                     return User::whereIn('role_id', $roleId)
@@ -151,6 +149,10 @@ class FacilityBookingsRelationManager extends RelationManager
                     ->pluck('flat_id')
                     ->toArray();
 
+                    if(auth()->user()->role->name == 'Admin') {
+                        return $query->where('bookable_type', 'App\Models\Master\Facility')
+                            ->withoutGlobalScopes();
+                    }
                 if (auth()->user()->role->name == 'Property Manager'
                 || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                         ->first()?->role == 'Property Manager') {
