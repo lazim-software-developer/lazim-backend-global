@@ -101,11 +101,11 @@ class EditBuilding extends EditRecord
             $data['from'] = DB::table('building_owner_association')
                 ->where('building_id', $this->record->id)
                 ->where('owner_association_id', auth()->user()->owner_association_id)
-                ->where('active', false)
+                ->where('active', true)
                 ->first()->from??null;
             $data['to'] = DB::table('building_owner_association')
                 ->where('owner_association_id', auth()->user()->owner_association_id)
-                ->where('active', false)
+                ->where('active', true)
                 ->where('building_id', $this->record->id)
                 ->first()->to??null;
         }
