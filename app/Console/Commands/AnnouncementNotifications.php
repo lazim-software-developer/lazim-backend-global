@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Models\Building\FlatTenant;
@@ -32,35 +31,37 @@ class AnnouncementNotifications extends Command
      */
     public function handle()
     {
-        $scheduledAt = Post::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
-        ->where('status','published')->where('active',true)->get();
+        try {
+            date_default_timezone_set('Asia/Dubai');
+            $currentTime = now();
 
-        foreach($scheduledAt as $post){
-            $buildings = $post->building->pluck('id');
+            $query = Post::whereRaw("DATE(scheduled_at) = ? AND TIME_FORMAT(TIME(scheduled_at), '%H:%i') = ?", [
+                $currentTime->format('Y-m-d'),
+                $currentTime->format('H:i')
+            ])
+            ->where('status', 'published')
+            ->where('active', true);
 
-            $tenant = FlatTenant::where('active',1)
-                    ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
+            $scheduledAt = $query->get();
 
-            foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
+            if ($scheduledAt->count() === 0) {
+                return;
+            }
 
-                if ($expoPushTokens->count() > 0) {
-                    foreach ($expoPushTokens as $expoPushToken) {
+            $totalNotificationsSent = 0;
 
-                        $message = [
-                            'to' => $expoPushToken,
-                            'sound' => 'default',
-                            'url' => 'ComunityPostTab',
-                            'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
-                            'body' => strip_tags($post->content),
-                            'data' => [
-                                'notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
-                                'building_id' => $post->building->pluck('id'),
-                                'flat_id' => $post->building->flats->pluck('id'),
-                            ],
-                        ];
-                        $this->expoNotification($message);
-                        DB::table('notifications')->insert([
+            foreach ($scheduledAt as $post) {
+                $buildingIds = $post->building->pluck('id')->toArray();
+
+                $tenant = FlatTenant::where('active', 1)
+                    ->whereIn('building_id', $buildingIds)
+                    ->distinct()
+                    ->pluck('tenant_id');
+
+                foreach ($tenant as $user) {
+                    try {
+                        // Create database notification
+                        $notificationData = [
                             'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
@@ -74,18 +75,52 @@ class AnnouncementNotifications extends Command
                                 'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
                                 'view' => 'notifications::notification',
                                 'viewData' => [
-                                    'building_id' => $post->building->pluck('id'),
-                                    'flat_id' => $post->building->flats->pluck('id'),
+                                    'building_id' => $buildingIds,
                                 ],
                                 'format' => 'filament',
                                 'url' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ];
+
+                        DB::beginTransaction();
+                        DB::table('notifications')->insert($notificationData);
+                        DB::commit();
+
+                        $totalNotificationsSent++;
+
+                        // Handle push notifications if tokens exist
+                        $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
+                        if ($expoPushTokens->count() > 0) {
+                            foreach ($expoPushTokens as $expoPushToken) {
+                                $message = [
+                                    'to' => $expoPushToken,
+                                    'sound' => 'default',
+                                    'url' => 'ComunityPostTab',
+                                    'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
+                                    'body' => strip_tags($post->content),
+                                    'data' => [
+                                        'notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
+                                        'building_id' => $buildingIds,
+                                    ],
+                                ];
+                                $this->expoNotification($message);
+                            }
+                        }
+
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        Log::error('Failed to process notification:', [
+                            'user_id' => $user,
+                            'post_id' => $post->id,
+                            'error' => $e->getMessage()
                         ]);
                     }
                 }
             }
+        } catch (\Exception $e) {
+            Log::error('Announcement notification command failed: ' . $e->getMessage());
         }
     }
 }
