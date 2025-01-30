@@ -96,6 +96,10 @@ class EditBuilding extends EditRecord
         } else {
             $data['search'] = null;
         }
+        if(isset($this->record->lat) && isset($this->record->lng)){
+            $data['lat'] = $this->record->lat;
+            $data['lng'] = $this->record->lng;
+        }
 
         if (auth()->user()->role->name == 'Property Manager') {
             $data['from'] = DB::table('building_owner_association')
