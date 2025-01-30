@@ -88,18 +88,18 @@ class UserApprovalResource extends Resource
                             ->downloadable(true)
                             ->required()
                             ->disabled(),
-                        DatePicker::make('emirates_document_expiry_date')
-                            ->label('Emirates ID Expiry')
-                            ->disabled(),
-                        DatePicker::make('passport_expiry_date')
-                            ->label('Passport Expiry')
-                            ->disabled(),
                         FileUpload::make('passport')
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
+                            ->disabled(),
+                        DatePicker::make('emirates_document_expiry_date')
+                            ->label('Emirates ID Expiry')
+                            ->disabled(),
+                        DatePicker::make('passport_expiry_date')
+                            ->label('Passport Expiry')
                             ->disabled(),
                     ])
                     ->columns(3),
