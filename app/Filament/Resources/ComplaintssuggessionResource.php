@@ -127,6 +127,7 @@ class ComplaintssuggessionResource extends Resource
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->label('File'),
                             ]),
                     ]),

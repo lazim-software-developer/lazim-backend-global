@@ -138,6 +138,7 @@ class BuildingResource extends Resource
                                 }
                             };
                         }])
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                         ->directory('dev')
                         ->image()
                         ->maxSize(2048)

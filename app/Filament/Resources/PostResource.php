@@ -151,6 +151,7 @@ class PostResource extends Resource
                             ->downloadable(true)
                             ->image()
                             ->maxSize(2048)
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->required()
                             ->label('File'),
 
