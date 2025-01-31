@@ -132,6 +132,10 @@ class BuildingResource extends Resource
 
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
+                    Hidden::make('created_by')
+                    ->default(auth()->user()?->id),
+                    Hidden::make('updated_by')
+                    ->default(auth()->user()?->id),
 
                     TextInput::make('area')
                         ->rules(['max:100', 'string'])

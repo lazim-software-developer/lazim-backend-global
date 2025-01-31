@@ -107,6 +107,10 @@ class FlatResource extends Resource
                         Toggle::make('status')
                             ->rules(['boolean'])
                             ->label('Status'),
+                        Hidden::make('created_by')
+                        ->default(auth()->user()?->id),
+                        Hidden::make('updated_by')
+                        ->default(auth()->user()?->id),
                         MarkdownEditor::make('description')
                             ->toolbarButtons([
                                 'bold',
