@@ -265,7 +265,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(1),
                                 NavigationItem::make('Units')
-                                    ->url('/admin/building/flats')
+                                    ->url('/admin/flats')
                                     ->visible($user->can('view_any_building::flat'))
                                     ->icon('heroicon-o-home')
                                     ->activeIcon('heroicon-o-home')
