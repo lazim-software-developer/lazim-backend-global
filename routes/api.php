@@ -61,6 +61,7 @@ use App\Http\Controllers\Api\OwnerAssociation\OwnerAssociationController;
 use App\Http\Controllers\Api\OwnerAssociation\NewOwnerAssociationController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
 use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
+use App\Models\Building\Building;
 
 /*
 |--------------------------------------------------------------------------
@@ -613,6 +614,7 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
+Route::get('buildings',[BuildingController::class, 'index']);
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association
@@ -621,7 +623,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::patch('owner-associations/{id}/change-status', [OwnerAssociationController::class, 'changeStatus']);
     //New Building Module Routes
     Route::post('/buildings/{id}', [BuildingController::class, 'update']);
-    Route::apiResource('buildings', BuildingController::class);
+    Route::apiResource('buildings', BuildingController::class)->except(['index']);
     Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
     Route::post('buildingsimport', [BuildingController::class, 'import']);
     Route::get('buildingsexport', [BuildingController::class, 'export']);
