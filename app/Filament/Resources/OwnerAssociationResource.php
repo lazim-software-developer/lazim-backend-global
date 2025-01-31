@@ -17,7 +17,9 @@ use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use App\Services\GenericHttpService;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Toggle;
 use App\Services\SessionCryptoService;
 use Filament\Forms\Components\Section;
@@ -27,6 +29,7 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Validation\Rules\Password;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
@@ -87,9 +90,7 @@ class OwnerAssociationResource extends Resource
                                     }
                                 
                                     // For edit operation, apply your existing logic
-                                    return Role::where('id', auth()->user()->role_id)
-                                        ->first()->name != 'Admin' && 
-                                        DB::table('owner_associations')
+                                    return DB::table('owner_associations')
                                         ->where('slug', $get('slug'))
                                         ->exists();
                                 }),
@@ -100,7 +101,7 @@ class OwnerAssociationResource extends Resource
                                 ->placeholder('TRN Number'),
                             TextInput::make('phone')
                                 ->rules([
-                                    'regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
+                                    'regex:/^\+?[1-9]\d{1,14}$/',
                                     function (?Model $record) { // ?Model ka use karke $record nullable banaya
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
 
@@ -155,14 +156,6 @@ class OwnerAssociationResource extends Resource
                                 ->placeholder('Contact Number'),
                             TextInput::make('address')
                                 ->required()
-                                ->disabled(function (callable $get) {
-                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                        return DB::table('owner_associations')
-                                            ->where('email', $get('email'))
-                                            ->where('verified', 1)
-                                            ->exists();
-                                    }
-                                })
                                 ->placeholder('Address'),
                             TextInput::make('email')
                                 ->rules([
@@ -215,13 +208,25 @@ class OwnerAssociationResource extends Resource
                                 ->required()
                                 // ->live()
                                 ->disabled(function (callable $get) {
-                                    return Role::where('id', auth()->user()->role_id)
-                                        ->first()->name != 'Admin' && DB::table('owner_associations')
+                                    return DB::table('owner_associations')
                                         ->where('phone', $get('phone'))
                                         ->where('verified', 1)
                                         ->exists();
                                 })
                                 ->placeholder('Email'),
+                                TextInput::make('password')
+                                ->password()
+                                ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                                ->dehydrated(fn ($state) => filled($state))
+                                ->required(fn (string $operation): bool => $operation === 'create')
+                                ->rule(Password::min(8)
+                                    ->letters()
+                                    ->mixedCase()
+                                    ->numbers()
+                                    ->symbols()
+                                    ->uncompromised()
+                                )
+                                ->visible(fn (string $operation): bool => $operation === 'create'),
                             TextInput::make('bank_account_number')
                                 ->label('Bank Account Number')
                                 ->numeric()
@@ -234,6 +239,12 @@ class OwnerAssociationResource extends Resource
                                     }
                                 })
                                 ->placeholder('Account Number'),
+                                Hidden::make('verified_by')
+                                ->default(auth()->user()?->id),
+                                Hidden::make('created_by')
+                                ->default(auth()->user()?->id),
+                                Hidden::make('updated_by')
+                                ->default(auth()->user()?->id),
                             Toggle::make('verified')
                                 ->rules(['boolean'])
                                 ->default(true)
@@ -252,12 +263,10 @@ class OwnerAssociationResource extends Resource
                             ->disk('s3')
                             ->directory('owner_associations/trn_certificate')
                             ->previewable(true)
-                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('TRN Certificate')
                             ->required()
-                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -270,7 +279,6 @@ class OwnerAssociationResource extends Resource
                             ->disk('s3')
                             ->directory('owner_associations/trade_license')
                             ->previewable(true)
-                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Trade License')
@@ -287,7 +295,6 @@ class OwnerAssociationResource extends Resource
                             ->disk('s3')
                             ->directory('owner_associations/chamber_document')
                             ->previewable(true)
-                            ->image()
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Dubai Chamber Document')
@@ -304,7 +311,6 @@ class OwnerAssociationResource extends Resource
                             ->disk('s3')
                             ->directory('owner_associations/memorandum_of_association')
                             ->previewable(true)
-                            ->image()
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->label('Memorandum of Association')
