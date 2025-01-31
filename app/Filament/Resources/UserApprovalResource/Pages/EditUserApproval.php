@@ -208,7 +208,7 @@ class EditUserApproval extends EditRecord
             $this->record->status == null &&
             DB::table('flat_tenants')
             ->where('tenant_id', $this->record->user_id)
-            ->where('role', 'Tenant')
+            ->where('flat_id', $this->record->flat_id)
             ->exists()
         ) {
             $user->active = true;
