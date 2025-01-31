@@ -308,7 +308,7 @@ class ComplaintObserver
                                         if($slug){
                                             return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
                                         }
-                                        return url('/app/facility-support-complaints' . $complaint?->id.'/edit');
+                                        return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
                                     }),
                             ])
                             ->sendToDatabase($notifyTo);
