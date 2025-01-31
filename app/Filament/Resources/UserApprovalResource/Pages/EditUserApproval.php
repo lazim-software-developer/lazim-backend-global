@@ -97,9 +97,13 @@ class EditUserApproval extends EditRecord
                 $existingRental = RentalDetail::where('flat_tenant_id', $flatTenant->id)->first();
 
                 if ($existingRental) {
-                    // Update existing rental detail status from contract_status
+                    // Update existing rental detail
                     $existingRental->update([
-                        'status' => $data['contract_status'] ?? 'Active'
+                        'status' => $data['contract_status'] ?? 'Active',
+                        'contract_start_date' => $data['contract_start_date'],
+                        'contract_end_date' => $data['contract_end_date'],
+                        'advance_amount' => $data['advance_amount'],
+                        'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
                     ]);
                 } else {
                     // Only validate and create rental details if they don't exist
@@ -121,7 +125,7 @@ class EditUserApproval extends EditRecord
                             // Create rental details with correct flat_tenant_id
                             $rentalDetail = RentalDetail::create([
                                 'flat_id' => $this->record->flat_id,
-                                'flat_tenant_id' => $flatTenant->id, // Use the correct flat_tenant_id
+                                'flat_tenant_id' => $flatTenant->id,
                                 'number_of_cheques' => $data['number_of_cheques'],
                                 'admin_fee' => $data['admin_fee'] ?? null,
                                 'other_charges' => $data['other_charges'] ?? null,
@@ -209,7 +213,8 @@ class EditUserApproval extends EditRecord
         ) {
             $user->active = true;
             $user->save();
-            FlatTenant::where(['tenant_id' => $user->id, 'flat_id' => $this->record->flat_id, 'active' => false])->latest()->first()?->update(['active' => true]);
+            FlatTenant::where(['tenant_id' => $user->id, 'flat_id' => $this->record->flat_id, 'active' => false])
+            ->latest()->first()?->update(['active' => true]);
             Residentapproval::dispatch($user, $mailCredentials, $pm_oa);
             Notification::make()
                 ->title("Resident Approved")

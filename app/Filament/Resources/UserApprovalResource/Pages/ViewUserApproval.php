@@ -52,6 +52,7 @@ class ViewUserApproval extends ViewRecord
                 $data['other_charges'] = $rentalDetail->other_charges;
                 $data['admin_charges'] = $rentalDetail->admin_charges;
                 $data['brokerage'] = $rentalDetail->brokerage;
+                $data['contract_status'] = $rentalDetail->status; // Add this line to map the status
 
                 // Load associated cheques
                 $data['cheques'] = $rentalDetail->rentalCheques()->get()->map(function($cheque) {
