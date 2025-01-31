@@ -4,7 +4,6 @@ use Livewire\Livewire;
 use Filament\Pages\Page;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
-use App\Filament\Pages\CustomPage;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use Illuminate\Support\Facades\Route;
@@ -40,7 +39,6 @@ Livewire::setUpdateRoute(function ($handle) {
 Route::get('/', function () {
     return redirect('/admin');
 });
-// Route::get('/admin/custom-page', CustomPage::class)->name('filament.pages.custom-page');
 
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/dashboard', function () {

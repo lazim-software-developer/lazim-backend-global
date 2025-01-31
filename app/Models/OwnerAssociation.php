@@ -5,6 +5,7 @@ namespace App\Models;
 use Sushi\Sushi;
 use App\Models\User\User;
 use Illuminate\Support\Arr;
+use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
@@ -124,5 +125,16 @@ class OwnerAssociation extends Model
     public function vendors()
     {
         return $this->belongsToMany(Vendor::class, 'owner_association_vendor')->withPivot(['status']);
+    }
+    public function flats()
+    {
+        return $this->hasManyThrough(
+            Flat::class,
+            Building::class,
+            'owner_association_id', // Foreign key on buildings table
+            'building_id',         // Foreign key on flats table
+            'id',                 // Local key on owner_associations table
+            'id'                 // Local key on buildings table
+        );
     }
 }

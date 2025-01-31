@@ -9,6 +9,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditFlat extends EditRecord
 {
     protected static string $resource = FlatResource::class;
+    protected ?string $heading = 'Flat';
+
+    public $value;
 
     // protected function getHeaderActions(): array
     // {
@@ -16,4 +19,8 @@ class EditFlat extends EditRecord
     //         Actions\DeleteAction::make(),
     //     ];
     // }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
