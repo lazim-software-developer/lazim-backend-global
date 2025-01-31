@@ -20,23 +20,23 @@ class ListComplaintssuggessions extends ListRecords
             ->pluck('flat_id')
             ->toArray();
 
-        $authOaBuildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)
-            ->pluck('id')->toArray();
+        $oa_buildings = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('building_id')
+            ->toArray();
 
         if ($role == 'Admin') {
             return parent::getTableQuery();
         }
         if ($role == 'Property Manager') {
             return parent::getTableQuery()->where('complaint_type', 'suggestions')
-                ->whereIn('flat_id', $pmFlats)
-                ->where('owner_association_id', auth()->user()?->owner_association_id);
+                ->whereIn('flat_id', $pmFlats);
         }
         if ($role == 'OA') {
-            return parent::getTableQuery()->where('complaint_type', 'suggestions')
-                ->where('owner_association_id', auth()->user()?->owner_association_id);
+            return parent::getTableQuery()->where('complaint_type', 'suggestions')->whereIn('building_id', $oa_buildings);
         }
         return parent::getTableQuery()->where('complaint_type', 'suggestions')
-            ->whereIn('building_id', $authOaBuildings);
+            ->whereIn('building_id', $oa_buildings);
 
     }
     protected function getHeaderActions(): array
