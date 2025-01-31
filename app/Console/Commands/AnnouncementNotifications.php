@@ -32,10 +32,7 @@ class AnnouncementNotifications extends Command
      */
     public function handle()
     {
-        $scheduledAt = Post::whereBetween('scheduled_at', [
-            now()->subMinute()->startOfMinute(),
-            now()->startOfMinute()
-        ])
+        $scheduledAt = Post::where('scheduled_at',now()->startOfMinute())
         ->where('status','published')->where('active',true)->distinct()->get();
 
         foreach($scheduledAt as $post){
