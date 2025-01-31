@@ -79,7 +79,7 @@ class EditFacilityManager extends EditRecord
             DB::table('owner_association_vendor')
                 ->where('vendor_id', $record->id)
                 ->where('owner_association_id', auth()->user()->owner_association_id)
-                ->update(['status' => $data['status']]);
+                ->update(['status' => $data['status'], 'active' => true]);
 
             if ($record->user) {
                 $record->user->update([
