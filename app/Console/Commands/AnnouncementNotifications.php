@@ -34,7 +34,7 @@ class AnnouncementNotifications extends Command
     {
         $scheduledAt = Post::where('scheduled_at',now()->startOfMinute())
         ->where('status','published')->where('active',true)->distinct()->get();
-        Log::info($scheduledAt->pluck('id'));
+        
         foreach($scheduledAt as $post){
             $buildings = DB::table('building_post')
                 ->where('post_id',$post->id)
