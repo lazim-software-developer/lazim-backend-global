@@ -259,6 +259,7 @@ class UserApprovalResource extends Resource
                                             if ($record) {
                                                 return DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
+                                                    ->where('flat_id', $record->flat_id)
                                                     ->where('role', 'Tenant')
                                                     ->value('start_date');
                                             }
@@ -271,6 +272,7 @@ class UserApprovalResource extends Resource
                                             if ($record) {
                                                 return DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
+                                                    ->where('flat_id', $record->flat_id)
                                                     ->where('role', 'Tenant')
                                                     ->value('end_date');
                                             }
@@ -356,6 +358,7 @@ class UserApprovalResource extends Resource
                                     return $get('status') === 'approved' &&
                                     DB::table('flat_tenants')
                                         ->where('tenant_id', $record->user_id)
+                                        ->where('flat_id', $record->flat_id)
                                         ->where('role', 'Tenant')
                                         ->exists();
                                 }),
