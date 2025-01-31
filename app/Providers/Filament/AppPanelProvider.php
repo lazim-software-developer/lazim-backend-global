@@ -233,7 +233,7 @@ class AppPanelProvider extends PanelProvider
                                     ->activeIcon('heroicon-m-clipboard-document-check')
                                     ->sort(1),
                                 NavigationItem::make('Units')
-                                    ->url('/app/building/flats')
+                                    ->url('/app/flats')
                                     ->visible($user->can('view_any_building::flat'))
                                     ->icon('heroicon-o-home')
                                     ->activeIcon('heroicon-o-home')
