@@ -108,8 +108,8 @@ class GuestController extends Controller
 
     public function saveFlatVisitors(FlatVisitorRequest $request)
     {
-        if ($request->has('global_building_id')) {
-            $oa_id = DB::table('building_owner_association')->where('building_id', $request->global_building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
         // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
