@@ -172,7 +172,12 @@ class UserApprovalResource extends Resource
 
                             // Add rental details section that shows when status is approved
                             Section::make('Rental Details')
-                                ->visible(fn () => $isPropertyManager)
+                                ->hidden(function () {
+                                    $pm = auth()->user()->role->name === 'Property Manager';
+                                    if ($pm) {
+                                        return false;
+                                    }return true;
+                                })
                                 ->schema([
                                     TextInput::make('admin_fee')
                                         ->required()
@@ -217,7 +222,8 @@ class UserApprovalResource extends Resource
                                                 ->where('role', 'Tenant')
                                                 ->latest()
                                                 ->first();
-                                            return $flatTenant && RentalDetail::where('flat_tenant_id', $flatTenant->id)->exists();
+                                            return $flatTenant && RentalDetail::where('flat_tenant_id', $flatTenant->id)
+                                                ->exists();
                                         }),
 
                                     Select::make('number_of_cheques')
@@ -258,13 +264,6 @@ class UserApprovalResource extends Resource
                                             }
                                             return null;
                                         }),
-                                    // ->disabled(fn ($record) =>
-                                    //     DB::table('flat_tenants')
-                                    //         ->where('tenant_id', $record?->user_id)
-                                    //         ->where('role', 'Tenant')
-                                    //         ->whereNotNull('start_date')
-                                    //         ->exists()
-                                    // ),
                                     DatePicker::make('contract_end_date')
                                         ->required()
                                         ->after('contract_start_date')
@@ -277,13 +276,6 @@ class UserApprovalResource extends Resource
                                             }
                                             return null;
                                         }),
-                                    // ->disabled(fn ($record) =>
-                                    //     DB::table('flat_tenants')
-                                    //         ->where('tenant_id', $record?->user_id)
-                                    //         ->where('role', 'Tenant')
-                                    //         ->whereNotNull('end_date')
-                                    //         ->exists()
-                                    // ),
                                     TextInput::make('advance_amount')
                                         ->required()
                                         ->numeric()
@@ -369,7 +361,12 @@ class UserApprovalResource extends Resource
                                 }),
 
                             Section::make('Cheque Details')
-                                ->visible(fn () => $isPropertyManager)
+                                ->hidden(function () {
+                                    $pm = auth()->user()->role->name === 'Property Manager';
+                                    if ($pm) {
+                                        return false;
+                                    }return true;
+                                })
                                 ->schema([
                                     Repeater::make('cheques')
                                         ->schema([
@@ -538,7 +535,7 @@ class UserApprovalResource extends Resource
     // Add this helper method to the class
     private static function shouldDisableField($record): bool
     {
-        if (!auth()->user()?->role->name === 'Property Manager') {
+        if (! auth()->user()?->role->name === 'Property Manager') {
             return true;
         }
 
