@@ -12,4 +12,9 @@ class CreateFlat extends CreateRecord
 {
 
     protected static string $resource = FlatResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('edit', ['record' => $this->record->getKey()]);
+    }
 }
