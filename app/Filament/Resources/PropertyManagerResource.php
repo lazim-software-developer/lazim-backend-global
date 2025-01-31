@@ -53,6 +53,7 @@ class PropertyManagerResource extends Resource
                             ->unique('owner_associations', 'trn_number', fn(?Model $record) => $record)
                             ->validationMessages([
                                 'unique' => 'TRN number already exists.',
+                                'required' => 'TRN number is required.',
                             ])
                             ->placeholder('Enter TRN number'),
 
