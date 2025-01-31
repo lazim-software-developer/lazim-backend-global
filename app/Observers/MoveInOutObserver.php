@@ -78,7 +78,7 @@ class MoveInOutObserver
                         Action::make('view')
                             ->button()
                             ->url(function() use ($moveInOut){
-                                $slug = OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug;
+                                $slug = $oa?->slug;
                                 if($slug){
                                     return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
                                 }
