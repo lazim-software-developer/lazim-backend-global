@@ -40,7 +40,7 @@ class AnnouncementNotifications extends Command
 
         foreach($scheduledAt as $post){
             $buildings = DB::table('building_post')
-                ->whereIn('post_id',$post->id)
+                ->where('post_id',$post->id)
                 ->distinct()
                 ->pluck('building_id');
 
