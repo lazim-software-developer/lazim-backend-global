@@ -77,7 +77,7 @@ class MoveInOutObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(function() use ($moveInOut){
+                            ->url(function() use ($moveInOut,$oa){
                                 $slug = $oa?->slug;
                                 if($slug){
                                     return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
