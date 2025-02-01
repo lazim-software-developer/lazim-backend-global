@@ -27,7 +27,7 @@ class ListFitOutFormsDocuments extends ListRecords
             if($role == 'Property Manager'){
                 return parent::getTableQuery()->whereIn('flat_id', $pmFlats);
             }elseif($role == 'OA'){
-                return parent::getTableQuery()->where->whereIn('building_id', $pmBuildings);
+                return parent::getTableQuery()->whereIn('building_id', $pmBuildings);
             }
 
         return parent::getTableQuery();

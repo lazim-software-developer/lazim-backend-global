@@ -33,19 +33,20 @@ class AnnouncementNotifications extends Command
     public function handle()
     {
         $scheduledAt = Post::where('scheduled_at',now()->startOfMinute())
-        ->where('status','published')->where('active',true)->distinct()->get();
-        
+        ->where('status','published')->where('active',true)->get();
+
         foreach($scheduledAt as $post){
             $buildings = DB::table('building_post')
                 ->where('post_id',$post->id)
-                ->distinct()
-                ->pluck('building_id');
+                ->pluck('building_id')
+                ->unique();
 
             $tenant = FlatTenant::where('active',1)
-                    ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
+                    ->whereIn('building_id',$buildings)->pluck('tenant_id')->unique();
 
                 foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
+                $expoPushTokens = ExpoPushNotification::where('user_id', $user)
+                    ->pluck('token')->unique();
 
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
