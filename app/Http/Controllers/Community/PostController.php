@@ -29,7 +29,7 @@ class PostController extends Controller
 
         // Start the query on the Post model
         $query = Post::where('status', 'published')
-            ->where('scheduled_at', '<=', now())
+            ->where('scheduled_at', '<=', now()->startOfMinute())
             ->whereHas('building', function ($q) use ($building) {
                 $q->where('buildings.id', $building->id);
             });
