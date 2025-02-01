@@ -17,6 +17,7 @@ use App\Traits\UtilsTrait;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -43,13 +44,10 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
-        $buildingId = DB::table('building_post')->where('post_id', $post->id)->pluck('building_id');
-        $oam_ids = DB::table('building_owner_association')->whereIn('building_id', $buildingId)
-            ->where('active', true)->distinct()->pluck('owner_association_id');
 
-        foreach($oam_ids as $oam_id){
-            $notifyTo = User::where(['id'=>$post->user_id,'owner_association_id'=> $oam_ids])->get();
-
+            $notifyTo = User::where(['id'=>$post->user_id])->get();
+            $user = User::where('id',$post->user_id)->first();
+            Log::info($user?->owner_association_id);
             if(!$notifyTo->isEmpty()){
                 Notification::make()
                     ->success()
@@ -60,8 +58,8 @@ class CommentController extends Controller
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(function() use ($oam_id,$post){
-                                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                            ->url(function() use ($user,$post){
+                                $slug = OwnerAssociation::where('id',$user?->owner_association_id)->first()?->slug;
                                 if($slug){
                                     return PostResource::getUrl('edit', [$slug,$post->id]);
                                 }
@@ -70,7 +68,7 @@ class CommentController extends Controller
                     ])
                     ->sendToDatabase($notifyTo);
             }
-        }
+
 
         return (new CustomResponseResource([
             'title' => 'Success',

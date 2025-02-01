@@ -35,6 +35,8 @@ class ComplaintssuggessionResource extends Resource
     protected static ?string $modelLabel     = 'Suggestions';
 
     protected static ?string $navigationGroup = 'Happiness center';
+    protected static bool $isScopedToTenant  = false;
+
     public static function form(Form $form): Form
     {
         return $form

@@ -37,7 +37,11 @@ class PollNotifications extends Command
             now()->startOfMinute()
         ])
         ->where('status','published')->where('active',true)->distinct()->get();
-        $buildings=$scheduledAt->pluck('building_id');
+
+        $buildings=DB::table('building_poll')
+            ->whereIn('poll_id',$scheduledAt->pluck('id'))
+            ->distinct()
+            ->pluck('building_id');
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
 

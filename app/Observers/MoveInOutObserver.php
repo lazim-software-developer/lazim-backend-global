@@ -36,8 +36,8 @@ class MoveInOutObserver
                 ->exists();
             $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
                 ->whereNot('id', auth()->user()?->id)->get();
-            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
-                if($moveInOut->type == 'move-in'){
+            if($moveInOut->type == 'move-in'){
+                if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
                     $requiredPermissions = ['view_any_move::in::forms::document'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
@@ -77,8 +77,8 @@ class MoveInOutObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(function() use ($moveInOut){
-                                $slug = OwnerAssociation::where('id',$moveInOut->owner_association_id)->first()?->slug;
+                            ->url(function() use ($moveInOut,$oa){
+                                $slug = $oa?->slug;
                                 if($slug){
                                     return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
                                 }

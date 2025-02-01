@@ -363,4 +363,13 @@ class VendorRegistrationController extends Controller
         $oaIds = DB::table('owner_association_vendor')->where('vendor_id', $vendor)->pluck('owner_association_id');
         return OwnerAssociation::whereIn('id', $oaIds)->pluck('role','role')->unique();
     }
+    public function registeredWith(Request $request)
+    {
+        $user = auth()->user();
+        $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
+        $oaIds  = DB::table('owner_association_vendor')
+            ->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])
+            ->pluck('owner_association_id');
+        return OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+    }
 }

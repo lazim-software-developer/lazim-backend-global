@@ -147,7 +147,7 @@ class ComplaintObserver
                     if(OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug){
                         Notification::make()
                             ->success()
-                            ->title("Facility support Ticket Received")
+                            ->title("New ticket received")
                             ->icon('heroicon-o-document-text')
                             ->iconColor('warning')
                             ->body('A new ticket is raised by ' . auth()->user()->first_name)
@@ -308,7 +308,7 @@ class ComplaintObserver
                                         if($slug){
                                             return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
                                         }
-                                        return url('/app/facility-support-complaints' . $complaint?->id.'/edit');
+                                        return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
                                     }),
                             ])
                             ->sendToDatabase($notifyTo);

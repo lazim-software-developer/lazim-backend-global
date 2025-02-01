@@ -110,7 +110,7 @@ class TechnicianController extends Controller
                 'first_name' => $request->name
             ]);
         }
-        $technician->update($request->all());
+        $technician->update($request->except('building_id'));
 
         return (new CustomResponseResource([
             'title' => 'Details updated!',
