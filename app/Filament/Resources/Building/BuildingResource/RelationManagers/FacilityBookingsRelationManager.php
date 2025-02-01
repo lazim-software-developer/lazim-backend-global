@@ -205,7 +205,6 @@ class FacilityBookingsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->after(function (Model $record) {
                         $user = FacilityBooking::where('id', $record->id)->first();
-                        dd($user);
                         if ($user->bookable_type == 'App\Models\Master\Facility') {
                             $facilityName = Facility::where('id', $user->bookable_id)->first();
                             if ($user->approved != null) {
