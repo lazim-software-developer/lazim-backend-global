@@ -17,6 +17,7 @@ use App\Traits\UtilsTrait;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -45,7 +46,7 @@ class CommentController extends Controller
         $comment->save();
 
             $notifyTo = User::where(['id'=>$post->user_id])->get();
-
+            Log::info($notifyTo);
             if(!$notifyTo->isEmpty()){
                 Notification::make()
                     ->success()
