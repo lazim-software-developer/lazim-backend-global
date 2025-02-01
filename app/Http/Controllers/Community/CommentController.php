@@ -46,7 +46,8 @@ class CommentController extends Controller
         $comment->save();
 
             $notifyTo = User::where(['id'=>$post->user_id])->get();
-            Log::info($notifyTo?->owner_association_id);
+            $user = User::where('id',$post->user_id)->first();
+            Log::info($user?->owner_association_id);
             if(!$notifyTo->isEmpty()){
                 Notification::make()
                     ->success()
@@ -57,8 +58,8 @@ class CommentController extends Controller
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(function() use ($notifyTo,$post){
-                                $slug = OwnerAssociation::where('id',$notifyTo?->owner_association_id)->first()?->slug;
+                            ->url(function() use ($user,$post){
+                                $slug = OwnerAssociation::where('id',$user?->owner_association_id)->first()?->slug;
                                 if($slug){
                                     return PostResource::getUrl('edit', [$slug,$post->id]);
                                 }
