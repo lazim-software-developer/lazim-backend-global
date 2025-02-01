@@ -46,7 +46,7 @@ class CommentController extends Controller
         $comment->save();
 
             $notifyTo = User::where(['id'=>$post->user_id])->get();
-            Log::info($notifyTo);
+            Log::info($notifyTo?->owner_association_id);
             if(!$notifyTo->isEmpty()){
                 Notification::make()
                     ->success()
