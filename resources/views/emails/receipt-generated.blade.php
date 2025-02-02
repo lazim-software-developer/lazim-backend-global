@@ -1,38 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('emails.layouts.email')
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Receipt Confirmation for Your Payment</title>
-    </head>
+@section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Payment Receipt</h2>
 
-    <body>
-        <p>Dear {{ $receipt->user->name}},</p>
+<p>Dear {{ $receipt->user->name }},</p>
 
-        <p>We are pleased to confirm that we have received your payment. Please find the details of your receipt below:</p>
+<p>We are pleased to confirm that we have received your payment.</p>
 
-        <h3>Receipt Details:</h3>
-        <ul>
-            <li>Receipt Number: {{ $receipt->receipt_number ?? 'N/A' }}</li>
-            <li>Date: {{ $receipt->date ?? 'N/A' }}</li>
-            @if($receipt->building?->name)
-            <li>Building: {{ $receipt->building->name }}</li>
-            @endif
-            @if($receipt->flat?->property_number)
-            <li>Flat Number: {{ $receipt->flat->property_number }}</li>
-            @endif
-            <li>Amount Paid: {{ $receipt->amount ?? 'N/A' }}</li>
-            <li>Payment Method: {{ $receipt->payment_method ?? 'N/A' }}</li>
-        </ul>
+<div class="title">Receipt Details:</div>
+<p>
+    <strong>Receipt Number:</strong> {{ $receipt->receipt_number ?? 'N/A' }}<br>
+    <strong>Date:</strong> {{ $receipt->date ?? 'N/A' }}<br>
+    @if($receipt->building?->name)
+    <strong>Building:</strong> {{ $receipt->building->name }}<br>
+    @endif
+    @if($receipt->flat?->property_number)
+    <strong>Flat Number:</strong> {{ $receipt->flat->property_number }}<br>
+    @endif
+    <strong>Amount Paid:</strong> {{ $receipt->amount ?? 'N/A' }}<br>
+    <strong>Payment Method:</strong> {{ $receipt->payment_method ?? 'N/A' }}
+</p>
 
-        <p>Thank you for your prompt payment. If you have any questions or require further assistance, please feel free to contact us.</p>
+<p>Thank you for your prompt payment.</p>
 
-        <p>We appreciate your continued trust in our services.</p>
+<p>If you have any questions or require further assistance, please feel free to contact us.</p>
 
-        <p>Regards,</p>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
-        <p>{{$pm_oa}}</p>
-    </body>
+<p>We appreciate your continued trust in our services.</p>
 
-</html>
+<p>Regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $pm_oa }}</p>
+@endsection

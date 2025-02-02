@@ -42,10 +42,16 @@ class ComplaintCreationJob implements ShouldQueue
         $dataObj = Complaint::findOrFail($this->complaintId);
         $oaId = DB::table('building_owner_association')
             ->where(['building_id' => $dataObj->building_id, 'active' => 1])->first()?->owner_association_id;
-        $property_manager_name = OwnerAssociation::where('id', $oaId)->first()?->name;
+
+        $ownerAssociation = OwnerAssociation::where('id', $oaId)->first();
+        $property_manager_name = $ownerAssociation?->name;
+        $property_manager_logo = $ownerAssociation?->profile_photo;
+
+        // Add AWS URL to logo path if logo exists
+        $property_manager_logo = $property_manager_logo ? env('AWS_URL') . '/' . $property_manager_logo : null;
 
         if($this->technicianId){
-            $this->sendMailToTechnician($this->technicianId, $beautymail, $dataObj,$property_manager_name);
+            $this->sendMailToTechnician($this->technicianId, $beautymail, $dataObj, $property_manager_name, $property_manager_logo);
         } else {
             $user = $dataObj->user;
 
@@ -54,7 +60,8 @@ class ComplaintCreationJob implements ShouldQueue
                 'ticket_number' => $dataObj->ticket_number,
                 'building' => $dataObj->building->name,
                 'flat' => $dataObj?->flat?->property_number ?? '',
-                'property_manager_name' => $property_manager_name ?? ''
+                'property_manager_name' => $property_manager_name ?? '',
+                'property_manager_logo' => $property_manager_logo ?? '',
             ], function ($message) use ($user) {
                 $message
                     ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
@@ -66,7 +73,7 @@ class ComplaintCreationJob implements ShouldQueue
 
     }
 
-    public function sendMailToTechnician($technicianId, $beautymail, $dataObj, $property_manager_name){
+    public function sendMailToTechnician($technicianId, $beautymail, $dataObj, $property_manager_name, $property_manager_logo){
         $user = User::findOrFail($technicianId);
 
         $beautymail->send('emails.complaint.complaint_to_technician', [
@@ -75,6 +82,7 @@ class ComplaintCreationJob implements ShouldQueue
             'building' => $dataObj->building->name,
             'flat' => $dataObj?->flat?->property_number ?? '',
             'property_manager_name' => $property_manager_name ?? '',
+            'property_manager_logo' => $property_manager_logo ?? '',
             'description' => $dataObj->complaint
         ], function ($message) use ($user, $dataObj) {
             $message

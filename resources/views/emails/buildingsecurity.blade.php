@@ -67,7 +67,7 @@
         <tr>
             <td class="paragraph">
                 We're excited to have you on board!
-			</td>
+            </td>
 		</tr>
 		<tr>
 			<td width="100%" height="5"></td>
@@ -82,4 +82,10 @@
 		</tr>
 	@include('beautymail::templates.minty.contentEnd')
 
-@stop
+<p>We're excited to have you on board!</p>
+
+<p>
+    Regards,<br>
+    <strong>-Lazim Team</strong>
+</p>
+@endsection

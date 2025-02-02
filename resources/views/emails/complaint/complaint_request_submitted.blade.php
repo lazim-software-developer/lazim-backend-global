@@ -1,82 +1,30 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Complaint Request Acknowledgment</h2>
 
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Thank you for reaching out to us. We are pleased to confirm that your complaint request has been successfully submitted. Please find the details of your ticket below:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Ticket Details:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>● Ticket Number: </strong> {{$ticket_number}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>● Building: </strong> {{$building}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>● Flat: </strong> {{$flat}}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We appreciate your trust in us and are committed to addressing your concerns promptly.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="15"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        If you have any further questions or require updates, please don't hesitate to contact our support team.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="15"></td>
-</tr>
-<tr>
-    <td>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        {{$property_manager_name}}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
+<p>Dear {{ $user->first_name }},</p>
 
-@stop
+<p>Thank you for reaching out to us. We are pleased to confirm that your complaint request has been successfully submitted.</p>
+
+<div class="title">Ticket Details:</div>
+<p>
+    <strong>Ticket Number:</strong> {{ $ticket_number }}<br>
+    <strong>Building:</strong> {{ $building }}<br>
+    <strong>Flat:</strong> {{ $flat }}
+</p>
+
+<p>We appreciate your trust in us and are committed to addressing your concerns promptly.</p>
+
+<p>If you have any further questions or require updates, please don't hesitate to contact our support team.</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>
+    {{ $property_manager_name }}
+</p>
+@endsection

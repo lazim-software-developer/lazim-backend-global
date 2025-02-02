@@ -102,6 +102,7 @@ class ComplaintResource extends Resource
                                     ->disabledOn('edit')
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('vendor_id', null);
+                                        $set('service_id', null);
                                         $set('technician_id', null);
                                     }),
 

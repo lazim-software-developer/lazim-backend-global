@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use Carbon\Carbon;
@@ -28,10 +27,14 @@ class SendSubcontractorCreatedMailJob implements ShouldQueue
     public function handle(): void
     {
         $start_date = Carbon::parse($this->subContractor->start_date)->format('d-M-Y');
-        $end_date = Carbon::parse($this->subContractor->end_date)->format('d-M-Y');
+        $end_date   = Carbon::parse($this->subContractor->end_date)->format('d-M-Y');
+
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.subContractorCreated', ['subContractor' => $this->subContractor, 'start_date' => $start_date, 'end_date' => $end_date],
-        function ($message) {
+        $beautymail->send('emails.subContractorCreated', [
+            'subContractor'         => $this->subContractor,
+            'start_date'            => $start_date,
+            'end_date'              => $end_date,
+        ], function ($message) {
             $message
                 ->to($this->subContractor->email, $this->subContractor->name)
                 ->subject('Successful Account Creation On Lazim Portal');

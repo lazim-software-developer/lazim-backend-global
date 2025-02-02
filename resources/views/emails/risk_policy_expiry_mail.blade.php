@@ -1,69 +1,21 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Risk Policy Certificate Expiry Reminder</h2>
 
-	@include('beautymail::templates.minty.contentStart')
-		<tr>
-			<td class="paragraph">
-                Dear Facility Management Team,
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="20"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-                This is a friendly reminder that your Risk Policy Certificate is set to expire on {{$expiry_date}}.
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-        <tr>
-			<td class="title">
-                Next Steps:
-			</td>
-		</tr>
+<p>Dear Facility Management Team,</p>
 
-		<tr>
-			<td width="100%" height="10"></td>
-		</tr>
+<p>This is a friendly reminder that your Risk Policy Certificate is set to expire on {{$expiry_date}}.</p>
 
-        <tr>
-            <td class="paragraph">
-                To avoid any disruptions to your services, please update your renewed Risk Policy Certificate details in your profile.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
+<div class="title">Next Steps:</div>
+<p>To avoid any disruptions to your services, please update your renewed Risk Policy Certificate details in your profile.</p>
 
-        <tr>
-            <td class="paragraph">
-                For assistance, reach out to us at +971 501362428 / 043954525.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
+<p>For assistance, reach out to us at +971501362428 / 043954525.</p>
 
-        <tr>
-            <td class="paragraph">
-                Thank you for your prompt attention to this matter.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="5"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-                Lazim Team
-			</td>
-		</tr>
+<p>Thank you for your prompt attention to this matter.</p>
 
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-	@include('beautymail::templates.minty.contentEnd')
-
-@stop
+<p>
+    Regards,<br>
+    <strong>-Lazim Team</strong>
+</p>
+@endsection
