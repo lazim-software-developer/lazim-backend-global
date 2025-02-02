@@ -2,6 +2,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Building\Building;
+use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
@@ -26,6 +27,7 @@ class PermitWorkResource extends JsonResource
             'approved'      => (bool) $this->approved,
             'description'   => $this->description,
             'building_name'      => Building::where('id', $this->building_id)->first()->name,
+            'user' => User::where('id', $this->user_id)->first()->first_name,
         ];
     }
 }

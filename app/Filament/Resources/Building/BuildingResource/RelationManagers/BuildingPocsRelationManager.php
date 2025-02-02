@@ -155,7 +155,7 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
+                            ->rules([function () {
                                 return function (string $attribute, $value, Closure $fail) {
                                     if (DB::table('users')->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
@@ -163,8 +163,9 @@ class BuildingPocsRelationManager extends RelationManager
                                 };
                             }])
                             ->prefix('971')
+                            ->placeholder('XXXXXXXXX')
                             ->required()
-                            ->maxLength(255),
+                            ->length(9),
                         FileUpload::make('profile_photo')
                             ->disk('s3')
                             ->directory('dev')
@@ -260,13 +261,15 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
+                            ->rules([ function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
                                     if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             }])
+                            ->length(6)
+                            ->placeholder('XXXXXXXXX')
                             ->prefix('971')
                             ->required()
                             ->maxLength(255),
