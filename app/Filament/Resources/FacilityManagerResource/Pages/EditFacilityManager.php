@@ -70,7 +70,7 @@ class EditFacilityManager extends EditRecord
                 'landline_number'      => $data['landline_number'] ?? null,
                 'website'              => $data['website'] ?? null,
                 'status'               => $record?->status == null ? $data['status'] : $record?->status,
-                'remarks'              => $record?->remarks == null ? $data['remarks'] : $record?->remarks,
+                'remarks'              => $record?->remarks? $data['remarks'] : null,
                 'tl_number'            => $data['tl_number'],
                 'tl_expiry'            => $data['tl_expiry'],
             ]);

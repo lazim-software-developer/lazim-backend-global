@@ -75,6 +75,7 @@ class FlatsRelationManager extends RelationManager
                             ->placeholder('Building')
                             ->label('Select Building'),
                         Select::make('property_type')
+                            ->label('Property Type')
                             ->options([
                                 'Shop'   => 'Shop',
                                 'Office' => 'Office',
@@ -84,36 +85,44 @@ class FlatsRelationManager extends RelationManager
                             ->searchable(),
                         TextInput::make('suit_area')
                             ->placeholder('NA')
+                            ->label('Suit Area')
                             ->numeric(),
                         TextInput::make('actual_area')
                             ->placeholder('NA')
+                            ->label('Actual Area')
                             ->numeric(),
                         TextInput::make('balcony_area')
                             ->placeholder('NA')
+                            ->label('Balcony Area')
                             ->numeric(),
-                        TextInput::make('applicable_area')
+                        TextInput::make('parking_count')
                             ->placeholder('NA')
+                            ->label('Parking Count')
                             ->numeric(),
+                        TextInput::make('plot_number')
+                            ->placeholder('NA')
+                            ->label('Plot Number')
+                            ->numeric(),
+                        // TextInput::make('applicable_area')
+                        //     ->placeholder('NA')
+                        //     ->label('Applicable Area')
+                        //     ->numeric(),
                         TextInput::make('virtual_account_number')
                             ->placeholder('NA')
                             ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                             ->numeric(),
-                        TextInput::make('parking_count')
-                            ->placeholder('NA')
-                            ->numeric(),
-                        TextInput::make('plot_number')
-                            ->placeholder('NA')
-                            ->numeric(),
                         TextInput::make('makhani_number')
                             ->placeholder('NA')
+                            ->label('Makani Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('dewa_number')
                             ->placeholder('NA')
+                            ->label('DEWA Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('etisalat/du_number')
-                            ->label('BTU/Etisalat Number')
+                            ->label('DU/Etisalat Number')
                             ->placeholder('NA')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
@@ -122,6 +131,10 @@ class FlatsRelationManager extends RelationManager
                             ->label('BTU/AC Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
+                        TextInput::make('lpg_number')
+                            ->placeholder('NA')
+                            ->label('LPG Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
 
             ]);
@@ -366,8 +379,9 @@ class FlatsRelationManager extends RelationManager
                                 Column::make('plot_number'),
                                 Column::make('makani_number'),
                                 Column::make('dewa_number'),
-                                Column::make('btu/etisalat_number'),
+                                Column::make('du/etisalat_number'),
                                 Column::make('btu/ac_number'),
+                                Column::make('lpg_number'),
                             ]),
                     ])
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
