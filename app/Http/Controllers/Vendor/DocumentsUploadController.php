@@ -44,10 +44,10 @@ class DocumentsUploadController extends Controller
         }
         if ($status == 1){
             $vendor->update(['status' => null, 'remarks' => null]);
-            $vendor->ownerAssociation()->updateExistingPivot($vendor->owner_association_id, [
-                'status' => null,
-                'remarks' => null,
-            ]);
+            DB::table('owner_association_vendor')
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'rejected')
+                ->update(['status' => null, 'remarks' => null]);
         }
 
         return (new CustomResponseResource([
