@@ -370,6 +370,13 @@ class VendorRegistrationController extends Controller
         $oaIds  = DB::table('owner_association_vendor')
             ->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])
             ->pluck('owner_association_id');
-        return OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+        $reUploadDocuments = DB::table('owner_association_vendor')
+                ->where(['vendor_id' => $vendor,'status' => 'rejected'])
+                ->exists();
+        return [
+            'registered_with' => OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique(),
+            're-upload-documents' => $reUploadDocuments ? true : false,
+            'vendor_id' => $vendor,
+        ];
     }
 }
