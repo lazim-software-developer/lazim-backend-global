@@ -28,8 +28,10 @@ use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Validation\Rules\Password;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\OwnerAssociationResource\Pages;
 use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
@@ -411,6 +413,51 @@ class OwnerAssociationResource extends Resource
             ])
 
             ->bulkActions([
+                ExportBulkAction::make()
+                ->exports([
+                    ExcelExport::make()
+                        ->withColumns([
+                            Column::make('created_by')
+                            ->heading('Created By')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
+                            ), 
+                            Column::make('name')
+                                ->heading('Name'),
+                            Column::make('phone')
+                                ->heading('Phone Number'),
+                            Column::make('email')
+                                ->heading('Email'),
+                            Column::make('trn_number')
+                                ->heading('TRN Number'),
+                            Column::make('address')
+                            ->heading('Address'),
+                            Column::make('bank_account_number')
+                                ->heading('Bank Account Number'),      
+                            // Formatted date with custom accessor
+                            Column::make('created_at')
+                                ->heading('Created Date')
+                                ->formatStateUsing(fn ($state) => 
+                                    $state ? $state->format('d/m/Y') : ''
+                                ),
+                                Column::make('active')
+                                ->heading('Status')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->active == 1
+                                        ? 'Active' 
+                                        : 'Inactive'
+                                ),
+                                
+                            // Created by user info
+                            // Column::make('created_by_name')
+                            //     ->heading('Created By')
+                            //     ->formatStateUsing(fn ($record) => 
+                            //         $record->createdBy->name ?? 'System'
+                            //     ),
+                        ])
+                        ->withFilename(date('Y-m-d') . '-owner-association-report')
+                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                ]),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

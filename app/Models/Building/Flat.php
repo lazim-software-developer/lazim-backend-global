@@ -64,6 +64,10 @@ class Flat extends Model
     {
         return $this->belongsTo(Building::class);
     }
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
     public function tenants()
     {
         return $this->hasMany(FlatTenant::class);
