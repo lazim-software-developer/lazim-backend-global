@@ -195,6 +195,14 @@ class Building extends Model
     {
         return $this->belongsTo(OwnerAssociation::class);
     }
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
+    public function ownerAssociationData()
+    {
+        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+    }
     public function posts()
     {
         return $this->belongsToMany(Post::class);
