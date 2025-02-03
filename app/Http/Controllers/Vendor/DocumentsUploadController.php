@@ -43,7 +43,7 @@ class DocumentsUploadController extends Controller
             }
         }
         if ($status == 1){
-            $vendor->update(['status' => null, 'remarks' => null]);
+            // $vendor->update(['status' => null, 'remarks' => null]);
             DB::table('owner_association_vendor')
                 ->where('vendor_id', $vendor->id)
                 ->where('status', 'rejected')
