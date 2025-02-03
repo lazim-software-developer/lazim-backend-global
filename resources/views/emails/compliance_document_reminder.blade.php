@@ -1,5 +1,6 @@
 @php
     $css = '';
+    $logo = asset('images/logo.png'); // Add this line to define the logo variable
 @endphp
 
 @extends('beautymail::templates.minty')
