@@ -1401,7 +1401,7 @@ class AppPanelProvider extends PanelProvider
                         $builder->groups([
                             NavigationGroup::make('Facility Support')
                                 ->items([
-                                    NavigationItem::make('Complaints')
+                                    NavigationItem::make('Issues')
                                         ->url('/app/helpdeskcomplaints')
                                         ->visible(auth()->user()->role->name != 'Property Manager')
                                         ->hidden(!$user->can('view_any_helpdeskcomplaint'))

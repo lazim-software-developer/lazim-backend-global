@@ -177,6 +177,19 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->label('Enquiry details'),
                 TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'open'                                       => 'Open',
+                        'in-progress'                                => 'In-Progress',
+                        'closed'                                     => 'Closed',
+
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'open'                            => 'primary',
+                        'in-progress'                     => 'success',
+                        'closed'                          => 'gray',
+                    })
                     ->toggleable()
                     ->searchable()
                     ->limit(50),

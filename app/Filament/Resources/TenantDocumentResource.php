@@ -82,6 +82,7 @@ class TenantDocumentResource extends Resource
                         ->readonly()
                         ->placeholder('Expiry date'),
                     Select::make('status')
+                        ->required()
                         ->options([
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
@@ -187,7 +188,7 @@ class TenantDocumentResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
                         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
-                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
                                 ->pluck('role')[0] == 'Property Manager') {
                             return User::whereIn('role_id', $roleId)
                                 ->whereIn('id', $flatTenants)
