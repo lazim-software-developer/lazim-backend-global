@@ -200,7 +200,7 @@ class FacilityManagerResource extends Resource
                     ->description('Details of the authorized manager.')
                     ->icon('heroicon-o-user')
                     ->collapsible()
-                    ->collapsed()
+                    // ->collapsed()
                     ->schema([
                         Grid::make(3)
                             ->schema([
