@@ -346,6 +346,17 @@ class ComplaintObserver
                             ->icon('heroicon-o-document-text')
                             ->iconColor('warning')
                             ->body(($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                            ->actions([
+                                Action::make('view')
+                                ->button()
+                                ->url(function() use ($complaint,$oa){
+                                    $slug = $oa?->slug;
+                                    if($slug){
+                                        return ComplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                                    }
+                                    return url('/app/complaints/' . $complaint?->id.'/edit');
+                                }),
+                            ])
                             ->sendToDatabase($notifyTo);
                     }
                 }
@@ -565,17 +576,7 @@ class ComplaintObserver
                                     'notifiable_type' => 'App\Models\User\User',
                                     'notifiable_id' => $complaint->technician_id,
                                     'data' => json_encode([
-                                        'actions' => [
-                                            Action::make('view')
-                                                ->button()
-                                                ->url(function() use ($complaint,$oa){
-                                                    $slug = $oa?->slug;
-                                                    if($slug){
-                                                        return ComplaintResource::getUrl('edit',[$slug,$complaint?->id]);
-                                                    }
-                                                    return url('/app/complaints/' . $complaint?->id.'/edit');
-                                                }),
-                                        ],
+                                        'actions' => [],
                                         'body' => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
                                         'duration' => 'persistent',
                                         'icon' => 'heroicon-o-document-text',
