@@ -272,8 +272,10 @@ class FacilityManagerResource extends Resource
                             if ($state['status'] === 'rejected' && ! empty($state['remarks'])) {
                                 RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                             } elseif ($state['status'] === 'approved') {
-                                $user->password = Hash::make($password);
-                                $user->save();
+                                if($user->password === null){
+                                    $user->password = Hash::make($password);
+                                    $user->save();
+                                }
                                 ApprovedFMJob::dispatch($user, $password, $email, $pm_oa);
                             }
                         }
