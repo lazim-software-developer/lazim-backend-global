@@ -309,6 +309,12 @@ class FacilityManagerResource extends Resource
                         'danger'  => 'rejected',
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', auth()->user()?->owner_association_id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->status : 'NA';
+                    })
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
                     ->default('NA'),
             ])
