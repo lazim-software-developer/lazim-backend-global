@@ -65,7 +65,10 @@ class CreateTechnicianVendor extends CreateRecord
 
             DB::commit();
 
-            TechnicianAccountCreationJob::dispatch($user, $plainPassword);
+            // Fetch the vendor name
+            $vendor = Vendor::where('id', $data['vendor_id'])->first()->name;
+
+            TechnicianAccountCreationJob::dispatch($user, $plainPassword, $vendor);
 
             return $technician;
 

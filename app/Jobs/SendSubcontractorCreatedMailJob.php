@@ -16,7 +16,7 @@ class SendSubcontractorCreatedMailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $subContractor)
+    public function __construct(protected $subContractor, protected $vendor_name)
     {
         //
     }
@@ -31,9 +31,10 @@ class SendSubcontractorCreatedMailJob implements ShouldQueue
 
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.subContractorCreated', [
-            'subContractor'         => $this->subContractor,
-            'start_date'            => $start_date,
-            'end_date'              => $end_date,
+            'subContractor' => $this->subContractor,
+            'start_date'    => $start_date,
+            'end_date'      => $end_date,
+            'vendor_name'   => $this->vendor_name,
         ], function ($message) {
             $message
                 ->to($this->subContractor->email, $this->subContractor->name)

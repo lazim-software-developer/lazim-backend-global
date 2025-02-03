@@ -37,7 +37,10 @@ class SubContractorsController extends Controller
         ]);
         $subContract->services()->sync($request->services);
 
-        SendSubcontractorCreatedMailJob::dispatch($subContract);
+        // Fetch the vendor name
+        $vendor_name = $vendor->name;
+
+        SendSubcontractorCreatedMailJob::dispatch($subContract, $vendor_name);
 
         return SubContractorsResource::make($subContract);
     }
