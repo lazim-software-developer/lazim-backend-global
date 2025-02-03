@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:poll-notifications')->everyMinute()->withoutOverlapping();
         $schedule->command('app:resident-move-out')->everyMinute();
         $schedule->command('app:sub-contract-renewal-reminder')->daily();
-        $schedule->command('app:compliance-document-notification')->dailyAt('18:30');
+        $schedule->command('app:compliance-document-notification')->dailyAt('18:40');
         $schedule->command('fetch:invoices')->daily();
         $schedule->command('dispatch:receipt-fetch')->daily();
         $schedule->command('app:moveout-notification')->daily();
