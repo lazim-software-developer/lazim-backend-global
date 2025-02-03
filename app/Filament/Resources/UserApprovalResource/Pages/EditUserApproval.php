@@ -204,8 +204,9 @@ class EditUserApproval extends EditRecord
 
         $user  = User::find($this->record->user_id);
         $pm_oa = auth()->user()?->first_name ?? '';
+        $pm_logo = auth()->user()?->ownerAssociation?->first()->profile_photo;
         if ($this->data['status'] == 'approved' &&
-            $this->record->status == null &&
+        $this->record->status == null &&
             DB::table('flat_tenants')
             ->where('tenant_id', $this->record->user_id)
             ->where('flat_id', $this->record->flat_id)
@@ -223,7 +224,8 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {
-            ResidentRejection::dispatch($user, $mailCredentials, $this->record, $pm_oa);
+
+            ResidentRejection::dispatch($user, $mailCredentials, $this->record, $pm_oa, $pm_logo);
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()
