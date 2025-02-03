@@ -63,11 +63,10 @@ class TechnicianController extends Controller
             'position'       => $request->position
         ]);
 
-        $vendor = Vendor::where('id', $vendor->id)->first()->name;
 
         $technician->services()->syncWithoutDetaching([$request->service_id]);
 
-        TechnicianAccountCreationJob::dispatch($user, $password, $vendor);
+        TechnicianAccountCreationJob::dispatch($user, $password, $vendor->name);
 
         $assets = $vendor->assets->unique();
         foreach ($assets as $asset) {
