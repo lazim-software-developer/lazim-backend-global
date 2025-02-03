@@ -33,8 +33,7 @@ class ComplianceDocumentNotification extends Command
         $today = Carbon::today();
 
         // Fetch all contracts nearing expiry within 60 days
-        $complianceDocument = ComplianceDocument::whereDate('expiry_date', '>=', $today)
-            ->whereDate('expiry_date', '<=', $today->copy()->addDays(30))
+        $complianceDocument = ComplianceDocument::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])
             ->get();
 
         foreach ($complianceDocument as $document) {
