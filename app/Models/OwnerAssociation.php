@@ -57,6 +57,10 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(User::class);
     }
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
     public function saleNoc()
     {
         return $this->hasMany(SaleNOC::class);
