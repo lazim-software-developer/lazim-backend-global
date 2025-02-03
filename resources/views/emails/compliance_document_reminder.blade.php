@@ -1,3 +1,7 @@
+@php
+    $css = '';
+@endphp
+
 @extends('beautymail::templates.minty')
 
 @section('content')
