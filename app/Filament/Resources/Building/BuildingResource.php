@@ -26,9 +26,12 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Unique;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Forms\Components\FileUpload;
+use App\Filament\Exports\BuildingDataExport;
 use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Forms\Components\MarkdownEditor;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
@@ -357,7 +360,74 @@ class BuildingResource extends Resource
                     ->modalButton('Delete'),
             ])
             ->bulkActions([
-                ExportBulkAction::make(),
+                ExportBulkAction::make()
+                ->exports([
+                    ExcelExport::make()
+                        ->withColumns([
+                            Column::make('created_by')
+                            ->heading('Created By')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
+                            ), 
+                            // Custom column using relationship
+                            Column::make('owner_association_id')
+                            ->heading('Owner Association Name')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->ownerAssociationData->name ?? 'N/A'
+                            ), 
+                            Column::make('name')
+                                ->heading('Building Name'),
+                            Column::make('floors')
+                                ->heading('Floors'),
+                            Column::make('property_group_id')
+                                ->heading('Property Group ID')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->property_group_id ?? 'N/A'
+                                ),
+                            Column::make('address_line1')
+                                ->heading('Address Line 1')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->address_line1 ?? 'N/A'
+                                ),
+                            Column::make('address_line2')
+                            ->heading('Address Line 2')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->address_line2 ?? 'N/A'
+                            ),
+                            Column::make('area')
+                                ->heading('Area')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->area ?? 'N/A'
+                                ),
+                            Column::make('city_id')
+                            ->heading('City')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->cities->name ?? 'N/A'
+                            ),    
+                            // Formatted date with custom accessor
+                            Column::make('created_at')
+                                ->heading('Created Date')
+                                ->formatStateUsing(fn ($state) => 
+                                    $state ? $state->format('d/m/Y') : ''
+                                ),
+                                Column::make('status')
+                                ->heading('Status')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->status == 1
+                                        ? 'Active' 
+                                        : 'Inactive'
+                                ),
+                                
+                            // Created by user info
+                            // Column::make('created_by_name')
+                            //     ->heading('Created By')
+                            //     ->formatStateUsing(fn ($record) => 
+                            //         $record->createdBy->name ?? 'System'
+                            //     ),
+                        ])
+                        ->withFilename(date('Y-m-d') . '-buildings-report')
+                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                ]),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
