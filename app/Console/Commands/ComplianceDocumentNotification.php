@@ -36,7 +36,6 @@ class ComplianceDocumentNotification extends Command
         // Fetch all contracts nearing expiry within 60 days
         $complianceDocument = ComplianceDocument::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])
             ->get();
-        Log::info('ComplaincyList', ['documents' => $complianceDocument->toArray()]);
 
         foreach ($complianceDocument as $document) {
             $daysLeft = $today->diffInDays(Carbon::parse($document->expiry_date), false);
