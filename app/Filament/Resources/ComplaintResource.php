@@ -72,7 +72,7 @@ class ComplaintResource extends Resource
                                     ->minDate(now()->format('Y-m-d'))
                                 // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
-                                    ->disabledOn('edit')
+                                    // ->disabledOn('edit')
                                     ->placeholder('Select Date'),
 
                                 Textarea::make('complaint')
