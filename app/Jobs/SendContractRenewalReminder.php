@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Artisan;
 
 class SendContractRenewalReminder implements ShouldQueue
 {
@@ -55,5 +56,6 @@ class SendContractRenewalReminder implements ShouldQueue
                 $contract->update(['last_reminded_at' => $today]);
             }
         }
+        Artisan::call('optimize:clear');
     }
 }
