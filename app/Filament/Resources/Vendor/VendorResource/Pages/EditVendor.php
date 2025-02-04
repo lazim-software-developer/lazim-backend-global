@@ -120,6 +120,9 @@ class EditVendor extends EditRecord
                 ]);
             }
         }
+        if($this->record->status != null){
+            $this->data['status'] = $this->record->status;
+        }
     }
 
     protected function getRedirectUrl(): string
