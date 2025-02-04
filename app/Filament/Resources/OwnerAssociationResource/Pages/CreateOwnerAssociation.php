@@ -120,7 +120,7 @@ class CreateOwnerAssociation extends CreateRecord
             'password'             => $password,
             'type' => 'company',
             'lang' => 'en',
-            'created_by' => 1,
+            'created_by' => auth()->user()->id,
             'plan' => 1,
             'owner_association_id' => $data->id,
             'building_id' => $building_id??NULL,
