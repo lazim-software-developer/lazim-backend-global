@@ -22,7 +22,7 @@ class WDAObserver
             $requiredPermissions = ['view_any_w::d::a'];
             $oam_ids = DB::table('building_owner_association')->where('building_id', $WDA?->building_id)
                 ->where('active', true)->pluck('owner_association_id');
-            $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])
+            $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])
                 ->pluck('id');
             foreach($oam_ids as $oam_id){
                 $notifyTo = User::where('owner_association_id', $oam_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
