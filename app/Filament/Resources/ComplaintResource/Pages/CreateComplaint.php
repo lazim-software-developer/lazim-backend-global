@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\ComplaintResource\Pages;
 
 use App\Filament\Resources\ComplaintResource;
@@ -21,16 +20,78 @@ class CreateComplaint extends CreateRecord
     {
         $serviceName = Service::where('id', $data['service_id'])->value('name');
 
+        switch ($serviceName) {
+            case 'Cleaning Common Area':
+                $serviceName = 'House Keeping';
+                break;
+            case 'Security Services':
+                $serviceName = 'Security';
+                break;
+            case 'MEP Services':
+                $serviceName = 'Electrical';
+                break;
+            case 'Pumps And Motors':
+                $serviceName = 'Plumbing';
+                break;
+            case 'Sliding/Revolving And Exit Doors':
+                $serviceName = 'AC';
+                break;
+            case 'General Pest Control Service':
+                $serviceName = 'Pest Control';
+                break;
+            case 'Other':
+                $serviceName = 'Other';
+                break;
+            default:
+                $serviceName = 'Other';
+                break;
+        }
+
+        // Set category based on serviceName
+        switch ($serviceName) {
+            case 'House Keeping':
+                $category = 'Cleaning Common Area';
+                break;
+            case 'Security':
+                $category = 'Security Services';
+                break;
+            case 'Electrical':
+            case 'Plumbing':
+            case 'AC':
+                $category = 'MEP Services';
+                break;
+            case 'Pest Control':
+                $category = 'General Pest Control Service';
+                break;
+            default:
+                $category = 'Other';
+                break;
+        }
+
+        // Map the service names back to their original IDs
+        $serviceIdMap = [
+            'Electrical'    => 69,
+            'Plumbing'      => 69,
+            'AC'            => 69,
+        ];
+
         $data['priority']             = 3;
         $data['status']               = 'open';
         $data['complaintable_type']   = 'App\Models\Vendor\Vendor';
         $data['complaintable_id']     = auth()->user()->id;
         $data['user_id']              = auth()->user()->id;
         $data['owner_association_id'] = auth()->user()->owner_association_id;
-        $data['category']             = $serviceName;
+        $data['category']             = $category;
         $data['ticket_number']        = generate_ticket_number("CP");
         $data['complaint_type']       = 'preventive_maintenance';
         $data['open_time']            = Carbon::now();
+        $data['selected_service']     = $serviceName;
+
+        // Save the correct service_id based on the service name
+        if (isset($serviceIdMap[$serviceName])) {
+            $data['service_id'] = $serviceIdMap[$serviceName];
+        }
+
         return $data;
     }
 

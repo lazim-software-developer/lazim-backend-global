@@ -216,7 +216,7 @@ class EditUserApproval extends EditRecord
             $user->save();
             FlatTenant::where(['tenant_id' => $user->id, 'flat_id' => $this->record->flat_id, 'active' => false])
             ->latest()->first()?->update(['active' => true]);
-            Residentapproval::dispatch($user, $mailCredentials, $pm_oa);
+            Residentapproval::dispatch($user, $mailCredentials, $pm_oa, $pm_logo, $this->record);
             Notification::make()
                 ->title("Resident Approved")
                 ->success()
