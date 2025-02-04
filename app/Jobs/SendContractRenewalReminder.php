@@ -33,8 +33,7 @@ class SendContractRenewalReminder implements ShouldQueue
         $today = Carbon::today();
 
         // Fetch all contracts nearing expiry within 60 days
-        $subContracts = SubContractor::whereDate('end_date', '>=', $today)
-            ->whereDate('end_date', '<=', $today->copy()->addDays(60))
+        $subContracts = SubContractor::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])->with('services')
             ->get();
 
         foreach ($subContracts as $contract) {
@@ -42,7 +41,7 @@ class SendContractRenewalReminder implements ShouldQueue
 
             if ($daysLeft > 15 && $daysLeft <= 60) {
                 // Weekly reminder
-                if ($today->isSameDay($contract->last_reminded_at->addWeek())) {
+                if ($contract->last_reminded_at === null || $today->isSameDay($contract->last_reminded_at->addWeek())) {
                     // Send email
                     Mail::to($contract->email)->send(new ContractRenewalReminder($contract));
                     // Update reminder timestamp

@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 class ComplianceDocumentNotification extends Command
 {
@@ -56,6 +57,6 @@ class ComplianceDocumentNotification extends Command
                 $document->update(['last_reminded_at' => $today]);
             }
         }
-
+        Artisan::call('optimize:clear');
     }
 }
