@@ -409,31 +409,23 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        if ($user && $user->vendors->first()->status == 'rejected') {
-            return (new CustomResponseResource([
-                'title' => 'Documents rejected',
-                'message' => 'Documents are rejected, you will be redirected to documents upload page.',
-                'code' => 403,
-                'data' => $user->vendors->first()
-            ]))->response()->setStatusCode(403);
-        }
+        //Commented out because we are handelling this after login
 
-        if ($user && $user->vendors->first()->status != 'approved') {
-            return (new CustomResponseResource([
-                'title' => 'Approve Pending',
-                'message' => 'Your Document approval is pending!',
-                'code' => 400,
-                'data' => $user->vendors->first()
-            ]))->response()->setStatusCode(400);
-        }
-
-        // $buildingsExists = DB::table('building_vendor')->where(['vendor_id' => $user->vendors->first()->id, 'active' => 1])->exists();
-
-        // if (!$buildingsExists && $user->vendors->first()->escalationMatrix()->exists()) {
+        // if ($user && $user->vendors->first()->status == 'rejected') {
         //     return (new CustomResponseResource([
-        //         'title'   => 'Unauthorized!',
-        //         'message' => 'No active buildings. please contact admin.!',
-        //         'code'    => 400,
+        //         'title' => 'Documents rejected',
+        //         'message' => 'Documents are rejected, you will be redirected to documents upload page.',
+        //         'code' => 403,
+        //         'data' => $user->vendors->first()
+        //     ]))->response()->setStatusCode(403);
+        // }
+
+        // if ($user && $user->vendors->first()->status != 'approved') {
+        //     return (new CustomResponseResource([
+        //         'title' => 'Approve Pending',
+        //         'message' => 'Your Document approval is pending!',
+        //         'code' => 400,
+        //         'data' => $user->vendors->first()
         //     ]))->response()->setStatusCode(400);
         // }
 
