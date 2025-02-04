@@ -76,7 +76,7 @@ class ComplaintController extends Controller
      */
     public function show(Complaint $complaint)
     {
-        $this->authorize('view', $complaint);
+        // $this->authorize('view', $complaint);
 
         $complaint->load('comments');
         return new Complaintresource($complaint);
