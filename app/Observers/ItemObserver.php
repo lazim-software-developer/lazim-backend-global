@@ -51,11 +51,11 @@ class ItemObserver
                 ->url(function() use ($item,$oa_id){
                     $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
                     if($slug){
-                        return ItemResource::getUrl('view', [$slug,$item?->id]);
+                        return ItemResource::getUrl('view', [$slug,$item->id]);
                     }
-                    return url('/app/items/' . $item?->id.'');
+                    return url('/app/items/' . $item->id);
                 }),
-                ])
+            ])
             ->sendToDatabase($notifyTo);
         }
     }

@@ -28,6 +28,7 @@ class WDAResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form

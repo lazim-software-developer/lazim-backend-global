@@ -41,7 +41,7 @@ class WDAObserver
                             ->url(function() use ($oam_id,$WDA){
                                 $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
                                 if($slug){
-                                    return WDAResource::getUrl('edit', [$slug,$WDA?->id]);
+                                    return WDAResource::getUrl('edit', [$slug,$WDA->id]);
                                 }
                                 return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
                             }),
