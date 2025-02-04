@@ -117,7 +117,7 @@ class CreateOwnerAssociation extends CreateRecord
             'name' => $data->name,
             'email'                => $data->email,
             'email_verified_at' => now(),
-            'password'             => $data->email,
+            'password'             => $password,
             'type' => 'company',
             'lang' => 'en',
             'created_by' => 1,
