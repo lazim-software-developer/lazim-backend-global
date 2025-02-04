@@ -91,34 +91,21 @@ class ComplaintResource extends Resource
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
 
-                                Select::make('subcategory_id')
-                                    ->options(SubCategory::all()->pluck('name', 'id'))
-                                    ->live()
-                                    ->searchable()
-                                    ->required()
-                                    ->placeholder('Select Sub-Category')
-                                    ->label('Sub Category')
-                                    ->preload()
-                                    ->disabledOn('edit')
-                                    ->afterStateUpdated(function (Set $set) {
-                                        $set('vendor_id', null);
-                                        $set('service_id', null);
-                                        $set('technician_id', null);
-                                    }),
-
                                 Select::make('service_id')
                                     ->label('Service')
                                     ->live()
                                     ->preload()
                                     ->required()
-                                    ->options(function (callable $get) {
-                                        return Service::where('type', 'vendor_service')
-                                            ->where('subcategory_id', $get('subcategory_id'))->pluck('name', 'id');
-                                    })
+                                    ->options([
+                                        5 => 'House Keeping',
+                                        36 => 'Security',
+                                        69 => 'Electrical',
+                                        70 => 'Plumbing',
+                                        71 => 'AC',
+                                        40 => 'Pest Control',
+                                        228 => 'Other'
+                                    ])
                                     ->afterStateUpdated(function (Set $set, $state) {
-                                        $serviceName = Service::where('id', $state)->pluck('name');
-                                        $set('category', $serviceName);
-
                                         $set('vendor_id', null);
                                         $set('technician_id', null);
                                     })
@@ -350,6 +337,9 @@ class ComplaintResource extends Resource
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
+
+                TextColumn::make('selected_service')
+                    ->label('Service'),
 
                 TextColumn::make('complaint')
                     ->label('Remarks')
