@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Filament\App\Widgets;
 
-use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\DB;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\DB;
 
 class AmenityBookingOverview extends ChartWidget
 {
@@ -18,19 +16,20 @@ class AmenityBookingOverview extends ChartWidget
     }
 
     protected static ?string $heading = 'Amenity Booking Statistics';
-    protected int|string|array $columnSpan = 'full';
-    protected static ?int $sort = 8;
-    protected static ?string $maxHeight = '300px';
+    protected static ?int $sort       = 5;
 
     protected function getData(): array
     {
-        $buildings = DB::table('building_owner_association')
+        $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
-            ->pluck('building_id');
+            ->pluck('flat_id')
+            ->toArray();
+
         $selectedMonth = (int) ($this->filter ?? now()->month);
-        $bookings = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
-            ->whereIn('building_id', $buildings)
+        $bookings      = FacilityBooking::where('bookable_type', 'App\Models\Master\Facility')
+        // ->whereIn('building_id', $buildings)
+            ->whereIn('flat_id', $pmFlats)
             ->whereMonth('created_at', $selectedMonth)
             ->select(
                 DB::raw('SUM(CASE WHEN approved = true THEN 1 ELSE 0 END) as approved_count'),
@@ -41,31 +40,33 @@ class AmenityBookingOverview extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Booking Status',
-                    'data' => [$bookings->approved_count, $bookings->rejected_count],
+                    'label'           => 'Booking Status',
+                    'data'            => [$bookings->approved_count, $bookings->rejected_count],
                     'backgroundColor' => ['#10B981', '#EF4444'],
-                ]
+                ],
             ],
-            'labels' => ['Approved', 'Rejected'],
+            'labels'   => ['Approved', 'Rejected'],
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'pie';
     }
 
     protected function getOptions(): array
     {
         return [
-            'plugins' => [
+            'plugins'             => [
                 'legend' => [
-                    'display' => false,
+                    'display'  => true,
+                    // 'cutout'   => '10%',
+                    'position' => 'bottom',
                 ],
             ],
+            'maintainAspectRatio' => false,
         ];
     }
-
     protected function getFilters(): ?array
     {
         return [

@@ -50,6 +50,7 @@ class Flat extends Model
         'dewa_number',
         'etisalat/du_number',
         'btu/ac_number',
+        'lpg_number',
     ];
 
     protected $searchableFields = ['*'];
@@ -62,6 +63,13 @@ class Flat extends Model
     {
         return $this->belongsTo(Building::class);
     }
+
+    public function propertyManager()
+    {
+        return $this->belongsToMany(OwnerAssociation::class, 'property_manager_flats')
+            ->withPivot(['active']);
+    }
+
     public function tenants()
     {
         return $this->hasMany(FlatTenant::class);

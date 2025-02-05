@@ -40,6 +40,7 @@ class FacilitiesRelationManager extends RelationManager
                         ->disk('s3')
                         ->directory('dev')
                         ->downloadable(true)
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                         ->openable(true)
                         ->columnSpan([
                             'sm' => 1,

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
@@ -10,6 +9,7 @@ use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
@@ -117,7 +117,14 @@ class FacilitySupportComplaintResource extends Resource
                                 Select::make('flat_id')
                                     ->label('Unit Number')
                                     ->options(function (callable $get) {
+                                        $pmFlats = DB::table('property_manager_flats')
+                                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                            ->where('active', true)
+                                            ->pluck('flat_id')
+                                            ->toArray();
+
                                         return Flat::where('building_id', $get('building_id'))
+                                            ->whereIn('id', $pmFlats)
                                             ->pluck('property_number', 'id');
                                     })
                                     ->searchable()
@@ -157,7 +164,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Priority')
                                     ->reactive()
                                     ->default('3')
-                                    ->afterStateUpdated(function( callable $set, $state) {
+                                    ->afterStateUpdated(function (callable $set, $state) {
                                         if ($state == 1) {
                                             $set('Urgent', true);
 
@@ -237,7 +244,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
@@ -273,7 +280,7 @@ class FacilitySupportComplaintResource extends Resource
                                         $serviceId = $get('service_id');
                                         $vendorId  = $get('vendor_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
 
@@ -350,17 +357,18 @@ class FacilitySupportComplaintResource extends Resource
                         FileUpload::make('media')
                             ->label('Images')
                             ->multiple()
-                            ->maxFiles(5) // Maximum 5 files
+                            ->maxFiles(5)   // Maximum 5 files
                             ->maxSize(2048) // 2MB in kilobytes
                             ->disk('s3')
                             ->directory('dev')
                             ->image()
                             ->enableDownload()
                             ->enableOpen()
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->columnSpanFull()
                             ->downloadable()
                             ->previewable()
-                            ->visible(function($record) {
+                            ->visible(function ($record) {
                                 if ($record) {
                                     return $record->media->isNotEmpty();
                                 }
@@ -370,7 +378,7 @@ class FacilitySupportComplaintResource extends Resource
                                 fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
                             )
                             ->afterStateUpdated(function ($state, $old, $set) {
-                                if ($old && !$state) {
+                                if ($old && ! $state) {
                                     $set('media', null);
                                 }
                             }),
@@ -384,10 +392,44 @@ class FacilitySupportComplaintResource extends Resource
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', 1)
             ->pluck('building_id');
+
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
+        $authOaBuildings = Building::where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('id');
+
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query
-                    ->whereIn('complaint_type', ['help_desk', 'tenant_complaint'])
-                    ->whereIn('building_id', $buildingIds)->latest())
+            ->modifyQueryUsing(function (Builder $query) use ($buildingIds, $pmFlats, $authOaBuildings) {
+                $baseQuery = $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']);
+
+                if (auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                 ->pluck('role')[0] == 'Property Manager') {
+                    return $baseQuery->whereIn('building_id', $buildingIds)
+                        ->where(function ($query) use ($pmFlats) {
+                            $query->whereNull('flat_id')
+                                ->orWhereIn('flat_id', $pmFlats);
+                        })
+                        ->latest();
+                }
+
+                if (auth()->user()->role->name == 'OA') {
+                    return $baseQuery->whereIn('building_id', $buildingIds)
+                        ->latest();
+                }
+
+                if (auth()->user()->role->name == 'Admin') {
+                    return $baseQuery->latest();
+                }
+
+                // For all other roles
+                return $baseQuery->whereIn('building_id', $authOaBuildings)
+                    ->latest();
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -450,7 +492,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

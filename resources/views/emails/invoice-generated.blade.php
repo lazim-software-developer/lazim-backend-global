@@ -1,29 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('emails.layouts.email')
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Invoice Notification and Payment Instructions</title>
-    </head>
+@section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Invoice Notification</h2>
 
-    <body>
-        <p>Dear {{ $invoice->resident_name ?? 'Resident' }},</p>
-        <p>We have generated a new invoice for your account.</p>
-        <p>Below are the invoice details:</p>
-        <ul>
-            <li>Invoice Number: {{ $invoice->invoice_number ?? 'N/A' }}</li>
-            <li>Date of Issue: {{ $invoice->date ?? 'N/A' }}</li>
-            <li>Due Date: {{ $invoice->due_date ?? 'N/A' }}</li>
-            <li>Amount Due: AED {{ ($invoice->rate) ?? 'N/A' }}</li>
-        </ul>
-        <p>The full invoice is attached to this email as a PDF.</p>
-        <p>Please ensure the payment is completed by the due date to avoid any late fees or service interruptions.</p>
-        <p>If you have any questions or require further assistance, feel free to reach out to us.</p>
-        <p>Thank you for your cooperation.</p>
-        <p>Regards,</p>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
-        <p>{{$pm_oa}}</p>
-    </body>
+<p>Dear {{ $invoice->resident_name ?? 'Resident' }},</p>
 
-</html>
+<p>We have generated a new invoice for your account.</p>
+
+<div class="title">Invoice Details:</div>
+<p>
+    <strong>Invoice Number:</strong> {{ $invoice->invoice_number ?? 'N/A' }}<br>
+    <strong>Date of Issue:</strong> {{ $invoice->date ?? 'N/A' }}<br>
+    <strong>Due Date:</strong> {{ $invoice->due_date ?? 'N/A' }}<br>
+    <strong>Amount Due:</strong> AED {{ ($invoice->rate) ?? 'N/A' }}
+</p>
+
+<p>The full invoice is attached to this email as a PDF.</p>
+
+<p>Please ensure the payment is completed by the due date to avoid any late fees or service interruptions.</p>
+
+<p>If you have any questions or require further assistance, feel free to reach out to us.</p>
+
+<p>Thank you for your cooperation.</p>
+
+<p>Regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $pm_oa }}</p>
+@endsection

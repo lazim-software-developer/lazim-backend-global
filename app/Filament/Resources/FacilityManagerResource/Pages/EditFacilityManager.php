@@ -28,7 +28,6 @@ class EditFacilityManager extends EditRecord
         $approvalStatus = DB::table('owner_association_vendor')
             ->where('vendor_id', $vendor->id)
             ->where('owner_association_id', auth()->user()->owner_association_id)
-            ->pluck('status')
             ->first();
         $user          = $vendor->user;
         $manager       = $vendor->managers->first();
@@ -49,8 +48,8 @@ class EditFacilityManager extends EditRecord
             'tl_number'            => $vendor->tl_number ?? '',
             'tl_expiry'            => $vendor->tl_expiry,
             'risk_policy_expiry'   => $riskPolicy ? $riskPolicy->expiry_date : null,
-            'status'               => $approvalStatus ?? 'pending',
-            'remarks'              => $vendor->remarks ?? null,
+            'status'               => $approvalStatus?->status ?? 'pending',
+            'remarks'              => $approvalStatus?->remarks ?? null,
             'subcategory_id'       => $subcategories,
             'service_id'           => $services,
             'managers'             => [[
@@ -76,10 +75,18 @@ class EditFacilityManager extends EditRecord
                 'tl_expiry'            => $data['tl_expiry'],
             ]);
 
-            DB::table('owner_association_vendor')
-                ->where('vendor_id', $record->id)
-                ->where('owner_association_id', auth()->user()->owner_association_id)
-                ->update(['status' => $data['status']]);
+            if ($data['status'] == 'rejected') {
+                DB::table('owner_association_vendor')
+                    ->where('vendor_id', $record->id)
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->update(['status' => $data['status'], 'remarks' => $data['remarks']]);
+            }
+            if ($data['status'] == 'approved') {
+                DB::table('owner_association_vendor')
+                    ->where('vendor_id', $record->id)
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->update(['status' => $data['status'], 'active' => true]);
+            }
 
             if ($record->user) {
                 $record->user->update([

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filament\Resources\RentalChequeResource;
+use App\Models\Master\Role;
 use App\Models\User\User;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
@@ -37,26 +38,32 @@ class RentalDetailsController extends Controller
     }
     public function requestPayment(Request $request, RentalCheque $rentalCheque)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $request->validate([
             'building_id' => 'required|exists:buildings,id',
+            'flat_id'     => 'required|exists:flats,id',
         ]);
 
         // Get owner association ID
-        $oa = DB::table('building_owner_association')
-            ->where('building_id', $request->building_id)
-            ->where('active', true)
-            ->pluck('owner_association_id');
+        $oa = DB::table('property_manager_flats')
+            ->where(['flat_id' => $request->flat_id, 'active' => true])
+            ->first()->owner_association_id;
 
-        $pm = OwnerAssociation::whereIn('id', $oa)->where('role', 'Property Manager')->first()->id;
+        $pm = OwnerAssociation::where('id', $oa)->where('role', 'Property Manager')
+            ->first()?->id;
         // Find user
-        $user = User::where('owner_association_id', $pm)->first();
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+        $user                = User::where('owner_association_id', $pm)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         if (!$user) {
             return response()->json([
                 'message' => 'Property Manager not found.',
                 'status'  => 'error',
             ], 404);
         }
-        $rentalCheque->update(['payment_link_requested' => true]);
         PaymentRequestMail::dispatch($user, $rentalCheque);
         try {
             // Create and send notification
@@ -78,6 +85,7 @@ class RentalDetailsController extends Controller
                         }),
                 ])
                 ->sendToDatabase($user);
+            $rentalCheque->update(['payment_link_requested' => true]);
 
             return response()->json([
                 'message' => 'Request sent successfully.',

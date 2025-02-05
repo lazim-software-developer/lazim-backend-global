@@ -53,6 +53,7 @@ class PropertyManagerResource extends Resource
                             ->unique('owner_associations', 'trn_number', fn(?Model $record) => $record)
                             ->validationMessages([
                                 'unique' => 'TRN number already exists.',
+                                'required' => 'TRN number is required.',
                             ])
                             ->placeholder('Enter TRN number'),
 
@@ -137,6 +138,7 @@ class PropertyManagerResource extends Resource
                             ->downloadable(true)
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->label('Company Logo')
                             ->columnSpanFull(),
 

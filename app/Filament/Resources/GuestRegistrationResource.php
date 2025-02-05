@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GuestRegistrationResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\Visitor\FlatVisitor;
 use DB;
 use Filament\Forms\Components\CheckboxList;
@@ -219,9 +219,24 @@ class GuestRegistrationResource extends Resource
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'approved'                        => 'success',
+                        'rejected'                        => 'danger',
+                        'NA'                              => 'gray',
+                        default                           => 'primary',
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return match ($state) {
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            default    => 'NA',
+                        };
+                    })
                     ->searchable()
                     ->default('NA'),
             ])
+
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
@@ -229,7 +244,12 @@ class GuestRegistrationResource extends Resource
                         Select::make('Building')
                             ->searchable()
                             ->options(function () {
-                                if (auth()->user()->role->name == 'Property Manager') {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } 
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                     $buildingIds = DB::table('building_owner_association')
                                         ->where('owner_association_id', auth()->user()->owner_association_id)
                                         ->where('active', true)

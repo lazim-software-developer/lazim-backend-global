@@ -96,18 +96,22 @@ class EditBuilding extends EditRecord
         } else {
             $data['search'] = null;
         }
+        if(isset($this->record->lat) && isset($this->record->lng)){
+            $data['lat'] = $this->record->lat;
+            $data['lng'] = $this->record->lng;
+        }
 
         if (auth()->user()->role->name == 'Property Manager') {
             $data['from'] = DB::table('building_owner_association')
                 ->where('building_id', $this->record->id)
                 ->where('owner_association_id', auth()->user()->owner_association_id)
                 ->where('active', true)
-                ->first()->from;
+                ->first()->from??null;
             $data['to'] = DB::table('building_owner_association')
                 ->where('owner_association_id', auth()->user()->owner_association_id)
                 ->where('active', true)
                 ->where('building_id', $this->record->id)
-                ->first()->to;
+                ->first()->to??null;
         }
 
         return $data;

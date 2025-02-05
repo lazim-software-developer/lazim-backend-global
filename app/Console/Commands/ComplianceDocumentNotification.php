@@ -7,6 +7,8 @@ use App\Models\ComplianceDocument;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 class ComplianceDocumentNotification extends Command
 {
@@ -33,8 +35,7 @@ class ComplianceDocumentNotification extends Command
         $today = Carbon::today();
 
         // Fetch all contracts nearing expiry within 60 days
-        $complianceDocument = ComplianceDocument::whereDate('expiry_date', '>=', $today)
-            ->whereDate('expiry_date', '<=', $today->copy()->addDays(30))
+        $complianceDocument = ComplianceDocument::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])
             ->get();
 
         foreach ($complianceDocument as $document) {
@@ -56,6 +57,6 @@ class ComplianceDocumentNotification extends Command
                 $document->update(['last_reminded_at' => $today]);
             }
         }
-
+        Artisan::call('optimize:clear');
     }
 }

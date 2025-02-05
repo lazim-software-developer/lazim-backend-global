@@ -19,7 +19,7 @@ class ListAnnouncements extends ListRecords
     {
         $query = parent::getTableQuery()->where('is_announcement', 1);
 
-        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+        if (in_array(Role::where('id', auth()->user()->role_id)->first()->name,['Property Manager', 'OA'])) {
             $pmBuildings = DB::table('building_owner_association')
                 ->where('owner_association_id', auth()->user()?->owner_association_id)
                 ->where('active', true)

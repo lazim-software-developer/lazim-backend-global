@@ -6,6 +6,7 @@ use App\Filament\Resources\ItemResource;
 use App\Imports\ItemsListImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -47,7 +48,9 @@ class ListItems extends ListRecords
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
                             // dd($tenants);
-                            if (auth()->user()->role->name == 'Property Manager') {
+                            if (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                 $buildingIds = DB::table('building_owner_association')
                                     ->where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('active', true)

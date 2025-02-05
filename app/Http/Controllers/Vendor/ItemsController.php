@@ -27,7 +27,9 @@ class ItemsController extends Controller
        return ItemsResource::collection($items->paginate($request->paginate ?? 10));
     }
 
-    public function updateItems(ItemManagmentRequest $request,Item $item){
+    public function updateItems(ItemManagmentRequest $request,Item $item)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $item->building_id)->where('active', true)->first()->owner_association_id;
 
         if($request->type == 'used' && $item->quantity < $request->quantity ){
             return (new CustomResponseResource([
@@ -69,6 +71,10 @@ class ItemsController extends Controller
      }
     public function create(Vendor $vendor,ItemCreateRequest $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $data = $request->only(['name','quantity','building_id','description']);
         $data['owner_association_id'] = DB::table('building_owner_association')->where('building_id',$request->building_id)->first()->owner_association_id;
         $item = Item::create($data);

@@ -39,11 +39,13 @@ class WDAController extends Controller
 
     public function store(CreateWDARequest $request,Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
         $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $name = $vendor->name;
         $wda_number = strtoupper(substr($name, 0, 2)).date('YmdHis');
-        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
 
         $request->merge([
             'document' => $documentUrl,
@@ -69,6 +71,10 @@ class WDAController extends Controller
     }
     public function edit(WdaUpdateRequest $request, WDA $wda)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $audit = WdaAudit::create([

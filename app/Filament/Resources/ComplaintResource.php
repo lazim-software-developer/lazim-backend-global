@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\Pages;
-use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\User\User;
@@ -21,7 +18,6 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -35,13 +31,13 @@ use Illuminate\Support\Facades\DB;
 class ComplaintResource extends Resource
 {
     protected static ?string $model      = Complaint::class;
-    protected static ?string $modelLabel = 'Maintenance Schedule';
+    protected static ?string $modelLabel = 'Preventive Maintenance Schedule';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Complaint Details')
+                Section::make('Schedule')
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
@@ -76,7 +72,7 @@ class ComplaintResource extends Resource
                                     ->minDate(now()->format('Y-m-d'))
                                 // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
-                                    ->disabledOn('edit')
+                                    // ->disabledOn('edit')
                                     ->placeholder('Select Date'),
 
                                 Textarea::make('complaint')
@@ -95,33 +91,21 @@ class ComplaintResource extends Resource
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
                             ->schema([
 
-                                Select::make('subcategory_id')
-                                    ->options(SubCategory::all()->pluck('name', 'id'))
-                                    ->live()
-                                    ->searchable()
-                                    ->required()
-                                    ->placeholder('Select Sub-Category')
-                                    ->label('Sub Category')
-                                    ->preload()
-                                    ->disabledOn('edit')
-                                    ->afterStateUpdated(function (Set $set) {
-                                        $set('vendor_id', null);
-                                        $set('technician_id', null);
-                                    }),
-
                                 Select::make('service_id')
                                     ->label('Service')
                                     ->live()
                                     ->preload()
                                     ->required()
-                                    ->options(function (callable $get) {
-                                        return Service::where('type', 'vendor_service')
-                                            ->where('subcategory_id', $get('subcategory_id'))->pluck('name', 'id');
-                                    })
+                                    ->options([
+                                        5 => 'House Keeping',
+                                        36 => 'Security',
+                                        69 => 'Electrical',
+                                        70 => 'Plumbing',
+                                        71 => 'AC',
+                                        40 => 'Pest Control',
+                                        228 => 'Other'
+                                    ])
                                     ->afterStateUpdated(function (Set $set, $state) {
-                                        $serviceName = Service::where('id', $state)->pluck('name');
-                                        $set('category', $serviceName);
-
                                         $set('vendor_id', null);
                                         $set('technician_id', null);
                                     })
@@ -142,7 +126,7 @@ class ComplaintResource extends Resource
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
@@ -178,7 +162,7 @@ class ComplaintResource extends Resource
                                         $serviceId = $get('service_id');
                                         $vendorId  = $get('vendor_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
 
@@ -272,9 +256,10 @@ class ComplaintResource extends Resource
                             ->maxSize(2048)
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->enableDownload()
-                            ->visible(function($record) {
+                            ->visible(function ($record) {
                                 if ($record) {
                                     return $record->media->isNotEmpty();
                                 }
@@ -288,7 +273,7 @@ class ComplaintResource extends Resource
                                 fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
                             )
                             ->afterStateUpdated(function ($state, $old, $set) {
-                                if ($old && !$state) {
+                                if ($old && ! $state) {
                                     $set('media', null);
                                 }
                             }),
@@ -303,10 +288,25 @@ class ComplaintResource extends Resource
             ->where('active', 1)
             ->pluck('building_id');
 
+        $authOaBuildings = Building::where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('id');
+
+        $role = auth()->user()->role->name;
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query
+            ->modifyQueryUsing(function (Builder $query) use ($buildingIds, $role, $authOaBuildings) {
+                if (in_array($role, ['OA', 'Property Manager'])) {
+                    return $query->whereIn('building_id', $buildingIds)
+                        ->where('complaint_type', 'preventive_maintenance')
+                        ->latest();
+                }
+                if ($role == 'Admin') {
+                    return $query->where('complaint_type', 'preventive_maintenance')
+                        ->latest();
+                }
+                return $query
                     ->where('complaint_type', 'preventive_maintenance')
-                    ->whereIn('building_id', $buildingIds)->latest())
+                    ->whereIn('building_id', $authOaBuildings);
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -338,6 +338,9 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
 
+                TextColumn::make('selected_service')
+                    ->label('Service'),
+
                 TextColumn::make('complaint')
                     ->label('Remarks')
                     ->toggleable()
@@ -360,7 +363,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
             ])
-            ->emptyStateHeading('No Maintenance Schedules')
+            ->emptyStateHeading('No Preventive Maintenance Schedules')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
@@ -368,7 +371,7 @@ class ComplaintResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
@@ -385,7 +388,7 @@ class ComplaintResource extends Resource
                     ->searchable()
                     ->preload(),
             ])
-            ->emptyStateHeading('No Maintenance Schedules')
+            ->emptyStateHeading('No Preventive Maintenance Schedules')
             ->bulkActions([
                 // ExportBulkAction::make(),
             ])

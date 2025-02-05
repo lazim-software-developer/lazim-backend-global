@@ -242,7 +242,6 @@ class AdminPanelProvider extends PanelProvider
                 $user->can('view_any_building::flat') ||
                 $user->can('view_any_building::facility::booking') ||
                 $user->can('view_any_building::service::booking')  ||
-                $user->can('view_any_patrolling')||
                 $user->can('view_any_oacomplaint::reports')
                  ){
                     $builder->groups([
@@ -273,12 +272,6 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-wrench')
                                     ->activeIcon('heroicon-m-wrench')
                                     ->sort(4),
-                                NavigationItem::make('Patrollings')
-                                    ->url(PatrollingResource::getUrl('index'))
-                                    ->visible($user->can('view_any_patrolling'))
-                                    ->icon('heroicon-o-magnifying-glass-circle')
-                                    ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                    ->sort(5),
                                 NavigationItem::make('OA Complaint Reports')
                                     ->url(OacomplaintReportsResource::getUrl('index'))
                                     ->visible($user->can('view_any_oacomplaint::reports'))
@@ -707,7 +700,8 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_snags') || $user->can('view_any_incident')){
+                if ($user->can('view_any_snags') || $user->can('view_any_incident') ||
+                $user->can('view_any_patrolling')){
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
@@ -717,12 +711,18 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-swatch')
                                     ->activeIcon('heroicon-s-swatch')
                                     ->sort(1),
-                                    NavigationItem::make('Incidents')
+                                NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                                NavigationItem::make('Patrollings')
+                                    ->url(PatrollingResource::getUrl('index'))
+                                    ->visible($user->can('view_any_patrolling'))
+                                    ->icon('heroicon-o-magnifying-glass-circle')
+                                    ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                    ->sort(5),
                             ])
                             ->collapsed(true),
                     ]);

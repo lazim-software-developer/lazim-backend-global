@@ -39,7 +39,9 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Holiday homes guest registration form status.',
                         'body' => 'Your holiday homes guest registration form has been approved.',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                    'building_id' => $this->record->flatVisitor->building_id,
+                                    'flat_id' => $this->record->flatVisitor->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -55,7 +57,8 @@ class EditGuestRegistration extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Holiday homes guest registration form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                    'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => '',
                         ]),
@@ -74,7 +77,9 @@ class EditGuestRegistration extends EditRecord
                         'sound' => 'default',
                         'title' => 'Holiday homes guest registration form status.',
                         'body' => 'Your holiday homes guest registration form has been rejected.',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                    'building_id' => $this->record->flatVisitor->building_id,
+                                    'flat_id' => $this->record->flatVisitor->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -90,7 +95,8 @@ class EditGuestRegistration extends EditRecord
                             'iconColor' => 'danger',
                             'title' => 'Holiday homes guest registration form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                            'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => '',
                         ]),

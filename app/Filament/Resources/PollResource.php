@@ -7,6 +7,7 @@ use App\Models\Building\Building;
 use App\Models\Community\Poll;
 use App\Models\Community\PollResponse;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use Closure;
 use DB;
 use Filament\Forms\Components\DateTimePicker;
@@ -145,7 +146,9 @@ class PollResource extends Resource
                         ->options(function () {
                             if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Building::pluck('name', 'id');
-                            } elseif (auth()->user()->role->name == 'Property Manager') {
+                            } elseif (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                 $buildingIds = DB::table('building_owner_association')
                                     ->where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('active', true)
@@ -201,7 +204,9 @@ class PollResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

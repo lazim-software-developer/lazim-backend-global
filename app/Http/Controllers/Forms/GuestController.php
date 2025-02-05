@@ -108,7 +108,9 @@ class GuestController extends Controller
 
     public function saveFlatVisitors(FlatVisitorRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
         // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
@@ -116,35 +118,48 @@ class GuestController extends Controller
             'end_time'             => $request->start_date,
             'phone'                => $request->phone,
             'email'                => $request->email,
-            'owner_association_id' => $ownerAssociationId,
+            'owner_association_id' => $oa_id,
             'type'                 => $request->type ?:'visitor',
         ]);
 
-        $requiredPermissions = ['view_any_visitor::form'];
         $visitor             = FlatVisitor::create($request->all());
-        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
-        $user                = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
-        Notification::make()
-            ->success()
-            ->title('Visitor Request')
-            ->body("Visitor request received for $request->start_date")
-            ->actions([
-                Action::make('View')
-                    ->button()
-                    ->url(function() use ($ownerAssociationId,$visitor){
-                        $slug = OwnerAssociation::where('id',$ownerAssociationId)->first()?->slug;
-                        if($slug){
-                            return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
-                        }
-                        return url('/app/visitor-forms/' . $visitor?->id.'/edit');
-                    }),
-            ])
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->sendToDatabase($user);
+        $oa_ids = DB::table('building_owner_association')->where('building_id', $request->building_id)
+            ->where('active', true)->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $oa_ids)->where('role', 'Property Manager')->first();
+        $requiredPermissions = ['view_any_visitor::form'];
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+
+        foreach($oa_ids as $oa_id){
+            $oa = OwnerAssociation::find($oa_id);
+            $flatexists = DB::table('property_manager_flats')
+                ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                ->exists();
+            if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA' && !$flatexists){
+                $user = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
+                    ->whereNot('id', auth()->user()?->id)->get()
+                    ->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                Notification::make()
+                    ->success()
+                    ->title('Visitor Request')
+                    ->body("Visitor request received for $request->start_date")
+                    ->actions([
+                        Action::make('View')
+                            ->button()
+                            ->url(function() use ($oa,$visitor){
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                                }
+                                return url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                            }),
+                    ])
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->sendToDatabase($user);
+            }
+        }
 
         // Handle multiple images
         if ($request->hasFile('files')) {
@@ -196,7 +211,19 @@ class GuestController extends Controller
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
         $visitor->start_time = new Carbon($visitor->start_time);
         abort_if(!$visitor, 403, 'Invalid verification code');
-        abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $visitor->building_id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
+        // Only check approval status if not PM managed
+        if (!$isPMManaged) {
+            abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+        }
 
         if (!$visitor->verified) {
             return [
@@ -229,6 +256,11 @@ class GuestController extends Controller
     }
     public function visitorApproval(Request $request, FlatVisitor $visitor)
     {
+        if ($request->has('building_id')||$visitor->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $visitor->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $visitor->update([
             'verified' => true,
         ]);
@@ -243,11 +275,21 @@ class GuestController extends Controller
     // List all future visits for a building
     public function futureVisits(Request $request, Building $building)
     {
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $building->id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
-            ->where('status','approved')
+            ->when(!$isPMManaged, function ($query) {
+                return $query->where('status', 'approved');
+            })
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
             })
@@ -266,6 +308,10 @@ class GuestController extends Controller
     // Notify tenant on visitor's visit
     public function notifyTenant(Request $request)
     {
+        if ($request->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
         $flat     = $request->input('flat_id');
         $building = $request->input('building_id');
 
@@ -444,6 +490,8 @@ class GuestController extends Controller
     }
     public function updateStatus(Vendor $vendor, Guest $guest, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $guest->flatVisitor->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

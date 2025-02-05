@@ -1,86 +1,29 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">New Task Assignment</h2>
 
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        A new complaint has been assigned to you.
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Please find the details below:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Complaint Details:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        ● <strong>Ticket Number: </strong> {{$ticket_number}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        ● <strong>Building: </strong> {{$building}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        ● <strong>Flat: </strong> {{$flat}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        ● <strong>Complaint Details: </strong> {{$description}}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Kindly address this complaint at your earliest convenience. Your prompt attention and resolution are greatly appreciated.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Best regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        {{$property_manager_name}}
-    </td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
+<p>Dear {{ $user->first_name }},</p>
 
-@stop
+<p>A new complaint has been assigned to you.</p>
+
+<div class="title">Complaint Details:</div>
+<p>
+    <strong>Ticket Number:</strong> {{ $ticket_number }}<br>
+    <strong>Building:</strong> {{ $building }}<br>
+    <strong>Flat:</strong> {{ $flat }}<br>
+    <strong>Complaint Details:</strong> {{ $description }}
+</p>
+
+<p>Kindly address this complaint at your earliest convenience. Your prompt attention and resolution are greatly appreciated.</p>
+
+<p>Best regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $property_manager_name }}</p>
+@endsection

@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Imports;
 
 use App\Models\Bill;
 use App\Models\Building\Flat;
+use DB;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -22,7 +22,6 @@ class BillImport implements ToCollection, WithHeadingRow
         'amount'      => 'Amount',
         'due_date'    => 'Due Date',
         'status'      => 'Status',
-        'bill_number' => 'Bill Number',
     ];
 
     public function __construct($buildingId, $month, $type)
@@ -34,7 +33,7 @@ class BillImport implements ToCollection, WithHeadingRow
 
     private function convertExcelDate($excelDate)
     {
-        if (!$excelDate) {
+        if (! $excelDate) {
             return null;
         }
 
@@ -61,7 +60,7 @@ class BillImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         // Convert the expected headings to snake_case for Excel import
-        $expectedHeadings = ['unit_number', 'amount', 'due_date', 'status', 'bill_number'];
+        $expectedHeadings = ['unit_number', 'amount', 'due_date', 'status'];
         $validStatuses    = ['Pending', 'Paid', 'Overdue'];
         $recordsImported  = 0;
         $invalidRows      = [];
@@ -81,7 +80,7 @@ class BillImport implements ToCollection, WithHeadingRow
         $extractedHeadings = array_keys($rows->first()->toArray());
         $missingHeadings   = array_diff($expectedHeadings, $extractedHeadings);
 
-        if (!empty($missingHeadings)) {
+        if (! empty($missingHeadings)) {
             $excelHeadings = array_map(function ($heading) {
                 return $this->fieldMappings[$heading] ?? $heading;
             }, $missingHeadings);
@@ -99,26 +98,20 @@ class BillImport implements ToCollection, WithHeadingRow
             $validationErrors = [];
 
             // Access columns using snake_case keys
-            if (!isset($row['unit_number']) || trim($row['unit_number']) === '') {
+            if (! isset($row['unit_number']) || trim($row['unit_number']) === '') {
                 $validationErrors[] = "Unit Number cannot be empty";
             }
-            if (!isset($row['bill_number']) || trim($row['bill_number']) === '') {
-                $validationErrors[] = "Bill Number cannot be empty";
-            } elseif (strlen($row['bill_number']) < 4 || strlen($row['bill_number']) > 15) {
-                $validationErrors[] = "Bill Number must be between 4 and 15 characters";
-            }
-
-            if (!isset($row['amount']) || trim($row['amount']) === '') {
+            if (! isset($row['amount']) || trim($row['amount']) === '') {
                 $validationErrors[] = "Amount cannot be empty";
             }
-            if (!isset($row['due_date']) || trim($row['due_date']) === '') {
+            if (! isset($row['due_date']) || trim($row['due_date']) === '') {
                 $validationErrors[] = "Due Date cannot be empty";
             }
-            if (!isset($row['status']) || trim($row['status']) === '') {
+            if (! isset($row['status']) || trim($row['status']) === '') {
                 $validationErrors[] = "Status cannot be empty";
             }
 
-            if (!empty($validationErrors)) {
+            if (! empty($validationErrors)) {
                 $invalidRows[] = [
                     'row'   => $rowNumber,
                     'error' => "Row $rowNumber: " . implode(', ', $validationErrors),
@@ -128,7 +121,7 @@ class BillImport implements ToCollection, WithHeadingRow
 
             // Validate status
             $status = ucfirst(strtolower($row['status']));
-            if (!in_array($status, $validStatuses, true)) {
+            if (! in_array($status, $validStatuses, true)) {
                 $invalidRows[] = [
                     'row'   => $rowNumber,
                     'error' => "Row $rowNumber: Invalid Status '{$row['status']}'. Allowed values are: " . implode(', ', $validStatuses),
@@ -141,11 +134,24 @@ class BillImport implements ToCollection, WithHeadingRow
                 ->where('building_id', $this->buildingId)
                 ->first();
 
-            if (!$flat) {
-                $invalidRows[] = [
-                    'row'   => $rowNumber,
-                    'error' => "Row $rowNumber: Unit Number '{$row['unit_number']}' not found in selected building",
-                ];
+            $pmFlats = DB::table('property_manager_flats')
+                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                ->where('active', true)
+                ->pluck('flat_id')
+                ->toArray();
+
+            if (! $flat || ! in_array($flat->id, $pmFlats)) {
+                if (! $flat) {
+                    $invalidRows[] = [
+                        'row'   => $rowNumber,
+                        'error' => "Row $rowNumber: Unit Number '{$row['unit_number']}' not found in selected building",
+                    ];
+                } else {
+                    $invalidRows[] = [
+                        'row'   => $rowNumber,
+                        'error' => "Row $rowNumber: Unit Number '{$row['unit_number']}' does not belong to your association",
+                    ];
+                }
                 continue;
             }
 
@@ -169,7 +175,6 @@ class BillImport implements ToCollection, WithHeadingRow
 
             Bill::create([
                 'flat_id'           => $flat->id,
-                'bill_number'       => $row['bill_number'] ?? null,
                 'type'              => $this->type,
                 'amount'            => $row['amount'],
                 'month'             => $this->month,
@@ -184,7 +189,7 @@ class BillImport implements ToCollection, WithHeadingRow
         }
 
         // Show validation errors if any
-        if (!empty($invalidRows)) {
+        if (! empty($invalidRows)) {
             $errorMessage = "Some rows were skipped due to validation errors:\n\n";
             foreach ($invalidRows as $error) {
                 $errorMessage .= "{$error['error']}\n";

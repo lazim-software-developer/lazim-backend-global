@@ -23,8 +23,19 @@ class UserFlatResource extends JsonResource
     {
         $flat = FlatTenant::where(['flat_id' => $this->id, 'tenant_id' => auth()->user()->id])->first();
         $flatId = Flat::find($this->id);
-        $oaIds = DB::table('building_owner_association')->where(['building_id'=>$this->building->id,'active' => true])
+        $pmFlat = DB::table('property_manager_flats')
+            ->where(['flat_id' => $this->id, 'active' => true])
+            ->first();
+        $oaIds = DB::table('property_manager_flats')
+            ->where(['flat_id' => $this->id, 'active' => true])
             ->pluck('owner_association_id');
+        $oa_logo = null;
+        if ($pmFlat) {
+            $oa = OwnerAssociation::find($pmFlat?->owner_association_id);
+            $oa_logo = $oa ? $oa->profile_photo : null;
+        } else {
+            $oa_logo = $flatId?->ownerAssociation?->profile_photo;
+        }
         $ownerAssociation = OwnerAssociation::whereIn('id',$oaIds)->pluck('role')->unique();
         $oA = $ownerAssociation->contains('OA');
         $propertyManager = $ownerAssociation->contains('Property Manager');
@@ -39,9 +50,9 @@ class UserFlatResource extends JsonResource
         return [
             'flat_name' => $this->property_number,
             'flat_id' => $this->id,
-            'building_name' => $this->building->name,
-            'building_slug' => $this->building->slug,
-            'building_id' => $this->building->id,
+            'building_name' => $this->building->name ?? null,
+            'building_slug' => $this->building->slug ?? null,
+            'building_id' => $this->building->id ?? null,
             'oa' => $oA,
             'propertymanager' => $propertyManager,
             'role' => $flat?->role,
@@ -51,8 +62,8 @@ class UserFlatResource extends JsonResource
             'status' => $status?->status,
             'remarks' => $status?->remarks,
             'residing_in_flat' => $residingInFlat,
-            'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
-            'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
+            'oa_logo' => $oa_logo ? env('AWS_URL').'/'.$oa_logo : null,
+            'building_logo' => $this->building?->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
         ];
     }
 }

@@ -411,6 +411,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/work-list', [PermitWorkController::class, 'create']);
     Route::get('/work-permit', [PermitWorkController::class, 'index']);
     Route::post('/work-permit', [PermitWorkController::class, 'store']);
+    Route::get('/vendor/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
 });
 
 // API  to fetch Security for a building
@@ -450,6 +451,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
 // Vendor APIs after logging in
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
+    Route::get('/registered_with', [VendorRegistrationController::class, 'registeredWith']);
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::post('/{vendor}/edit-details', [VendorRegistrationController::class, 'editVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
@@ -566,6 +568,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
     Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
     Route::get('/{vendor}/compliance-document-dashboard',[ComplianceDocumentController::class,'dashboardList']);
+
+    // View work permits for vendor
+    Route::get('/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
+    // View specific work permit details
+    Route::get('/work-permit/{workPermit}', [PermitWorkController::class, 'show']);
+    // Update work permit status
+    Route::patch('/work-permit/{workPermit}/update-status', [PermitWorkController::class, 'updateStatus']);
 });
 
 // Technician Related APIs

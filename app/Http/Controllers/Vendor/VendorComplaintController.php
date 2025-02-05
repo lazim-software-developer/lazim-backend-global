@@ -65,6 +65,8 @@ class VendorComplaintController extends Controller
 
     public function addComment(StoreCommentRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $comment = new Comment([
             'body'    => $request->body,
             'user_id' => auth()->user()->id,
@@ -89,7 +91,7 @@ class VendorComplaintController extends Controller
 
         $owner_association_id = DB::connection('mysql')->table('building_owner_association')
             ->where(['building_id' => $request->building_id, 'active' => true])
-            ->first()?->owner_association_id;
+            ->first()->owner_association_id;
 
         $request->merge([
             'complaintable_type'   => Vendor::class,

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SnagsResource\Pages;
 
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Actions;
 use App\Filament\Resources\SnagsResource;
@@ -25,7 +26,9 @@ class ListSnags extends ListRecords
         {
             return parent::getTableQuery()->where('complaint_type', 'snag');
         }
-        elseif (auth()->user()->role->name == 'Property Manager') {
+        elseif (auth()->user()->role->name == 'Property Manager'
+        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
     $buildings = DB::table('building_owner_association')
         ->where('owner_association_id', auth()->user()?->owner_association_id)
         ->where('active', true)

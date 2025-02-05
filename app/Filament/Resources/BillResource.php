@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BillResource\Pages;
 use App\Models\Bill;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Carbon\Carbon;
 use DB;
@@ -46,40 +46,21 @@ class BillResource extends Resource
                     ->reactive()
                     ->required(),
 
-                TextInput::make('bill_number')
-                    ->label('Bill Number')
-                    ->numeric()
-                    ->rules([
-                        'min_digits:4',
-                        'max_digits:15',
-                    ])
-                    ->unique('bills', 'bill_number', ignoreRecord: true)
-                    ->validationMessages([
-                        'min_digits' => 'The Bill number must be at least 4 characters long.',
-                        'max_digits' => 'The Bill number must not be greater than 15 characters.',
-                        'unique'     => 'The Bill number has already been taken.',
-                    ])
-                    ->placeholder('Enter the Bill number')
-                    ->required(),
-
                 Select::make('building_id')
                     ->label('Building')
                     ->afterStateUpdated(fn(Set $set) => $set('flat_id', null))
                     ->options(function () {
-                        if (auth()->user()->role->name == 'Admin') {
-                            return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
-                            $buildingIds = DB::table('building_owner_association')
-                                ->where('owner_association_id', auth()->user()->owner_association_id)
-                                ->where('active', true)
-                                ->pluck('building_id');
+                        $role        = auth()->user()->role->name;
+                        $buildingIds = DB::table('building_owner_association')
+                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('building_id');
 
+                        if (in_array($role, ['Property Manager', 'OA'])) {
                             return Building::whereIn('id', $buildingIds)
                                 ->pluck('name', 'id');
                         } else {
-                            $oaId = auth()->user()?->owner_association_id;
-                            return Building::where('owner_association_id', $oaId)
-                                ->pluck('name', 'id');
+                            return Building::pluck('name', 'id');
                         }
                     })
                     ->placeholder('Select the Building')
@@ -94,6 +75,18 @@ class BillResource extends Resource
                     ->noSearchResultsMessage('No Flats found for this building.')
                     ->placeholder('Select the Flat')
                     ->options(function (callable $get) {
+                        $role    = auth()->user()->role->name;
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        if ($role == 'Property Manager') {
+                            return Flat::where('building_id', $get('building_id'))
+                                ->whereIn('id', $pmFlats)
+                                ->pluck('property_number', 'id');
+                        }
                         return Flat::where('building_id', $get('building_id'))
                             ->pluck('property_number', 'id');
                     })
@@ -110,6 +103,40 @@ class BillResource extends Resource
                     })
                     ->searchable()
                     ->required(),
+
+                TextInput::make('bill_number')
+                    ->label(function ($get) {
+                        if($get('type') == 'BTU') {
+                            return 'BTU/AC Number';
+                        } elseif($get('type') == 'DEWA') {
+                            return 'DEWA Number';
+                        } elseif($get('type') == 'Telecommunication') {
+                            return 'DU/Etisalat Number';
+                        } elseif($get('type') == 'lpg') {
+                            return 'LPG Number';
+                        } else {
+                            return 'Bill Number';
+                        }
+                    })
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->helperText('This will be automatically populated based on flat and bill type')
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record || !$record->flat) return '';
+
+                        if($record->type == 'BTU') {
+                            return $record->flat->getAttribute('btu/ac_number');
+                        } elseif($record->type == 'DEWA') {
+                            return $record->flat->dewa_number;
+                        } elseif($record->type == 'Telecommunication') {
+                            return $record->flat->getAttribute('etisalat/du_number');
+                        } elseif($record->type == 'lpg') {
+                            return $record->flat->lpg_number;
+                        } else {
+                            return '--';
+                        }
+                    }),
+
                 TextInput::make('amount')
                     ->required()
                     ->placeholder('Enter the total bill amount')
@@ -152,15 +179,30 @@ class BillResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('No Bills')
             ->modifyQueryUsing(function ($query) {
                 $buildingIds = DB::table('building_owner_association')
                     ->where('owner_association_id', auth()->user()->owner_association_id)
                     ->where('active', true)
                     ->pluck('building_id');
 
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
                 $flatIds = Flat::whereIn('building_id', $buildingIds)->pluck('id');
 
-                return $query->whereIn('flat_id', $flatIds);
+                if (auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                ->pluck('role')[0] == 'Property Manager') {
+                    return $query->whereIn('flat_id', $pmFlats)->orderBy('created_at', 'desc');
+                } elseif (auth()->user()->role->name == 'OA') {
+                    return $query->whereIn('flat_id', $flatIds)->orderBy('created_at', 'desc');
+                }
+
+                return $query->whereIn('flat_id', $flatIds)->orderBy('created_at', 'desc');
             })
             ->columns([
                 TextColumn::make('flat.building.name')
@@ -172,9 +214,6 @@ class BillResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return Carbon::parse($state)->format('M-Y');
                     }),
-                TextColumn::make('bill_number')
-                    ->label('Bill Number')
-                    ->default('--'),
                 TextColumn::make('amount')
                     ->numeric()
                     ->default('--'),
@@ -228,10 +267,7 @@ class BillResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 ]),
-            ])
-            ->modifyQueryUsing(function ($query) {
-                $query->orderBy('created_at', 'desc');
-            });
+            ]);
     }
 
     public static function getRelations(): array

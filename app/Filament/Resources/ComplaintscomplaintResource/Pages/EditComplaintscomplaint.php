@@ -76,7 +76,8 @@ class EditComplaintscomplaint extends EditRecord
                             'open_time' => $this->record?->open_time,
                             'close_time' => $this->record?->close_time,
                             'due_date' => $this->record?->due_date,
-
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id
                         ],
                     ];
                     $this->expoNotification($message);
@@ -102,6 +103,8 @@ class EditComplaintscomplaint extends EditRecord
                                 'open_time' => $this->record?->open_time,
                                 'close_time' => $this->record?->close_time,
                                 'due_date' => $this->record?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
                             ],
                             'format' => 'filament',
                             'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'InAppNotficationScreen',
@@ -134,7 +137,9 @@ class EditComplaintscomplaint extends EditRecord
                             'sound' => 'default',
                             'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                             'body' => 'A '.($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                            'data' => ['notificationType' => 'ResolvedRequests'],
+                            'data' => ['notificationType' => 'ResolvedRequests',
+                                        'building_id' => $this->record->building_id,
+                                        'flat_id' => $this->record->flat_id],
                         ];
                         $this->expoNotification($message);
                     }
@@ -152,9 +157,12 @@ class EditComplaintscomplaint extends EditRecord
                                 'iconColor' => 'warning',
                                 'title' => ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                                 'format' => 'filament',
                                 'url' => 'InAppNotficationScreen',
+                                'building_id' => $this->record->flatVisitor->building_id,
+                                'flat_id' => $this->record->flatVisitor->flat_id
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -171,7 +179,9 @@ class EditComplaintscomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Complaint status',
                         'body' => 'Your complaint is moved to In-Progress',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -190,7 +200,8 @@ class EditComplaintscomplaint extends EditRecord
                     'iconColor' => 'warning',
                     'title' => 'Complaint status',
                     'view' => 'notifications::notification',
-                    'viewData' => [],
+                    'viewData' => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format' => 'filament',
                     'url' => 'InAppNotficationScreen',
                 ]),

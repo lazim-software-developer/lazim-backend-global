@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources\FlatTenantResource\RelationManagers;
 
+use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\RentalCheque;
 use App\Models\RentalDetail;
@@ -42,12 +43,28 @@ class RentalDetailsRelationManager extends RelationManager
                     ->schema([
                         Grid::make(2)
                             ->schema([
+                                Select::make('building_id')
+                                    ->disabled()
+                                    ->default(fn() => $this->ownerRecord->building_id)
+                                    ->label('Building')
+                                    ->options(function ($record) {
+                                        if ($record) {
+                                            return [$record->flat->building_id => $record->flat->building->name];
+                                        }
+                                        return [$this->ownerRecord->building_id => $this->ownerRecord->building->name];
+                                    })
+                                    ->afterStateHydrated(function (Select $component, $record) {
+                                        if ($record) {
+                                            $component->state($record->flat->building_id);
+                                        }
+                                    })
+                                    ->dehydrated(false)
+                                    ->reactive(),
                                 Select::make('flat_id')
                                     ->disabled()
                                     ->relationship('flat', 'property_number')
                                     ->label('Flat number')
-                                    ->default($this->ownerRecord->flat_id)
-                                    ->placeholder('Select a flat number'),
+                                    ->default($this->ownerRecord->flat_id),
                             ]),
 
                         Grid::make(2)
@@ -66,7 +83,7 @@ class RentalDetailsRelationManager extends RelationManager
                                     ->placeholder('Enter the Contract amount')
                                     ->numeric()
                                     ->suffix('AED')
-                                    ->maxLength(10)
+                                    // ->maxLength(10)
                                     ->afterStateUpdated(function ($get, $set, $state) {
                                         // Get the number of cheques
                                         $numberOfCheques = $get('number_of_cheques');
@@ -328,9 +345,9 @@ class RentalDetailsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-        ->modifyQueryUsing(function ($query) {
-            $query->latest();
-        })
+            ->modifyQueryUsing(function ($query) {
+                $query->latest();
+            })
             ->columns([
                 TextColumn::make('contract_start_date')
                     ->label('Contract Start Date'),
@@ -386,16 +403,17 @@ class RentalDetailsRelationManager extends RelationManager
                 $this->handleCustomActionSave($data);
             })
             ->visible(function () {
-                $latestRentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)
-                    ->orderBy('contract_end_date', 'desc')
-                    ->first();
+                return false;
+                // $latestRentalDetail = RentalDetail::where('flat_tenant_id', $this->ownerRecord->id)
+                //     ->orderBy('contract_end_date', 'desc')
+                //     ->first();
 
-                if (! $latestRentalDetail) {
-                    return true;
-                }
+                // if (! $latestRentalDetail) {
+                //     return true;
+                // }
 
-                $endDate = $latestRentalDetail->contract_end_date;
-                return $endDate < Carbon::now()->format('Y-m-d');
+                // $endDate = $latestRentalDetail->contract_end_date;
+                // return $endDate < Carbon::now()->format('Y-m-d');
             })
             ->form(function (Form $form) {
                 return $this->form($form);

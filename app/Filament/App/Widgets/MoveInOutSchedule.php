@@ -22,9 +22,9 @@ class MoveInOutSchedule extends BaseWidget
             ->emptyStateHeading('Currently, No Move-In or Move-Out Records ')
             ->query(MoveInOut::query()
                     ->with(['building', 'flat'])
-                    ->whereIn('building_id', function ($query) {
-                        return $query->select('building_id')
-                            ->from('building_owner_association')
+                    ->whereIn('flat_id', function ($query) {
+                        return $query->select('flat_id')
+                            ->from('property_manager_flats')
                             ->where('owner_association_id', auth()->user()?->owner_association_id)
                             ->where('active', true);
                     })

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatResource\Pages;
@@ -42,6 +41,17 @@ class FlatResource extends Resource
                         TextInput::make('property_number')
                             ->label('Unit Number')
                             ->required()
+                            ->unique(
+                                Flat::class,
+                                'property_number',
+                                ignoreRecord: true,
+                                modifyRuleUsing: function (\Illuminate\Validation\Rules\Unique $rule, Get $get) {
+                                    return $rule->where('building_id', $get('building_id'));
+                                }
+                            )
+                            ->validationMessages([
+                                'unique' => 'Unit Number already exists in the selected building.',
+                            ])
                             ->alphaDash()
                             ->placeholder('Unit Number'),
                         Select::make('owner_association_id')
@@ -121,22 +131,20 @@ class FlatResource extends Resource
                             ->placeholder('NA')
                             ->label('Parking Count')
                             ->live(onBlur: true)
-                            ->debounce(2000)
                             ->afterStateUpdated(function ($state, $get, Set $set) {
-                                if (!$state) {
+                                if (! $state) {
                                     return;
                                 }
 
                                 $buildingId = $get('building_id');
-                                $building = Building::find($buildingId);
+                                $building   = Building::find($buildingId);
 
                                 // Check if building exists and has parking count defined
-                                if (!$building || !$building->parking_count) {
+                                if (! $building || ! $building->parking_count) {
                                     Notification::make()
                                         ->title('Parking not available')
                                         ->body("This building does not have any parking spaces allocated.")
                                         ->danger()
-                                        ->persistent()
                                         ->send();
 
                                     $set('parking_count', null);
@@ -145,21 +153,20 @@ class FlatResource extends Resource
 
                                 // Continue with existing validation for parking count limit
                                 $flatsParkingQuery = Flat::where('building_id', $buildingId)
-                                    ->where(function($query) use ($get) {
+                                    ->where(function ($query) use ($get) {
                                         if ($get('id')) {
                                             $query->where('id', '!=', $get('id'));
                                         }
                                     });
 
                                 $totalFlatsParking = $flatsParkingQuery->sum('parking_count');
-                                $newTotal = $totalFlatsParking + (int)$state;
+                                $newTotal          = $totalFlatsParking + (int) $state;
 
                                 if ($newTotal > $building->parking_count) {
                                     Notification::make()
                                         ->title('Invalid parking count')
                                         ->body("Total parking count of all flats ({$newTotal}) cannot exceed building's parking count ({$building->parking_count})")
                                         ->danger()
-                                        ->persistent()
                                         ->send();
 
                                     $set('parking_count', null);
@@ -179,12 +186,16 @@ class FlatResource extends Resource
                             ->label('DEWA Number')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('etisalat/du_number')
-                            ->label('BTU/Etisalat Number')
+                            ->label('DU/Etisalat Number')
                             ->placeholder('NA')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         TextInput::make('btu/ac_number')
                             ->placeholder('NA')
                             ->label('BTU/AC Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('lpg_number')
+                            ->placeholder('NA')
+                            ->label('LPG Number')
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
             ]);
@@ -235,7 +246,7 @@ class FlatResource extends Resource
                 TextColumn::make('virtual_account_number')
                     ->default('NA')
                     ->searchable()
-                    ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                    ->visible(! in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
                     ->default('NA')
@@ -255,7 +266,9 @@ class FlatResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
+                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
@@ -287,6 +300,7 @@ class FlatResource extends Resource
     public static function getRelations(): array
     {
         if (auth()->user()?->role?->name === 'Property Manager') {
+
             return [
                 // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
                 // FlatResource\RelationManagers\FlatTenantRelationManager::class,

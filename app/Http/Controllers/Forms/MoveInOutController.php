@@ -192,6 +192,8 @@ class MoveInOutController extends Controller
     }
     public function updateStatus(Vendor $vendor, MoveInOut $moveInOut, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $moveInOut->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

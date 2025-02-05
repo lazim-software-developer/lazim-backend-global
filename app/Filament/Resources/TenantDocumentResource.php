@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TenantDocumentResource\Pages;
@@ -8,6 +7,7 @@ use App\Models\Building\Document;
 use App\Models\Building\Flat;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use DB;
 use Filament\Forms\Components\DatePicker;
@@ -82,6 +82,7 @@ class TenantDocumentResource extends Resource
                         ->readonly()
                         ->placeholder('Expiry date'),
                     Select::make('status')
+                        ->required()
                         ->options([
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
@@ -98,9 +99,6 @@ class TenantDocumentResource extends Resource
                                 return true;
                             }
                             return false;
-                        })
-                        ->disabled(function (Document $record) {
-                            return $record->status != 'submitted';
                         })
                         ->required(),
                     FileUpload::make('url')
@@ -177,8 +175,24 @@ class TenantDocumentResource extends Resource
                     ->options(function () {
                         $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        $flatTenants = FlatTenant::where('active', true)
+                            ->whereIn('flat_id', $pmFlats)
+                            ->pluck('tenant_id')->toArray();
+
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                            return User::whereIn('role_id', $roleId)
+                                ->whereIn('id', $flatTenants)
+                                ->pluck('first_name', 'id');
                         } else {
                             return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                         }

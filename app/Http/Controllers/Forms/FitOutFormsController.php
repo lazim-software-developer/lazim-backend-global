@@ -95,6 +95,11 @@ class FitOutFormsController extends Controller
 
     public function contractorRequest(ContractorFormRequest $request, FitOutForm $fitout)
     {
+        if ($request->has('building_id')||$fitout->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $fitout->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
 
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
@@ -124,11 +129,11 @@ class FitOutFormsController extends Controller
             Document::create($request->all());
         }
         $requiredPermissions = ['view_any_fit::out::forms::document'];
-        $roles               = Role::where('owner_association_id', $fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
         $user                = User::where('owner_association_id', $fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
-            }); //->where('role_id',Role::where('name','OA')->first()->id)->first();
+            });
         Notification::make()
             ->success()
             ->title("Fitout Contractor Request! ")
@@ -189,6 +194,8 @@ class FitOutFormsController extends Controller
     }
      public function updateStatus(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $fitOutForm->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

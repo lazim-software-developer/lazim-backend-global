@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Filament\Resources\TechnicianVendorResource\Pages;
 
 use App\Filament\Resources\TechnicianVendorResource;
 use App\Jobs\TechnicianAccountCreationJob;
 use App\Models\Master\Role;
+use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
 use DB;
@@ -45,26 +45,30 @@ class CreateTechnicianVendor extends CreateRecord
             $user = User::create($userData);
 
             $technicianData = [
-                'technician_id'     => $user->id,
+                'technician_id'        => $user->id,
                 'vendor_id'            => $data['vendor_id'],
-                'technician_number' => null,
+                'technician_number'    => null,
                 'owner_association_id' => $oaId,
             ];
 
             $technician = parent::handleRecordCreation($technicianData);
 
-            $serviceTechnicianVendorData = [
-                'technician_vendor_id' => $technician->id,
-                'service_id' => $data['service_id'][0],
-                'owner_association_id' => $oaId,
-            ];
-            // dd($serviceTechnicianVendorData);
-
-            DB::table('service_technician_vendor')->insert($serviceTechnicianVendorData);
+            // Insert records for each selected service
+            foreach ($data['service_id'] as $serviceId) {
+                DB::table('service_technician_vendor')->insert([
+                    'technician_vendor_id' => $technician->id,
+                    'service_id'           => $serviceId,
+                    'owner_association_id' => $oaId,
+                    'active'               => true,
+                ]);
+            }
 
             DB::commit();
 
-            TechnicianAccountCreationJob::dispatch($user, $plainPassword);
+            // Fetch the vendor name
+            $vendor = Vendor::where('id', $data['vendor_id'])->first()->name;
+
+            TechnicianAccountCreationJob::dispatch($user, $plainPassword, $vendor);
 
             return $technician;
 
@@ -84,16 +88,18 @@ class CreateTechnicianVendor extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $technician                       = $this->record;
-        $technician->active               = true;
+        $technician = $this->record;
+        $technician->active = true;
         $technician->owner_association_id = auth()->user()->owner_association_id;
 
         $vendorId = $this->record->vendor_id;
-        $name     = Vendor::where('id', $vendorId)->pluck('name')->first();
-        $userId   = User::where('id', $technician->id)->pluck('id')->first();
+        $name = Vendor::where('id', $vendorId)->pluck('name')->first();
 
-        $technician->technician_number = strtoupper(substr($name, 0, 2)) .
-        Hashids::connection('alternative')->encode($userId);
+        // Generate technician number in format: SU20240402103652
+        $prefix = strtoupper(substr($name, 0, 2));
+        $timestamp = now()->format('YmdHis');
+
+        $technician->technician_number = $prefix . $timestamp;
 
         $technician->save();
     }

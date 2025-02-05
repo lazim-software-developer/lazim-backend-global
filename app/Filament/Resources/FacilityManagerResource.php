@@ -200,7 +200,7 @@ class FacilityManagerResource extends Resource
                     ->description('Details of the authorized manager.')
                     ->icon('heroicon-o-user')
                     ->collapsible()
-                    ->collapsed()
+                    // ->collapsed()
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -272,8 +272,10 @@ class FacilityManagerResource extends Resource
                             if ($state['status'] === 'rejected' && ! empty($state['remarks'])) {
                                 RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                             } elseif ($state['status'] === 'approved') {
-                                $user->password = Hash::make($password);
-                                $user->save();
+                                if($user->password === null){
+                                    $user->password = Hash::make($password);
+                                    $user->save();
+                                }
                                 ApprovedFMJob::dispatch($user, $password, $email, $pm_oa);
                             }
                         }
@@ -309,6 +311,12 @@ class FacilityManagerResource extends Resource
                         'danger'  => 'rejected',
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
+                    ->getStateUsing(function ($record) {
+                        $ownerAssociation = $record->ownerAssociation()
+                            ->wherePivot('owner_association_id', auth()->user()?->owner_association_id)
+                            ->first();
+                        return $ownerAssociation ? $ownerAssociation->pivot->status : 'NA';
+                    })
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
                     ->default('NA'),
             ])

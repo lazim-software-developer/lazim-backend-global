@@ -27,34 +27,37 @@ class ItemObserver
      */
     public function updated(Item $item): void
     {
-        // $tenant = Filament::getTenant();
-        // $slug = $tenant->slug;
-        // $slug = DB::table('owner_associations')->where('id',$item->owner_association_id)->value('slug');
 
         $requiredPermissions = ['view_any_item'];
-        $roles = Role::where('owner_association_id',$item->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $item->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
-        Notification::make()
-        ->success()
-        ->title('Item Updated')
-        ->body('New Item Update Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(function() use ($item){
-                $slug = OwnerAssociation::where('id',$item->owner_association_id)->first()?->slug;
-                if($slug){
-                    return ItemResource::getUrl('view', [$slug,$item?->id]);
-                }
-                return url('/app/items/' . $item?->id.'');
-            }),
+        $oa_ids = DB::table('building_owner_association')
+            ->where(['building_id' => $item->building_id,'active'=> true])
+            ->pluck('owner_association_id');
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
+        foreach($oa_ids as $oa_id){
+            $notifyTo = User::where('owner_association_id', $oa_id)->whereNotIn('role_id', $roles)
+                ->whereNot('id', auth()->user()?->id)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
+            Notification::make()
+            ->success()
+            ->title('Item Updated')
+            ->body('New Item Update Received')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->actions([
+                Action::make('View')
+                ->button()
+                ->url(function() use ($item,$oa_id){
+                    $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                    if($slug){
+                        return ItemResource::getUrl('view', [$slug,$item->id]);
+                    }
+                    return url('/app/items/' . $item->id);
+                }),
             ])
-        ->sendToDatabase($notifyTo);
+            ->sendToDatabase($notifyTo);
+        }
     }
 
     /**

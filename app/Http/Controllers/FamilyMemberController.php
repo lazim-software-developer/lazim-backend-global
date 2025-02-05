@@ -75,6 +75,11 @@ class FamilyMemberController extends Controller
 
     public function update(FamilyMemberRequest $request, FamilyMember $familyMember)
     {
+        if ($familyMember->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $familyMember->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $familyMember->update($request->all());
 
         if ($request->has('deleted_files')) {
@@ -111,6 +116,11 @@ class FamilyMemberController extends Controller
 
     public function delete(FamilyMember $familyMember)
     {
+        if ($familyMember->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $familyMember->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         if (!$familyMember) {
             return (new CustomResponseResource([
                 'title' => 'Not Found',

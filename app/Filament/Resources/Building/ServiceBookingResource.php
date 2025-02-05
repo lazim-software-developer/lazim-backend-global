@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
@@ -7,6 +6,7 @@ use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -48,19 +48,13 @@ class ServiceBookingResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                } elseif (Role::where('id', auth()->user()->role_id)
-                                        ->first()->name == 'Property Manager') {
+                                } else{
                                     $buildings = DB::table('building_owner_association')
                                         ->where('owner_association_id', auth()->user()->owner_association_id)
                                         ->where('active', true)
                                         ->pluck('building_id');
                                     return Building::whereIn('id', $buildings)->pluck('name', 'id');
-
-                                } else {
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                        ->pluck('name', 'id');
                                 }
-
                             })
                             ->afterStateUpdated(fn(callable $set) => $set('flat_id', null))
                             ->reactive()
@@ -73,6 +67,11 @@ class ServiceBookingResource extends Resource
                         Select::make('flat_id')
                             ->native(false)
                             ->required()
+                            ->helperText(function (callable $get) {
+                                if ($get('building_id') === null) {
+                                    return 'Please select a building first';
+                                }
+                            })
                             ->disabledOn('edit')
                             ->reactive()
                             ->afterStateUpdated(fn(callable $set) => $set('user_id', null))
@@ -80,6 +79,27 @@ class ServiceBookingResource extends Resource
                             ->relationship('building.flats', 'property_number')
                             ->label('Flat')
                             ->options(function (callable $get) {
+                                $pmFlats = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('flat_id')
+                                    ->toArray();
+
+                                if(auth()->user()->role->name == 'Admin'){
+                                    return DB::table('flats')
+                                        ->where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                    return DB::table('flats')
+                                        ->whereIn('id', $pmFlats)
+                                        ->where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+
                                 return DB::table('flats')
                                     ->where('building_id', $get('building_id'))
                                     ->pluck('property_number', 'id');
@@ -213,17 +233,12 @@ class ServiceBookingResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)
-                                ->first()->name == 'Property Manager') {
+                        } else{
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
                                 ->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
-
-                        } else {
-                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                ->pluck('name', 'id');
                         }
 
                     })

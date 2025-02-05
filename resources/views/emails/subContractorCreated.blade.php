@@ -1,66 +1,18 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$subContractor->name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We are pleased to inform you that your account has been successfully created by your vendor. Below are the details of your account:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Account Details:</strong>
-    </td>
-</tr>
-<tr>
-    <td class="paragraph" style="padding-left: 20px;">
-        ● <strong>Company:</strong> {{$subContractor->company_name}}<br>
-        ● <strong>Service Provided:</strong> {{$subContractor->services->pluck('name')->implode(', ')}}<br>
-        ● <strong>Start Date:</strong> {{ $start_date }}<br>
-        ● <strong>End Date:</strong> {{ $end_date }}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        If you have any questions or require further assistance, please feel free to contact us.
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We look forward to working with you.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="15"></td>
-</tr>
-<tr>
-    <td>
-        <img src="{{url('images/logo.png')}}" alt="Lazim" style="max-width: 80px; height: 30px;">
-    </td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{ $subContractor->name }},</p>
+    <p>We are pleased to inform you that your account has been successfully created by your vendor.</p>
+    <p><strong>Account Details:</strong></p>
+    <ul>
+        <li><strong>Company:</strong> {{ $vendor_name }}</li>
+        <li><strong>Service Provided:</strong> {{ $subContractor->service_description }}</li>
+        <li><strong>Start Date:</strong> {{ $start_date }}</li>
+        <li><strong>End Date:</strong> {{ $end_date }}</li>
+    </ul>
+    <p>If you have any questions or require further assistance, please feel free to contact us.</p>
+    <p>We look forward to working with you.</p>
+    <p>Regards,</p>
+    {{-- <img src="{{ url('images/logo.png') }}" alt="Lazim" style="max-width: 80px; height: 30px;"> --}}
+    <p>{{ $vendor_name }}</p>
+@endsection

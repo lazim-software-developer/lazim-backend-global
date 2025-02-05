@@ -13,6 +13,7 @@ use App\Models\Master\Service;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SelectServicesController extends Controller
 {
@@ -55,6 +56,10 @@ public function listServices(SubCategory $subcategory)
 
     public function tagServices(SelectServicesRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         try {
             // Check if service is already tagged
             if ($vendor->services()->where('service_id', $request->service)->exists()) {
@@ -86,6 +91,10 @@ public function listServices(SubCategory $subcategory)
 
     public function untagServices(SelectServicesRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $vendor->services()->detach([$request->service]);
 
         return (new CustomResponseResource([

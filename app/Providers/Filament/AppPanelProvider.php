@@ -113,8 +113,8 @@ class AppPanelProvider extends PanelProvider
                 RentalChequeStatusOverview::class,
                 // BillsOverviewWidget::class,
                 MoveInOutChart::class,
-                MoveInOutSchedule::class,
                 PreventiveReactiveMaintenance::class,
+                MoveInOutSchedule::class,
                 AmenityBookingOverview::class,
             ])
             ->favicon(asset('images/favicon.png'))
@@ -146,7 +146,6 @@ class AppPanelProvider extends PanelProvider
                             $user->can('view_any_building::flat') ||
                             $user->can('view_any_building::facility::booking') ||
                             $user->can('view_any_building::service::booking') ||
-                            $user->can('view_any_patrolling') ||
                             $user->can('view_any_oacomplaint::reports')
                         ) {
                             $builder->groups([
@@ -177,12 +176,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-wrench')
                                             ->activeIcon('heroicon-m-wrench')
                                             ->sort(4),
-                                        NavigationItem::make('Patrollings')
-                                            ->url(PatrollingResource::getUrl('index'))
-                                            ->visible($user->can('view_any_patrolling'))
-                                            ->icon('heroicon-o-magnifying-glass-circle')
-                                            ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                            ->sort(5),
+
                                         NavigationItem::make('OA Complaint Reports')
                                             ->url(OacomplaintReportsResource::getUrl('index'))
                                             ->visible($user->can('view_any_oacomplaint::reports'))
@@ -549,12 +543,6 @@ class AppPanelProvider extends PanelProvider
                                             ->hidden(!$user->can('view_any_vendor::ledgers'))
                                             ->activeIcon('heroicon-o-rectangle-stack')
                                             ->sort(2),
-                                        NavigationItem::make('Cooling account')
-                                            ->url('/app/cooling-accounts')
-                                            ->hidden(!$user->can('view_any_cooling::account'))
-                                            ->icon('heroicon-o-cube-transparent')
-                                            ->activeIcon('heroicon-o-cube-transparent')
-                                            ->sort(3),
                                         NavigationItem::make('Bills')
                                             ->url('/app/bills')
                                             ->icon('heroicon-o-receipt-percent')
@@ -720,7 +708,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-clipboard-document-list')
                                             ->activeIcon('heroicon-m-clipboard-document-list')
                                             ->sort(1),
-                                        NavigationItem::make('Maintenance Schedule')
+                                        NavigationItem::make('Preventive Maintenance')
                                             ->url(ComplaintResource::getUrl('index'))
                                             ->visible(auth()->user()->role->name == 'Property Manager')
                                             ->hidden(!$user->can('view_any_helpdeskcomplaint'))
@@ -742,7 +730,8 @@ class AppPanelProvider extends PanelProvider
                                     ]),
                             ]);
                         }
-                        if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
+                        if ($user->can('view_any_snags') || $user->can('view_any_incident')  ||
+                            $user->can('view_any_patrolling')){
                             $builder->groups([
                                 NavigationGroup::make('Security')
                                     ->items([
@@ -758,6 +747,12 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-c-map-pin')
                                             ->activeIcon('heroicon-c-map-pin')
                                             ->sort(2),
+                                        NavigationItem::make('Patrollings')
+                                            ->url(PatrollingResource::getUrl('index'))
+                                            ->visible($user->can('view_any_patrolling'))
+                                            ->icon('heroicon-o-magnifying-glass-circle')
+                                            ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                            ->sort(5),
                                     ]),
                             ]);
                         }
@@ -966,7 +961,6 @@ class AppPanelProvider extends PanelProvider
                         $user->can('view_any_building::flat') ||
                         $user->can('view_any_building::facility::booking') ||
                         $user->can('view_any_building::service::booking') ||
-                        $user->can('view_any_patrolling') ||
                         $user->can('view_any_oacomplaint::reports')
                     ) {
                         $builder->groups([
@@ -997,12 +991,7 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-m-wrench')
                                         ->activeIcon('heroicon-m-wrench')
                                         ->sort(4),
-                                    NavigationItem::make('Patrollings')
-                                        ->url(PatrollingResource::getUrl('index'))
-                                        ->visible($user->can('view_any_patrolling'))
-                                        ->icon('heroicon-o-magnifying-glass-circle')
-                                        ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                        ->sort(5),
+
                                     NavigationItem::make('OA Complaint Reports')
                                         ->url(OacomplaintReportsResource::getUrl('index'))
                                         ->visible($user->can('view_any_oacomplaint::reports'))
@@ -1412,7 +1401,7 @@ class AppPanelProvider extends PanelProvider
                         $builder->groups([
                             NavigationGroup::make('Facility Support')
                                 ->items([
-                                    NavigationItem::make('Complaints')
+                                    NavigationItem::make('Issues')
                                         ->url('/app/helpdeskcomplaints')
                                         ->visible(auth()->user()->role->name != 'Property Manager')
                                         ->hidden(!$user->can('view_any_helpdeskcomplaint'))
@@ -1429,7 +1418,8 @@ class AppPanelProvider extends PanelProvider
                                 ]),
                         ]);
                     }
-                    if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
+                    if ($user->can('view_any_snags') || $user->can('view_any_incident')  ||
+                            $user->can('view_any_patrolling')) {
                         $builder->groups([
                             NavigationGroup::make('Security')
                                 ->items([
@@ -1445,6 +1435,12 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-c-map-pin')
                                         ->activeIcon('heroicon-c-map-pin')
                                         ->sort(2),
+                                    NavigationItem::make('Patrollings')
+                                        ->url(PatrollingResource::getUrl('index'))
+                                        ->visible($user->can('view_any_patrolling'))
+                                        ->icon('heroicon-o-magnifying-glass-circle')
+                                        ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                        ->sort(5),
                                 ]),
                         ]);
                     }

@@ -76,7 +76,7 @@ class ComplaintController extends Controller
      */
     public function show(Complaint $complaint)
     {
-        $this->authorize('view', $complaint);
+        // $this->authorize('view', $complaint);
 
         $complaint->load('comments');
         return new Complaintresource($complaint);
@@ -84,6 +84,11 @@ class ComplaintController extends Controller
 
     public function createIncident(IncidentRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;
@@ -155,56 +160,34 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
-            $query->whereIn('name', ['OA','Property Manager'])
-                  ->where('owner_association_id', $building->owner_association_id);
-        })
-        ->get();
-        Notification::make()
-            ->success()
-            ->title("New Incident")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New Incident created!')
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($building,$complaint){
-                        $slug = OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug;
-                        if($slug){
-                            return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
-                        }
-                        return url('/app/incidents/' . $complaint?->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
+        $oa_ids = DB::table('building_owner_association')->where('building_id', $building->id)
+            ->where('active', true)->pluck('owner_association_id');
+        foreach ($oa_ids as $oa_id) {
+            $notifyTo = User::whereHas('role', function ($query) use ($oa_id) {
+                $query->whereIn('name', ['OA','Property Manager'])
+                      ->where('owner_association_id', $oa_id);
+            })
+            ->get();
+            Notification::make()
+                ->success()
+                ->title("New Incident")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New Incident created!')
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function() use ($oa_id,$complaint){
+                            $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                            if($slug){
+                                return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
+                            }
+                            return url('/app/incidents/' . $complaint?->id.'/edit');
+                        }),
+                ])
+                ->sendToDatabase($notifyTo);
+        }
 
-        // Assign complaint to a technician
-        // AssignTechnicianToComplaint::dispatch($complaint);
-        // $serviceId  = $service_id;
-        // $buildingId = $building->id;
-
-        // $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
-        // if ($contract) {
-        //     // Fetch technician_vendor_ids for the given service
-        //     $technicianVendorIds = DB::table('service_technician_vendor')
-        //         ->where('service_id', $contract->service_id)
-        //         ->pluck('technician_vendor_id');
-
-        //     $vendorId = $contract->vendor_id;
-
-        //     // Fetch technicians who are active and match the service
-        //     $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
-        //         ->where('active', true)->where('vendor_id', $vendorId)
-        //         ->pluck('technician_id');
-        //     $assignees = User::whereIn('id', $technicianIds)
-        //         ->withCount(['assignees' => function ($query) {
-        //             $query->where('status', 'open');
-        //         }])
-        //         ->orderBy('assignees_count', 'asc')
-        //         ->get();
-        //     $selectedTechnician = $assignees->first();
-        // }
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => "We'll get back to you at the earliest!",
@@ -406,6 +389,7 @@ class ComplaintController extends Controller
 
     public function resolve(Request $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
         $complaint->update([
             'status'     => 'closed',
             'close_time' => $request->has('close_time') ? $request->close_time : now(),
@@ -498,6 +482,7 @@ class ComplaintController extends Controller
                         'open_time' => $complaint?->open_time,
                         'close_time' => $complaint?->close_time,
                         'due_date' => $complaint?->due_date,
+                        'building_id' => $complaint?->building_id,
                     ],
                 ];
                 $this->expoNotification($message);
@@ -519,6 +504,7 @@ class ComplaintController extends Controller
                             'open_time' => $complaint?->open_time,
                             'close_time' => $complaint?->close_time,
                             'due_date' => $complaint?->due_date,
+                            'building_id' => $complaint?->building_id,
                         ],
                         'format'    => 'filament',
                         'url'       => 'ResolvedRequests',
@@ -588,6 +574,8 @@ class ComplaintController extends Controller
 
     public function update(ComplaintUpdateRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
         if($request->has('status') && $request->status == 'closed'){
             $request['closed_by'] = auth()->user()->id;

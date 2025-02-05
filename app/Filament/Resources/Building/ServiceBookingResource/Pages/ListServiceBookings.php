@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -21,11 +22,12 @@ class ListServiceBookings extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-        $buildings = Building::all()
-            ->where('owner_association_id', auth()->user()?->owner_association_id)
-            ->where('active', true)->pluck('id')->toArray();
-
-        if (auth()->user()->role->name == 'Property Manager') {
+        if(auth()->user()->role->name == 'Admin'){
+            return parent::getTableQuery()->where('bookable_type', $bookableType);
+        }
+        if (auth()->user()->role->name == 'Property Manager'
+        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
             return parent::getTableQuery()
                 ->where('bookable_type', $bookableType)
                 ->whereIn('building_id', $pmBuildings);

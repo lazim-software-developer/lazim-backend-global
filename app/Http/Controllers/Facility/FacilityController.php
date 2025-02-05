@@ -10,6 +10,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FacilityController extends Controller
 {
@@ -21,6 +22,11 @@ class FacilityController extends Controller
 
     public function bookFacility(FacilityBookingRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         // Check for existing bookings for the same facility, date, and time range
         $existingBooking = FacilityBooking::where([
             'bookable_id' => $request->facility_id,

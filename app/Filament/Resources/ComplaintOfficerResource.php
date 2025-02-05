@@ -71,6 +71,7 @@ class ComplaintOfficerResource extends Resource
                     ->disk('s3')
                     ->directory('dev')
                     ->image()
+                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                     ->label('Profile Photo'),
                 // Toggle::make('active')
                 //     ->rules(['boolean'])

@@ -24,13 +24,14 @@ class UnitStatusOverview extends BaseWidget
     {
         $today = Carbon::today();
 
-        $buildingIds = DB::table('building_owner_association')
+        $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)
-            ->pluck('building_id');
+            ->pluck('flat_id')
+            ->toArray();
 
         $query = MoveInOut::query()
-            ->whereIn('building_id', $buildingIds);
+            ->whereIn('flat_id', $pmFlats);
 
         $vacantUnits = (clone $query)
             ->where('type', 'move-out')
@@ -42,12 +43,9 @@ class UnitStatusOverview extends BaseWidget
             ->where('moving_date', '>', $today)
             ->count();
 
-        $flatIds = Flat::whereIn('building_id', $buildingIds)
-            ->pluck('id');
-
         $overdueBTUCount = Bill::where('type', '=', 'BTU')
             ->where('status', '=', 'Overdue')
-            ->whereIn('flat_id', $flatIds)
+            ->whereIn('flat_id', $pmFlats)
             ->count();
 
         return [

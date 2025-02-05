@@ -171,6 +171,7 @@ class OacomplaintReportsResource extends Resource
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->directory('dev')
                             ->openable(true)
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->downloadable(true)
                             ->image()
                             ->required()
