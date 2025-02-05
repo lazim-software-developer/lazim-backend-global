@@ -409,8 +409,12 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
+        $oneActive = DB::table('owner_association_vendor')
+            ->where('vendor_id', $user->vendors->first()->id)
+            ->where(['active'=> true, 'status'=> 'approved'])
+            ->exists();
 
-        if ($user && $user->vendors->first()->status == 'rejected') {
+        if ($user && $user->vendors->first()->status == 'rejected' && !$oneActive) {
             return (new CustomResponseResource([
                 'title' => 'Documents rejected',
                 'message' => 'Documents are rejected, you will be redirected to documents upload page.',
@@ -419,7 +423,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if ($user && $user->vendors->first()->status != 'approved') {
+        if ($user && $user->vendors->first()->status != 'approved' && !$oneActive) {
             return (new CustomResponseResource([
                 'title' => 'Approve Pending',
                 'message' => 'Your Document approval is pending!',
