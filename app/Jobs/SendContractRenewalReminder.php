@@ -34,7 +34,7 @@ class SendContractRenewalReminder implements ShouldQueue
         $today = Carbon::today();
 
         // Fetch all contracts nearing expiry within 60 days
-        $subContracts = SubContractor::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])->with('services')
+        $subContracts = SubContractor::whereBetween('end_date', [$today,$today->copy()->addDays(30)])->with('services')
             ->get();
 
         foreach ($subContracts as $contract) {
