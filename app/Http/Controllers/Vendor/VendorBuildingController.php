@@ -12,11 +12,14 @@ class VendorBuildingController extends Controller
 {
     public function listBuildings(Request $request,Vendor $vendor){
 
-        $buildings = $vendor->buildings->where('pivot.active', true)
-        ->when($request->type != 'OA', function($query) use($request){
-            $query->whereNotNull('pivote.owner_association_id');
-        })
-        ->unique();
+        if($request->has('type') && $request->type == 'OA'){
+            $buildings = $vendor->buildings->where('pivot.active', true)
+            ->unique();
+        }else{
+            $buildings = $vendor->buildings->where('pivot.active', true)
+                ->whereNotNull('pivote.owner_association_id')
+                ->unique();
+        }
 
         if ($request->has('filter') && $request->input('filter') == true) {
             $buildings = $vendor->buildings->unique();
