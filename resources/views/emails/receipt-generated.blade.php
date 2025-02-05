@@ -1,23 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('emails.layouts.email')
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Receipt Generated</title>
-    </head>
+@section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Payment Receipt</h2>
 
-    <body>
-        <h1>New Receipt Generated</h1>
-        <p>Dear Resident,</p>
-        <p>A new receipt has been generated for you. Please find the details below:</p>
-        <ul>
-            <li>Receipt Number: {{ $receipt->receipt_number ?? 'N/A' }}</li>
-            <li>Date: {{ $receipt->date ?? 'N/A' }}</li>
-            <li>Amount: {{ ($receipt->amount) ?? 'N/A' }}</li>
-        </ul>
-        <p>The full receipt is attached to this email as a PDF.</p>
-        <p>Thank you for your prompt attention to this matter.</p>
-    </body>
+<p>Dear {{ $receipt->user->name }},</p>
 
-</html>
+<p>We are pleased to confirm that we have received your payment.</p>
+
+<div class="title">Receipt Details:</div>
+<p>
+    <strong>Receipt Number:</strong> {{ $receipt->receipt_number ?? 'N/A' }}<br>
+    <strong>Date:</strong> {{ $receipt->date ?? 'N/A' }}<br>
+    @if($receipt->building?->name)
+    <strong>Building:</strong> {{ $receipt->building->name }}<br>
+    @endif
+    @if($receipt->flat?->property_number)
+    <strong>Flat Number:</strong> {{ $receipt->flat->property_number }}<br>
+    @endif
+    <strong>Amount Paid:</strong> {{ $receipt->amount ?? 'N/A' }}<br>
+    <strong>Payment Method:</strong> {{ $receipt->payment_method ?? 'N/A' }}
+</p>
+
+<p>Thank you for your prompt payment.</p>
+
+<p>If you have any questions or require further assistance, please feel free to contact us.</p>
+
+<p>We appreciate your continued trust in our services.</p>
+
+<p>Regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $pm_oa }}</p>
+@endsection

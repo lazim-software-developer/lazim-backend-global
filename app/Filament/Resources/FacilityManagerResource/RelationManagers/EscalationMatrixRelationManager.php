@@ -26,9 +26,10 @@ class EscalationMatrixRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
-                    ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                    ->required()
-                    ->maxLength(255),
+                    ->length(9)
+                    ->prefix('+971')
+                    ->placeholder('XXXXXXXXX')
+                    ->required(),
                 Forms\Components\TextInput::make('position')
                     ->required()
                     ->maxLength(255),
@@ -67,6 +68,7 @@ class EscalationMatrixRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateDescription('No escalation matrix found.');
     }
 }

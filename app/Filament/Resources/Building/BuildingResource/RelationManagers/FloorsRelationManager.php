@@ -42,6 +42,9 @@ class FloorsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function(Builder $query){
+                $query->orderBy('floors', 'desc');
+            })
             ->recordTitleAttribute('floors')
             ->columns([
                 TextColumn::make('building.name')->searchable()->label('Building'),

@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Building\Document;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FamilyMember extends Model
 {
@@ -25,7 +26,9 @@ class FamilyMember extends Model
         'user_id',
         'owner_association_id',
         'flat_id',
-        'building_id'
+        'building_id',
+        'visa_number',
+        'visa_number_expiry_date',
     ];
 
     protected $cast = [
@@ -42,5 +45,9 @@ class FamilyMember extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 }
-                             

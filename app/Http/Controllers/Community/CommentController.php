@@ -17,6 +17,7 @@ use App\Traits\UtilsTrait;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -33,34 +34,41 @@ class CommentController extends Controller
     // Add a comment for a post in community
     public function store(StoreCommentRequest $request, Post $post)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $comment = new Comment($request->all());
 
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
-        $notifyTo = User::where('id',$post->user_id)->get();
-        $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
-        $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first();
 
+            $notifyTo = User::where(['id'=>$post->user_id])->get();
+            $user = User::where('id',$post->user_id)->first();
+            Log::info($user?->owner_association_id);
+            if(!$notifyTo->isEmpty()){
+                Notification::make()
+                    ->success()
+                    ->title("Comments")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body(auth()->user()->first_name . ' commented on the post!')
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(function() use ($user,$post){
+                                $slug = OwnerAssociation::where('id',$user?->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return PostResource::getUrl('edit', [$slug,$post->id]);
+                                }
+                                return url('/app/posts/' . $post->id.'/edit');
+                            }),
+                    ])
+                    ->sendToDatabase($notifyTo);
+            }
 
-        Notification::make()
-            ->success()
-            ->title("Comments")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body(auth()->user()->first_name . ' commented on the post!')
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($oam_id,$post){
-                        $slug = OwnerAssociation::where('id',$oam_id?->owner_association_id)->first()?->slug;
-                        if($slug){
-                            return PostResource::getUrl('edit', [$slug,$post->id]);
-                        }
-                        return url('/app/posts/' . $post->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
 
         return (new CustomResponseResource([
             'title' => 'Success',
@@ -74,6 +82,8 @@ class CommentController extends Controller
     // Add a comment for a complaint in help-desk
     public function addComment(StoreCommentRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $comment = new Comment([
             'body' => $request->body,
             'user_id' => auth()->user()->id,

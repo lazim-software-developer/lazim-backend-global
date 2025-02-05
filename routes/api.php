@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RentalDetailsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -106,10 +107,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 
+// Login routes for mobile app
+Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
-    // Login routes for mobile app
-    Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
     // Vendor login
     Route::post('/vendor-login', [AuthController::class, 'vendorLogin']);
@@ -153,6 +154,27 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // List all buildings for the logged in user
     Route::get('/user/flats', [UserController::class, 'fetchUserFlats']);
+
+    //Add flat for residents
+    Route::post('/add-flat', [RegistrationController::class, 'addFlat']);
+
+    //show pending flats for logged in user
+    Route::get('/pending-flats', [UserController::class, 'pendingFlats']);
+
+    //List owner tenants
+    Route::get('/owner/tenants', [UserController::class, 'fetchTenants']);
+    //List all tenant cheques
+    Route::get('/tenant/cheques', [RentalDetailsController::class, 'tenantsCheques']);
+    //List all tenant family members
+    Route::get('/tenant/familyMembers', [FamilyMemberController::class, 'tenantsFamilyMembers']);
+    //List all tenant documents
+    Route::get('/tenant/documents', [DocumentsController::class, 'tenantDocuments']);
+    //List all tenant other documents
+    Route::get('/tenant/other-documents', [DocumentsController::class, 'tenantOtherDocuments']);
+    //List all tenant requests
+    Route::get('/tenant/requests', [AccessCardController::class, 'tenantRequests']);
+    //List all tenant Vehicles
+    Route::get('/tenant/vehicles', [VehicleController::class, 'tenantVehicles']);
 });
 /**
  * Middleware Group: API Token Protection
@@ -252,7 +274,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('complaints/{complaint}', [ComplaintController::class, 'show']);
 
     //Complaint Update API
-    Route::patch('complaints/{complaint}/update', [ComplaintController::class, 'update']);
+    Route::post('complaints/{complaint}/update', [ComplaintController::class, 'update']);
 
     // Add a comment for a complaint
     Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
@@ -305,7 +327,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
     Route::get('/fetch-family-members/{building}/{unit?}',[FamilyMemberController::class, 'index']);
     Route::delete('/delete-family-members/{familyMember}',[FamilyMemberController::class, 'delete']);
-    Route::patch('/update-family-members/{familyMember}',[FamilyMemberController::class, 'update']);
+    Route::post('/update-family-members/{familyMember}',[FamilyMemberController::class, 'update']);
     Route::get('/show-family-members/{familyMember}',[FamilyMemberController::class, 'show']);
 });
 
@@ -380,6 +402,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 //RentalDetails Cheques Api's
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/rental-details/cheques', [RentalDetailsController::class, 'index']);
+    Route::post('/rentalCheque/{rentalCheque}/request-payment', [RentalDetailsController::class, 'requestPayment']);
 });
 
 //Permit To work Api's
@@ -388,6 +411,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/work-list', [PermitWorkController::class, 'create']);
     Route::get('/work-permit', [PermitWorkController::class, 'index']);
     Route::post('/work-permit', [PermitWorkController::class, 'store']);
+    Route::get('/vendor/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
 });
 
 // API  to fetch Security for a building
@@ -427,6 +451,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
 // Vendor APIs after logging in
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
+    Route::get('/registered_with', [VendorRegistrationController::class, 'registeredWith']);
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::post('/{vendor}/edit-details', [VendorRegistrationController::class, 'editVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
@@ -543,6 +568,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
     Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
     Route::get('/{vendor}/compliance-document-dashboard',[ComplianceDocumentController::class,'dashboardList']);
+
+    // View work permits for vendor
+    Route::get('/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
+    // View specific work permit details
+    Route::get('/work-permit/{workPermit}', [PermitWorkController::class, 'show']);
+    // Update work permit status
+    Route::patch('/work-permit/{workPermit}/update-status', [PermitWorkController::class, 'updateStatus']);
 });
 
 // Technician Related APIs
@@ -660,6 +692,9 @@ Route::get('/app-version',[AppController::class, 'version']);
 //web enquiries
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
+//web quatations
+Route::post('/web-quotation',[QuotationController::class,'store']);
+
 //webhook
 // Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
 // Route::get('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
@@ -679,3 +714,6 @@ Route::middleware(['authenticate.tally'])->group(function () {
 Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
 
 Route::post('/email-testing', [TestController::class, 'emailTriggering']);
+
+Route::get('push-notification', [NotificationController::class, 'pushNotification']);
+Route::get('push-notification-new', [NotificationController::class, 'pushNotificationNew']);

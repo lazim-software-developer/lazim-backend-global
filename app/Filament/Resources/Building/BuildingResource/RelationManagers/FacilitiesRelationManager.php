@@ -40,6 +40,7 @@ class FacilitiesRelationManager extends RelationManager
                         ->disk('s3')
                         ->directory('dev')
                         ->downloadable(true)
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                         ->openable(true)
                         ->columnSpan([
                             'sm' => 1,
@@ -78,16 +79,19 @@ class FacilitiesRelationManager extends RelationManager
                     ->recordSelect(function (RelationManager $livewire) {
                         $buildingId = $livewire->ownerRecord->id;
 
-                        // Get all the facilities
-                        $allFacilities = Facility::all()->pluck('id')->toArray();
-
-                        $existingFacility =  DB::table('building_facility')
+                        $existingFacilityIds = DB::table('building_facility')
                             ->where('building_id', $buildingId)
-                            ->whereIn('facility_id', $allFacilities)->pluck('facility_id')->toArray();
-                        $allFacilities = Facility::all()->whereNotIn('id', $existingFacility)->pluck('name', 'id')->toArray();
+                            ->pluck('facility_id')
+                            ->toArray();
+
                         return Select::make('recordId')
                             ->label('Amenities')
-                            ->options($allFacilities)
+                            ->options(function () use ($existingFacilityIds) {
+                                return Facility::query()
+                                    ->whereNotIn('id', $existingFacilityIds)
+                                    ->pluck('name', 'id')
+                                    ->toArray();
+                            })
                             ->searchable()
                             ->required()
                             ->preload();

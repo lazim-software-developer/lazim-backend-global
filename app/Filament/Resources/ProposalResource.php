@@ -82,6 +82,8 @@ class ProposalResource extends Resource
                     ->required(),
                 FileUpload::make('document')
                     ->disk('s3')
+                    ->downloadable(true)
+                    ->openable(true)
                     ->directory('dev')
                     ->disabled()
                     ->label('Document'),

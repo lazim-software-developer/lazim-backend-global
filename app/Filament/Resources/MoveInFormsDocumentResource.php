@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MoveInFormsDocumentResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use DB;
 use Filament\Forms\Components\CheckboxList;
@@ -226,7 +226,8 @@ class MoveInFormsDocumentResource extends Resource
                                 'movers_license'       => 'Movers license',
                                 'movers_liability'     => 'Movers liability',
                             ])
-                            ->columns(4)
+                            ->columnSpanFull()
+                            ->columns(2)
                             ->visible(function (callable $get) {
                                 return $get('status') == 'rejected';
                             }),
@@ -239,7 +240,29 @@ class MoveInFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-in')->withoutGlobalScopes())
+            ->modifyQueryUsing(function (Builder $query) {
+                $pmBuildings = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+                $role    = auth()->user()?->role->name;
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
+                if ($role == 'Property Manager') {
+                    return $query
+                        ->where('type', 'move-in')->withoutGlobalScopes()
+                        ->whereIn('flat_id', $pmFlats);
+                } elseif ($role == 'OA') {
+                    return $query
+                        ->where('type', 'move-in')->withoutGlobalScopes()
+                        ->whereIn('building_id', $pmBuildings);
+                }
+                return $query->where('type', 'move-in')->withoutGlobalScopes();
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
@@ -267,6 +290,7 @@ class MoveInFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
             ])
+            ->emptyStateHeading('Currently, No Move-In Records ')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
@@ -278,7 +302,9 @@ class MoveInFormsDocumentResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

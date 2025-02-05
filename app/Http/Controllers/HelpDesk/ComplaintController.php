@@ -44,12 +44,18 @@ class ComplaintController extends Controller
      */
     public function index(Request $request, Building $building)
     {
+        $flats = FlatTenant::where('tenant_id', auth()->user()->id)
+            ->where('active', 1)
+            ->pluck('flat_id');
+
+        // First query for user's direct complaints
         $query = Complaint::where([
-            'user_id'              => auth()->user()->id,
-            'building_id'          => $building->id,
-            'complaint_type'       => $request->type,
-            'owner_association_id' => $building->owner_association_id,
-        ]);
+            'building_id'    => $building->id,
+            'complaint_type' => $request->type,
+        ])->where(function($q) use ($flats) {
+            $q->where('user_id', auth()->user()->id)
+              ->orWhereIn('flat_id', $flats);
+        });
 
         // Filter based on status if provided
         if ($request->has('status')) {
@@ -57,7 +63,7 @@ class ComplaintController extends Controller
         }
 
         // Get the complaints in latest first order
-        $complaints = $query->latest()->paginate(10);
+        $complaints = $query->latest()->paginate($request->paginate ?? 10);
 
         return ComplaintResource::collection($complaints);
     }
@@ -70,7 +76,7 @@ class ComplaintController extends Controller
      */
     public function show(Complaint $complaint)
     {
-        $this->authorize('view', $complaint);
+        // $this->authorize('view', $complaint);
 
         $complaint->load('comments');
         return new Complaintresource($complaint);
@@ -78,6 +84,11 @@ class ComplaintController extends Controller
 
     public function createIncident(IncidentRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;
@@ -149,56 +160,34 @@ class ComplaintController extends Controller
                 $complaint->media()->save($media);
             }
         }
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
-            $query->whereIn('name', ['OA','Property Manager'])
-                  ->where('owner_association_id', $building->owner_association_id);
-        })
-        ->get();
-        Notification::make()
-            ->success()
-            ->title("New Incident")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New Incident created!')
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($building,$complaint){
-                        $slug = OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug;
-                        if($slug){
-                            return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
-                        }
-                        return url('/app/incidents/' . $complaint?->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
+        $oa_ids = DB::table('building_owner_association')->where('building_id', $building->id)
+            ->where('active', true)->pluck('owner_association_id');
+        foreach ($oa_ids as $oa_id) {
+            $notifyTo = User::whereHas('role', function ($query) use ($oa_id) {
+                $query->whereIn('name', ['OA','Property Manager'])
+                      ->where('owner_association_id', $oa_id);
+            })
+            ->get();
+            Notification::make()
+                ->success()
+                ->title("New Incident")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New Incident created!')
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function() use ($oa_id,$complaint){
+                            $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                            if($slug){
+                                return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
+                            }
+                            return url('/app/incidents/' . $complaint?->id.'/edit');
+                        }),
+                ])
+                ->sendToDatabase($notifyTo);
+        }
 
-        // Assign complaint to a technician
-        // AssignTechnicianToComplaint::dispatch($complaint);
-        // $serviceId  = $service_id;
-        // $buildingId = $building->id;
-
-        // $contract = Contract::where('service_id', $serviceId)->where('building_id', $buildingId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
-        // if ($contract) {
-        //     // Fetch technician_vendor_ids for the given service
-        //     $technicianVendorIds = DB::table('service_technician_vendor')
-        //         ->where('service_id', $contract->service_id)
-        //         ->pluck('technician_vendor_id');
-
-        //     $vendorId = $contract->vendor_id;
-
-        //     // Fetch technicians who are active and match the service
-        //     $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)
-        //         ->where('active', true)->where('vendor_id', $vendorId)
-        //         ->pluck('technician_id');
-        //     $assignees = User::whereIn('id', $technicianIds)
-        //         ->withCount(['assignees' => function ($query) {
-        //             $query->where('status', 'open');
-        //         }])
-        //         ->orderBy('assignees_count', 'asc')
-        //         ->get();
-        //     $selectedTechnician = $assignees->first();
-        // }
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => "We'll get back to you at the earliest!",
@@ -214,6 +203,8 @@ class ComplaintController extends Controller
      */
     public function create(ComplaintStoreRequest $request, Building $building)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
+
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;
@@ -387,56 +378,6 @@ class ComplaintController extends Controller
                 }])
                 ->orderBy('assignees_count', 'asc')
                 ->get();
-            $selectedTechnician = $assignees->first();
-
-            if ($selectedTechnician) {
-                $complaint->technician_id = $selectedTechnician->id;
-                $complaint->save();
-                $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();
-                $mailCredentials = [
-                    'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                    'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                    'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                    'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                    'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                    'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-                ];
-                ComplaintCreationJob::dispatch($complaint->id, $selectedTechnician->id, $mailCredentials);
-
-                $expoPushToken = ExpoPushNotification::where('user_id', $selectedTechnician->id)->first()?->token;
-                if ($expoPushToken) {
-                    $message = [
-                        'to'    => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'Task Assigned',
-                        'body'  => 'Task has been assigned',
-                        'data'  => ['notificationType' => 'PendingRequests'],
-                    ];
-                    $this->expoNotification($message);
-                    DB::table('notifications')->insert([
-                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type'            => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id'   => $selectedTechnician->id,
-                        'data'            => json_encode([
-                            'actions'   => [],
-                            'body'      => 'Task has been assigned',
-                            'duration'  => 'persistent',
-                            'icon'      => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title'     => 'Task Assigned',
-                            'view'      => 'notifications::notification',
-                            'viewData'  => [],
-                            'format'    => 'filament',
-                            'url'       => 'PendingRequests',
-                        ]),
-                        'created_at'      => now()->format('Y-m-d H:i:s'),
-                        'updated_at'      => now()->format('Y-m-d H:i:s'),
-                    ]);
-                }
-            } else {
-                Log::info("No technicians to add", []);
-            }
         }
         return (new CustomResponseResource([
             'title'   => 'Success',
@@ -448,6 +389,7 @@ class ComplaintController extends Controller
 
     public function resolve(Request $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
         $complaint->update([
             'status'     => 'closed',
             'close_time' => $request->has('close_time') ? $request->close_time : now(),
@@ -480,15 +422,24 @@ class ComplaintController extends Controller
                 } elseif ($complaint->complaint_type == 'snag') {
 
                     $notificationType = 'MyComplaints';
-                } else {
+                } elseif ($complaint->complaint_type == 'preventive_maintenance') {
+                    $notificationType = 'PreventiveMaintenance';
+                }
+                else {
                     $notificationType = 'InAppNotficationScreen';
                 }
                 $message = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Complaint status',
-                    'body'  => 'Your complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
-                    'data'  => ['notificationType' => $notificationType],
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
+                    'body'  => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'data'  => [
+                        'notificationType' => $notificationType,
+                        'complaintId'      => $complaint?->id,
+                        'open_time' => $complaint?->open_time,
+                        'close_time' => $complaint?->close_time,
+                        'due_date' => $complaint?->due_date,
+                ],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -498,13 +449,18 @@ class ComplaintController extends Controller
                     'notifiable_id'   => $complaint->user_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'Your complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'body'      => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => 'Complaint status',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => [
+                            'complaintId'      => $complaint?->id,
+                            'open_time' => $complaint?->open_time,
+                            'close_time' => $complaint?->close_time,
+                            'due_date' => $complaint?->due_date,
+                        ],
                         'format'    => 'filament',
                         'url'       => $notificationType,
                     ]),
@@ -519,9 +475,15 @@ class ComplaintController extends Controller
                 $message          = [
                     'to'    => $expoPushToken,
                     'sound' => 'default',
-                    'title' => 'Complaint status',
-                    'body'  => 'A complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
-                    'data'  => ['notificationType' => $notificationType],
+                    'title' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
+                    'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                    'data'  => ['notificationType' => $notificationType,
+                        'complaintId'      => $complaint?->id,
+                        'open_time' => $complaint?->open_time,
+                        'close_time' => $complaint?->close_time,
+                        'due_date' => $complaint?->due_date,
+                        'building_id' => $complaint?->building_id,
+                    ],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -531,13 +493,19 @@ class ComplaintController extends Controller
                     'notifiable_id'   => $complaint->technician_id,
                     'data'            => json_encode([
                         'actions'   => [],
-                        'body'      => 'A complaint has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
                         'duration'  => 'persistent',
                         'icon'      => 'heroicon-o-document-text',
                         'iconColor' => 'warning',
-                        'title'     => 'Complaint status',
+                        'title'     => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint').' status',
                         'view'      => 'notifications::notification',
-                        'viewData'  => [],
+                        'viewData'  => [
+                            'complaintId'      => $complaint?->id,
+                            'open_time' => $complaint?->open_time,
+                            'close_time' => $complaint?->close_time,
+                            'due_date' => $complaint?->due_date,
+                            'building_id' => $complaint?->building_id,
+                        ],
                         'format'    => 'filament',
                         'url'       => 'ResolvedRequests',
                     ]),
@@ -546,17 +514,95 @@ class ComplaintController extends Controller
                 ]);
             }
         }
+        if($complaint->complaint_type == 'preventive_maintenance'){
+            $residentIds = FlatTenant::where([
+                'building_id' => $complaint->building_id,
+                'active'      => true,
+            ])->distinct()->pluck('tenant_id');
+            if ($residentIds->count() > 0) {
+                // Create individual notifications for each resident
+                foreach ($residentIds as $residentId) {
+                    $residentTokens = ExpoPushNotification::where('user_id', $residentId)->first()?->token;
+                    $message        = [
+                        'to'    => $residentTokens,
+                        'sound' => 'default',
+                        'title' => 'Preventive Maintenance status',
+                        'body'  => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                        'data'  => [
+                            'notificationType' => 'PreventiveMaintenance',
+                            'complaintId'      => $complaint?->id,
+                            'open_time'        => $complaint?->open_time,
+                            'close_time'       => $complaint?->close_time,
+                            'due_date'         => $complaint?->due_date,
+                        ],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id'   => $residentId,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title'     => 'Preventive Maintenance status',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [
+                                'complaintId' => $complaint?->id,
+                                'open_time'   => $complaint?->open_time,
+                                'close_time'  => $complaint?->close_time,
+                                'due_date'    => $complaint?->due_date,
+                            ],
+                            'format'    => 'filament',
+                            'url'       => 'PreventiveMaintenance',
+                        ]),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
 
         return new CustomResponseResource([
-            'title'   => 'Complaint Resolved',
-            'message' => 'The complaint has been marked as resolved.',
+            'title'   => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule completed' : 'Complaint Resolved',
+            'message' => $complaint->complaint_type == 'preventive_maintenance' ? 'Schedule has been successfully completed' : 'Complaint has been resolved.',
         ]);
     }
 
     public function update(ComplaintUpdateRequest $request, Complaint $complaint)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $complaint->building_id)->where('active', true)->first()->owner_association_id;
+
         $request['technician_id'] = TechnicianVendor::find($request->technician_id)->technician_id;
+        if($request->has('status') && $request->status == 'closed'){
+            $request['closed_by'] = auth()->user()->id;
+        }
+        $categoryName = $request->service_id ? Service::where('id', $request->service_id)->value('name') : '';
+
+        $request->merge([
+            'category'             => $categoryName,
+        ]);
+
         $complaint->update($request->all());
+
+        if ($request->hasFile('images') && $request->has('status') && $request->status == 'closed') {
+            foreach ($request->file('images') as $image) {
+                $imagePath = optimizeAndUpload($image, 'dev');
+
+                // Create a new media entry for each image
+                $media = new Media([
+                    'name' => "after",
+                    'url'  => $imagePath,
+                ]);
+
+                // Attach the media to the post
+                $complaint->media()->save($media);
+            }
+        }
+
         return (new CustomResponseResource([
             'title'   => 'Complaint Updated Successfully',
             'message' => 'The complaint has been updated.',
@@ -586,7 +632,7 @@ class ComplaintController extends Controller
                     $query;
                 }
             })
-            ->paginate(10);
+            ->get();
 
         return VendorComplaintsResource::collection($complaints);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CoolingAccountResource\Pages;
 
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -37,6 +38,7 @@ class ListCoolingAccounts extends ListRecords
 
                 Action::make('upload')
                     ->slideOver()
+                    ->modalWidth('md')
                     ->color("primary")
                     ->form([
                         Select::make('building_id')
@@ -47,7 +49,9 @@ class ListCoolingAccounts extends ListRecords
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Building::all()->pluck('name', 'id');
                             }
-                            elseif(Role::where('id', auth()->user()->role->id)->first()->name == 'Property Manager'){
+                            elseif(Role::where('id', auth()->user()->role->id)->first()->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                            ->pluck('role')[0] == 'Property Manager'){
                                 $buildingIds = DB::table('building_owner_association')
                                     ->where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('active', true)
@@ -151,7 +155,9 @@ class ListCoolingAccounts extends ListRecords
         if ($userRole === 'Admin') {
             // Admin can see all records
             return $query;
-        } elseif ($userRole === 'Property Manager') {
+        } elseif ($userRole === 'Property Manager'
+        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+            ->pluck('role')[0] == 'Property Manager') {
             // Get building IDs associated with the PM's owner association
             $buildingIds = DB::table('building_owner_association')
                 ->where('owner_association_id', auth()->user()->owner_association_id)

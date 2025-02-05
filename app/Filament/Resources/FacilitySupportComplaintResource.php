@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\FacilitySupportComplaintResource\Pages;
 use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
@@ -9,17 +9,15 @@ use App\Models\Building\Complaint;
 use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
 use Closure;
 use DB;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -28,6 +26,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -40,7 +39,7 @@ class FacilitySupportComplaintResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Issue';
+    protected static ?string $modelLabel = 'Reactive Maintenance';
 
     public static function form(Form $form): Form
     {
@@ -57,6 +56,9 @@ class FacilitySupportComplaintResource extends Resource
                                         'building' => 'Building',
                                     ])
                                     ->live()
+                                    ->afterStateUpdated(function (Set $set) {
+                                        $set('flat_id', null);
+                                    })
                                     ->disabledOn('edit')
                                     ->default('NA'),
 
@@ -64,6 +66,23 @@ class FacilitySupportComplaintResource extends Resource
                                     ->label('Mark as Urgent')
                                     ->inline(false)
                                     ->live()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        if ($state) {
+                                            $set('priority', 1);
+                                            Notification::make()
+                                                ->title('Complaint Marked as Urgent')
+                                                ->body('The complaint has been marked as urgent and priority has been set to 1.')
+                                                ->icon('heroicon-o-exclamation-triangle')
+                                                ->send();
+                                        } else {
+                                            $set('priority', 3);
+                                            Notification::make()
+                                                ->title('Complaint Marked as Non-Urgent')
+                                                ->body('The complaint has been marked as non-urgent and priority has been set to 3.')
+                                                ->icon('heroicon-o-exclamation-circle')
+                                                ->send();
+                                        }
+                                    })
                                     ->onIcon('heroicon-o-exclamation-triangle')
                                     ->offIcon('heroicon-o-x-circle')
                                     ->onColor('danger')
@@ -98,12 +117,23 @@ class FacilitySupportComplaintResource extends Resource
                                 Select::make('flat_id')
                                     ->label('Unit Number')
                                     ->options(function (callable $get) {
+                                        $pmFlats = DB::table('property_manager_flats')
+                                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                            ->where('active', true)
+                                            ->pluck('flat_id')
+                                            ->toArray();
+
                                         return Flat::where('building_id', $get('building_id'))
+                                            ->whereIn('id', $pmFlats)
                                             ->pluck('property_number', 'id');
                                     })
                                     ->searchable()
-                                    ->required()
                                     ->preload()
+                                    ->visible(function (callable $get) {
+                                        if ($get('type') == 'personal') {
+                                            return true;
+                                        }return false;
+                                    })
                                     ->disabledOn('edit')
                                     ->placeholder('Select Unit Number'),
 
@@ -127,11 +157,22 @@ class FacilitySupportComplaintResource extends Resource
                                 Textarea::make('complaint')
                                     ->label('Complaint Description')
                                     ->disabledOn('edit')
+                                    ->required()
                                     ->placeholder('Describe the complaint in brief'),
 
                                 TextInput::make('priority')
                                     ->label('Priority')
+                                    ->reactive()
                                     ->default('3')
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        if ($state == 1) {
+                                            $set('Urgent', true);
+
+                                        } else {
+                                            $set('Urgent', false);
+
+                                        }
+                                    })
                                     ->visibleOn('edit')
                                     ->rules([
                                         function () {
@@ -167,6 +208,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('vendor_id', null);
                                         $set('technician_id', null);
+                                        $set('service_id', null);
                                     }),
 
                                 Select::make('service_id')
@@ -202,7 +244,7 @@ class FacilitySupportComplaintResource extends Resource
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
@@ -238,7 +280,7 @@ class FacilitySupportComplaintResource extends Resource
                                         $serviceId = $get('service_id');
                                         $vendorId  = $get('vendor_id');
 
-                                        if (!$serviceId) {
+                                        if (! $serviceId) {
                                             return [];
                                         }
 
@@ -267,6 +309,7 @@ class FacilitySupportComplaintResource extends Resource
                     ]),
 
                 Section::make('Additional Details')
+                    ->visibleOn('edit')
                     ->collapsible()
                     ->schema([
                         Grid::make(['sm' => 1, 'md' => 1, 'lg' => 2])
@@ -296,9 +339,10 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->placeholder('Add remarks'),
 
-                                DateTimePicker::make('close_time')
-                                    ->displayFormat('d-M-Y h:i A')
-                                    // ->default(now()->format('d-M-Y h:i A'))
+                                DatePicker::make('close_time')
+                                    ->displayFormat('d-M-Y')
+                                    ->label('Resolved Date')
+                                // ->default(now()->format('d-M-Y h:i A'))
                                     ->reactive()
                                     ->required(function (callable $get) {
                                         if ($get('status' === 'closed')) {
@@ -307,21 +351,37 @@ class FacilitySupportComplaintResource extends Resource
                                     })
                                     ->visible(function (callable $get) {
                                         return $get('status') == 'closed';
-                                    })
+                                    }),
                             ]),
 
-                        Repeater::make('photo')
-                            ->label('Attachments')
-                            ->schema([
-                                FileUpload::make('photo')
-                                    ->label('File')
-                                    ->disk('s3')
-                                    ->directory('dev')
-                                    ->image()
-                                    ->maxSize(2048)
-                                    ->openable(true)
-                                    ->downloadable(true),
-                            ]),
+                        FileUpload::make('media')
+                            ->label('Images')
+                            ->multiple()
+                            ->maxFiles(5)   // Maximum 5 files
+                            ->maxSize(2048) // 2MB in kilobytes
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->image()
+                            ->enableDownload()
+                            ->enableOpen()
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
+                            ->columnSpanFull()
+                            ->downloadable()
+                            ->previewable()
+                            ->visible(function ($record) {
+                                if ($record) {
+                                    return $record->media->isNotEmpty();
+                                }
+                                return false;
+                            })
+                            ->getUploadedFileNameForStorageUsing(
+                                fn($file): string => (string) str()->uuid() . '.' . $file->getClientOriginalExtension()
+                            )
+                            ->afterStateUpdated(function ($state, $old, $set) {
+                                if ($old && ! $state) {
+                                    $set('media', null);
+                                }
+                            }),
                     ]),
             ]);
     }
@@ -330,11 +390,46 @@ class FacilitySupportComplaintResource extends Resource
     {
         $buildingIds = DB::table('building_owner_association')
             ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->where('active', 1)
             ->pluck('building_id');
+
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
+        $authOaBuildings = Building::where('owner_association_id', auth()->user()->owner_association_id)
+            ->pluck('id');
+
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query
-            ->whereIn('complaintable_type', [get_class(auth()->user()),'App\Models\Vendor\Vendor'])
-            ->whereIn('building_id', $buildingIds)->latest())
+            ->modifyQueryUsing(function (Builder $query) use ($buildingIds, $pmFlats, $authOaBuildings) {
+                $baseQuery = $query->whereIn('complaint_type', ['help_desk', 'tenant_complaint']);
+
+                if (auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                 ->pluck('role')[0] == 'Property Manager') {
+                    return $baseQuery->whereIn('building_id', $buildingIds)
+                        ->where(function ($query) use ($pmFlats) {
+                            $query->whereNull('flat_id')
+                                ->orWhereIn('flat_id', $pmFlats);
+                        })
+                        ->latest();
+                }
+
+                if (auth()->user()->role->name == 'OA') {
+                    return $baseQuery->whereIn('building_id', $buildingIds)
+                        ->latest();
+                }
+
+                if (auth()->user()->role->name == 'Admin') {
+                    return $baseQuery->latest();
+                }
+
+                // For all other roles
+                return $baseQuery->whereIn('building_id', $authOaBuildings)
+                    ->latest();
+            })
             ->columns([
                 TextColumn::make('ticket_number')
                     ->label('Ticket Number')
@@ -367,7 +462,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->limit(50),
 
                 TextColumn::make('complaint')
-                    ->label('Complaint')
+                    ->label('Remarks')
                     ->toggleable()
                     ->default('NA')
                     ->limit(20)
@@ -376,6 +471,12 @@ class FacilitySupportComplaintResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(function (string $state) {
+                        return match ($state) {
+                            'open'   => 'Open',
+                            'closed' => 'Closed',
+                        };
+                    })
                     ->color(fn(string $state): string => match ($state) {
                         'open'                            => 'primary',
                         'closed'                          => 'gray',
@@ -391,7 +492,7 @@ class FacilitySupportComplaintResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
@@ -418,7 +519,7 @@ class FacilitySupportComplaintResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 

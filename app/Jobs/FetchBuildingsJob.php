@@ -40,7 +40,7 @@ class FetchBuildingsJob implements ShouldQueue
         ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . $this->ownerAssociation->mollak_id . "/propertygroups");
 
 
-        // Save buildings to Building table 
+        // Save buildings to Building table
         if ($response->successful()) {
             $propertyGroups = $response->json()['response']['propertyGroups'];
 

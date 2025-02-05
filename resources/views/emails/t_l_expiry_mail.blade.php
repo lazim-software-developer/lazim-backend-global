@@ -1,100 +1,32 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Important: Trade License Expiry Reminder</h2>
 
-	@include('beautymail::templates.minty.contentStart')
-		<tr>
-			<td class="paragraph">
-                Dear {{$user->first_name}},
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="20"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-			I trust this email finds you well. As part of our ongoing commitment to maintaining strong partnerships, we would like to remind you about the upcoming expiration of your Trade Licence.
-			</td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-		<tr>
-			<td class="title">
-            Trade Licence Details:
-			</td>
-		</tr>
+<p>Dear Team,</p>
 
-		<tr>
-			<td width="100%" height="10"></td>
-		</tr>
-		@php
-		use Carbon\Carbon;
+<p>This is a reminder that your Trade License is set to expire on {{$vendor->tl_expiry->format('Y-m-d')}}.</p>
 
-		$endDate = Carbon::parse($vendor->tl_expiry);
+<div class="title">Trade License Details:</div>
+@php
+    use Carbon\Carbon;
+    $endDate = Carbon::parse($vendor->tl_expiry);
+    $remainingDays = $endDate->diffInDays(Carbon::now());
+@endphp
+<p>
+    <strong>Days Remaining:</strong> {{$remainingDays}}<br>
+    <strong>Trade License Number:</strong> {{$vendor->tl_number}}
+</p>
 
-		// Calculate the remaining days
-		$remainingDays = $endDate->diffInDays(Carbon::now());
+<div class="title">Action Required:</div>
+<p>To ensure uninterrupted services, please update your trade license details in your profile immediately.</p>
 
-		@endphp
-		<tr>
-            <td class="paragraph">
-                <strong>Days remaining: </strong> {{$remainingDays}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>TL number: </strong> {{$vendor->tl_number}}
-			</td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-        <tr>
-			<td class="title">
-            Renewal Information:
-			</td>
-		</tr>
+<p>For assistance, feel free to contact us at +971 507098272 / 043206789.</p>
 
-		<tr>
-			<td width="100%" height="10"></td>
-		</tr>
+<p>Thank you for your prompt attention to this matter.</p>
 
-        <tr>
-            <td class="paragraph">
-			Your current trade licence is set to expire on {{$vendor->tl_expiry->format('Y-m-d')}}. To ensure continuity in our collaboration and to avoid any disruption of services, update your trade licence details in your profile.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-            <td class="paragraph">
-            Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-			<td class="paragraph">
-               Warm regards,
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="5"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-           Lazim team
-			</td>
-		</tr>
-
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-	@include('beautymail::templates.minty.contentEnd')
-
-@stop
+<p>
+    Regards,<br>
+    <strong>-Lazim Team</strong>
+</p>
+@endsection

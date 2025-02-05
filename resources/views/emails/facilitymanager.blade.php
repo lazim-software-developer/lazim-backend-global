@@ -1,82 +1,22 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Your Account Details:
-    </td>
-</tr>
-
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Email: </strong> {{$user->email}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        To access your account and begin using our platform, click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>. Once logged in, you will be redirected to the document upload page, where you can submit the necessary documents for review. Our admin team will review and approve or reject them accordingly. Once they are approved, a confirmation email will be sent to you with the login credentials after which you can access your account.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        Warm regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Lazim team
-    </td>
-</tr>
-
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{$user->first_name}},</p>
+    <p>We're thrilled to welcome you to the Lazim community! Your account has been successfully created, and you're now ready to begin using our platform.</p>
+    <p><strong>Your Account Details:</strong></p>
+    <ul>
+        <li><strong>Email:</strong> {{$user->email}}</li>
+        <li><strong>Password:</strong> {{$password}}</li>
+    </ul>
+    <p>To get started, please <a href="{{env('VENDOR_URL')}}/login">click here</a> to access your account. Upon logging in, you will be redirected to the document upload page, where you can submit the required documents for verification.</p>
+    <p><strong>Next Steps:</strong></p>
+    <ol>
+        <li>Upload the necessary documents for our review.</li>
+        <li>Our admin team will assess your submission and approve or provide feedback if updates are required.</li>
+        <li>Once approved, you will receive a confirmation email granting full access to your account.</li>
+    </ol>
+    <p>We're confident that Lazim will provide you with valuable tools and support to streamline your facility management operations.</p>
+    <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
+    <p>Thank you for choosing Lazim. We look forward to working with you!</p>
+    <p>Regards,<br>Lazim Team</p>
+@endsection

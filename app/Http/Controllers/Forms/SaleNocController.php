@@ -34,13 +34,13 @@ class SaleNocController extends Controller
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
 
         $validated['user_id']              = auth()->user()->id;
-        $validated['owner_association_id'] = $oam_id?->owner_association_id;
+        $validated['owner_association_id'] = $oam_id->owner_association_id;
         $validated['submit_status']        = 'download_file';
         $validated['ticket_number']        = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
         $saleNoc          = SaleNoc::create($validated);
-        $tenant           = Filament::getTenant()?->id ?? $oam_id?->owner_association_id;
+        $tenant           = Filament::getTenant()?->id ?? $oam_id->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -94,6 +94,11 @@ class SaleNocController extends Controller
     // Upload Signed document from buyer or seller
     public function uploadDocument(Request $request, SaleNOC $saleNoc)
     {
+        if ($request->has('building_id') || $saleNoc->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $saleNoc->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $filePath = optimizeDocumentAndUpload($request->file, 'dev');
 
         // Check the existing value of submit_status column
@@ -164,26 +169,40 @@ class SaleNocController extends Controller
     // Upload individual documents for NOC form
     public function uploadNOCDocument(Request $request)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $path = optimizeDocumentAndUpload($request->file, 'dev');
 
         return response()->json([
             'path' => $path,
         ], 200);
     }
-    public function fmlist(Vendor $vendor)
+    public function fmlist(Vendor $vendor, Request $request)
     {
-        $ownerAssociationIds = DB::table('owner_association_vendor')
-            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
-        $buildingIds = DB::table('building_owner_association')
-            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active',true)
+            ->pluck('building_id');
 
         $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return SaleNocResource::collection($saleNocForms->paginate(10));
+        return SaleNocResource::collection($saleNocForms->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, SaleNOC $saleNOC, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $saleNOC->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

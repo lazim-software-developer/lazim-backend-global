@@ -27,4 +27,22 @@ class ComplianceDocumentRequest extends FormRequest
             'url'         => 'sometimes|file|mimes:pdf|max:2048',
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'doc_name.required'    => 'Document name is required',
+            'doc_name.max'         => 'Document name cannot exceed 50 characters',
+            'expiry_date.required' => 'Expiry date is required',
+            'expiry_date.date'     => 'Please enter a valid date',
+            'url.file'            => 'Please upload a valid file',
+            'url.mimes'           => 'Only PDF files are allowed',
+            'url.max'             => 'File size should not exceed 2MB'
+        ];
+    }
 }

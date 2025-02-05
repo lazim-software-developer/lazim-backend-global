@@ -6,9 +6,10 @@ use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\RentalDetailsRelationManager;
 use App\Jobs\SendInactiveStatusToResident;
+use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
-use Filament\Facades\Filament;
+use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -20,7 +21,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class FlatTenantResource extends Resource
@@ -70,13 +70,50 @@ class FlatTenantResource extends Resource
                             ->disabled()
                             ->required()
                             ->placeholder('Created Date'),
-                        // DatePicker::make('end_date')
-                        //     ->rules(['date'])
-                        //     ->disabled()
-                        //     ->placeholder('End Date'),
+
+                        DatePicker::make('start_date')
+                            ->label('Contract Start Date')
+                            ->disabledOn('edit')
+                            ->visible(function ($record) {
+                                if ($record->role == 'Tenant') {
+                                    return true;
+                                }return false;
+                            }),
+
+                        DatePicker::make('end_date')
+                            ->label('Contract End Date')
+                            ->disabledOn('edit')
+                            ->visible(function ($record) {
+                                if ($record->role == 'Tenant') {
+                                    return true;
+                                }return false;
+                            }),
                         TextInput::make('role')
                             ->disabled()
                             ->placeholder('NA'),
+
+                        TextInput::make('makani_number_url')
+                            ->label('Makani Number')
+                            ->disabledOn('edit')
+                            ->visible(function ($record) {
+                                if ($record->role == 'Owner') {
+                                    return true;
+                                }return false;
+                            })
+                            ->default(fn($record) => $record->makaniNumber?->url ?? 'NA'),
+
+                        Toggle::make('residing_in_same_flat')
+                            ->label('Residing in same flat')
+                            ->rules(['boolean'])
+                            ->disabled()
+                            ->visible(function ($record) {
+                                return $record->role == 'Owner';
+                            })
+                            ->inline(false)
+                            ->onIcon('heroicon-o-check-circle')
+                            ->offIcon('heroicon-o-x-mark')
+                            ->onColor('success')
+                            ->offColor('danger'),
 
                         Toggle::make('active')
                             ->label('Active Status')
@@ -126,10 +163,22 @@ class FlatTenantResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)
+                                ->first()->name == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
                         }
+
                     })
                     ->searchable()
                     ->label('Building')
@@ -155,7 +204,7 @@ class FlatTenantResource extends Resource
             // FlatTenantResource\RelationManagers\DocumentsRelationManager::class,
             // FlatTenantResource\RelationManagers\ComplaintsRelationManager::class,
             FamilyMembersRelationManager::class,
-            RentalDetailsRelationManager::class
+            RentalDetailsRelationManager::class,
         ];
     }
 

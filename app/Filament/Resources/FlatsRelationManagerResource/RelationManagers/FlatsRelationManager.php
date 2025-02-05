@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Filament\Resources\FlatsRelationManagerResource\RelationManagers;
 
 use App\Imports\FlatImport;
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -63,6 +64,7 @@ class FlatsRelationManager extends RelationManager
                             ->options(function (Get $get) {
                                 $buildings = DB::table('building_owner_association')
                                     ->where('owner_association_id', $this->ownerRecord->id)
+                                    ->where('active', true)
                                     ->pluck('building_id');
                                 return Building::whereIn('id', $buildings)->pluck('name', 'id');
                             })
@@ -73,6 +75,7 @@ class FlatsRelationManager extends RelationManager
                             ->placeholder('Building')
                             ->label('Select Building'),
                         Select::make('property_type')
+                            ->label('Property Type')
                             ->options([
                                 'Shop'   => 'Shop',
                                 'Office' => 'Office',
@@ -82,36 +85,44 @@ class FlatsRelationManager extends RelationManager
                             ->searchable(),
                         TextInput::make('suit_area')
                             ->placeholder('NA')
+                            ->label('Suit Area')
                             ->numeric(),
                         TextInput::make('actual_area')
                             ->placeholder('NA')
+                            ->label('Actual Area')
                             ->numeric(),
                         TextInput::make('balcony_area')
                             ->placeholder('NA')
+                            ->label('Balcony Area')
                             ->numeric(),
-                        TextInput::make('applicable_area')
+                        TextInput::make('parking_count')
                             ->placeholder('NA')
+                            ->label('Parking Count')
                             ->numeric(),
+                        TextInput::make('plot_number')
+                            ->placeholder('NA')
+                            ->label('Plot Number')
+                            ->numeric(),
+                        // TextInput::make('applicable_area')
+                        //     ->placeholder('NA')
+                        //     ->label('Applicable Area')
+                        //     ->numeric(),
                         TextInput::make('virtual_account_number')
                             ->placeholder('NA')
                             ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                             ->numeric(),
-                        TextInput::make('parking_count')
-                            ->placeholder('NA')
-                            ->numeric(),
-                        TextInput::make('plot_number')
-                            ->placeholder('NA')
-                            ->numeric(),
                         TextInput::make('makhani_number')
                             ->placeholder('NA')
+                            ->label('Makani Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('dewa_number')
                             ->placeholder('NA')
+                            ->label('DEWA Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
                         TextInput::make('etisalat/du_number')
-                            ->label('BTU/Etisalat Number')
+                            ->label('DU/Etisalat Number')
                             ->placeholder('NA')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
@@ -120,6 +131,10 @@ class FlatsRelationManager extends RelationManager
                             ->label('BTU/AC Number')
                             ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                             ->numeric(),
+                        TextInput::make('lpg_number')
+                            ->placeholder('NA')
+                            ->label('LPG Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                     ]),
 
             ]);
@@ -128,6 +143,14 @@ class FlatsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', $this->ownerRecord->id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+                return Flat::whereIn('id', $pmFlats);
+            })
             ->recordTitleAttribute('property_number')
             ->columns([
                 TextColumn::make('property_number')
@@ -170,7 +193,7 @@ class FlatsRelationManager extends RelationManager
                 TextColumn::make('virtual_account_number')
                     ->default('NA')
                     ->searchable()
-                    ->visible(!in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                    ->visible(! in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
                     ->default('NA')
@@ -205,28 +228,112 @@ class FlatsRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
+                Action::make('Attach Flat')
+                    ->label('Attach Flat')
+                    ->slideOver()
+                    ->modalWidth('lg')
+                    ->form([
+                        Select::make('building_id')
+                            ->label('Building')
+                            ->options(function (RelationManager $livewire) {
+
+                                $pmId = $livewire->ownerRecord->id;
+
+                                $pmBuildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', $pmId)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $pmBuildingIds)
+                                    ->pluck('name', 'id');
+                            })
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat_ids', null);
+                            })
+                            ->searchable()
+                            ->required()
+                            ->reactive()
+                            ->optionsLimit(500)
+                            ->live(),
+                        Select::make('flat_ids')
+                            ->multiple()
+                            ->label('Flats')
+                            ->options(function (RelationManager $livewire, callable $get) {
+
+                                $pmId = $livewire->ownerRecord->id;
+
+                                $existingFlatIds = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', $pmId)
+                                    ->where('active', true)
+                                    ->pluck('flat_id');
+
+                                return Flat::whereNotIn('id', $existingFlatIds)
+                                    ->where('building_id', $get('building_id'))
+                                    ->pluck('property_number', 'id');
+                            })
+                            ->helperText(function (callable $get) {
+                                if ($get('building_id') === null) {
+                                    return 'Please select a building first';
+                                }
+                            })
+                            ->searchable()
+                            ->required()
+                            ->reactive()
+                            ->optionsLimit(500)
+                            ->live(),
+
+                    ])
+                    ->action(function (array $data, RelationManager $livewire): void {
+                        foreach ($data['flat_ids'] as $flatId) {
+                            $existingRecord = DB::table('property_manager_flats')
+                                ->where('owner_association_id', $livewire->ownerRecord->id)
+                                ->where('flat_id', $flatId)
+                                ->where('active', false)
+                                ->first();
+
+                            if ($existingRecord) {
+                                DB::table('property_manager_flats')
+                                    ->where('owner_association_id', $livewire->ownerRecord->id)
+                                    ->where('flat_id', $flatId)
+                                    ->update(['active' => true]);
+                            } else {
+                                DB::table('property_manager_flats')->insert([
+                                    'owner_association_id' => $livewire->ownerRecord->id,
+                                    'flat_id'              => $flatId,
+                                    'active'               => true,
+                                ]);
+                            }
+                        }
+
+                        Notification::make()
+                            ->title((count($data['flat_ids']) > 1) ?
+                                count($data['flat_ids']) . ' Flats attached successfully' :
+                                count($data['flat_ids']) . ' Flat attached successfully')
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\CreateAction::make()
                     ->slideOver()
-                    ->label('New Flat'),
+                    ->label('New Flat')
+                    ->after(function ($record) {
+                        $pmId   = $record->owner_association_id;
+                        $flatId = $record->id;
+                        DB::table('property_manager_flats')->insert([
+                            'owner_association_id' => $pmId,
+                            'flat_id'              => $flatId,
+                            'active'               => true,
+                        ]);
+                    }),
 
-                Action::make('feature')
-                    ->label('Upload Flats') // Set a label for your action
+                Action::make('Upload Flats')
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                     ->form([
-                        // Select::make('owner_association_id')
-                        //     ->options(function () {
-                        //         return OwnerAssociation::where('role', 'Property Manager')->pluck('name', 'id');
-                        //     })
-                        //     ->visible(auth()->user()->role->name === 'Admin')
-                        //     ->required()
-                        //     ->live()
-                        //     ->preload()
-                        //     ->searchable()
-                        //     ->label('Select Property Manager'),
                         Select::make('building_id')
                             ->options(function () {
                                 $buildings = DB::table('building_owner_association')
                                     ->where('owner_association_id', $this->ownerRecord->id)
+                                    ->where('active', true)
                                     ->pluck('building_id');
                                 return Building::whereIn('id', $buildings)->pluck('name', 'id');
                             })
@@ -238,51 +345,82 @@ class FlatsRelationManager extends RelationManager
                         FileUpload::make('excel_file')
                             ->label('Upload File')
                             ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel',
                             ])
                             ->required()
-                            ->disk('local') // or your preferred disk
-                            ->directory('budget_imports'), // or your preferred directory
+                            ->disk('local')
+                            ->directory('budget_imports'),
                     ])
                     ->action(function ($record, array $data, $livewire) {
-
                         $filePath   = $data['excel_file'];
                         $fullPath   = storage_path('app/' . $filePath);
                         $oaId       = $this->ownerRecord->id;
                         $buildingId = $data['building_id'];
 
-                        if (!file_exists($fullPath)) {
+                        if (! file_exists($fullPath)) {
                             Log::error("File not found at path: ", [$fullPath]);
                         }
 
-                        // Now import using the file path
-                        Excel::import(new FlatImport($oaId, $buildingId), $fullPath); // Notify user of success
+                        Excel::import(new FlatImport($oaId, $buildingId), $fullPath);
                     }),
-                ExportAction::make('exporttemplate')->exports([
-                    ExcelExport::make()
-                        ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
-                        ->withColumns([
-                            Column::make('unit_number'),
-                            Column::make('property_type'),
-                            Column::make('mollak_property_id'),
-                            Column::make('suit_area'),
-                            Column::make('actual_area'),
-                            Column::make('balcony_area'),
-                            Column::make('applicable_area'),
-                            Column::make('parking_count'),
-                            Column::make('makhani_number'),
-                            Column::make('dewa_number'),
-                            Column::make('etisalat/du_number'),
-                            Column::make('btu/ac_number'),
-                        ]),
-                ])
+
+                ExportAction::make('exporttemplate')
+                    ->exports([
+                        ExcelExport::make()
+                            ->modifyQueryUsing(fn(Builder $query) => $query->where('id', 0))
+                            ->withColumns([
+                                Column::make('unit_number*'),
+                                Column::make('property_type*'),
+                                Column::make('suit_area'),
+                                Column::make('actual_area'),
+                                Column::make('balcony_area'),
+                                Column::make('parking_count'),
+                                Column::make('plot_number'),
+                                Column::make('makani_number'),
+                                Column::make('dewa_number'),
+                                Column::make('du/etisalat_number'),
+                                Column::make('btu/ac_number'),
+                                Column::make('lpg_number'),
+                            ]),
+                    ])
                     ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
                     ->label('Download sample file'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\DetachAction::make()
+                //     ->label('Detach')
+                //     ->icon('heroicon-o-x-mark')
+                //     ->modalHeading(fn($record) => 'Detach ' . $record->name . '?')
+                //     ->modalDescription('Are you sure you want to detach this Flat?
+                //             This will remove the management authority.')
+                //     ->modalSubmitActionLabel('Yes, detach')
+                //     ->action(function ($record, array $data) {
+
+                //         DB::table('property_manager_flats')
+                //             ->where('flat_id', $record->id)
+                //             ->where('active', 1)
+                //             ->update(['active' => 0]);
+
+                //         DB::table('flat_tenants')
+                //             ->where('flat_id', $record->id)
+                //             ->update(['active' => 0]);
+
+                //         // Make users with the same id as flat_tenant_id inactive
+                //         DB::table('users')
+                //             ->whereIn('id', function ($query) use ($record) {
+                //                 $query->select('tenant_id')
+                //                     ->from('flat_tenants')
+                //                     ->where('flat_id', $record->id);
+                //             })
+                //             ->update(['active' => 0]);
+
+                //         Notification::make()
+                //             ->title('Flat detached successfully')
+                //             ->success()
+                //             ->send();
+                //     }),
             ])
             ->emptyStateDescription('Create or Upload a Flat to get started.')
             ->bulkActions([

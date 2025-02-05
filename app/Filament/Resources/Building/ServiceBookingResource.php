@@ -1,11 +1,12 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
+use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -47,11 +48,15 @@ class ServiceBookingResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                } else {
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                        ->pluck('name', 'id');
+                                } else{
+                                    $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
                                 }
                             })
+                            ->afterStateUpdated(fn(callable $set) => $set('flat_id', null))
                             ->reactive()
                             ->required()
                             ->preload()
@@ -59,10 +64,53 @@ class ServiceBookingResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
 
+                        Select::make('flat_id')
+                            ->native(false)
+                            ->required()
+                            ->helperText(function (callable $get) {
+                                if ($get('building_id') === null) {
+                                    return 'Please select a building first';
+                                }
+                            })
+                            ->disabledOn('edit')
+                            ->reactive()
+                            ->afterStateUpdated(fn(callable $set) => $set('user_id', null))
+                            ->placeholder('Select Flat')
+                            ->relationship('building.flats', 'property_number')
+                            ->label('Flat')
+                            ->options(function (callable $get) {
+                                $pmFlats = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('flat_id')
+                                    ->toArray();
+
+                                if(auth()->user()->role->name == 'Admin'){
+                                    return DB::table('flats')
+                                        ->where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                    return DB::table('flats')
+                                        ->whereIn('id', $pmFlats)
+                                        ->where('building_id', $get('building_id'))
+                                        ->pluck('property_number', 'id');
+                                }
+
+                                return DB::table('flats')
+                                    ->where('building_id', $get('building_id'))
+                                    ->pluck('property_number', 'id');
+                            })
+                            ->preload(),
+
                         Select::make('bookable_id')
                             ->options(
                                 DB::table('services')
                                     ->where('type', 'inhouse')
+                                    ->where('active', true)
                                     ->pluck('name', 'id')
                                     ->toArray()
                             )
@@ -80,32 +128,52 @@ class ServiceBookingResource extends Resource
                             ->rules(['exists:users,id'])
                             ->required()
                             ->relationship('user', 'first_name')
-                            ->options(function () {
+                            ->options(function (callable $get) {
                                 $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
                                 } else {
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
+                                    $flatId    = $get('flat_id');
+                                    $residents = FlatTenant::where('flat_id', $flatId)
+                                        ->where('active', true)
+                                        ->get()
+                                        ->map(function ($tenant) {
+                                            $role            = $tenant->role;
+                                            $roleDescription = $role == 'Owner' ? 'Owner' : 'Tenant';
+                                            return [
+                                                'id'   => $tenant->tenant_id,
+                                                'name' => $tenant->user->first_name . ' (' . $roleDescription . ')',
+                                            ];
+                                        });
+                                    return $residents->pluck('name', 'id')->toArray();
                                 }
                             })
                             ->searchable()
                             ->disabledOn('edit')
                             ->preload()
                             ->placeholder('User'),
-                        DatePicker::make('date')
-                            ->rules(['date'])
-                            ->required()
-                            ->disabledOn('edit')
-                            ->placeholder('Date'),
-                        TimePicker::make('start_time')
-                            ->required()
-                            ->disabledOn('edit')
-                            ->placeholder('Start Time'),
-                        TimePicker::make('end_time')
-                            ->default('NA')
-                            ->disabledOn('edit')
-                            ->placeholder('End Time'),
+
+                        Grid::make([
+                            'sm' => 2,
+                            'md' => 3,
+                            'lg' => 3,
+                        ])
+                            ->schema([
+                                DatePicker::make('date')
+                                    ->rules(['date'])
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->placeholder('Date'),
+                                TimePicker::make('start_time')
+                                    ->required()
+                                    ->disabledOn('edit')
+                                    ->placeholder('Start Time'),
+                                // TimePicker::make('end_time')
+                                //     ->default('NA')
+                                //     ->disabledOn('edit')
+                                //     ->placeholder('End Time'),
+                            ]),
                         // TextInput::make('remarks')
                         //     ->default('NA')
                         //     ->disabledOn('edit')
@@ -161,13 +229,18 @@ class ServiceBookingResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
+                    ->label('Building')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } else {
-                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                ->pluck('name', 'id');
+                        } else{
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
                         }
+
                     })
                     ->searchable()
                     ->preload(),

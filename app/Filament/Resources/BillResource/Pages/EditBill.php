@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BillResource\Pages;
 
 use App\Filament\Resources\BillResource;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use Filament\Resources\Pages\EditRecord;
 
@@ -21,10 +22,11 @@ class EditBill extends EditRecord
     {
         $bill       = $this->record;
         $flatId     = $bill->flat['property_number'];
-        $buildingId = Flat::where('property_number', $flatId)->pluck('building_id');
+        $buildingId = Flat::where('property_number', $flatId)->pluck('building_id')[0];
+        $building   = Building::where('id', $buildingId)->pluck('name')[0];
 
         return [
-            'building_id'       => $buildingId,
+            'building_id'       => $building,
             'type'              => $bill->type,
             'amount'            => $bill->amount,
             'month'             => $bill->month,
@@ -39,8 +41,11 @@ class EditBill extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if($data['status']!= $this->record['status']){
-            $data['status_updated_by'] = auth()->id();
+        if ($this->record['type'] != 'DEWA') {
+            if ($data['status'] != $this->record['status']) {
+                $data['status_updated_by'] = auth()->id();
+            }
+
         }
 
         return $data;

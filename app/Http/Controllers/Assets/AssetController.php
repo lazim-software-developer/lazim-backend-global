@@ -29,7 +29,7 @@ use App\Http\Requests\Assets\UpdateAssetMaintenanceBeforeRequest;
 
 class AssetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $technicianId = auth()->user()->id;
         // $currentQuarterStart = Carbon::now()->firstOfQuarter();
@@ -38,6 +38,9 @@ class AssetController extends Controller
         // Paginate the query results before mapping
         $assignedAssets = TechnicianAssets::with(['asset', 'assetMaintenances'])
             ->where('technician_id', $technicianId)
+            ->when($request->filled('building_id'), function($query) use ($request) {
+                return $query->where('building_id', $request->building_id);
+            })
             ->paginate(10); // Set the number of items per page
 
         // Transform the paginated results
@@ -88,7 +91,7 @@ class AssetController extends Controller
                 'after' => ''
             ]
         ];
-        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         $data = AssetMaintenance::create([
             'maintenance_date' => now(),
             'comment' => json_encode($jsonData['comment']),
@@ -149,14 +152,19 @@ class AssetController extends Controller
             ->when($request->filled('type'), function ($query) use ($vendor, $request) {
                 $buildings = $vendor->buildings->where('pivot.active', true)->where('pivot.end_date', '>', now()->toDateString())->unique()
                                 ->filter(function($buildings) use($request){
-                                        return $buildings->ownerAssociations->contains('role',$request->type);
+                                        return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
                                 });
                 $query->whereIn('building_id', $buildings->pluck('id'));
             });
-        return AssetListResource::collection($assets->paginate(10));
+        return AssetListResource::collection($assets->paginate($request->paginate ?? 10));
     }
 
-    public function attachAsset(AssetAttachRequest $request,Asset $asset){
+    public function attachAsset(AssetAttachRequest $request,Asset $asset)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $assets = TechnicianAssets::firstOrCreate([
             'asset_id' => $asset->id,
             'technician_id' => $request->technician_id,
@@ -181,11 +189,14 @@ class AssetController extends Controller
     public function create(Vendor $vendor, AssetCreateRequest $request)
     {
         $request['owner_association_id'] = auth()->user()->owner_association_id;
+        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         $asset = Asset::create($request->all());
         // Fetch Building name
         $building_name        = Building::where('id', $asset->building_id)->first();
-        $ownerAssociationId   = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
-        $ownerAssociationName = OwnerAssociation::findOrFail($ownerAssociationId)?->name;
+
+        $ownerAssociation = OwnerAssociation::where('id',$ownerAssociationId)->first();
+
+        $ownerAssociationName = $ownerAssociation?->name ?? uniqid('ASSET_');
         $assetCode            = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($asset->id);
 
         // Build an object with the required properties
@@ -197,7 +208,7 @@ class AssetController extends Controller
             'maintenance_status' => 'not-started',
             'building_name'      => $building_name->name,
             'building_id'        => $asset->building_id,
-            'location'           => $asset->location,
+            'location'           => $asset?->location,
             'description'        => $asset->description,
         ];
 
@@ -245,6 +256,8 @@ class AssetController extends Controller
     }
     public function updateAsset(Vendor $vendor, Asset $asset, AssetUpdateRequest $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()->owner_association_id;
+
         $asset->update($request->all());
         $building_name = Building::where('id', $asset->building_id)->first();
 

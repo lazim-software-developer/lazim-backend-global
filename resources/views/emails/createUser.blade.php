@@ -1,90 +1,19 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We're excited to have you on board with Lazim!
-        Your account has been successfully created, and we're thrilled to welcome you to our community.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Your Account Details:
-    </td>
-</tr>
-
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Email: </strong> {{$user->email}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    @if(!in_array($user->role->name, ['Technician', 'Gatekeeper', 'Resident']))
-    <td class="paragraph">
-        To access your account and use our platform, click on
-        <a href="{{ env('APP_URL') }}/app/login">this link</a>
-
-    </td>
-    @else
-    
-    @endif
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform,
-         and we look forward to serving you.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        Warm regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Lazim team
-    </td>
-</tr>
-
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{ $user->first_name }},</p>
+    <p>We are excited to have you on board with Lazim!</p>
+    <p>Your account has been successfully created by the Property Manager, and we’re thrilled to welcome you to our community.</p>
+    <p><strong>Your Account Details:</strong></p>
+    <ul>
+        <li><strong>Email:</strong> {{ $user->email }}</li>
+        <li><strong>Login Link:</strong> <a href="{{ env('RESIDENT_URL') }}/login">Click here to login</a></li>
+    </ul>
+    <p>To get started, simply log in to your account using the credentials you created during registration.</p>
+    <p>If you encounter any issues or require assistance, please don’t hesitate to contact us.</p>
+    <p>We are committed to providing you with a seamless experience and ensuring your needs are met.</p>
+    <p>Thank you for choosing Lazim, and we look forward to serving you.</p>
+    <p>Regards,</p>
+    <img src="{{ env('AWS_URL') . '/' . $pm_logo }}" alt="Owner Association Logo" style="max-width: 80px; height: 30px;">
+    <p>{{ $pm_oa }}</p>
+@endsection

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\IncidentResource\Pages;
 use App\Models\Building\Complaint;
 use App\Models\User\User;
@@ -76,33 +77,33 @@ class IncidentResource extends Resource
                             })
                             ->searchable()
                             ->live(),
-                        Repeater::make('comments')
-                            ->relationship('comments')
-                            ->helperText(function ($state) {
-                                return $state == [] ? 'No Comments' : '';
-                            })
-                            ->schema([
-                                Grid::make([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ])->schema([
-                                    Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                        ->readOnly(function ($state) {
-                                            if ($state != null) {
-                                                return true;
-                                            }
-                                            return false;
-                                        }),
-                                    Hidden::make('user_id')->default(auth()->user()?->id),
-                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
-                                ]),
-                            ])->deletable(false)
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
+                        // Repeater::make('comments')
+                        //     ->relationship('comments')
+                        //     ->helperText(function ($state) {
+                        //         return $state == [] ? 'No Comments' : '';
+                        //     })
+                        //     ->schema([
+                        //         Grid::make([
+                        //             'sm' => 1,
+                        //             'md' => 1,
+                        //             'lg' => 2,
+                        //         ])->schema([
+                        //             Textarea::make('body')->label('comment')->required()->maxLength(50)
+                        //                 ->readOnly(function ($state) {
+                        //                     if ($state != null) {
+                        //                         return true;
+                        //                     }
+                        //                     return false;
+                        //                 }),
+                        //             Hidden::make('user_id')->default(auth()->user()?->id),
+                        //             DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
+                        //         ]),
+                        //     ])->deletable(false)
+                        //     ->columnSpan([
+                        //         'sm' => 1,
+                        //         'md' => 1,
+                        //         'lg' => 2,
+                        //     ]),
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
@@ -114,6 +115,7 @@ class IncidentResource extends Resource
                                     ->disk('s3')
                                     ->directory('dev')
                                     ->maxSize(2048)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
@@ -162,7 +164,7 @@ class IncidentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 

@@ -24,6 +24,7 @@ class RentalDetailsResource extends JsonResource
             'advance_amount'              => $this->advance_amount,
             'advance_amount_payment_mode' => $this->advance_amount_payment_mode,
             'status'                      => $this->status,
+            'tenant_name'                 => $this->flatTenant?->user?->first_name,
             'cheques'                     => RentalChequesResource::collection($this->rentalCheques),
         ];
     }

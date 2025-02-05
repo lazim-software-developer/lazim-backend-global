@@ -31,6 +31,7 @@ class FlatTenant extends Model
         'active',
         'role',
         'owner_association_id',
+        'residing_in_same_flat',
     ];
 
     protected $searchableFields = ['*'];
@@ -76,6 +77,11 @@ class FlatTenant extends Model
     public function rentalDetails()
     {
         return $this->hasMany(RentalDetail::class);
+    }
+
+    public function makaniNumber()
+    {
+        return $this->hasOne(Document::class, 'flat_id', 'flat_id')->where('name', 'Makani number');
     }
 
 }

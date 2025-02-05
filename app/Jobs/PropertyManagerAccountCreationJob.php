@@ -35,7 +35,7 @@ class PropertyManagerAccountCreationJob implements ShouldQueue
             function ($message) {
                 $message
                     ->to($this->user->email, $this->user->first_name)
-                    ->subject('Welcome to Lazim!');
+                    ->subject('Welcome to Lazim – Your Account is Ready');
             });
 
     }

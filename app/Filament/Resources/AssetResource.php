@@ -8,9 +8,11 @@ use App\Models\Asset;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use DB;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -33,7 +35,7 @@ class AssetResource extends Resource
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Vendor Management';
-    protected static ?string $modelLabel      = 'Assets';
+    protected static ?string $modelLabel      = 'Asset';
 
     public static function form(Form $form): Form
     {
@@ -51,7 +53,9 @@ class AssetResource extends Resource
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::pluck('name', 'id');
-                                } elseif (auth()->user()->role->name == 'Property Manager') {
+                                } elseif (auth()->user()->role->name == 'Property Manager' ||
+                                OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                    ->pluck('role')[0] == 'Property Manager') {
                                     $buildingIds = DB::table('building_owner_association')
                                         ->where('owner_association_id', auth()->user()->owner_association_id)
                                         ->where('active', true)
@@ -95,11 +99,6 @@ class AssetResource extends Resource
                         TextInput::make('discipline')
                             ->required()
                             ->rules(['max:50']),
-                        TextInput::make('frequency_of_service')
-                            ->required()->integer()->suffix('days')->minValue(1),
-                        Textarea::make('description')
-                            ->label('Description')
-                            ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->options(function () {
@@ -111,6 +110,13 @@ class AssetResource extends Resource
                             ->preload()
                             ->searchable()
                             ->label('Service'),
+                        TextInput::make('frequency_of_service')
+                            ->required()->integer()->suffix('days')->minValue(1),
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
+                        DatePicker::make('expiry_date')
+                            ->required(),
                         TextInput::make('asset_code')
                             ->visible(function (callable $get) {
                                 if ($get('asset_code') != null) {
@@ -137,11 +143,15 @@ class AssetResource extends Resource
                 TextColumn::make('name')->searchable()->label('Asset name'),
                 TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
-                TextColumn::make('service.name')->searchable()->label('Service'),
-                TextColumn::make('building.name')->searchable()->label('Building'),
+                TextColumn::make('service.name')->searchable()->label('Service')->limit(15),
+                TextColumn::make('building.name')->searchable()->label('Building')->limit(15),
                 TextColumn::make('asset_code'),
                 TextColumn::make('vendors.name')->default('NA')
-                    ->searchable()->label('Vendor'),
+                    ->searchable()->label(function(){
+                        if (auth()->user()?->role->name == 'Property Manager') {
+                            return 'Facility Managers';
+                        }return 'Vendors';
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -156,7 +166,9 @@ class AssetResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                        ->pluck('role')[0] == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
@@ -190,6 +202,11 @@ class AssetResource extends Resource
                         ->form([
                             Select::make('vendor_id')
                                 ->required()
+                                ->label(function () {
+                                    if (auth()->user()?->role->name == 'Property Manager') {
+                                        return 'Facility Managers';
+                                    }return 'Vendors';
+                                })
                                 ->relationship('vendors', 'name')
                                 ->options(function () {
                                     return Vendor::whereHas('ownerAssociation', function ($query) {
@@ -214,10 +231,18 @@ class AssetResource extends Resource
                                 $record->vendors()->sync([$vendorId]);
                             }
                             Notification::make()
-                                ->title("Vendor attached successfully")
+                                ->title(function () {
+                                    if (auth()->user()?->role->name == 'Property Manager') {
+                                        return 'Facility Manager attached successfully';
+                                    }return 'Vendor attached successfully';
+                                })
                                 ->success()
                                 ->send();
-                        })->label('Attach Vendor'),
+                        })->label(function () {
+                        if (auth()->user()?->role->name == 'Property Manager') {
+                            return 'Attach Facility Manager';
+                        }return 'Attach Vendor';
+                    }),
                 ]),
             ])
             ->emptyStateActions([

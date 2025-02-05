@@ -7,8 +7,9 @@ use App\Models\Building\Building;
 use App\Models\Community\Poll;
 use App\Models\Community\PollResponse;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use Closure;
-use Filament\Facades\Filament;
+use DB;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -25,7 +26,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PollResource extends Resource
@@ -145,9 +145,22 @@ class PollResource extends Resource
                         ->relationship('building', 'name')
                         ->options(function () {
                             if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
+                                return Building::pluck('name', 'id');
+                            } elseif (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $buildingIds)
+                                    ->pluck('name', 'id');
+
                             }
-                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                            $oaId = auth()->user()?->owner_association_id;
+                            return Building::where('owner_association_id', $oaId)
+                                ->pluck('name', 'id');
                         })
                         ->multiple()
                         ->searchable()
@@ -188,11 +201,24 @@ class PollResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('buildings.owner_association_id', Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
-                        }
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::pluck('name', 'id');
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                            $buildingIds = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
 
+                            return Building::whereIn('id', $buildingIds)
+                                ->pluck('name', 'id');
+
+                        }
+                        $oaId = auth()->user()?->owner_association_id;
+                        return Building::where('owner_association_id', $oaId)
+                            ->pluck('name', 'id');
                     })
                     ->searchable()
                     ->preload()

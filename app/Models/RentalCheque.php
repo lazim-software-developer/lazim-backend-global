@@ -20,11 +20,22 @@ class RentalCheque extends Model
         'cheque_status',
         'payment_link',
         'comments',
+        'payment_link_requested',
     ];
 
     protected $casts = [
         'comments' => 'array',
+        'payment_link_requested' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($rentalCheque) {
+            if (is_array($rentalCheque->comments)) {
+                $rentalCheque->comments = json_encode(array_values($rentalCheque->comments));
+            }
+        });
+    }
 
     public function rentalDetail()
     {

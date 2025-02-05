@@ -30,8 +30,8 @@ class VendorComplaintCreateRequest extends FormRequest
                 'string', 'max:1000', 'min:20',
             ],
             'building_id'       => 'required|exists:buildings,id',
-            'technician_id'       => 'required|exists:technician_vendors,id',
-            'due_date'          => 'required_if:complaint_type,preventive_maintenance'
+            'technician_id'     => 'required|exists:technician_vendors,id',
+            'due_date'          => 'required_if:complaint_type,preventive_maintenance|date'
             // 'flat_id'           => 'required_if:complaint_type,tenant_complaint,suggestions,enquiries,help_desk',
         ];
     }

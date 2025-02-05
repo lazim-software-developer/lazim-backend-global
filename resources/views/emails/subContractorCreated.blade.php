@@ -1,72 +1,18 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$subContractor->name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        We are pleased to inform you that your account has been successfully created by your vendor. Below are the details of your account:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Company: </strong> {{$subContractor->company_name}}
-    </td>
-</tr>
-
-<tr>
-    <td class="paragraph">
-        <strong>Service Provided: </strong> {{$subContractor->service_provided}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Start Date: </strong> {{ \Carbon\Carbon::parse($subContractor->start_date)->format('m-d-Y') }}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>End Date: </strong> {{ \Carbon\Carbon::parse($subContractor->end_date)->format('m-d-Y') }}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        If you have any questions or require further assistance, please feel free to reach out.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Best regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        The Lazim Team
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{ $subContractor->name }},</p>
+    <p>We are pleased to inform you that your account has been successfully created by your vendor.</p>
+    <p><strong>Account Details:</strong></p>
+    <ul>
+        <li><strong>Company:</strong> {{ $vendor_name }}</li>
+        <li><strong>Service Provided:</strong> {{ $subContractor->service_description }}</li>
+        <li><strong>Start Date:</strong> {{ $start_date }}</li>
+        <li><strong>End Date:</strong> {{ $end_date }}</li>
+    </ul>
+    <p>If you have any questions or require further assistance, please feel free to contact us.</p>
+    <p>We look forward to working with you.</p>
+    <p>Regards,</p>
+    {{-- <img src="{{ url('images/logo.png') }}" alt="Lazim" style="max-width: 80px; height: 30px;"> --}}
+    <p>{{ $vendor_name }}</p>
+@endsection

@@ -24,11 +24,6 @@ class BuildingDetachmentNotification extends Mailable
 
     public function build()
     {
-        Log::info("Building email notification", [
-            'building' => $this->buildingName,
-            'type'     => $this->type,
-            'due_date' => $this->dueDate,
-        ]);
 
         return $this->subject($this->type === 'due'
             ? 'Building Contract Expiring Tomorrow'

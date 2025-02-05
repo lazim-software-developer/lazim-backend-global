@@ -20,7 +20,7 @@ class ApprovedFMJob implements ShouldQueue
     public $email;
     protected $mailCredentials;
 
-    public function __construct($user, $password, $email)
+    public function __construct($user, $password, $email,protected $pm_oa)
     {
         $this->user = $user;
         $this->password = $password;
@@ -38,7 +38,6 @@ class ApprovedFMJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('Sending approval email to:', ['email' => $this->email]);
 
         Config::set('mail.mailers.smtp.host', $this->mailCredentials['mail_host']);
         Config::set('mail.mailers.smtp.port', $this->mailCredentials['mail_port']);
@@ -52,12 +51,13 @@ class ApprovedFMJob implements ShouldQueue
             [
                 'user' => $this->user,
                 'password' => $this->password,
+                'pm_oa'  => $this->pm_oa
             ],
             function ($message) {
                 $message
                     ->from($this->mailCredentials['mail_from_address'], env('MAIL_FROM_NAME'))
                     ->to($this->email, $this->user->first_name)
-                    ->subject('Account Approved - Welcome to Lazim');
+                    ->subject('Welcome to Lazim – Your Account is Approved');
             });
     }
 }

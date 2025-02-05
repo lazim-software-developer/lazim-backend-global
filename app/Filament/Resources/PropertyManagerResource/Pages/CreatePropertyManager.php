@@ -127,12 +127,12 @@ class CreatePropertyManager extends CreateRecord
 
             $permissionsConfig = config('pm-role-permission');
 
-            Log::info('pm_id', [$this->record->id]);
+            // Log::info('pm_id', [$this->record->id]);
 
             foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
                 $role = Role::where('name', $roleName)
                     ->where('owner_association_id', $this->record->id)->first();
-                Log::info('Role' . $role);
+                // Log::info('Role' . $role);
 
                 if (isset($roleConfig['permissions'])) {
                     $role->syncPermissions($roleConfig['permissions']);

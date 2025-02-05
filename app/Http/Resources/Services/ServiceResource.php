@@ -18,7 +18,7 @@ class ServiceResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'type' => $this->type,
-            'icon'=> env('AWS_URL').'/'.$this->icon,
+            'icon'=> env('AWS_URL') ? env('AWS_URL').'/'.$this->icon : null,
             'active'=> $this->active,
             'subcategory_id'=> $this->subcategory_id,
             'custom'=> $this->custom,

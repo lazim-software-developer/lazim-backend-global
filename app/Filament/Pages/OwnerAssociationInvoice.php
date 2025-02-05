@@ -86,7 +86,9 @@ class OwnerAssociationInvoice extends Page implements HasForms
                 if(auth()->user()->role->name == 'Admin'){
                     return Building::pluck('name', 'id');
 
-                }elseif(auth()->user()->role->name == 'Property Manager'){
+                }elseif(auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                    ->pluck('role')[0] == 'Property Manager'){
                     $buildingIds = DB::table('building_owner_association')
                     ->where('owner_association_id', auth()->user()->owner_association_id)
                     ->where('active', true)
@@ -129,7 +131,15 @@ class OwnerAssociationInvoice extends Page implements HasForms
                     })
                     ->searchable()
                     ->options(function(callable $get){
-                        return Flat::where('building_id', $get('building_id'))->pluck('property_number', 'id');
+                        $pmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->where('active', true)
+                            ->pluck('flat_id')
+                            ->toArray();
+
+                        return Flat::where('building_id', $get('building_id'))
+                            ->whereIn('id', $pmFlats)
+                            ->pluck('property_number', 'id');
                     }),
 
                 Select::make('resident')
@@ -159,7 +169,6 @@ class OwnerAssociationInvoice extends Page implements HasForms
                                     'name' => $tenant->user->first_name . ' (' . $roleDescription . ')',
                                 ];
                             });
-                        Log::info('Resident Options', $residents->toArray()); // Log resident data
                         return $residents->pluck('name', 'id')->toArray();
                     })
                     ->reactive(),
@@ -260,13 +269,10 @@ class OwnerAssociationInvoice extends Page implements HasForms
     {
         try {
             $data = $this->form->getState();
-            Log::info('Form Data: ', $data);
 
-            Log::info('Selected Resident: ', ['resident' => $this->form->getState('resident')]);
 
             $oam_id = DB::table('building_owner_association')->where('building_id', $data['building_id'])->where('active', true)->first();
             $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->first()->id);
-            Log::info('Owner Association: ', ['oam' => $oam]);
 
             $data['owner_association_id'] = $oam?->id;
             $invoice_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
@@ -284,7 +290,6 @@ class OwnerAssociationInvoice extends Page implements HasForms
             // Ensure the directory exists
             if (!file_exists($pdfDirectory)) {
                 if (!mkdir($pdfDirectory, 0755, true)) {
-                    Log::error('Failed to create directory: ' . $pdfDirectory);
                     throw new Exception('Failed to create directory for storing invoices.');
                 }
             }
@@ -299,10 +304,10 @@ class OwnerAssociationInvoice extends Page implements HasForms
 
             if (auth()->user()->role->name == 'Property Manager' && isset($data['resident'])) {
                 $resident = User::find($data['resident']);
+                $pm_oa = auth()->user()?->first_name ?? '';
 
                 if ($resident && filter_var($resident->email, FILTER_VALIDATE_EMAIL)) {
-                    Log::info('Email job dispatched for resident: ', ['email' => $resident->email]);
-                    dispatch(new SendInvoiceEmail($resident->email, $receipt, $pdfPath));
+                    dispatch(new SendInvoiceEmail($resident->email, $receipt, $pdfPath,$pm_oa));
                 } else {
                     Log::warning('Resident not found or email invalid: ',
                     ['resident_id' => $data['resident'], 'email' => $resident ? $resident->email : null]);
@@ -316,7 +321,6 @@ class OwnerAssociationInvoice extends Page implements HasForms
 
             session()->forget('invoice_data');
             session(['invoice_data' => $receipt->id]);
-            Log::info('Session updated with invoice data: ', ['invoice_id' => $receipt->id]);
 
             // redirect()->route('invoice');
             $appUrl      = config('app.url'); // Get the APP_URL from the environment configuration

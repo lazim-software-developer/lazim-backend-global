@@ -24,8 +24,7 @@ class PostLikeObserver
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
-        $building_id = DB::table('building_post')->where('post_id', $postLike->post_id)->first()->building_id;
-        $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
+        $oam_id = $post->user?->owner_association_id;
         Notification::make()
             ->success()
             ->title("Likes")
@@ -36,7 +35,7 @@ class PostLikeObserver
                 Action::make('view')
                     ->button()
                     ->url(function() use ($oam_id,$post){
-                        $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+                        $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
                         if($slug){
                             return PostResource::getUrl('edit', [$slug,$post?->id]);
                         }

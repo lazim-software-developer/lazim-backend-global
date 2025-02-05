@@ -14,20 +14,30 @@ use Illuminate\Support\Facades\DB;
 class FlatVisitorController extends Controller
 {
     use UtilsTrait;
-    public function index(Vendor $vendor)
+    public function index(Vendor $vendor, Request $request)
     {
-        $ownerAssociationIds = DB::table('owner_association_vendor')
-            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
-        $buildingIds = DB::table('building_owner_association')
-            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
+            ->pluck('building_id');
 
         $flatVisitors = FlatVisitor::whereIn('building_id', $buildingIds)->where('type','visitor')->orderByDesc('created_at');
 
-        return FlatVisitorResource::collection($flatVisitors->paginate(10));
+        return FlatVisitorResource::collection($flatVisitors->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, FlatVisitor $flatVisitor, Request $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

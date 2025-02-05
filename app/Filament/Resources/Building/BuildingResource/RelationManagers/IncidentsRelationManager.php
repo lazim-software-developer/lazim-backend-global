@@ -77,6 +77,7 @@ class IncidentsRelationManager extends RelationManager
                                     ->directory('dev')
                                     ->maxSize(2048)
                                     ->openable(true)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->downloadable(true)
                                     ->label('File'),
                             ])

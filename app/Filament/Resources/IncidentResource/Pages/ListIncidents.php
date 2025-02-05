@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Filament\Resources\IncidentResource\Pages;
 
 use App\Filament\Resources\IncidentResource;
+use App\Models\Building\Building;
 use App\Models\Master\Role;
-use Filament\Actions;
+use DB;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -21,6 +21,26 @@ class ListIncidents extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        return parent::getTableQuery()->where('complaint_type','incident')->latest();
+        $authOaBuildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)
+            ->pluck('id');
+
+        $buildings = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+
+        if (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
+            return parent::getTableQuery()
+                ->where('complaint_type', '=', 'incident')
+                ->whereIn('building_id', $buildings)
+                ->latest();
+        }
+        if (auth()->user()->role->name === 'Admin') {
+            return parent::getTableQuery()
+                ->where('complaint_type', '=', 'incident')
+                ->latest();
+        }
+        return parent::getTableQuery()->where('complaint_type', 'incident')
+            ->whereIn('building_id', $authOaBuildings)->latest();
     }
 }

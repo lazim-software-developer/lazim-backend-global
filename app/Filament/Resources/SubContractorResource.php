@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class SubContractorResource extends Resource
 {
@@ -50,31 +51,31 @@ class SubContractorResource extends Resource
                     ->required()
                     ->label('Contract End Date'),
                 FileUpload::make('trade_licence')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('contract_paper')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('agreement_letter')
-                    ->required()
                     ->disk('s3')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
-                    ->openable(true),
+                    ->openable(true)
+                    ->required(fn ($context) => $context !== 'view'),
                 FileUpload::make('additional_doc')
                     ->disk('s3')
                     ->label('Additional Documents')
                     ->directory('dev')
-                    ->disabled()
+                    ->disabled(fn ($context) => $context === 'view')
                     ->downloadable(true)
                     ->openable(true),
 
@@ -88,9 +89,9 @@ class SubContractorResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $vendorId = Vendor::where('owner_association_id', auth()->user()->ownerAssociation[0]->id)
-                    ->value('id');
-                $query->where('vendor_id', $vendorId);
+                $vendorId = DB::table('owner_association_vendor')->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->pluck('vendor_id');
+                $query->whereIn('vendor_id', $vendorId);
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')

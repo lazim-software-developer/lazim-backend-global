@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ReceiptGenerated extends Mailable
 {
@@ -13,42 +11,32 @@ class ReceiptGenerated extends Mailable
 
     public $receipt;
     public $pdfPath;
+    public $pm_oa;
+    public $property_manager_logo;
 
-    public function __construct($receipt, $pdfPath)
+    public function __construct($receipt, $pdfPath, $pm_oa, $property_manager_logo = null)
     {
-        $this->receipt = $receipt;
-        $this->pdfPath = $pdfPath;
-
-        Log::info('ReceiptGenerated mailable instantiated', [
-            'receipt_id' => $receipt->id,
-            'pdf_path'   => $pdfPath,
-        ]);
+        $this->receipt               = $receipt;
+        $this->pdfPath               = $pdfPath;
+        $this->pm_oa                 = $pm_oa;
+        $this->property_manager_logo = $property_manager_logo;
     }
 
     public function build()
     {
-        Log::info('Building ReceiptGenerated email', [
-            'receipt_id' => $this->receipt->id,
-        ]);
+        $mail = $this->view('emails.receipt-generated')
+            ->subject('Receipt Confirmation for Your Payment')
+            ->with([
+                'property_manager_logo' => $this->property_manager_logo,
+            ]);
 
         if (file_exists($this->pdfPath)) {
-            Log::info('PDF found, attaching to email', [
-                'pdf_path' => $this->pdfPath,
+            $mail->attach($this->pdfPath, [
+                'as'   => 'receipt.pdf',
+                'mime' => 'application/pdf',
             ]);
-
-            return $this->view('emails.receipt-generated')
-                ->subject('New Receipt Generated')
-                ->attach($this->pdfPath, [
-                    'as' => 'receipt.pdf',
-                    'mime' => 'application/pdf',
-                ]);
-        } else {
-            Log::error('PDF not found, email sent without attachment', [
-                'pdf_path' => $this->pdfPath,
-            ]);
-
-            return $this->view('emails.receipt-generated')
-                ->subject('New Receipt Generated');
         }
+
+        return $mail;
     }
 }

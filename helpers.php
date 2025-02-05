@@ -28,6 +28,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 {
     if ($file) {
         $extension = $file->getClientOriginalExtension();
+        Log::info($extension);
 
         if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
             $optimizedImage = Image::make($file)
@@ -43,7 +44,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
 
             return $fullPath;
-        } elseif ($extension == 'pdf') {
+        } elseif (in_array($extension, ['pdf', 'doc', 'docx'])) {
             $filename = uniqid() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
 

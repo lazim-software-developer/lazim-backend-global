@@ -33,7 +33,6 @@ class DetachExpiredPMBuildings extends Command
         }
 
         $startTime = now();
-        Log::info('Property Manager building detachment process started', ['dry_run' => $this->dryRun]);
 
         try {
             $this->handleExpiredBuildings();
@@ -49,13 +48,8 @@ class DetachExpiredPMBuildings extends Command
                 'dry_run'            => $this->dryRun,
             ];
 
-            Log::info('Property Manager building detachment process completed', $summary);
             $this->displaySummary($summary);
         } catch (\Exception $e) {
-            Log::error('Property Manager building detachment process failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
             $this->error('Process failed: ' . $e->getMessage());
         }
     }
@@ -73,7 +67,6 @@ class DetachExpiredPMBuildings extends Command
         ->get();
 
     $this->info("Found {$expiredRelations->count()} expired building relationships");
-    Log::info("Processing expired buildings", ['count' => $expiredRelations->count()]);
 
     foreach ($expiredRelations as $relation) {
         try {
@@ -127,11 +120,6 @@ class DetachExpiredPMBuildings extends Command
                     $this->processedCount['detached']++;
                     $this->info("Processed Building: {$building->name} for Property Manager: {$propertyManager->email}");
 
-                    Log::info('Building detached', [
-                        'building' => $building->name,
-                        'pm_email' => $propertyManager->email,
-                        'dry_run'  => $this->dryRun,
-                    ]);
 
                 } catch (Exception $e) {
                     DB::rollBack();
@@ -158,7 +146,6 @@ class DetachExpiredPMBuildings extends Command
             ->get();
 
         $this->info("Found {$dueRelations->count()} due notifications to send");
-        Log::info("Processing due notifications", ['count' => $dueRelations->count()]);
 
         foreach ($dueRelations as $relation) {
             try {
@@ -194,11 +181,6 @@ class DetachExpiredPMBuildings extends Command
                     $this->processedCount['notifications']++;
                     $this->info("Due notification sent for Building: {$building->name}");
 
-                    Log::info('Due notification sent', [
-                        'building' => $building->name,
-                        'pm_email' => $propertyManager->email,
-                        'dry_run'  => $this->dryRun,
-                    ]);
                 }
             } catch (\Exception $e) {
                 $this->logError("Error sending notification for building {$relation->building_id}: " . $e->getMessage());
@@ -210,7 +192,6 @@ class DetachExpiredPMBuildings extends Command
     {
         $this->processedCount['errors']++;
         $this->error($message);
-        Log::error($message);
     }
 
     private function displaySummary(array $summary)

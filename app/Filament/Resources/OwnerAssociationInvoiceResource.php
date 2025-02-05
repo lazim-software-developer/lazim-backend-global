@@ -44,6 +44,13 @@ class OwnerAssociationInvoiceResource extends Resource
                 TextColumn::make('tax'),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'paid' => 'Paid',
+                        'pending' => 'Pending',
+                        'overdue' => 'Overdue',
+                        'NA' => 'NA',
+                        default => 'NA',
+                    })
                     ->default('NA')
                     ->visible(fn () => auth()->user()?->role->name == 'Property Manager')
                     ->color(fn (string $state): string => match ($state) {

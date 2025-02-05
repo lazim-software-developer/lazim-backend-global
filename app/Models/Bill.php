@@ -17,6 +17,7 @@ class Bill extends Model
         'type',
         'flat_id',
         'due_date',
+        'bill_number',
         'uploaded_on',
         'status',
         'uploaded_by',

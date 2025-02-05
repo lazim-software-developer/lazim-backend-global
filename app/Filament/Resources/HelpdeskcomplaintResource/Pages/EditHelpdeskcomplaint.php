@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 
 use App\Filament\Resources\HelpdeskcomplaintResource;
+use App\Jobs\ComplaintStatusMail;
+use App\Models\AccountCredentials;
 use App\Models\Building\Complaint;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Role;
+use App\Models\Remark;
 use App\Traits\UtilsTrait;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -51,7 +55,14 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved': ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'InAppNotficationScreen'),
+                        'complaintId'      => $this->record?->id,
+                        'open_time' => $this->record?->open_time,
+                        'close_time' => $this->record?->close_time,
+                        'due_date' => $this->record?->due_date,
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id
+                    ],
                     ];
                     $this->expoNotification($message);
                 }
@@ -69,9 +80,16 @@ class EditHelpdeskcomplaint extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [
+                                'complaintId'      => $this->record?->id,
+                                'open_time' => $this->record?->open_time,
+                                'close_time' => $this->record?->close_time,
+                                'due_date' => $this->record?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
+                            ],
                             'format' => 'filament',
-                            'url' => 'HelpDeskTabResolved',
+                            'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'HelpDeskTabResolved',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -102,7 +120,9 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been moved to In-progress',
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen',
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -120,7 +140,8 @@ class EditHelpdeskcomplaint extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'HelpDeskTabPending',
                         ]),

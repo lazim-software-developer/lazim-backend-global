@@ -24,7 +24,7 @@ class ResidentialFormController extends Controller
     {
         $validated = $request->validated();
 
-        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()?->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $validated['passport_url'] = optimizeDocumentAndUpload($request->file('file_passport_url'));
         $validated['emirates_url'] = optimizeDocumentAndUpload($request->file('file_emirates_url'));
@@ -59,20 +59,29 @@ class ResidentialFormController extends Controller
             'data'    => $residentialForm,
         ], 201);
     }
-    public function fmlist(Vendor $vendor)
+    public function fmlist(Vendor $vendor, Request $request)
     {
-        $ownerAssociationIds = DB::table('owner_association_vendor')
-            ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
 
-        $buildingIds = DB::table('building_owner_association')
-            ->whereIn('owner_association_id', $ownerAssociationIds)->pluck('building_id');
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
+            ->pluck('building_id');
 
         $residentForms = ResidentialForm::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
 
-        return ResidentialFormResource::collection($residentForms->paginate(10));
+        return ResidentialFormResource::collection($residentForms->paginate($request->paginate ?? 10));
     }
     public function updateStatus(Vendor $vendor, ResidentialForm $residentialForm, Request $request)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $residentialForm->building_id)->where('active', true)->first()->owner_association_id;
+
         $request->validate([
             'status' => 'required|in:approved,rejected',
             'remarks' => 'required_if:status,rejected|max:150',

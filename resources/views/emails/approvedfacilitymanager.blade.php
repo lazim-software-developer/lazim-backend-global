@@ -1,80 +1,20 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Congratulations! Your account for Lazim has been approved. We're excited to have you on board as a facility manager.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Your Login Credentials:
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Email:</strong> {{$user->email}}<br>
-        <strong>Password:</strong> {{$password}}
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        To access your account, please click on <a href="https://lazim-vendor-git-feat-property-management-zysktech.vercel.app/login">this link</a>.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        For security reasons, we recommend changing your password after your first login.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        If you have any questions or need assistance, please don't hesitate to contact our support team.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Welcome aboard!
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Best regards,<br>
-        The Lazim Team
-    </td>
-</tr>
-
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{ $user->first_name }},</p>
+    <p>We are delighted to inform you that your account has been successfully approved by the Property Management team.</p>
+    <p>Welcome to Lazim!</p>
+    <p><strong>Account Details:</strong></p>
+    <ul>
+        <li><strong>Account Name:</strong> {{ $user->first_name }}</li>
+        <li><strong>Email Address:</strong> {{ $user->email }}</li>
+    </ul>
+    <p>You can access our platform to manage tasks, monitor property requests, and streamline your operations efficiently.</p>
+    <p>If you have any questions or require assistance to get started, our support team is available at 043206789.</p>
+    <p>Thank you for partnering with Lazim. We are excited to work together in delivering exceptional property management services.</p>
+    <p>Regards,</p>
+    @if($user->ownerAssociation && $user->ownerAssociation->first() && $user->ownerAssociation->first()->profile_photo)
+        <img src="{{ env('AWS_URL') . '/' . $user->ownerAssociation->first()->profile_photo }}" alt="Owner Association Logo" style="max-width: 80px; height: 30px;">
+    @endif
+    <p>{{ $pm_oa }}</p>
+@endsection

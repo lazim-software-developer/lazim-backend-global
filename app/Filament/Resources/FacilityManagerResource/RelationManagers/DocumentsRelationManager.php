@@ -30,9 +30,9 @@ class DocumentsRelationManager extends RelationManager
                     })
                     ->disabled(),
                 Forms\Components\DatePicker::make('expiry_date')
-                        ->label('Expiry Date')
-                        // ->hiddenOn('view')
-                        ->disabled(),
+                    ->label('Expiry Date')
+                    // ->hiddenOn('view')
+                    ->disabled(),
                 FileUpload::make('url')
                     ->disk('s3')
                     ->directory('dev')
@@ -60,6 +60,9 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->where('url', '!=', null);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('documentLibrary.name'),
                 // Tables\Columns\TextColumn::make('status'),

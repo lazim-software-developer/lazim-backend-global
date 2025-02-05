@@ -65,10 +65,15 @@ class OwnerAssociationReceipt extends Page
             }),
             Select::make('building_id')
             ->required()
+            ->afterStateUpdated(function(Set $set){
+                $set('flat_id', null);
+            })
              ->options(function () {
                 if(auth()->user()->role->name == 'Admin'){
                     return Building::pluck('name', 'id');
-                }elseif(auth()->user()->role->name == 'Property Manager'){
+                }elseif(auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                    ->pluck('role')[0] == 'Property Manager'){
                     $buildingIds = DB::table('building_owner_association')
                     ->where('owner_association_id', auth()->user()->owner_association_id)
                     ->where('active', true)
@@ -94,6 +99,19 @@ class OwnerAssociationReceipt extends Page
             Select::make('flat_id')
             ->required()
             ->options(function (callable $get) {
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
+                if (auth()->user()->role->name == 'Property Manager'
+                ||OwnerAssociation::where('id', auth()->user()?->owner_association_id)) {
+                    return Flat::whereIn('id', $pmFlats)
+                        ->where('building_id', $get('building_id'))
+                        ->pluck('property_number', 'id');
+                }
+
                 return Flat::where('building_id', $get('building_id'))
                     ->pluck('property_number', 'id');
             })->visible(function (callable $get) {
@@ -133,7 +151,6 @@ class OwnerAssociationReceipt extends Page
                                 'name' => $tenant->user->first_name . ' (' . $roleDescription . ')',
                             ];
                         });
-                    Log::info('Resident Options', $residents->toArray()); // Log resident data
                     return $residents->pluck('name', 'id')->toArray();
                 })
                 ->reactive(),
@@ -190,11 +207,9 @@ class OwnerAssociationReceipt extends Page
     {
         try {
             $data = $this->form->getState();
-            Log::info('Form Data: ', $data);
 
             $oam_id = DB::table('building_owner_association')->where('building_id', $data['building_id'])->where('active', true)->first();
             $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->first()->id);
-            Log::info('Owner Association: ', ['oam' => $oam]);
 
             $data['owner_association_id'] = $oam?->id;
             $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
@@ -211,7 +226,6 @@ class OwnerAssociationReceipt extends Page
             // Ensure the directory exists
             if (!file_exists($pdfDirectory)) {
                 if (!mkdir($pdfDirectory, 0755, true)) {
-                    Log::error('Failed to create directory: ' . $pdfDirectory);
                     throw new Exception('Failed to create directory for storing receipts.');
                 }
             }
@@ -227,10 +241,10 @@ class OwnerAssociationReceipt extends Page
             // Send email if applicable
             if (auth()->user()->role->name == 'Property Manager' && isset($data['resident'])) {
                 $resident = User::find($data['resident']);
+                $pm_oa = auth()->user()?->first_name ?? '';
 
                 if ($resident && filter_var($resident->email, FILTER_VALIDATE_EMAIL)) {
-                    Log::info('Email job dispatched for resident: ', ['email' => $resident->email]);
-                    dispatch(new SendReceiptEmail($resident->email, $receipt, $pdfPath));
+                    dispatch(new SendReceiptEmail($resident->email, $receipt, $pdfPath,$pm_oa));
                 } else {
                     Log::warning('Resident not found or email invalid: ', [
                         'resident_id' => $data['resident'],
@@ -246,7 +260,6 @@ class OwnerAssociationReceipt extends Page
 
             session()->forget('receipt_data');
             session(['receipt_data' => $receipt->id]);
-            Log::info('Session updated with receipt data: ', ['receipt_id' => $receipt->id]);
 
             // Redirect to the receipts page
             $appUrl = config('app.url'); // Get the APP_URL from the environment configuration

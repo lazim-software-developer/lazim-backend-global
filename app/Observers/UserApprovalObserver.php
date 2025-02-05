@@ -9,6 +9,7 @@ use App\Models\User\User;
 use App\Models\UserApproval;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class UserApprovalObserver
 {
@@ -18,29 +19,43 @@ class UserApprovalObserver
     public function created(UserApproval $userApproval): void
     {
         $requiredPermissions = ['view_any_user::approval'];
-        $roles = Role::where('owner_association_id',$userApproval->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $userApproval->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });//MAKE AUTH USER ID IN USER WHERENOT-----------
-        Notification::make()
-        ->success()
-        ->title('New Resident Approval')
-        ->body('New Resident Approval is Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(function() use ($userApproval){
-                $slug = OwnerAssociation::where('id',$userApproval->owner_association_id)->first()?->slug;
-                if($slug){
-                    return UserApprovalResource::getUrl('edit', [$slug,$userApproval?->id]);
-                }
-                return url('/app/user-approvals/' . $userApproval?->id.'/edit');
-            }),
-        ])
-        ->sendToDatabase($notifyTo);
+        $ownerAssociationIds = DB::table('building_owner_association')
+            ->where(['building_id'=> $userApproval->flat?->building?->id, 'active' => true])
+            ->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $ownerAssociationIds)->where('role', 'Property Manager')->first();
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])
+            ->pluck('id');
+        foreach ($ownerAssociationIds as $ownerAssociation) {
+            $oa = OwnerAssociation::find($ownerAssociation);
+            $flatexists = DB::table('property_manager_flats')
+                ->where(['flat_id' => $userApproval->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                ->exists();
+            if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
+                $notifyTo = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
+                    ->whereNot('id', auth()->user()?->id)->distinct()->get()
+                ->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });//MAKE AUTH USER ID IN USER WHERENOT-----------
+                Notification::make()
+                ->success()
+                ->title('New Resident Approval')
+                ->body('New Resident Approval is Received')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->actions([
+                    Action::make('View')
+                    ->button()
+                    ->url(function() use ($userApproval,$oa){
+                        $slug = $oa?->slug;
+                        if($slug){
+                            return UserApprovalResource::getUrl('edit', [$slug,$userApproval?->id]);
+                        }
+                        return url('/app/user-approvals/' . $userApproval?->id.'/edit');
+                    }),
+                ])
+                ->sendToDatabase($notifyTo);
+            }
+        }
     }
 
     /**

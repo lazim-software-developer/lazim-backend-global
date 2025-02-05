@@ -9,7 +9,6 @@ use App\Models\Community\Post;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -37,7 +36,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class PostResource extends Resource
 {
     protected static ?string $model           = Post::class;
-    protected static ?string $modelLabel      = 'Posts';
+    protected static ?string $modelLabel      = 'Post';
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Community';
 
@@ -106,8 +105,13 @@ class PostResource extends Resource
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 }
-                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
-                                    $buildings = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('building_id');
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                    $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
                                     return Building::whereIn('id', $buildings)->pluck('name', 'id');
                                 }
                                 return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
@@ -120,7 +124,7 @@ class PostResource extends Resource
                             ->columnSpan([
                                 'sm' => 1,
                                 'md' => 1,
-                                'lg' => 2,
+                                'lg' => 1,
                             ]),
                     ]),
 
@@ -147,6 +151,7 @@ class PostResource extends Resource
                             ->downloadable(true)
                             ->image()
                             ->maxSize(2048)
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->required()
                             ->label('File'),
 
@@ -202,7 +207,21 @@ class PostResource extends Resource
                 SelectFilter::make('user_id')
                     ->relationship('user', 'first_name', function (Builder $query) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['OA', 'Owner', 'Tenant'])->pluck('id'));
+                            $query->where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->where('active', true)
+                                ->whereIn('role_id', Role::whereIn('name', ['OA', 'Owner', 'Tenant'])
+                                    ->pluck('id'))
+                                ->where(function ($query) {
+                                    $query->whereHas('roles', function ($q) {
+                                        $q->where('name', 'OA');
+                                    })
+                                    ->orWhereExists(function ($subquery) {
+                                        $subquery->from('flat_tenants')
+                                            ->whereColumn('flat_tenants.tenant_id', 'users.id')
+                                            ->where('flat_tenants.owner_association_id', auth()->user()->owner_association_id)
+                                            ->where('flat_tenants.active', true);
+                                    });
+                                });
                         }
                         $query->whereIn('role_id', Role::whereIn('name', ['OA', 'Owner', 'Tenant'])->pluck('id'));
                     })
@@ -210,14 +229,24 @@ class PostResource extends Resource
                     ->preload()
                     ->label('User'),
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $oa        = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
-                            $buildings = $oa?->building?->pluck('id');
-                            // dd($buildings);
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::pluck('name', 'id');
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                            $buildingIds = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
 
-                            $query->whereIn('buildings.id', $buildings ?: []);
+                            return Building::whereIn('id', $buildingIds)
+                                ->pluck('name', 'id');
+
                         }
+                        $oaId = auth()->user()?->owner_association_id;
+                        return Building::where('owner_association_id', $oaId)
+                            ->pluck('name', 'id');
                     })
                     ->searchable()
                     ->preload()

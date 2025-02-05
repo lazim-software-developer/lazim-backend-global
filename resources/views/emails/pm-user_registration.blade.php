@@ -1,102 +1,41 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Welcome to Lazim!</h2>
 
-@include('beautymail::templates.minty.contentStart')
-<tr>
-    <td class="paragraph">
-        Dear {{$user->first_name}},
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="20"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Welcome to Lazim, and thank you for joining our community!
-        <!-- We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community. -->
-    </td>
-</tr>
-<tr>
-    <td>We're excited to have you on board. To get started, fill all the required information related to your Property Management.</td>
-</tr>
-<tr>
-    <td>If you have any questions or need assistance, our support team is just an email away at info@lazim.ae</td>
-</tr>
-<tr>
-    <td>Remember, you can always manage your email preferences by visiting your account settings.</td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Your Account Details:
-    </td>
-</tr>
+<p>Dear {{ $user->first_name }},</p>
 
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
+<p>We're excited to welcome you to Lazim! Your account has been successfully created, and you're now ready to manage and oversee property-related operations seamlessly using our platform.</p>
 
-<tr>
-    <td class="paragraph">
-        <strong>Email: </strong> {{$user->email}}
-    </td>
-</tr>
-<tr>
-    <td class="paragraph">
-        <strong>Password: </strong> {{$password}}
-        <!-- (We recommend changing this password upon your first login for security reasons.) -->
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-<tr>
-    <td class="title">
-        Get Started:
-    </td>
-</tr>
+<div class="title">Your Account Details:</div>
+<p><strong>Email:</strong> {{ $user->email }}<br>
+<strong>Password:</strong> {{ $password }}</p>
 
-<tr>
-    <td width="100%" height="10"></td>
-</tr>
+<p>
+    <a href="{{ env('APP_URL') }}/app/login" class="button">
+        Login to Your Account
+    </a>
+</p>
 
-<tr>
-    <td class="paragraph">
-        To access your account and use our platform, click on <a href="{{ env('APP_URL') }}/app/login">this link</a>
-    </td>
-</tr>
-    <td width="100%" height="25"></td>
-</tr>
+<div class="title">Key Features of Your Account:</div>
+<ul class="feature-list">
+    <li>Tenant and Lease Management</li>
+    <li>Payment and Billing Management</li>
+    <li>Maintenance and Service Requests</li>
+    <li>Vendor and Subcontractor Management</li>
+    <li>Communication Tools</li>
+    <li>Document Management</li>
+    <li>Role-Based Access</li>
+    <li>Inspection and Compliance</li>
+    <li>Community Engagement Features</li>
+</ul>
 
-<tr>
-    <td class="paragraph">
-        Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
+<p>If you have any questions or need assistance while navigating the platform, our support team is here to help.</p>
 
-<tr>
-    <td class="paragraph">
-        Warm regards,
-    </td>
-</tr>
-<tr>
-    <td width="100%" height="5"></td>
-</tr>
-<tr>
-    <td class="paragraph">
-        Lazim team
-    </td>
-</tr>
+<p>Thank you for choosing Lazim as your trusted partner. We're committed to helping you streamline your property management tasks and ensure a seamless experience.</p>
 
-<tr>
-    <td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
-
-@stop
+<p>
+    Regards,<br>
+    <strong>-Lazim Team</strong>
+</p>
+@endsection

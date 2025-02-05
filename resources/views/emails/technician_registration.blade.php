@@ -1,75 +1,16 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
-
-	@include('beautymail::templates.minty.contentStart')
-		<tr>
-			<td class="paragraph">
-                Dear {{$user->first_name}},
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="20"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-            We're excited to have you on board with Lazim! Your account has been successfully created, and we're thrilled to welcome you to our community.
-			</td>
-		</tr>
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-		<tr>
-			<td class="title">
-            Your Account Details:
-			</td>
-		</tr>
-
-		<tr>
-			<td width="100%" height="10"></td>
-		</tr>
-
-        <tr>
-            <td class="paragraph">
-                <strong>Email: </strong> {{$user->email}}
-			</td>
-		</tr>
-        <tr>
-            <td class="paragraph">
-                <strong>Password: </strong> {{$password}}
-                <!-- (We recommend changing this password upon your first login for security reasons.) -->
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-            <td class="paragraph">
-            Thank you for choosing Lazim. We're confident that you'll find great value in our platform, and we look forward to serving you.
-			</td>
-		</tr>
-        <tr>
-			<td width="100%" height="25"></td>
-		</tr>
-
-        <tr>
-			<td class="paragraph">
-               Warm regards,
-            </td>
-		</tr>
-		<tr>
-			<td width="100%" height="5"></td>
-		</tr>
-		<tr>
-			<td class="paragraph">
-           Lazim team
-			</td>
-		</tr>
-
-		<tr>
-			<td width="100%" height="25"></td>
-		</tr>
-	@include('beautymail::templates.minty.contentEnd')
-
-@stop
+    <p>Dear {{ $user->first_name }},</p>
+    <p>We are thrilled to welcome you to Lazim! Your account has been successfully created.</p>
+    <p><strong>Your Account Details:</strong></p>
+    <ul>
+        <li><strong>Email:</strong> {{ $user->email }}</li>
+        <li><strong>Password:</strong> {{ $password }} <span style="font-size: 12px; color: #666;">(temporary password, need to change)</span></li>
+    </ul>
+    <p>Please keep your account credentials secure. You can now log in to your account and start using our platform to access your assigned tasks and services.</p>
+    <p>If you have any questions or need assistance, feel free to reach out to us.</p>
+    <p>Regards,</p>
+    {{-- <img src="{{ url('images/logo.png') }}" alt="Lazim" style="max-width: 80px; height: 30px;"> --}}
+    <p>{{ $vendor }}</p>
+@endsection

@@ -6,6 +6,7 @@ use App\Filament\Resources\MoveOutFormsDocumentResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use DB;
 use Filament\Forms\Components\CheckboxList;
@@ -226,7 +227,29 @@ class MoveOutFormsDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('type', 'move-out')->withoutGlobalScopes())
+            ->modifyQueryUsing(function (Builder $query) {
+                $pmBuildings = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+                $role    = auth()->user()?->role->name;
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
+                if ($role == 'Property Manager') {
+                    return $query
+                        ->where('type', 'move-out')->withoutGlobalScopes()
+                        ->whereIn('flat_id', $pmFlats);
+                } elseif ($role == 'OA') {
+                    return $query
+                        ->where('type', 'move-out')->withoutGlobalScopes()
+                        ->whereIn('building_id', $pmBuildings);
+                }
+                return $query->where('type', 'move-out')->withoutGlobalScopes();
+            })
             ->columns([
 
                 TextColumn::make('ticket_number')
@@ -255,6 +278,7 @@ class MoveOutFormsDocumentResource extends Resource
                     ->default('NA')
                     ->limit(50),
             ])
+            ->emptyStateHeading('Currently, No Move-Out Records')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
@@ -267,7 +291,9 @@ class MoveOutFormsDocumentResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::pluck('name', 'id');
-                        } elseif (auth()->user()->role->name == 'Property Manager') {
+                        } elseif (auth()->user()->role->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                             $buildingIds = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)

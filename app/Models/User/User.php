@@ -217,9 +217,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     }
     public function canAccessPanel(Panel $panel): bool
     {
+        $propertyManagerUsers = User::whereHas('role', function ($query) {
+            $query->where('name', 'Property Manager');
+        })->pluck('owner_association_id')->toArray();
+
+        $pmCreatedUsers = User::whereHas('role', function ($query) use ($propertyManagerUsers) {
+            $query->whereIn('owner_association_id', $propertyManagerUsers);
+        })->pluck('id');
+
+        if ($panel->getId() === 'admin' && $pmCreatedUsers->contains($this->id)) {
+            Filament::auth()->logout();
+            throw ValidationException::withMessages([
+                'data.email' => __('Unauthorized access'),
+            ]);
+        }
+
         $notAllowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'];
 
-        $notAllowedPMRoles = ['Resident', 'Facility Manager', 'Technician', 'Gatekeeper'];
+        $notAllowedPMRoles = ['Resident', 'Facility Manager', 'Technician', 'Gatekeeper', 'OA'];
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;

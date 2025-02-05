@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AssetResource\Pages;
 
+use App\Models\OwnerAssociation;
 use DB;
 use Filament\Actions;
 use App\Filament\Resources\AssetResource;
@@ -29,8 +30,15 @@ class ListAssets extends ListRecords
     protected function getTableQuery(): Builder
     {
         $buildingIds = DB::table('building_owner_association')
-        ->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('building_id');
-        if(auth()->user()?->role?->name === 'Property Manager'){
+            ->where('owner_association_id',auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+        if(auth()->user()?->role?->name === 'Admin'){
+            return parent::getTableQuery();
+        }
+        if(auth()->user()?->role?->name === 'Property Manager' ||
+        OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                    ->pluck('role')[0] == 'Property Manager'){
             return parent::getTableQuery()->whereIn('building_id', $buildingIds);
         }
         // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
@@ -69,7 +77,9 @@ class ListAssets extends ListRecords
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
                             // dd($tenants);
-                            if (auth()->user()->role->name == 'Property Manager') {
+                            if (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
                                 $buildingIds = DB::table('building_owner_association')
                                     ->where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('active', true)
@@ -120,7 +130,8 @@ class ListAssets extends ListRecords
 
                 Action::make('QR Codes')->label('Download QR Codes')
                 ->action(function(){
-                    $data = Parent::getTableQuery()->get();
+                    $query = $this->getTableQuery();
+                    $data = $query->get();
 
                     $pdf = Pdf::loadView('filament.custom.asset-fetch-data', compact('data'));
                         return response()->streamDownload(

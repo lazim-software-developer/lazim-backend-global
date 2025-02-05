@@ -34,7 +34,6 @@ class DetachExpiredBuildings extends Command
         }
 
         $startTime = now();
-        Log::info('Building detachment process started', ['dry_run' => $this->dryRun]);
 
         try {
             $this->handleExpiredBuildings();
@@ -50,14 +49,9 @@ class DetachExpiredBuildings extends Command
                 'dry_run'            => $this->dryRun,
             ];
 
-            Log::info('Building detachment process completed', $summary);
 
             $this->displaySummary($summary);
         } catch (\Exception $e) {
-            Log::error('Building detachment process failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
             $this->error('Process failed: ' . $e->getMessage());
         }
     }
@@ -71,7 +65,6 @@ class DetachExpiredBuildings extends Command
             ->get();
 
         $this->info("Found {$expiredRelations->count()} expired building relationships");
-        Log::info("Processing expired buildings", ['count' => $expiredRelations->count()]);
 
         foreach ($expiredRelations as $relation) {
             try {
@@ -89,12 +82,6 @@ class DetachExpiredBuildings extends Command
                 }
 
                 $userEmail = $vendor->user->email;
-                Log::info("Attempting to send email", [
-                    'vendor_id' => $vendor->id,
-                    'user_id'   => $vendor->user->id,
-                    'email'     => $userEmail,
-                    'building'  => $building->name,
-                ]);
 
                 if (!$this->dryRun) {
                     DB::beginTransaction();
@@ -108,22 +95,17 @@ class DetachExpiredBuildings extends Command
                                 null
                             ));
 
-                        Log::info("Email sent successfully", ['email' => $userEmail]);
 
                         // Delete the relationship
                         DB::table('building_vendor')
                             ->where('building_id', $relation->building_id)
                             ->where('vendor_id', $relation->vendor_id)
                             ->where('end_date', $relation->end_date)
-                            ->delete();
+                            ->update(['active' => false]);
 
                         DB::commit();
                     } catch (Exception $e) {
                         DB::rollBack();
-                        Log::error("Failed to send email", [
-                            'email' => $userEmail,
-                            'error' => $e->getMessage(),
-                        ]);
                         throw $e;
                     }
                 }
@@ -131,11 +113,6 @@ class DetachExpiredBuildings extends Command
                 $this->processedCount['detached']++;
                 $this->info("Processed Building ID: {$relation->building_id} from Vendor ID: {$relation->vendor_id}");
 
-                Log::info('Building detached', [
-                    'building_id' => $relation->building_id,
-                    'vendor_id'   => $relation->vendor_id,
-                    'dry_run'     => $this->dryRun,
-                ]);
 
             } catch (Exception $e) {
                 DB::rollBack();
@@ -153,7 +130,6 @@ class DetachExpiredBuildings extends Command
             ->get();
 
         $this->info("Found {$dueRelations->count()} due notifications to send");
-        Log::info("Processing due notifications", ['count' => $dueRelations->count()]);
 
         foreach ($dueRelations as $relation) {
             try {
@@ -177,11 +153,6 @@ class DetachExpiredBuildings extends Command
                 $this->processedCount['notifications']++;
                 $this->info("Notification sent for Building ID: {$relation->building_id}");
 
-                Log::info('Due notification sent', [
-                    'building_id' => $relation->building_id,
-                    'vendor_id'   => $relation->vendor_id,
-                    'dry_run'     => $this->dryRun,
-                ]);
 
             } catch (\Exception $e) {
                 $this->logError("Error sending notification for building {$relation->building_id}: " . $e->getMessage());
@@ -193,7 +164,6 @@ class DetachExpiredBuildings extends Command
     {
         $this->processedCount['errors']++;
         $this->error($message);
-        Log::error($message);
     }
 
     private function displaySummary(array $summary)

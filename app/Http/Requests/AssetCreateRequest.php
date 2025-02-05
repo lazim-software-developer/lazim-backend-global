@@ -23,13 +23,13 @@ class AssetCreateRequest extends FormRequest
     {
         return [
             'name'                 => 'required|max:50',
-            'location'             => 'required|max:100',
+            'location'             => 'nullable|max:100',
             'description'          => 'required|max:150',
             'building_id'          => 'required|exists:buildings,id',
             'service_id'           => 'required|exists:services,id',
             'floor'                => 'required|max:5',
-            'division'             => 'required|max:50',
-            'discipline'           => 'required|max:50',
+            'division'             => 'nullable|max:50',
+            'discipline'           => 'nullable|max:50',
             'frequency_of_service' => 'required|numeric|max:1000',
         ];
     }

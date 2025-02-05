@@ -2,19 +2,31 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Widgets\PreventiveReactiveMaintenance;
 use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\FacilitySupportComplaintResource;
 use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\BillsOverviewWidget;
+use App\Filament\Widgets\MoveInOutChart;
+use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitContractExpiryOverview;
+use App\Filament\Widgets\UnitStatusOverview;
+use App\Models\OwnerAssociation;
+use DB;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use App\Models\User\User;
 use App\Models\Master\Role;
 use Filament\PanelProvider;
+use Filament\Facades\Filament;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
@@ -24,6 +36,7 @@ use App\Filament\Resources\VehicleResource;
 use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
+use App\Filament\App\Widgets\MoveInOutSchedule;
 use App\Filament\Resources\AgingReportResource;
 use App\Filament\Resources\AppFeedbackResource;
 use Illuminate\Session\Middleware\StartSession;
@@ -32,6 +45,8 @@ use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\PropertyManagerResource;
+use App\Filament\App\Widgets\AmenityBookingOverview;
 use App\Filament\Resources\AssetMaintenanceResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -43,11 +58,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Filament\Resources\PropertyManagerResource;
-use Filament\Facades\Filament;
-use Filament\Navigation\MenuItem;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Support\Facades\Log;
+use Storage;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -64,6 +76,19 @@ class AppPanelProvider extends PanelProvider
                     return 'Lazim';
                 }
             })
+            ->brandLogo(function() {
+                $user = User::find(auth()->id());
+                if($user?->role->name == 'Property Manager'){
+                    $oa = OwnerAssociation::where('id', $user?->owner_association_id)->first();
+                    $companyLogo = $oa->profile_photo;
+                    if ($user && $companyLogo) {
+                        return Storage::disk('s3')->url($companyLogo);
+                    }
+                    return asset('images/logo.png');
+                }
+                return asset('images/logo.png');
+            })
+            ->brandLogoHeight('35px')
             ->profile(AppEditProfile::class)
             ->colors([
                 'danger' => Color::Rose,
@@ -79,60 +104,48 @@ class AppPanelProvider extends PanelProvider
             // ->pages([
             //     Pages\Dashboard::class,
             // ])
-            // ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            // ->widgets([
-            //     Widgets\AccountWidget::class,
-            //     // Widgets\FilamentInfoWidget::class,
-            // ])
+            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
+            ->widgets([
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+                UnitStatusOverview::class,
+                UnitContractExpiryOverview::class,
+                RentalChequeStatusOverview::class,
+                // BillsOverviewWidget::class,
+                MoveInOutChart::class,
+                PreventiveReactiveMaintenance::class,
+                MoveInOutSchedule::class,
+                AmenityBookingOverview::class,
+            ])
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
             ->databaseNotificationsPolling('5s')
             ->sidebarCollapsibleOnDesktop()
+            ->resources([
+                // ...existing resources...
+                UnitListResource::class,
+            ])
+
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    // $builder->groups([
-                    //     NavigationGroup::make('Dashboard')
-                    //         ->items([
-                    //             NavigationItem::make('Dashboard')
-                    //                 ->icon('heroicon-o-home')
-                    //                 ->activeIcon('heroicon-s-home')
-                    //                 ->url('/app'),
-                    //         ]),
-                    // ]);
-                // }
+
                     $user = User::find(auth()->user()->id) ;
-                    if(auth()->user()->role->name == 'Property Manager'){
-                        if (
-                            $user->can('view_any_property::manager')
-                        ) {
-                            $builder->groups([
-                                NavigationGroup::make('Property management')
-                                    ->items([
-                                        NavigationItem::make('Property Managers')
-                                            ->url('/app/property-managers')
-                                            ->hidden(!$user->can('view_any_property::manager'))
-                                            ->icon('heroicon-o-building-office')
-                                            ->activeIcon('heroicon-o-building-office')
-                                            ->sort(1),
-
-                                        // NavigationItem::make('Facility Managers')
-                                        //     ->url('/app/vendors')
-                                        //     // ->hidden(!$user->can('view_any_mollak::tenant'))
-                                        //     ->icon('heroicon-o-user')
-                                        //     ->activeIcon('heroicon-o-user')
-                                        //     ->sort(1),
-
-                                    ]),
-
-                            ]);
-                        }
+                    if(auth()->user()->role->name == 'Property Manager')
+                    {
+                        $builder->groups([
+                            NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/app'),
+                            ]),
+                        ]);
 
                         if ($user->can('view_any_building::building') ||
                             $user->can('view_any_building::flat') ||
                             $user->can('view_any_building::facility::booking') ||
                             $user->can('view_any_building::service::booking') ||
-                            $user->can('view_any_patrolling') ||
                             $user->can('view_any_oacomplaint::reports')
                         ) {
                             $builder->groups([
@@ -163,12 +176,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-m-wrench')
                                             ->activeIcon('heroicon-m-wrench')
                                             ->sort(4),
-                                        NavigationItem::make('Patrollings')
-                                            ->url(PatrollingResource::getUrl('index'))
-                                            ->visible($user->can('view_any_patrolling'))
-                                            ->icon('heroicon-o-magnifying-glass-circle')
-                                            ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                            ->sort(5),
+
                                         NavigationItem::make('OA Complaint Reports')
                                             ->url(OacomplaintReportsResource::getUrl('index'))
                                             ->visible($user->can('view_any_oacomplaint::reports'))
@@ -203,6 +211,13 @@ class AppPanelProvider extends PanelProvider
                                         ->hidden(!$user->can('view_any_tenant::document'))
                                         ->icon('heroicon-o-user-circle')
                                         ->activeIcon('heroicon-o-user-circle')
+                                        ->sort(9),
+
+                                    NavigationItem::make('Rental cheques')
+                                        ->url('/app/rental-cheques')
+                                        ->hidden(!$user->can('view_any_tenant::document'))
+                                        ->icon('heroicon-o-document-currency-dollar')
+                                        ->activeIcon('heroicon-o-document-currency-dollar')
                                         ->sort(9),
                                 ]),
 
@@ -255,17 +270,14 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-s-user-group')
                                             ->activeIcon('heroicon-s-user-group')
                                             ->sort(11),
-
-
-                                    ]),
-                                NavigationGroup::make('User management')
-                                    ->items([
-                                        NavigationItem::make('Users')
+                                         NavigationItem::make('Users')
                                             ->hidden(!$user->can('view_any_user::user'))
                                             ->url(UserResource::getUrl('index'))
                                             ->icon('heroicon-s-user-group')
                                             ->activeIcon('heroicon-s-user-group')
                                             ->sort(14),
+
+
                                     ]),
                             ]);
                         }
@@ -318,6 +330,13 @@ class AppPanelProvider extends PanelProvider
                                             ->activeIcon('heroicon-o-rectangle-stack')
                                             ->sort(8),
 
+                                        NavigationItem::make('Assets Maintenance')
+                                            ->url(AssetMaintenanceResource::getUrl('index'))
+                                            ->hidden(!$user->can('view_any_asset::maintenance'))
+                                            ->icon('heroicon-s-document-magnifying-glass')
+                                            ->activeIcon('heroicon-s-document-magnifying-glass')
+                                            ->sort(9),
+
                                         NavigationItem::make('Technicians')
                                         // ->url('/app/technician-vendor')
                                             ->url(TechnicianVendorResource::getUrl('index'))
@@ -356,7 +375,7 @@ class AppPanelProvider extends PanelProvider
                                     ->items([
                                         NavigationItem::make('Vendor')
                                             ->url('/app/vendor/vendors')
-                                            ->hidden(!$user->can('view_any_vendor::vendor'))
+                                            ->hidden(!$user->can('view_any_vendor::vendor') || auth()->user()?->role->name == 'Property Manager')
                                             ->icon('heroicon-m-user-circle')
                                             ->hidden(auth()->user()->role->name == 'Property Manager')
                                             ->activeIcon('heroicon-m-user-circle')
@@ -406,6 +425,7 @@ class AppPanelProvider extends PanelProvider
                                             ->sort(8),
                                         NavigationItem::make('Assets Maintenance')
                                             ->url(AssetMaintenanceResource::getUrl('index'))
+                                            ->visible(auth()->user()->role->name !== 'Property Manager')
                                             ->hidden(!$user->can('view_any_asset::maintenance'))
                                             ->icon('heroicon-s-document-magnifying-glass')
                                             ->activeIcon('heroicon-s-document-magnifying-glass')
@@ -523,12 +543,6 @@ class AppPanelProvider extends PanelProvider
                                             ->hidden(!$user->can('view_any_vendor::ledgers'))
                                             ->activeIcon('heroicon-o-rectangle-stack')
                                             ->sort(2),
-                                        NavigationItem::make('Cooling account')
-                                            ->url('/app/cooling-accounts')
-                                            ->hidden(!$user->can('view_any_cooling::account'))
-                                            ->icon('heroicon-o-cube-transparent')
-                                            ->activeIcon('heroicon-o-cube-transparent')
-                                            ->sort(3),
                                         NavigationItem::make('Bills')
                                             ->url('/app/bills')
                                             ->icon('heroicon-o-receipt-percent')
@@ -576,12 +590,7 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-s-rectangle-stack')
                                             ->activeIcon('heroicon-s-rectangle-stack')
                                             ->sort(5),
-                                        NavigationItem::make('Residential')
-                                            ->url('/app/residential-forms')
-                                            ->hidden(!$user->can('view_any_residential::form'))
-                                            ->icon('heroicon-s-building-library')
-                                            ->activeIcon('heroicon-s-building-library')
-                                            ->sort(6),
+
                                         NavigationItem::make('Sale NOC')
                                             ->url('/app/noc-forms')
                                             ->hidden(!$user->can('view_any_noc::form'))
@@ -594,6 +603,11 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-o-users')
                                             ->activeIcon('heroicon-o-users')
                                             ->sort(8),
+                                        NavigationItem::make('Permit to Work')
+                                                ->url('/app/facility-bookings')
+                                                ->icon('heroicon-m-briefcase')
+                                                ->activeIcon('heroicon-m-briefcase')
+                                                ->sort(1),
                                         NavigationItem::make('Holiday Homes Guest Registration')
                                             ->url('/app/guest-registrations')
                                             ->hidden(!$user->can('view_any_guest::registration'))
@@ -676,15 +690,30 @@ class AppPanelProvider extends PanelProvider
                         //     ]);
                         // }
 
-                        if ($user->can('view_any_complaintscomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')) {
+                        if ($user->can('view_any_helpdeskcomplaint') || $user->can('view_any_complaintsenquiry') || $user->can('view_any_complaintssuggession')){
                             $builder->groups([
-                                NavigationGroup::make('Happiness center')
+                                NavigationGroup::make('Facility Support')
                                     ->items([
                                         NavigationItem::make('Complaints')
-                                            ->url('/app/complaintscomplaints')
-                                            ->hidden(!$user->can('view_any_complaintscomplaint'))
+                                            ->url('/app/helpdeskcomplaints')
+                                            ->visible(auth()->user()->role->name != 'Property Manager')
+                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
                                             ->icon('heroicon-m-clipboard-document-list')
                                             ->activeIcon('heroicon-m-clipboard-document-list')
+                                            ->sort(1),
+                                        NavigationItem::make('Reactive Maintenance')
+                                            ->url(FacilitySupportComplaintResource::getUrl('index'))
+                                            ->visible(auth()->user()->role->name == 'Property Manager')
+                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                                            ->icon('heroicon-m-clipboard-document-list')
+                                            ->activeIcon('heroicon-m-clipboard-document-list')
+                                            ->sort(1),
+                                        NavigationItem::make('Preventive Maintenance')
+                                            ->url(ComplaintResource::getUrl('index'))
+                                            ->visible(auth()->user()->role->name == 'Property Manager')
+                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                                            ->icon('heroicon-m-calendar-days')
+                                            ->activeIcon('heroicon-m-calendar-days')
                                             ->sort(1),
                                         NavigationItem::make('Enquiries')
                                             ->url('/app/complaintsenquiries')
@@ -701,35 +730,8 @@ class AppPanelProvider extends PanelProvider
                                     ]),
                             ]);
                         }
-                        if ($user->can('view_any_helpdeskcomplaint')) {
-                            $builder->groups([
-                                NavigationGroup::make('Facility Support')
-                                    ->items([
-                                        NavigationItem::make('Complaints')
-                                            ->url('/app/helpdeskcomplaints')
-                                            ->visible(auth()->user()->role->name != 'Property Manager')
-                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
-                                            ->icon('heroicon-m-clipboard-document-list')
-                                            ->activeIcon('heroicon-m-clipboard-document-list')
-                                            ->sort(1),
-                                        NavigationItem::make('Issues')
-                                            ->url(FacilitySupportComplaintResource::getUrl('index'))
-                                            ->visible(auth()->user()->role->name == 'Property Manager')
-                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
-                                            ->icon('heroicon-m-clipboard-document-list')
-                                            ->activeIcon('heroicon-m-clipboard-document-list')
-                                            ->sort(1),
-                                        NavigationItem::make('Maintenance Schedule')
-                                            ->url(ComplaintResource::getUrl('index'))
-                                            ->visible(auth()->user()->role->name == 'Property Manager')
-                                            ->hidden(!$user->can('view_any_helpdeskcomplaint'))
-                                            ->icon('heroicon-m-calendar-days')
-                                            ->activeIcon('heroicon-m-calendar-days')
-                                            ->sort(1),
-                                    ]),
-                            ]);
-                        }
-                        if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
+                        if ($user->can('view_any_snags') || $user->can('view_any_incident')  ||
+                            $user->can('view_any_patrolling')){
                             $builder->groups([
                                 NavigationGroup::make('Security')
                                     ->items([
@@ -745,10 +747,16 @@ class AppPanelProvider extends PanelProvider
                                             ->icon('heroicon-c-map-pin')
                                             ->activeIcon('heroicon-c-map-pin')
                                             ->sort(2),
+                                        NavigationItem::make('Patrollings')
+                                            ->url(PatrollingResource::getUrl('index'))
+                                            ->visible($user->can('view_any_patrolling'))
+                                            ->icon('heroicon-o-magnifying-glass-circle')
+                                            ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                            ->sort(5),
                                     ]),
                             ]);
                         }
-                        if ($user->can('view_any_app::feedback')) {
+                        if (auth()->user()->role->name == 'Admin') {
                             $builder->groups([
                                 NavigationGroup::make('App Feedback')
                                     ->items([
@@ -772,7 +780,7 @@ class AppPanelProvider extends PanelProvider
                         $user->can('view_any_user::user') ||
                         $user->can('view_any_building::documents') ||
                         $user->can('page_Documents') ||
-                        auth()->user()->role_id == 10
+                        auth()->user()->role_id ==10
                     ) {
                         $builder->groups([
                             NavigationGroup::make('Master')
@@ -953,7 +961,6 @@ class AppPanelProvider extends PanelProvider
                         $user->can('view_any_building::flat') ||
                         $user->can('view_any_building::facility::booking') ||
                         $user->can('view_any_building::service::booking') ||
-                        $user->can('view_any_patrolling') ||
                         $user->can('view_any_oacomplaint::reports')
                     ) {
                         $builder->groups([
@@ -984,12 +991,7 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-m-wrench')
                                         ->activeIcon('heroicon-m-wrench')
                                         ->sort(4),
-                                    NavigationItem::make('Patrollings')
-                                        ->url(PatrollingResource::getUrl('index'))
-                                        ->visible($user->can('view_any_patrolling'))
-                                        ->icon('heroicon-o-magnifying-glass-circle')
-                                        ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                        ->sort(5),
+
                                     NavigationItem::make('OA Complaint Reports')
                                         ->url(OacomplaintReportsResource::getUrl('index'))
                                         ->visible($user->can('view_any_oacomplaint::reports'))
@@ -1399,14 +1401,14 @@ class AppPanelProvider extends PanelProvider
                         $builder->groups([
                             NavigationGroup::make('Facility Support')
                                 ->items([
-                                    NavigationItem::make('Complaints')
+                                    NavigationItem::make('Issues')
                                         ->url('/app/helpdeskcomplaints')
                                         ->visible(auth()->user()->role->name != 'Property Manager')
                                         ->hidden(!$user->can('view_any_helpdeskcomplaint'))
                                         ->icon('heroicon-m-clipboard-document-list')
                                         ->activeIcon('heroicon-m-clipboard-document-list')
                                         ->sort(1),
-                                    NavigationItem::make('Issues')
+                                    NavigationItem::make('Reactive Maintenance')
                                         ->url(FacilitySupportComplaintResource::getUrl('index'))
                                         ->visible(auth()->user()->role->name == 'Property Manager')
                                         ->hidden(!$user->can('view_any_helpdeskcomplaint'))
@@ -1416,7 +1418,8 @@ class AppPanelProvider extends PanelProvider
                                 ]),
                         ]);
                     }
-                    if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
+                    if ($user->can('view_any_snags') || $user->can('view_any_incident')  ||
+                            $user->can('view_any_patrolling')) {
                         $builder->groups([
                             NavigationGroup::make('Security')
                                 ->items([
@@ -1432,10 +1435,16 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-c-map-pin')
                                         ->activeIcon('heroicon-c-map-pin')
                                         ->sort(2),
+                                    NavigationItem::make('Patrollings')
+                                        ->url(PatrollingResource::getUrl('index'))
+                                        ->visible($user->can('view_any_patrolling'))
+                                        ->icon('heroicon-o-magnifying-glass-circle')
+                                        ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                        ->sort(5),
                                 ]),
                         ]);
                     }
-                    if ($user->can('view_any_app::feedback')) {
+                    if (auth()->user()->role->name == 'Admin') {
                         $builder->groups([
                             NavigationGroup::make('App Feedback')
                                 ->items([

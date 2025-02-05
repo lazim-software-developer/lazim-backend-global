@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\OwnerAssociation;
 use Carbon\Carbon;
 use Closure;
 use DB;
@@ -36,6 +37,7 @@ class ItemInventoryResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -52,7 +54,9 @@ class ItemInventoryResource extends Resource
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Item::pluck('name', 'id');
                             }
-                            elseif(auth()->user()->role->name == 'Property Manager'){
+                            elseif(auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                            ->pluck('role')[0] == 'Property Manager'){
                                     $buildingIds = DB::table('building_owner_association')
                                     ->where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('active', true)

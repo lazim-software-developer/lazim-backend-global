@@ -24,11 +24,6 @@ class PmBuildingDetachmentNotification extends Mailable
 
     public function build()
     {
-        Log::info("Building email notification for Property Manager", [
-            'building' => $this->buildingName,
-            'type'     => $this->type,
-            'due_date' => $this->dueDate,
-        ]);
 
         return $this->subject($this->type === 'due'
             ? "Property Management Contract Expiring Tomorrow - {$this->buildingName}"

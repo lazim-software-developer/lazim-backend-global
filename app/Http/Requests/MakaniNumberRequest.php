@@ -24,7 +24,7 @@ class MakaniNumberRequest extends FormRequest
         return [
             'building_id' => 'required|exists:buildings,id',
             'name' => 'required|string',
-            'number' => 'required',
+            'number' => 'nullable|numeric|max_digits:10|unique:documents,url,NULL,id,url,!NULL',
             'flat_id' => 'required|exists:flats,id',
             'document_library_id' => 'required',
         ];

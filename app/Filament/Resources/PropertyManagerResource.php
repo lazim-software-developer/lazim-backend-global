@@ -50,6 +50,11 @@ class PropertyManagerResource extends Resource
                             ->label('TRN Number')
                             ->disabledOn('edit')
                             ->required()
+                            ->unique('owner_associations', 'trn_number', fn(?Model $record) => $record)
+                            ->validationMessages([
+                                'unique' => 'TRN number already exists.',
+                                'required' => 'TRN number is required.',
+                            ])
                             ->placeholder('Enter TRN number'),
 
                         TextInput::make('trade_license_number')
@@ -70,10 +75,8 @@ class PropertyManagerResource extends Resource
                             ->required()
                             ->disabledOn('edit')
                             ->tel()
-                            ->placeholder('5XXXXXXXX')
-                            ->rules([
-                                'regex:/^\+?(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
-                            ])
+                            ->placeholder('XXXXXXXXX')
+                            ->length(9)
                             ->prefix('+971')
                             ->unique('owner_associations', 'phone', fn(?Model $record) => $record),
 
@@ -104,7 +107,11 @@ class PropertyManagerResource extends Resource
                     ->schema([
                         TextInput::make('bank_account_number')
                             ->label('Bank Account Number')
-                            ->numeric()
+                            ->maxLength(23)
+                            ->minLength(0)
+                            ->validationMessages([
+                                'maxLength' => 'Bank account number should not exceed 23 characters.',
+                            ])
                             ->reactive()
                             ->disabled(function (?Model $record) {
                                 return $record && $record->bank_account_number;
@@ -113,6 +120,7 @@ class PropertyManagerResource extends Resource
                         TextInput::make('bank_account_holder_name')
                             ->label('Bank Account holder name')
                             ->reactive()
+                            ->maxLength(100)
                             ->placeholder('Enter bank account holder name'),
                     ])->columns(2),
 
@@ -130,6 +138,7 @@ class PropertyManagerResource extends Resource
                             ->downloadable(true)
                             ->maxSize(2048)
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->label('Company Logo')
                             ->columnSpanFull(),
 
@@ -189,12 +198,7 @@ class PropertyManagerResource extends Resource
                             ->onIcon('heroicon-o-check-circle')
                             ->offIcon('heroicon-o-x-mark')
                             ->onColor('success')
-                            ->offColor('danger')
-                            ->afterStateUpdated(function (bool $state, $record) {
-                                if ($state === false) {
-                                    SendInactiveStatusJob::dispatch($record);
-                                }
-                            }),
+                            ->offColor('danger'),
 
                     ])
                     ->hidden(Role::where('id', auth()->user()->role_id)

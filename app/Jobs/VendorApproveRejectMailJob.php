@@ -34,7 +34,7 @@ class VendorApproveRejectMailJob implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-        
+
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.vendor_status', ['user' => $this->user, 'status' => $this->status, 'oa_name' => $this->oa_name], function($message) {
             $message

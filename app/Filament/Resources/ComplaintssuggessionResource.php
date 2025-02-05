@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintssuggessionResource\Pages;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
 use App\Models\User\User;
@@ -34,6 +35,8 @@ class ComplaintssuggessionResource extends Resource
     protected static ?string $modelLabel     = 'Suggestions';
 
     protected static ?string $navigationGroup = 'Happiness center';
+    protected static bool $isScopedToTenant  = false;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -126,6 +129,7 @@ class ComplaintssuggessionResource extends Resource
                                     ->maxSize(2048)
                                     ->openable(true)
                                     ->downloadable(true)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->label('File'),
                             ]),
                     ]),
@@ -164,6 +168,18 @@ class ComplaintssuggessionResource extends Resource
                     ->searchable()
                     ->label('Suggestion details'),
                 TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'open'                                       => 'Open',
+                        'in-progress'                                => 'In-Progress',
+                        'closed'                                     => 'Closed',
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'open'                            => 'primary',
+                        'in-progress'                     => 'success',
+                        'closed'                          => 'gray',
+                    })
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
@@ -172,10 +188,22 @@ class ComplaintssuggessionResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::pluck('name', 'id');
+                        } elseif (in_array(auth()->user()->role->name, ['Property Manager', 'OA'])) {
+                            $buildingIds = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+
+                            return Building::whereIn('id', $buildingIds)
+                                ->pluck('name', 'id');
                         }
+
+                        $oaId = auth()->user()?->owner_association_id;
+                        return Building::where('owner_association_id', $oaId)
+                            ->pluck('name', 'id');
                     })
                     ->searchable()
                     ->label('Building')
