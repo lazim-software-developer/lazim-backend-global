@@ -12,8 +12,8 @@ class BuildingController extends Controller
 
         $vendors = $user->technicianVendors()
             ->with(['vendor.buildings' => function($query) {
-                $query->wherePivot('active', 1)
-                      ->whereHas('ownerAssociations');
+                $query->wherePivot('active', 1);
+                    //   ->whereHas('ownerAssociations');
             }])
             ->get();
 
