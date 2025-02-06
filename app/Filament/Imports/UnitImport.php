@@ -36,11 +36,19 @@ class UnitImport implements ToCollection, WithHeadingRow
                 $building = DB::table('buildings')
                 ->where('name', trim($row['building']))
                 ->first();
+                if(empty($building)){
+                    $this->skipCount++;
+                    continue;
+                }
 
                 // Find owner association ID by name
                 $ownerAssociation = DB::table('owner_associations')
                     ->where('name', trim($row['owner_association']))
                     ->first();
+                if(empty($ownerAssociation)){
+                    $this->skipCount++;
+                    continue;
+                }
 
                 // Check if building already exists based on multiple criteria
                 $existingBuilding = Flat::where([
@@ -72,6 +80,8 @@ class UnitImport implements ToCollection, WithHeadingRow
                     'plot_number'            => $row['plot_number'],
                     'status'                 => 1,
                     'resource'               => 'Default',
+                    'created_by'                 => auth()->user()?->id,
+                    'updated_by'                 => auth()->user()?->id,
                 ]);
 
                 $this->successCount++;
