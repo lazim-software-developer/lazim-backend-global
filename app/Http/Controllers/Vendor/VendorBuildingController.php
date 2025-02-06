@@ -10,27 +10,22 @@ use App\Http\Resources\Building\BuildingResource;
 
 class VendorBuildingController extends Controller
 {
-    public function listBuildings(Request $request,Vendor $vendor){
+    public function listBuildings(Request $request, Vendor $vendor) {
+        $buildings = $vendor->buildings->where('pivot.active', true);
 
-        if($request->has('type') && $request->type == 'OA'){
-            $buildings = $vendor->buildings->where('pivot.active', true)
-            ->unique();
-        }else{
-            $buildings = $vendor->buildings->where('pivot.active', true)
-                ->whereNotNull('pivote.owner_association_id')
-                ->unique();
-        }
-        Log::info($buildings->pluck('name'));
-
-        if ($request->has('filter') && $request->input('filter') == true) {
-            $buildings = $vendor->buildings->unique();
-        }
-        if ($request->has('type')) {
-            $buildings = $buildings->filter(function($buildings) use($request){
-                return $buildings->ownerAssociations->contains('role',$request->type);
+        if ($request->type == 'Property Manager') {
+            $buildings = $buildings
+                ->whereNotNull('pivot.owner_association_id')
+                ->filter(function($building) use($request) {
+                    return $building->ownerAssociations->contains('role', $request->type);
+                });
+        } elseif ($request->has('type')) {
+            $buildings = $buildings->filter(function($building) use($request) {
+                return $building->ownerAssociations->contains('role', $request->type);
             });
         }
-        Log::info($buildings->pluck('name'));
+
+        $buildings = $buildings->unique();
 
         return BuildingResource::collection($buildings);
     }
