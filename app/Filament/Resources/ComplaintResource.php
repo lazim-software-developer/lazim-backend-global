@@ -115,12 +115,12 @@ class ComplaintResource extends Resource
 
                                 Select::make('vendor_id')
                                     ->label('Facility Manager')
-
-                                // ->relationship('vendor', 'name')
+                                    ->helperText(function (Get $get) {
+                                        if ($get('service_id') == null) {
+                                            return 'Select Service First';
+                                        }
+                                    })
                                     ->preload()
-                                // ->required(function (Get $get) {
-                                //     return $get('category') != 'Security Services';
-                                // })
                                     ->searchable()
                                     ->placeholder('Select Facility Manager')
                                     ->options(function (Get $get) {
@@ -129,7 +129,12 @@ class ComplaintResource extends Resource
                                         if (! $serviceId) {
                                             return [];
                                         }
+                                        $pm_vendor = Vendor::where('owner_association_id', auth()->user()->owner_association_id)
+                                            ->where('status', 'approved')
+                                            ->pluck('id')
+                                            ->toArray();
                                         $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
+                                            ->whereIn('vendor_id', $pm_vendor)
                                             ->pluck('vendor_id');
                                         // dd($vendorIds);
 
