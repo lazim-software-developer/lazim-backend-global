@@ -15,15 +15,19 @@ use App\Imports\OAM\BudgetImport;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\View;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Unique;
+use App\Filament\Imports\BuildingImport;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -295,6 +299,7 @@ class BuildingResource extends Resource
             ->filters([
                 //
             ])
+            
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Action::make('feature')
@@ -431,6 +436,83 @@ class BuildingResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Action::make('import')
+                    ->label('Import Buildings')
+                    ->form([
+                        Section::make()
+                            ->schema([
+                                View::make('filament.components.sample-download-link')
+                                    ->view('filament.components.sample-file-download'),
+                                FileUpload::make('file')
+                                    ->label('Choose CSV File')
+                                    ->disk('local')
+                                    ->directory('temp-imports')
+                                    ->acceptedFileTypes([
+                                        'text/csv',
+                                        'text/plain',
+                                        'application/csv',
+                                    ])
+                                    ->maxSize(5120)
+                                    ->required()
+                                    ->helperText('Upload your CSV file in the correct format')
+                            ])
+                    ])
+                    ->action(function (array $data) {
+                        try {
+                            $import = new BuildingImport();
+                            Excel::import($import, $data['file']);
+                            
+                            $result = $import->getResultSummary();
+                            
+                            if($result['status']===200)
+                            {
+                            // Generate detailed report
+                            $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+                            $report .= "Successfully imported: {$result['imported']}\n";
+                            $report .= "Skipped (already exists): {$result['skip']}\n";
+                            $report .= "Errors: {$result['error']}\n\n";
+                            
+                            // Add detailed error and skip information
+                            foreach ($result['details'] as $detail) {
+                                $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+                                $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+                            }
+                            
+                            // Save report
+                            $reportPath = 'import-reports/building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            Storage::disk('local')->put($reportPath, $report);
+                            }
+                            if($result['status']===401)
+                            {
+                                Notification::make()
+                                ->title('invalid File')
+                                ->body("{$result['error']}")
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                            }else{
+                            // Show notification with results
+                            Notification::make()
+                                ->title('Import Complete')
+                                ->body("Successfully imported: {$result['imported']}\nSkipped: {$result['skip']}\nErrors: {$result['error']}")
+                                ->success()
+                                ->persistent()
+                                ->send();
+                            }
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Import Failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+
+                        // Clean up temporary file
+                        Storage::disk('local')->delete($data['file']);
+                    })
             ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
