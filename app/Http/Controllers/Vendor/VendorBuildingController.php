@@ -20,6 +20,7 @@ class VendorBuildingController extends Controller
                 ->whereNotNull('pivote.owner_association_id')
                 ->unique();
         }
+        Log::info($buildings->pluck('name'));
 
         if ($request->has('filter') && $request->input('filter') == true) {
             $buildings = $vendor->buildings->unique();
@@ -29,6 +30,7 @@ class VendorBuildingController extends Controller
                 return $buildings->ownerAssociations->contains('role',$request->type);
             });
         }
+        Log::info($buildings->pluck('name'));
 
         return BuildingResource::collection($buildings);
     }
