@@ -123,6 +123,7 @@ class DocumentsController extends Controller
 
     public function makaniNumber(MakaniNumberRequest $request)
     {
+        Log::info('Makani Number Request: ' , $request->all());
         $currentDate = date('Y-m-d');
         $building = DB::table('building_owner_association')
             ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
