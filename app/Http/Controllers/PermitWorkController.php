@@ -73,9 +73,9 @@ class PermitWorkController extends Controller
         $owner_association_ids = DB::table('building_owner_association')
             ->where(['building_id' => $request->building_id, 'active' => true])->pluck('owner_association_id');
 
-        $propertyManagerRole = Role::where('name', 'Property Manager')->first();
+        $propertyManagerRole = Role::where('name', 'Property Manager')->pluck('id');
         $user                = User::whereIn('owner_association_id', $owner_association_ids)
-            ->where('role_id', $propertyManagerRole?->id)
+            ->whereIn('role_id', $propertyManagerRole)
             ->first();
 
         // Create and send notification
