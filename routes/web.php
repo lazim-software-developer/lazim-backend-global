@@ -8,17 +8,21 @@ use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\FlatImportController;
 use App\Http\Controllers\Master\PDFController;
 use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\TrialBalanceController;
 use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\Vendor\MasterController;
+use App\Http\Controllers\BuildingImportController;
 use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Filament\Resources\Building\BuildingResource;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 
@@ -50,6 +54,10 @@ Route::prefix('/')
     ->middleware(['auth:sanctum', 'verified']);
 Route::get('/vendors/create', VendorRegistration::class);
 
+Route::get('/download/sample-building-file', [BuildingImportController::class, 'downloadSampleFile'])
+    ->name('download.sample-building-file');
+Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
+    ->name('download.sample-flat-file');
 
 // Service chanrge
 Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
