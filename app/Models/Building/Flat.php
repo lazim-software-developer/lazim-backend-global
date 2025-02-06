@@ -51,7 +51,9 @@ class Flat extends Model
         'parking_count',
         'plot_number',
         'resource',
-        'status'
+        'status',
+        'created_by',
+        'updated_by'
     ];
 
     protected $searchableFields = ['*'];

@@ -20,6 +20,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
     protected $skipCount = 0;
     protected $errorCount = 0;
     protected $invalidFile = 0;
+    protected $ownerAssociationError = 0;
+    protected $ownerAssociation = '';
     protected $errors = [];
 
     public function collection(Collection $rows)
@@ -35,10 +37,18 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 $ownerAssociation = DB::table('owner_associations')
                 ->where('name', trim($row['owner_association']))
                 ->first();
+                if(empty($ownerAssociation)){
+                    $this->skipCount++;
+                    continue;
+                }
                 // Find City ID by name
                 $city = DB::table('cities')
                 ->where('name', trim($row['city']))
                 ->first();
+                if(empty($city)){
+                    $this->skipCount++;
+                    continue;
+                }
                 // Check if building already exists based on multiple criteria
                 $existingBuilding = Building::where([
                     'name' => $row['name'],
@@ -54,7 +64,6 @@ class BuildingImport implements ToCollection, WithHeadingRow
                     continue;
                 }
 
-                
                 // Create new building
                 $Building=Building::create([
                     'name'                   => $row['name'],
@@ -116,7 +125,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 'status' => 401,
                 'error' => 'Invalid File Format!',
             ];
-        }else{
+        }
+        else{
         return [
             'status' => 200,
             'imported' => $this->successCount,
