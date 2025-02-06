@@ -100,7 +100,7 @@ class Vendor extends Model
     public function buildings()
     {
         return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')
-                ->withPivot(['contract_id', 'active','start_date','end_date']);
+                ->withPivot(['contract_id', 'active','start_date','end_date','owner_association_id']);
     }
     public function buildingvendor()
     {
