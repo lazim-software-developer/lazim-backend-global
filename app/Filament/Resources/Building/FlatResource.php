@@ -12,14 +12,20 @@ use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\View;
 use Filament\Tables\Actions\Action;
+use App\Filament\Imports\UnitImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\MarkdownEditor;
@@ -148,30 +154,54 @@ class FlatResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('suit_area')
-                    ->formatStateUsing(function($record) {
-                        return $record->suit_area === 'NA' ? 'NA' : number_format($record->suit_area, 2);
-                    })
+                ->formatStateUsing(function($record) {
+                    if ($record->suit_area === 'NA') {
+                        return 'NA';
+                    }
+                    
+                    return is_numeric($record->suit_area) 
+                        ? number_format($record->suit_area, 2)
+                        : $record->suit_area;
+                })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('actual_area')
-                    ->formatStateUsing(function($record) {
-                        return $record->actual_area === 'NA' ? 'NA' : number_format($record->actual_area, 2);
+                ->formatStateUsing(function($record) {
+                    if ($record->actual_area === 'NA') {
+                        return 'NA';
+                    }
+                    
+                    return is_numeric($record->actual_area) 
+                        ? number_format($record->actual_area, 2)
+                        : $record->actual_area;
                     })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
                     ->formatStateUsing(function($record) {
-                        return $record->balcony_area === 'NA' ? 'NA' : number_format($record->balcony_area, 2);
-                    })
+                        if ($record->balcony_area === 'NA') {
+                            return 'NA';
+                        }
+                        
+                        return is_numeric($record->balcony_area) 
+                            ? number_format($record->balcony_area, 2)
+                            : $record->balcony_area;
+                        })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
                     ->formatStateUsing(function($record) {
-                        return $record->applicable_area === 'NA' ? 'NA' : number_format($record->applicable_area, 2);
-                    })
+                        if ($record->applicable_area === 'NA') {
+                            return 'NA';
+                        }
+                        
+                        return is_numeric($record->applicable_area) 
+                            ? number_format($record->applicable_area, 2)
+                            : $record->applicable_area;
+                        })
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -294,6 +324,83 @@ class FlatResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Action::make('import')
+                    ->label('Import Unit')
+                    ->form([
+                        Section::make()
+                            ->schema([
+                                View::make('filament.components.sample-download-link')
+                                    ->view('filament.components.sample-flat-file-download'),
+                                FileUpload::make('file')
+                                    ->label('Choose CSV File')
+                                    ->disk('local')
+                                    ->directory('temp-imports')
+                                    ->acceptedFileTypes([
+                                        'text/csv',
+                                        'text/plain',
+                                        'application/csv',
+                                    ])
+                                    ->maxSize(5120)
+                                    ->required()
+                                    ->helperText('Upload your CSV file in the correct format')
+                            ])
+                    ])
+                    ->action(function (array $data) {
+                        try {
+                            $import = new UnitImport();
+                            Excel::import($import, $data['file']);
+                            
+                            $result = $import->getResultSummary();
+                            
+                            if($result['status']===200)
+                            {
+                            // Generate detailed report
+                            $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+                            $report .= "Successfully imported: {$result['imported']}\n";
+                            $report .= "Skipped (already exists): {$result['skip']}\n";
+                            $report .= "Errors: {$result['error']}\n\n";
+                            
+                            // Add detailed error and skip information
+                            foreach ($result['details'] as $detail) {
+                                $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+                                $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+                            }
+                            
+                            // Save report
+                            $reportPath = 'import-reports/building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            Storage::disk('local')->put($reportPath, $report);
+                            }
+                            if($result['status']===401)
+                            {
+                                Notification::make()
+                                ->title('invalid File')
+                                ->body("{$result['error']}")
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                            }else{
+                            // Show notification with results
+                            Notification::make()
+                                ->title('Import Complete')
+                                ->body("Successfully imported: {$result['imported']}\nSkipped: {$result['skip']}\nErrors: {$result['error']}")
+                                ->success()
+                                ->persistent()
+                                ->send();
+                            }
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Import Failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+
+                        // Clean up temporary file
+                        Storage::disk('local')->delete($data['file']);
+                    })
             ])
             ->emptyStateActions([
                 //Tables\Actions\CreateAction::make(),
