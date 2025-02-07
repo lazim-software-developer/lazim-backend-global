@@ -96,11 +96,11 @@ class OwnerAssociationResource extends Resource
                                         ->where('slug', $get('slug'))
                                         ->exists();
                                 }),
-                            TextInput::make('trn_number')->label('TRN Number')
+                            TextInput::make('trn_number')->label('VAT Number')
                                 ->required()
                                 ->unique(table: 'owner_associations', ignoreRecord: true)
                                 // ->disabled()
-                                ->placeholder('TRN Number'),
+                                ->placeholder('VAT Number'),
                             TextInput::make('phone')
                                 ->rules([
                                     'regex:/^\+?[1-9]\d{1,14}$/',
@@ -267,7 +267,7 @@ class OwnerAssociationResource extends Resource
                             ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
-                            ->label('TRN Certificate')
+                            ->label('VAT Certificate')
                             ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
@@ -299,7 +299,7 @@ class OwnerAssociationResource extends Resource
                             ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
-                            ->label('Dubai Chamber Document')
+                            ->label('Dubai Chamber Document- Permit')
                             ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
@@ -374,7 +374,7 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
-                    ->label('TRN Number')
+                    ->label('VAT Certificate')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),

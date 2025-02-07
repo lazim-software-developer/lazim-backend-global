@@ -481,7 +481,8 @@ class BuildingResource extends Resource
                             }
                             
                             // Save report
-                            $reportPath = 'import-reports/building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            $reportPath = 'import-reports/' . $filename;
                             Storage::disk('local')->put($reportPath, $report);
                             }
                             if($result['status']===401)
@@ -496,7 +497,19 @@ class BuildingResource extends Resource
                             // Show notification with results
                             Notification::make()
                                 ->title('Import Complete')
-                                ->body("Successfully imported: {$result['imported']}\nSkipped: {$result['skip']}\nErrors: {$result['error']}")
+                                ->body(
+                                    collect([
+                                        "Successfully imported: {$result['imported']}",
+                                        "Skipped: {$result['skip']}",
+                                        "Errors: {$result['error']}"
+                                    ])->join("\n")
+                                )
+                                ->actions([
+                                    \Filament\Notifications\Actions\Action::make('download_report')
+                                    ->label('Download Report')
+                                    ->url(route('download.import.report', ['filename' => $filename]))
+                                    ->openUrlInNewTab()
+                                ])
                                 ->success()
                                 ->persistent()
                                 ->send();
