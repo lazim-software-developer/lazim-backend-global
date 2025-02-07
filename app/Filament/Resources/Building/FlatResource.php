@@ -52,7 +52,7 @@ class FlatResource extends Resource
                             ->validationMessages([
                                 'unique' => 'Unit Number already exists in the selected building.',
                             ])
-                            ->alphaDash()
+                            ->regex('/^[\w\-\s]+$/')
                             ->placeholder('Unit Number'),
                         Select::make('owner_association_id')
                             ->required()

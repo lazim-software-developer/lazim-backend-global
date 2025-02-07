@@ -2,11 +2,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ComplaintResource\Pages;
-use App\Models\Accounting\SubCategory;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
-use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
@@ -72,7 +70,7 @@ class ComplaintResource extends Resource
                                     ->minDate(now()->format('Y-m-d'))
                                 // ->maxDate(now()->addDays(3)->format('Y-m-d'))
                                     ->rules(['date'])
-                                    // ->disabledOn('edit')
+                                // ->disabledOn('edit')
                                     ->placeholder('Select Date'),
 
                                 Textarea::make('complaint')
@@ -97,13 +95,13 @@ class ComplaintResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->options([
-                                        5 => 'House Keeping',
-                                        36 => 'Security',
-                                        69 => 'Electrical',
-                                        70 => 'Plumbing',
-                                        71 => 'AC',
-                                        40 => 'Pest Control',
-                                        228 => 'Other'
+                                        5   => 'House Keeping',
+                                        36  => 'Security',
+                                        69  => 'Electrical',
+                                        70  => 'Plumbing',
+                                        71  => 'AC',
+                                        40  => 'Pest Control',
+                                        228 => 'Other',
                                     ])
                                     ->afterStateUpdated(function (Set $set, $state) {
                                         $set('vendor_id', null);
@@ -129,7 +127,8 @@ class ComplaintResource extends Resource
                                         if (! $serviceId) {
                                             return [];
                                         }
-                                        $pm_vendor = Vendor::where('owner_association_id', auth()->user()->owner_association_id)
+                                        $pm_vendor = Vendor::where('owner_association_id',
+                                            auth()->user()?->owner_association_id)
                                             ->where('status', 'approved')
                                             ->pluck('id')
                                             ->toArray();
@@ -137,21 +136,6 @@ class ComplaintResource extends Resource
                                             ->whereIn('vendor_id', $pm_vendor)
                                             ->pluck('vendor_id');
                                         // dd($vendorIds);
-
-                                        // $vendorIds = DB::table('service_technician_vendor')
-                                        //     ->join('technician_vendors', 'service_technician_vendor.technician_vendor_id'
-                                        //         , '=', 'technician_vendors.id')
-                                        //     ->where('service_technician_vendor.service_id', $serviceId)
-                                        //     ->where('service_technician_vendor.active', true)
-                                        //     ->where('technician_vendors.active', true)
-                                        //     ->pluck('technician_vendors.vendor_id')
-                                        //     ->unique()
-                                        //     ->toArray();
-
-                                        // return User::whereIn('id', $vendorIds)
-                                        //     ->orderBy('first_name')
-                                        //     ->pluck('first_name', 'id')
-                                        //     ->toArray();
 
                                         return Vendor::whereIn('id', $vendorIds)
                                             ->pluck('name', 'id')
