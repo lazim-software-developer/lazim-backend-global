@@ -33,12 +33,13 @@ class EditUserApproval extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         if (auth()->user()?->role->name !== 'Property Manager') {
+            $user          = User::find($data['user_id']);
+            $data['email'] = $user->email;
+            $data['phone'] = $user->phone;
             return $data;
         }
 
         $user = User::find($data['user_id']);
-        Log::info($data);
-        Log::info($data['user_id']);
         $data['user'] = $user->first_name;
         $data['email'] = $user->email;
         $data['phone'] = $user->phone;
@@ -77,7 +78,6 @@ class EditUserApproval extends EditRecord
                 })->toArray();
             }
         }
-        Log::info($data);
         return $data;
     }
 
