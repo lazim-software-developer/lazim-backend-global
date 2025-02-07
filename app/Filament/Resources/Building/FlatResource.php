@@ -223,22 +223,22 @@ class FlatResource extends Resource
                     ->limit(50),
 
                 TextColumn::make('actual_area')
-                    ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
-                        ? number_format((float) $record->suit_area, 2)
+                    ->formatStateUsing(fn($record) => is_numeric($record->actual_area)
+                        ? number_format((float) $record->actual_area, 2)
                         : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('balcony_area')
-                    ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
-                        ? number_format((float) $record->suit_area, 2)
+                    ->formatStateUsing(fn($record) => is_numeric($record->balcony_area)
+                        ? number_format((float) $record->balcony_area, 2)
                         : 'NA')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('applicable_area')
-                    ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
-                        ? number_format((float) $record->suit_area, 2)
+                    ->formatStateUsing(fn($record) => is_numeric($record->applicable_area)
+                        ? number_format((float) $record->applicable_area, 2)
                         : 'NA')
                     ->default('NA')
                     ->searchable()
