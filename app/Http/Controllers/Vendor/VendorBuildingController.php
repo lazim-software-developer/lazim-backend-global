@@ -6,6 +6,7 @@ use App\Http\Resources\Building\BuildingResource;
 use App\Models\OwnerAssociation;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VendorBuildingController extends Controller
 {
@@ -16,6 +17,7 @@ class VendorBuildingController extends Controller
                 ->whereNotNull('pivot.owner_association_id')
                 ->filter(function ($building) {
                     $ownerAssociation = OwnerAssociation::find($building->pivot->owner_association_id);
+                    Log::info($ownerAssociation);
                     return $ownerAssociation && $ownerAssociation->role === 'Property Manager';
                 })
                 ->unique();
