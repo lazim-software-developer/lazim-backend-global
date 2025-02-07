@@ -299,7 +299,7 @@ class OwnerAssociationResource extends Resource
                             ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
-                            ->label('Dubai Chamber Document- Permit')
+                            ->label('Permit')
                             ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
