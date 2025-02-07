@@ -25,4 +25,22 @@ class BuildingImportController extends Controller
             ]
         );
     }
+
+    public function downloadReport($filename)
+    {
+        $filePath = 'import-reports/' . $filename;
+    
+    if (!Storage::disk('local')->exists($filePath)) {
+        abort(404, 'Report file not found.');
+    }
+
+    return Storage::disk('local')->download(
+        $filePath, 
+        'import-report-' . $filename,
+        [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="import-report-' . $filename . '"'
+        ]
+    );
+    }
 }

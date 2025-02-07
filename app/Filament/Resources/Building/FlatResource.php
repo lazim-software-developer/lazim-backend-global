@@ -61,17 +61,17 @@ class FlatResource extends Resource
                     'lg' => 2,
                 ])
                     ->schema([
-                        TextInput::make('floor')->label('Unit')
+                        TextInput::make('floor')->label('Floor')
                             ->required()
                             ->placeholder('Floor'),
                         Hidden::make('owner_association_id')
                             ->default(auth()->user()?->owner_association_id),
-                        TextInput::make('property_number')->label('Unit')
+                        TextInput::make('property_number')->label('Property Number')
                             ->required()
-                            ->placeholder('Unit Number'),
-                        TextInput::make('property_type')->label('Property')
+                            ->placeholder('Property Number'),
+                        TextInput::make('property_type')->label('Property Type')
                             ->required()
-                            ->placeholder('Property'),
+                            ->placeholder('Property Type'),
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name', function ($query) {
@@ -369,7 +369,8 @@ class FlatResource extends Resource
                             }
                             
                             // Save report
-                            $reportPath = 'import-reports/building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            $filename = 'flat-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                            $reportPath = 'import-reports/' . $filename;
                             Storage::disk('local')->put($reportPath, $report);
                             }
                             if($result['status']===401)
@@ -384,7 +385,19 @@ class FlatResource extends Resource
                             // Show notification with results
                             Notification::make()
                                 ->title('Import Complete')
-                                ->body("Successfully imported: {$result['imported']}\nSkipped: {$result['skip']}\nErrors: {$result['error']}")
+                                ->body(
+                                    collect([
+                                        "Successfully imported: {$result['imported']}",
+                                        "Skipped: {$result['skip']}",
+                                        "Errors: {$result['error']}"
+                                    ])->join("\n")
+                                )
+                                ->actions([
+                                    \Filament\Notifications\Actions\Action::make('download_report')
+                                    ->label('Download Report')
+                                    ->url(route('download.import.report', ['filename' => $filename]))
+                                    ->openUrlInNewTab()
+                                ])
                                 ->success()
                                 ->persistent()
                                 ->send();

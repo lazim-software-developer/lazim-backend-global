@@ -38,6 +38,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                 ->first();
                 if(empty($building)){
                     $this->skipCount++;
+                    $this->handleSkip($rowNumber, $row, 'Building not exists in our database');
                     continue;
                 }
 
@@ -47,6 +48,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                     ->first();
                 if(empty($ownerAssociation)){
                     $this->skipCount++;
+                    $this->handleSkip($rowNumber, $row, 'Owner Association not exists in our database');
                     continue;
                 }
 
