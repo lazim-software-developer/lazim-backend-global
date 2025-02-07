@@ -39,6 +39,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 ->first();
                 if(empty($ownerAssociation)){
                     $this->skipCount++;
+                    $this->handleSkip($rowNumber, $row, 'Owner Association not exists in our database');
                     continue;
                 }
                 // Find City ID by name
@@ -47,6 +48,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
                 ->first();
                 if(empty($city)){
                     $this->skipCount++;
+                    $this->handleSkip($rowNumber, $row, 'City not exists in our database');
                     continue;
                 }
                 // Check if building already exists based on multiple criteria
@@ -75,7 +77,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
                     'city_id'              => $city->id,
                     'description'            => $row['description']??NULL,
                     'floors'           => $row['floors']??NULL,
-                    'owner_association_id'        => auth()->user()?->owner_association_id,
+                    'owner_association_id'        => $ownerAssociation->id,
                     'allow_postupload' => $row['allow_post_upload']== true ? 1 : 0,
                     'show_inhouse_services'          => $row['show_inhouse_services']== true ? 1 : 0,
                     'resource'            => 'Default',

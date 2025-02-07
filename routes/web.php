@@ -56,6 +56,9 @@ Route::get('/vendors/create', VendorRegistration::class);
 
 Route::get('/download/sample-building-file', [BuildingImportController::class, 'downloadSampleFile'])
     ->name('download.sample-building-file');
+Route::get('/download/import-report/{filename}', [BuildingImportController::class, 'downloadReport'])
+    ->name('download.import.report')
+    ->where('filename', '.*');
 Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
     ->name('download.sample-flat-file');
 
