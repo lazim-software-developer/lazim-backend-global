@@ -16,6 +16,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EditUserApproval extends EditRecord
 {
@@ -36,6 +37,8 @@ class EditUserApproval extends EditRecord
         }
 
         $user = User::find($data['user_id']);
+        Log::info($data);
+        Log::info($data['user_id']);
         $data['user'] = $user->first_name;
         $data['email'] = $user->email;
         $data['phone'] = $user->phone;
@@ -74,7 +77,7 @@ class EditUserApproval extends EditRecord
                 })->toArray();
             }
         }
-
+        Log::info($data);
         return $data;
     }
 
