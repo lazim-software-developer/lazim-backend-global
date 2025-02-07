@@ -18,8 +18,22 @@ class VendorBuildingController extends Controller
                 ->wherePivotNotNull('owner_association_id')
                 ->get()
                 ->filter(function ($building) {
+                    Log::info('Processing building filter', [
+                        'building_id'   => $building->id,
+                        'building_name' => $building->name,
+                    ]);
+
+                    Log::info('Building pivot data', [
+                        'owner_association_id' => $building->pivot->owner_association_id,
+                    ]);
+
                     $ownerAssociation = OwnerAssociation::find($building->pivot->owner_association_id);
-                    Log::info($ownerAssociation);
+
+                    Log::info('Owner association details', [
+                        'owner_association_id' => $ownerAssociation ? $ownerAssociation->id : null,
+                        'role'                 => $ownerAssociation ? $ownerAssociation->role : null,
+                    ]);
+
                     return $ownerAssociation && $ownerAssociation->role === 'Property Manager';
                 })
                 ->unique();
