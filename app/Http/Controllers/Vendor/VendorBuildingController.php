@@ -13,8 +13,10 @@ class VendorBuildingController extends Controller
     public function listBuildings(Request $request, Vendor $vendor)
     {
         if ($request->has('type') && $request->type == 'Property Manager') {
-            $buildings = $vendor->buildings->where('pivot.active', true)
-                ->whereNotNull('pivot.owner_association_id')
+            $buildings = $vendor->buildings()
+                ->wherePivot('active', true)
+                ->wherePivotNotNull('owner_association_id')
+                ->get()
                 ->filter(function ($building) {
                     $ownerAssociation = OwnerAssociation::find($building->pivot->owner_association_id);
                     Log::info($ownerAssociation);
