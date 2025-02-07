@@ -32,25 +32,11 @@ class DocumentsController extends Controller
             'building_id' => 'required|exists:buildings,id',
             'tenant_id'   => 'required|exists:users,id',
         ]);
-        // $user       = auth()->user();
-        // $flatTenant = FlatTenant::where([
-        //     'tenant_id'   => $user->id,
-        //     'building_id' => $request->building_id,
-        //     'flat_id'     => $request->flat_id,
-        //     'active'      => true,
-        // ])->first();
-        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
-
-        // // Get users with their names
-        // $users = User::whereIn('id', FlatTenant::where([
-        //     'building_id' => $request->building_id,
-        //     'flat_id'     => $request->flat_id,
-        //     'active'      => true,
-        //     'role'        => 'Tenant',
-        // ])->pluck('tenant_id'))->select('id', 'first_name')->get();
         $users = User::where('id', $request->tenant_id)->select('id','first_name')->get();
 
-        $documentLibraries = DocumentLibrary::where('label', 'master')->get();
+        $documentLibraries = DocumentLibrary::where('label', 'master')
+            ->whereNotIn('name', ['Makani Number','Title deed'])
+            ->get();
 
         // Get the latest documents for each user and document type
         $documents = Document::whereIn('documentable_id', $users->pluck('id'))
