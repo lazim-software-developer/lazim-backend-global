@@ -595,42 +595,43 @@ class AdminPanelProvider extends PanelProvider
                 }
 
                if($user->can('view_any_announcement')||$user->can('view_any_post')||$user->can('view_any_poll')){
-                $builder->groups([
-                    NavigationGroup::make('Community')
-                        ->items([
-                            NavigationItem::make('Notice boards')
-                                ->url('/admin/announcements')
-                                ->icon('heroicon-o-megaphone')
-                                ->activeIcon('heroicon-o-megaphone')
-                                ->visible($user->can('view_any_announcement'))
-                                ->sort(1),
-                            NavigationItem::make('Posts')
-                                ->url('/admin/posts')
-                                ->icon('heroicon-m-photo')
-                                ->activeIcon('heroicon-m-photo')
-                                ->visible($user->can('view_any_post'))
-                                ->sort(2),
-                            NavigationItem::make('Polls')
-                                ->url('/admin/polls')
-                                ->icon('heroicon-s-hand-thumb-up')
-                                ->visible($user->can('view_any_poll'))
-                                ->activeIcon('heroicon-s-hand-thumb-up')
-                                ->sort(3),
-                            NavigationItem::make('Email Management')
-                                ->url('/admin/send-bulk-emails')
-                                ->icon('heroicon-s-paper-airplane')
-                                ->activeIcon('heroicon-s-paper-airplane')
-                                ->visible($user->can('view_any_email::template'))
-                                ->sort(4),
-                            NavigationItem::make('Email Template')
-                                ->url('/admin/email-templates')
-                                ->icon('heroicon-s-document-text')
-                                ->activeIcon('heroicon-s-document-text')
-                                ->visible($user->can('view_any_send::bulk::email'))
-                                ->sort(5),
-                        ])
-                        ->collapsed(true),
-                ]);
+                    $builder->groups([
+                        NavigationGroup::make('Community')
+                            ->items([
+                                NavigationItem::make('Notice boards')
+                                    ->url('/admin/announcements')
+                                    ->icon('heroicon-o-megaphone')
+                                    ->activeIcon('heroicon-o-megaphone')
+                                    ->visible($user->can('view_any_announcement'))
+                                    ->sort(1),
+                                NavigationItem::make('Posts')
+                                    ->url('/admin/posts')
+                                    ->icon('heroicon-m-photo')
+                                    ->activeIcon('heroicon-m-photo')
+                                    ->visible($user->can('view_any_post'))
+                                    ->sort(2),
+                                NavigationItem::make('Polls')
+                                    ->url('/admin/polls')
+                                    ->icon('heroicon-s-hand-thumb-up')
+                                    ->visible($user->can('view_any_poll'))
+                                    ->activeIcon('heroicon-s-hand-thumb-up')
+                                    ->sort(3),
+                                NavigationItem::make('Email Management')
+                                    ->url('/admin/send-bulk-emails')
+                                    ->icon('heroicon-s-paper-airplane')
+                                    ->activeIcon('heroicon-s-paper-airplane')
+                                    ->visible($user->can('view_any_email::template'))
+                                    ->sort(4),
+                                NavigationItem::make('Email Template')
+                                    ->url('/admin/email-templates')
+                                    ->icon('heroicon-s-document-text')
+                                    ->activeIcon('heroicon-s-document-text')
+                                    ->visible($user->can('view_any_send::bulk::email'))
+                                    ->sort(5),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                }
 
                 if ($user->can('view_any_building::flat::tenant')) {
                     $builder->groups([
