@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('email_logs', function (Blueprint $table) {
             $table->id();
             $table->string('recipient_email');
+            $table->foreignId('email_template_id')->constrained()->onDelete('cascade');
             $table->foreignId('owner_association_id')->constrained()->onDelete('cascade');
             $table->foreignId('bulk_email_management_id')->constrained()->onDelete('cascade');
             $table->text('email_content'); // Final email content after placeholders are replaced
