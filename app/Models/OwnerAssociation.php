@@ -126,4 +126,12 @@ class OwnerAssociation extends Model
     {
         return $this->belongsToMany(Vendor::class, 'owner_association_vendor')->withPivot(['status']);
     }
+
+    public function emailTemplates(){
+        return $this->belongsToMany(EmailTemplate::class, 'owner_association_id');
+    }
+
+    public function bulkEmailManagement(){
+        return $this->belongsToMany(BulkEmailManagement::class, 'owner_association_id');
+    }
 }
