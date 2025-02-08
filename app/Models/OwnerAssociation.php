@@ -102,4 +102,13 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Complaint::class);
     }
+
+
+    public function emailTemplates(){
+        return $this->belongsToMany(EmailTemplate::class, 'owner_association_id');
+    }
+
+    public function bulkEmailManagement(){
+        return $this->belongsToMany(BulkEmailManagement::class, 'owner_association_id');
+    }
 }
