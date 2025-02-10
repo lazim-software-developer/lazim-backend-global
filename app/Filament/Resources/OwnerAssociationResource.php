@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use Closure;
@@ -30,6 +30,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rules\Password;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -42,8 +43,6 @@ class OwnerAssociationResource extends Resource
     protected static ?string $modelLabel            = 'Owner Association';
     protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static bool $shouldRegisterNavigation = true;
-
-
     protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
@@ -351,7 +350,7 @@ class OwnerAssociationResource extends Resource
 
         return $table
             ->poll('60s')
-            ->query(OwnerAssociation::query())
+            // ->query(OwnerAssociation::query())
             ->columns([
                 // Tables\Columns\ImageColumn::make('profile_photo')->width(50)->height(50)
                 //     ->searchable()
@@ -395,9 +394,11 @@ class OwnerAssociationResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->visible(fn () => auth()->user()->hasRole('Admin')),
                 Action::make('delete')
                     ->button()
+                    ->visible(fn () => auth()->user()->hasRole('Admin'))
                     ->action(function ($record,) {
                         $record->delete();
 
@@ -459,7 +460,8 @@ class OwnerAssociationResource extends Resource
                         ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
                 ]),
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('Admin')),
                 ]),
             ])
             ->emptyStateActions([
