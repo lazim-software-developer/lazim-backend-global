@@ -252,35 +252,46 @@ class UserApprovalResource extends Resource
 
                                             $set('cheques', $cheques);
                                         })
-                                        ->disabled(fn($record) => RentalDetail::where('flat_tenant_id', $record?->id)->exists()),
+                                        ->disabled(fn($record, callable $get) => RentalDetail::where('flat_tenant_id', $record?->id)
+                                                ->exists() || $get('contract_status') === 'Contract ended'),
                                     DatePicker::make('contract_start_date')
                                         ->required()
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $startDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('start_date');
+                                                if ($startDate) {
+                                                    $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                                                    $set('contract_start_date', $startDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     DatePicker::make('contract_end_date')
                                         ->required()
                                         ->after('contract_start_date')
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $endDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('end_date');
+                                                if ($endDate) {
+                                                    $endDate = Carbon::parse($endDate)->format('Y-m-d');
+                                                    $set('contract_end_date', $endDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     TextInput::make('advance_amount')
                                         ->required()
                                         ->numeric()
+                                        ->live()
+                                        ->disabled(function (callable $get) {
+                                            if ($get('contract_status' == 'Contract ended')) {
+                                                return true;
+                                            }
+                                        })
                                         ->label('Security Deposit')
                                         ->suffix('AED')
                                         ->maxValue(999999999.99)
@@ -290,6 +301,12 @@ class UserApprovalResource extends Resource
                                             'max_value' => 'Security deposit cannot exceed 999,999,999.99 AED',
                                         ]),
                                     Select::make('advance_amount_payment_mode')
+                                        ->disabled(function (callable $get) {
+                                            if ($get('contract_status' == 'Contract ended')) {
+                                                return true;
+                                            }
+                                        })
+                                        ->live()
                                         ->required()
                                         ->label('Security Deposit Payment Mode')
                                         ->options([

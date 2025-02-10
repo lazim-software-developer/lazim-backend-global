@@ -80,7 +80,7 @@ class ComplaintCreationJob implements ShouldQueue
             'user' => $user,
             'ticket_number' => $dataObj->ticket_number,
             'building' => $dataObj->building->name,
-            'flat' => $dataObj?->flat?->property_number ?? '',
+            'flat' => $dataObj?->flat?->property_number ?? 'Not Applicable',
             'property_manager_name' => $property_manager_name ?? '',
             'property_manager_logo' => $property_manager_logo ?? '',
             'description' => $dataObj->complaint
@@ -88,7 +88,7 @@ class ComplaintCreationJob implements ShouldQueue
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($user->email, $user->first_name)
-                ->subject('New Task Assigned for Unit '.$dataObj?->flat?->property_number ?? ''.' '.$dataObj->building->name);
+                ->subject('New Task Assigned '.$dataObj?->flat?->property_number ?? ''.' '.$dataObj->building->name);
         });
     }
 }

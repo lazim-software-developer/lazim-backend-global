@@ -5,17 +5,17 @@
 
 <p>Dear {{ $user->first_name }},</p>
 
-<p>A new complaint has been assigned to you.</p>
+<p>A new task has been assigned to you.</p>
 
-<div class="title">Complaint Details:</div>
+<div class="title">Task Details:</div>
 <p>
     <strong>Ticket Number:</strong> {{ $ticket_number }}<br>
     <strong>Building:</strong> {{ $building }}<br>
     <strong>Flat:</strong> {{ $flat }}<br>
-    <strong>Complaint Details:</strong> {{ $description }}
+    <strong>Task Details:</strong> {{ $description }}
 </p>
 
-<p>Kindly address this complaint at your earliest convenience. Your prompt attention and resolution are greatly appreciated.</p>
+<p>Kindly address this task at your earliest convenience. Your prompt attention and resolution are greatly appreciated.</p>
 
 <p>Best regards,</p>
 
