@@ -252,7 +252,8 @@ class UserApprovalResource extends Resource
 
                                             $set('cheques', $cheques);
                                         })
-                                        ->disabled(fn($record) => RentalDetail::where('flat_tenant_id', $record?->id)->exists()),
+                                        ->disabled(fn($record, callable $get) => RentalDetail::where('flat_tenant_id', $record?->id)
+                                                ->exists() || $get('contract_status') === 'Contract ended'),
                                     DatePicker::make('contract_start_date')
                                         ->required()
                                         ->afterStateHydrated(function ($state, $set, $record) {
@@ -285,6 +286,12 @@ class UserApprovalResource extends Resource
                                     TextInput::make('advance_amount')
                                         ->required()
                                         ->numeric()
+                                        ->live()
+                                        ->disabled(function (callable $get) {
+                                            if ($get('contract_status' == 'Contract ended')) {
+                                                return true;
+                                            }
+                                        })
                                         ->label('Security Deposit')
                                         ->suffix('AED')
                                         ->maxValue(999999999.99)
@@ -294,6 +301,12 @@ class UserApprovalResource extends Resource
                                             'max_value' => 'Security deposit cannot exceed 999,999,999.99 AED',
                                         ]),
                                     Select::make('advance_amount_payment_mode')
+                                        ->disabled(function (callable $get) {
+                                            if ($get('contract_status' == 'Contract ended')) {
+                                                return true;
+                                            }
+                                        })
+                                        ->live()
                                         ->required()
                                         ->label('Security Deposit Payment Mode')
                                         ->options([
