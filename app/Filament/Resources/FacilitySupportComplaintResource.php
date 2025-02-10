@@ -266,7 +266,10 @@ class FacilitySupportComplaintResource extends Resource
                                         //     ->pluck('first_name', 'id')
                                         //     ->toArray();
 
-                                        return Vendor::whereIn('id', $vendorIds)
+                                        return Vendor::where('owner_association_id',
+                                            auth()->user()?->owner_association_id)
+                                            ->where('status', 'approved')
+                                            ->whereIn('id', $vendorIds)
                                             ->pluck('name', 'id')
                                             ->toArray();
 

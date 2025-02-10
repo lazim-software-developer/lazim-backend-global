@@ -96,7 +96,7 @@ class ComplaintResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->options(function ($record) {
-                                        if($record==null){
+                                        if ($record == null) {
                                             return [
                                                 5   => 'House Keeping',
                                                 36  => 'Security',
@@ -106,7 +106,7 @@ class ComplaintResource extends Resource
                                                 40  => 'Pest Control',
                                                 228 => 'Other',
                                             ];
-                                        } return Service::pluck('name', 'id');
+                                        }return Service::pluck('name', 'id');
                                     })
                                     ->afterStateUpdated(function (Set $set, $state) {
                                         $set('vendor_id', null);
@@ -142,15 +142,15 @@ class ComplaintResource extends Resource
                                             ->where('status', 'approved')
                                             ->pluck('id')
                                             ->toArray();
-                                            // dd($pm_vendor);
-                                            $vendorIds = ServiceVendor::where('service_id', $serviceId)
+                                        // dd($pm_vendor);
+                                        $vendorIds = ServiceVendor::where('service_id', $serviceId)
                                             ->whereIn('vendor_id', $pm_vendor)
                                             ->pluck('vendor_id');
-                                            // dd($vendorIds);
+                                        // dd($vendorIds);
 
                                         return (Vendor::whereIn('id', $vendorIds)
-                                            ->pluck('name', 'id')
-                                            ->toArray());
+                                                ->pluck('name', 'id')
+                                                ->toArray());
 
                                     })
                                     ->searchable()
@@ -164,6 +164,9 @@ class ComplaintResource extends Resource
 
                                         if (! $serviceId) {
                                             return [];
+                                        }
+                                        if (in_array($serviceId, [70, 71])) {
+                                            $serviceId = 69;
                                         }
 
                                         $technicianIds = DB::table('service_technician_vendor')
