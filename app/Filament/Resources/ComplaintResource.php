@@ -95,8 +95,8 @@ class ComplaintResource extends Resource
                                     ->live()
                                     ->preload()
                                     ->required()
-                                    ->options(function () {
-                                        if (request()->routeIs('filament.resources.complaints.create')) {
+                                    ->options(function ($record) {
+                                        if($record==null){
                                             return [
                                                 5   => 'House Keeping',
                                                 36  => 'Security',
@@ -106,9 +106,7 @@ class ComplaintResource extends Resource
                                                 40  => 'Pest Control',
                                                 228 => 'Other',
                                             ];
-                                        }
-
-                                        return Service::pluck('name', 'id');
+                                        } return Service::pluck('name', 'id');
                                     })
                                     ->afterStateUpdated(function (Set $set, $state) {
                                         $set('vendor_id', null);
@@ -130,7 +128,7 @@ class ComplaintResource extends Resource
                                     ->placeholder('Select Facility Manager')
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
-
+                                        // dd($serviceId);
                                         // Map service_id 70 and 71 to 69
                                         if (in_array($serviceId, [70, 71])) {
                                             $serviceId = 69;
@@ -184,7 +182,7 @@ class ComplaintResource extends Resource
                                             ->pluck('first_name', 'id')
                                             ->toArray();
                                     })
-                                    ->searchable() 
+                                    ->searchable()
                                     ->preload()
                                     ->placeholder('Assign a Technician')
                                     ->live()
