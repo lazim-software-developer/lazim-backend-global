@@ -255,28 +255,32 @@ class UserApprovalResource extends Resource
                                         ->disabled(fn($record) => RentalDetail::where('flat_tenant_id', $record?->id)->exists()),
                                     DatePicker::make('contract_start_date')
                                         ->required()
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $startDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('start_date');
+                                                if ($startDate) {
+                                                    $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                                                    $set('contract_start_date', $startDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     DatePicker::make('contract_end_date')
                                         ->required()
                                         ->after('contract_start_date')
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $endDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('end_date');
+                                                if ($endDate) {
+                                                    $endDate = Carbon::parse($endDate)->format('Y-m-d');
+                                                    $set('contract_end_date', $endDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     TextInput::make('advance_amount')
                                         ->required()
