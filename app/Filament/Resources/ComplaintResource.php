@@ -184,7 +184,7 @@ class ComplaintResource extends Resource
                                             ->pluck('first_name', 'id')
                                             ->toArray();
                                     })
-                                    ->searchable()
+                                    ->searchable() 
                                     ->preload()
                                     ->placeholder('Assign a Technician')
                                     ->live()
