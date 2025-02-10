@@ -5,6 +5,7 @@ use App\Filament\Resources\ComplaintResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Master\Role;
+use App\Models\Master\Service;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
@@ -94,15 +95,19 @@ class ComplaintResource extends Resource
                                     ->live()
                                     ->preload()
                                     ->required()
-                                    ->options([
-                                        5   => 'House Keeping',
-                                        36  => 'Security',
-                                        69  => 'Electrical',
-                                        70  => 'Plumbing',
-                                        71  => 'AC',
-                                        40  => 'Pest Control',
-                                        228 => 'Other',
-                                    ])
+                                    ->options(function ($record) {
+                                        if($record==null){
+                                            return [
+                                                5   => 'House Keeping',
+                                                36  => 'Security',
+                                                69  => 'Electrical',
+                                                70  => 'Plumbing',
+                                                71  => 'AC',
+                                                40  => 'Pest Control',
+                                                228 => 'Other',
+                                            ];
+                                        } return Service::pluck('name', 'id');
+                                    })
                                     ->afterStateUpdated(function (Set $set, $state) {
                                         $set('vendor_id', null);
                                         $set('technician_id', null);
@@ -123,6 +128,11 @@ class ComplaintResource extends Resource
                                     ->placeholder('Select Facility Manager')
                                     ->options(function (Get $get) {
                                         $serviceId = $get('service_id');
+                                        // dd($serviceId);
+                                        // Map service_id 70 and 71 to 69
+                                        if (in_array($serviceId, [70, 71])) {
+                                            $serviceId = 69;
+                                        }
 
                                         if (! $serviceId) {
                                             return [];
@@ -132,14 +142,15 @@ class ComplaintResource extends Resource
                                             ->where('status', 'approved')
                                             ->pluck('id')
                                             ->toArray();
-                                        $vendorIds = ServiceVendor::where('service_id', $get('service_id'))
+                                            // dd($pm_vendor);
+                                            $vendorIds = ServiceVendor::where('service_id', $serviceId)
                                             ->whereIn('vendor_id', $pm_vendor)
                                             ->pluck('vendor_id');
-                                        // dd($vendorIds);
+                                            // dd($vendorIds);
 
-                                        return Vendor::whereIn('id', $vendorIds)
+                                        return (Vendor::whereIn('id', $vendorIds)
                                             ->pluck('name', 'id')
-                                            ->toArray();
+                                            ->toArray());
 
                                     })
                                     ->searchable()
