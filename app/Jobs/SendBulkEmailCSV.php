@@ -37,6 +37,7 @@ class SendBulkEmailCSV implements ShouldQueue
             // Read the CSV file
             $file = fopen($csvFilePath, 'r');
             $headers = fgetcsv($file); // Get the first row as headers
+            $headers = array_map('trim', $headers);
 
             // Validate the CSV format to ensure the email column exists
             if (!in_array('email', $headers)) {

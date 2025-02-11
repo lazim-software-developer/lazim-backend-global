@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -26,7 +27,7 @@ class EmailTemplateResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')->required()->unique(),
                 Forms\Components\TextInput::make('subject')->required(),
-                RichEditor::make('body')
+                TiptapEditor::make('body')
                     ->label('Email Body')
                     ->default("Use placeholders like {{name}}, {{date}}")
                     ->required()
