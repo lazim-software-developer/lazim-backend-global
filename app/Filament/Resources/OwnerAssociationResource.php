@@ -343,7 +343,7 @@ class OwnerAssociationResource extends Resource
 
         return $table
             ->poll('60s')
-            ->query(OwnerAssociation::query())
+            // ->query(OwnerAssociation::query())
             ->columns([
                 // Tables\Columns\ImageColumn::make('profile_photo')->width(50)->height(50)
                 //     ->searchable()
@@ -387,9 +387,11 @@ class OwnerAssociationResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->visible(fn () => auth()->user()->hasRole('Admin')),
                 Action::make('delete')
                     ->button()
+                    ->visible(fn () => auth()->user()->hasRole('Admin'))
                     ->action(function ($record,) {
                         $record->delete();
 
@@ -406,7 +408,8 @@ class OwnerAssociationResource extends Resource
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('Admin')),
                 ]),
             ])
             ->emptyStateActions([
