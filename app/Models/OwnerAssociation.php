@@ -128,10 +128,10 @@ class OwnerAssociation extends Model
     }
 
     public function emailTemplates(){
-        return $this->belongsToMany(EmailTemplate::class, 'owner_association_id');
+        return $this->hasMany(EmailTemplate::class, 'owner_association_id');
     }
 
     public function bulkEmailManagement(){
-        return $this->belongsToMany(BulkEmailManagement::class, 'owner_association_id');
+        return $this->hasMany(BulkEmailManagement::class, 'owner_association_id');
     }
 }
