@@ -48,7 +48,7 @@
 		</tr>
         <tr>
             <td class="paragraph">
-                • Download the App: <a href="{{ env('GATEKEEPER_LINK') }}">{{ env('GATEKEEPER_LINK') }}</a><br>
+                • Download the App: <a href="{{ env('GATEKEEPER_LINK') }}">App Link</a><br>
                 • Log In: Use the details above<br>
                 • Explore Features: Manage visitors, deliveries, and access points effortlessly
 			</td>
