@@ -268,7 +268,7 @@ class BuildingPocsRelationManager extends RelationManager
                                     }
                                 };
                             }])
-                            ->length(6)
+                            ->length(9)
                             ->placeholder('XXXXXXXXX')
                             ->prefix('971')
                             ->required()
