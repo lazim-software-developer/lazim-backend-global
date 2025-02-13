@@ -105,8 +105,8 @@ class EditUserApproval extends EditRecord
                         'status' => $data['contract_status'] ?? 'Active',
                         'contract_start_date' => $data['contract_start_date'],
                         'contract_end_date' => $data['contract_end_date'],
-                        'advance_amount' => $data['advance_amount'],
-                        'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
+                        // 'advance_amount' => $data['advance_amount'],
+                        // 'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
                     ]);
                 } else {
                     // Only validate and create rental details if they don't exist
