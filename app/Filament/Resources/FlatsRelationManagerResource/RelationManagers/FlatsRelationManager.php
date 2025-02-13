@@ -46,7 +46,8 @@ class FlatsRelationManager extends RelationManager
                         TextInput::make('property_number')
                             ->label('Unit Number')
                             ->required()
-                            ->alphaDash()
+                            ->regex('/^[\w\-\s]+$/')
+                            // ->alphaDash()
                             ->placeholder('Unit Number'),
                         // Select::make('owner_association_id')
                         //     ->required()

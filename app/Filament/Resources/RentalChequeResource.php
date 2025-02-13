@@ -44,10 +44,9 @@ class RentalChequeResource extends Resource
                                     ->maxLength(12)
                                     ->placeholder('Enter cheque number'),
                                 TextInput::make('amount')
-                                    ->maxLength(20)
+                                    ->maxValue(999999999.99)
                                     ->numeric()
                                     ->disabledOn('edit')
-                                    ->minLength(0)
                                     ->required()
                                     ->placeholder('Enter amount'),
                                 DatePicker::make('due_date')
