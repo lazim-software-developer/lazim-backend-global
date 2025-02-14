@@ -27,6 +27,9 @@ class ListOwners extends ListRecords
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+            return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
         $flatsId = Flat::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
         $flatowners = FlatOwners::whereIn('flat_id', $flatsId)->pluck('owner_id');
@@ -35,7 +38,7 @@ class ListOwners extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            //Actions\CreateAction::make(),
+            Actions\CreateAction::make(),
             Action::make('Notify Owners')
                 ->button()
                 ->form([
