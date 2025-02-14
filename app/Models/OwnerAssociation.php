@@ -119,4 +119,13 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Flat::class);
     }
+
+
+    public function emailTemplates(){
+        return $this->hasMany(EmailTemplate::class, 'owner_association_id');
+    }
+
+    public function bulkEmailManagement(){
+        return $this->hasMany(BulkEmailManagement::class, 'owner_association_id');
+    }
 }

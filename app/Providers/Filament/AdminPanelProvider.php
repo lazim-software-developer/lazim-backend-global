@@ -598,6 +598,18 @@ class AdminPanelProvider extends PanelProvider
                                 ->visible($user->can('view_any_poll'))
                                 ->activeIcon('heroicon-s-hand-thumb-up')
                                 ->sort(3),
+                            NavigationItem::make('Email Management')
+                                ->url('/admin/send-bulk-emails')
+                                ->icon('heroicon-s-paper-airplane')
+                                ->activeIcon('heroicon-s-paper-airplane')
+                                // ->visible($user->can('view_any_email::template'))
+                                ->sort(4),
+                            NavigationItem::make('Email Template')
+                                ->url('/admin/email-templates')
+                                ->icon('heroicon-s-document-text')
+                                ->activeIcon('heroicon-s-document-text')
+                                // ->visible($user->can('view_any_send::bulk::email'))
+                                ->sort(5),
                         ])
                         ->collapsed(true),
                 ]);
