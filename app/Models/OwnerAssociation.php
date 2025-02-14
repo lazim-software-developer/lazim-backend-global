@@ -9,6 +9,7 @@ use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
+use App\Models\ApartmentOwner;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Vendor\Contract;
@@ -53,6 +54,7 @@ class OwnerAssociation extends Model
         'password',
     ];
 
+    
     public function users()
     {
         return $this->hasMany(User::class);
@@ -80,6 +82,10 @@ class OwnerAssociation extends Model
     public function facilityBookings()
     {
         return $this->hasMany(FacilityBooking::class);
+    }
+    public function owners()
+    {
+        return $this->hasMany(ApartmentOwner::class);
     }
 
     public function posts()
@@ -141,4 +147,5 @@ class OwnerAssociation extends Model
             'id'                 // Local key on buildings table
         );
     }
+    
 }

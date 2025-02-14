@@ -3,10 +3,11 @@
 namespace App\Models;
 
 
-use App\Models\FlatOwners;
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\FlatOwners;
+use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ApartmentOwner extends Model
 {
@@ -16,7 +17,7 @@ class ApartmentOwner extends Model
 
     protected $table = 'apartment_owners';
 
-    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id'];
+    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id','building_id'];
 
     public function ownerAssociation()
     {
@@ -33,4 +34,9 @@ class ApartmentOwner extends Model
     public function users(){
         return $this->hasMany(User::class,'owner_id');
     }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
+    }
+    
 }
