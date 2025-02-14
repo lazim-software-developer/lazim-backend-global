@@ -2,23 +2,26 @@
 
 namespace App\Filament\Resources\User;
 
-use App\Filament\Resources\User\OwnerResource\Pages;
-use App\Models\ApartmentOwner;
-use App\Models\Building\Building;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Closure;
 use Filament\Tables;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
+use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use App\Models\ApartmentOwner;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\User\OwnerResource\Pages;
 
 class OwnerResource extends Resource
 {
@@ -26,6 +29,8 @@ class OwnerResource extends Resource
     protected static ?string $modelLabel      = 'Owners';
     protected static ?string $navigationGroup = 'User Management';
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $tenantRelationshipName = 'owners';
+    
 
     public static function form(Form $form): Form
     {
@@ -46,32 +51,216 @@ class OwnerResource extends Resource
                         ->required()
                         ->placeholder('Name'),
                     TextInput::make('mobile')
-                        ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        ->rules([
+                            'regex:/^\+?[1-9]\d{1,14}$/',
+                            function ($record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (empty($value)) {
+                                        return;
+                                    }
+                            
+                                    $ownerAssociationId = auth()->user()->owner_association_id;
+                                    $buildingId = $record['building_id'] ?? null; // Retrieve the selected building ID from the record
+                                    
+                                    $query = ApartmentOwner::where('mobile', $value)
+                                        ->where('owner_association_id', $ownerAssociationId);
+                                    // Add a condition to check the building ID
+                                    if (!empty($buildingId)) {
+                                        $query->where('building_id', $buildingId);
+                                    }
+                                    
+                                    if ($record) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
+                                    
+                                    if ($query->exists()) {
+                                        $fail("This owner mobile number is already registered with this owner association.");
+                                    }
+                                };
+                            }
+                        ])
+                        ->required()
                         ->nullable()
                         ->placeholder('Mobile'),
                     TextInput::make('email')
-                        ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
-                        ->required()
-                        ->placeholder('Email'),
+                    ->rules([
+                        'min:6',
+                        'max:30', 
+                        'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                        function ($record) {
+                            return function (string $attribute, $value, Closure $fail) use ($record) {
+                                if (empty($value)) {
+                                    return;
+                                }
+                        
+                                $ownerAssociationId = auth()->user()->owner_association_id;
+                                $buildingId = $record['building_id'] ?? null;
+                                $query = ApartmentOwner::where('email', $value)
+                                    ->where('owner_association_id', $ownerAssociationId);
+
+                                // Add a condition to check the building ID
+                                if (!empty($buildingId)) {
+                                    $query->where('building_id', $buildingId);
+                                }
+                                
+                                if ($record) {
+                                    $query->where('id', '!=', $record->id);
+                                }
+                                
+                                if ($query->exists()) {
+                                    $fail("This owner email is already registered with this owner association.");
+                                }
+                            };
+                        }
+                    ])
+                    ->required()
+                    ->placeholder('Email'),
                     TextInput::make('passport')
-                        ->rules(['max:50', 'string'])
+                        ->rules([
+                            'string',
+                            function ($record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (empty($value)) {
+                                        return;
+                                    }
+                            
+                                    $ownerAssociationId = auth()->user()->owner_association_id;
+                                    $buildingId = $record['building_id'] ?? null;
+                                    $query = ApartmentOwner::where('passport', $value)
+                                        ->where('owner_association_id', $ownerAssociationId);
+                                    
+                                    if ($record) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
+                                    // Add a condition to check the building ID
+                                    if (!empty($buildingId)) {
+                                        $query->where('building_id', $buildingId);
+                                    }
+                                    if ($query->exists()) {
+                                        $fail("This passport number is already registered with this owner association.");
+                                    }
+                                };
+                            }
+                        ])
                         ->required()
                         ->placeholder('Passport'),
                     TextInput::make('emirates_id')
+                        ->rules([
+                            function ($record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (empty($value)) {
+                                        return;
+                                    }
+                            
+                                    $ownerAssociationId = auth()->user()->owner_association_id;
+                                    $buildingId = $record['building_id'] ?? null;
+                                    $query = ApartmentOwner::where('emirates_id', $value)
+                                        ->where('owner_association_id', $ownerAssociationId);
+                                    
+                                    if ($record) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
+                                    // Add a condition to check the building ID
+                                    if (!empty($buildingId)) {
+                                        $query->where('building_id', $buildingId);
+                                    }
+                                    if ($query->exists()) {
+                                        $fail("This emirates id is already registered with this owner association.");
+                                    }
+                                };
+                            }
+                        ])
                         ->numeric()
                         ->required()
                         ->label('Emirates ID'),
-                    Repeater::make('flatOwners')
-                        ->relationship()
-                        ->schema([
-                            Select::make('flat_id')
-                                ->relationship('flat', 'property_number')
-                                ->preload()
-                                ->searchable()
-                                ->label('Unit Number'),
-                            // ViewField::make('Building')
-                            //     ->view('forms.components.building-name-owner')
+                    TextInput::make('trade_license')
+                        ->rules([
+                            function ($record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (empty($value)) {
+                                        return;
+                                    }
+                            
+                                    $ownerAssociationId = auth()->user()->owner_association_id;
+                                    $buildingId = $record['building_id'] ?? null;
+                                    $query = ApartmentOwner::where('trade_license', $value)
+                                        ->where('owner_association_id', $ownerAssociationId);
+                                    
+                                    if ($record) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
+                                    // Add a condition to check the building ID
+                                    if (!empty($buildingId)) {
+                                        $query->where('building_id', $buildingId);
+                                    }
+                                    if ($query->exists()) {
+                                        $fail("This trade license id is already registered with this owner association.");
+                                    }
+                                };
+                            }
                         ])
+                        ->numeric()
+                        ->required()
+                        ->label('Trade License Number'),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()?->owner_association_id),
+                    Select::make('building_id')
+                    ->rules(['exists:buildings,id'])
+                    ->options(function () {
+                        return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                            ->where('resource', 'Default')
+                            ->pluck('name', 'id');
+                    })
+                    ->reactive()
+                    ->preload()
+                    ->searchable()
+                    ->required()
+                    ->placeholder('Select a Building') // Change the placeholder text
+                    ->afterStateUpdated(function ($state, $set) {
+                        if (is_array($state) && isset($state['building_id']) && is_array($state['_previous']) && isset($state['_previous']['building_id'])) {
+                            if ($state['building_id'] !== $state['_previous']['building_id']) {
+                                $set('flatOwners', []);
+                            }
+                        }
+                    }),
+                    
+                    Repeater::make('flatOwners')
+                    ->relationship()
+                    ->schema([
+                        Select::make('flat_id')
+                            ->label('Unit Number')
+                            ->required()
+                            ->options(function ($get) {
+                                $buildingId = $get('../../building_id');
+                                if (!$buildingId) return [];
+
+                                // Get all selected flat IDs except the current one
+                                $currentFlatId = $get('flat_id');
+                                $selectedFlats = collect($get('../../flatOwners'))
+                                    ->pluck('flat_id')
+                                    ->filter()
+                                    ->reject(function ($id) use ($currentFlatId) {
+                                        return $id === $currentFlatId;
+                                    })
+                                    ->toArray();
+
+                                return Flat::where('building_id', $buildingId)
+                                    ->where('status', 1)
+                                    ->whereNotIn('id', $selectedFlats)
+                                    ->get()
+                                    ->mapWithKeys(function ($flat) {
+                                        return [$flat->id => $flat->property_number];
+                                    });
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, $set) {
+                                if ($state === null) {
+                                    $set('flat_id', null);
+                                }
+                            })
+                            ->preload()
+                            ->searchable()
+                    ])
                         // ->columnSpan([
                         //     'sm' => 1,
                         //     'md' => 1,
@@ -101,10 +290,13 @@ class OwnerResource extends Resource
                     ->default('NA')
                     ->label('Email')
                     ->limit(50),
-                ViewColumn::make('Unit')->view('tables.columns.apartment-ownerflat')->alignCenter(),
+                ViewColumn::make('Property Number')->view('tables.columns.apartment-ownerflat')->alignCenter(),
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
                 // Action::make('Notify Owner')
                 // ->button()
                 // ->action(function (array $data,$record){
@@ -170,7 +362,7 @@ class OwnerResource extends Resource
                     }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(2)
             ->emptyStateActions([
-                //Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -185,9 +377,9 @@ class OwnerResource extends Resource
     {
         return [
             'index' => Pages\ListOwners::route('/'),
-            //'create' => Pages\CreateOwner::route('/create'),
+            'create' => Pages\CreateOwner::route('/create'),
             'view'  => Pages\ViewOwner::route('/{record}'),
-            // 'edit' => Pages\EditOwner::route('/{record}/edit'),
+            'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];
     }
 }
