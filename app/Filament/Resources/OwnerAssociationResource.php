@@ -115,7 +115,6 @@ class OwnerAssociationResource extends Resource
 
                                                 // Users table me phone number ki uniqueness check karna
                                                 if (DB::table('users')->where('phone', $value)->exists()) {
-                                                    dd('ffdf1');
                                                     $fail('The phone is already taken by a user.');
                                                 }
 
