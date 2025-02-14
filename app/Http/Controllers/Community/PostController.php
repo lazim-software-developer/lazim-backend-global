@@ -12,6 +12,7 @@ use App\Models\Building\Building;
 use App\Models\ExpoPushNotification;
 use App\Models\Media;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -28,7 +29,7 @@ class PostController extends Controller
 
         // Start the query on the Post model
         $query = Post::where('status', 'published')
-            ->where('scheduled_at', '<=', now())
+            ->where('scheduled_at', '<=', now()->startOfMinute())
             ->whereHas('building', function ($q) use ($building) {
                 $q->where('buildings.id', $building->id);
             });
@@ -44,12 +45,14 @@ class PostController extends Controller
         }
 
         // Paginate and get latest post first
-        $posts = $query->latest()->paginate(10);
+        $posts = $query->latest()->paginate($request->paginate ?? 10);
         return PostResource::collection($posts);
     }
 
     public function store(CreatePostRequest $request, Building $building)
     {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
+
         // $this->authorize('create', [Post::class, $building->id]);
         // Create a new post with the provided data and the building_id and user_id
         $post = Post::create([

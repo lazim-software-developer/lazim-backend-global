@@ -27,8 +27,8 @@ class ListOwnerAssociations extends ListRecords
     protected function getTableQuery(): Builder
     {
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-            return parent::getTableQuery();
+            return parent::getTableQuery()->where('role','OA');
         }
-        return parent::getTableQuery()->where('id', auth()->user()?->owner_association_id);
+        return parent::getTableQuery()->where('id', auth()->user()?->owner_association_id)->where('role','OA');
     }
 }

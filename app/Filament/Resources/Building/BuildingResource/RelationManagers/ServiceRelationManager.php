@@ -86,4 +86,8 @@ class ServiceRelationManager extends RelationManager
                 //Tables\Actions\CreateAction::make(),
             ]);
     }
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return auth()->user()?->role?->name === 'Property Manager' ? false : true;
+    }
 }

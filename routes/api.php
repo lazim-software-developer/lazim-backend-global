@@ -1,64 +1,71 @@
 <?php
 
-use App\Http\Controllers\AppController;
-use App\Http\Controllers\Assets\PPMController;
-use App\Http\Controllers\Community\CommunityController;
-use App\Http\Controllers\MollakController;
-use App\Http\Controllers\Technician\TechnicianController;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\Vendor\ContractController;
-use App\Http\Controllers\Vendor\DocumentsUploadController;
-use App\Http\Controllers\Vendor\EscalationMatrixController;
-use App\Http\Controllers\Vendor\ProposalController;
-use App\Http\Controllers\Vendor\SelectServicesController;
-use App\Http\Controllers\Vendor\SnagDashboardController;
-use App\Http\Controllers\Vendor\VendorComplaintController;
-use App\Http\Controllers\Vendor\VendorRegistrationController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\RentalDetailsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Auth\ResetPasswordController;
-use App\Http\Controllers\Api\Auth\RegistrationController;
-use App\Http\Controllers\Api\Auth\VerificationController;
-use App\Http\Controllers\Api\Tally\TallyIntigrationController;
-use App\Http\Controllers\AppFeedbackController;
-use App\Http\Controllers\Assets\AssetController;
-use App\Http\Controllers\Building\BuildingController;
-use App\Http\Controllers\Building\FlatController;
-use App\Http\Controllers\Community\CommentController;
-use App\Http\Controllers\Community\PollController;
-use App\Http\Controllers\Community\PostController;
-use App\Http\Controllers\Community\PostLikeController;
-use App\Http\Controllers\Documents\DocumentsController;
-use App\Http\Controllers\EnquiryController;
-use App\Http\Controllers\Facility\FacilityController;
-use App\Http\Controllers\FamilyMemberController;
-use App\Http\Controllers\Forms\AccessCardController;
-use App\Http\Controllers\Forms\FitOutFormsController;
-use App\Http\Controllers\Forms\MoveInOutController;
-use App\Http\Controllers\Forms\GuestController;
-use App\Http\Controllers\Forms\ResidentialFormController;
-use App\Http\Controllers\Forms\SaleNocController;
-use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
-use App\Http\Controllers\Gatekeeper\PatrollingController;
-use App\Http\Controllers\HelpDesk\ComplaintController;
-use App\Http\Controllers\Notifications\NotificationController;
-use App\Http\Controllers\Security\SecurityController;
-use App\Http\Controllers\Services\ServiceController;
+use App\Http\Controllers\AppController;
 use App\Http\Controllers\TagController;
-use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
-use App\Http\Controllers\Technician\TasksController;
+use App\Http\Controllers\BillController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\MollakController;
+use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Vendor\TLController;
+use App\Http\Controllers\Assets\PPMController;
+use App\Http\Controllers\PermitWorkController;
+use App\Http\Controllers\Vendor\WDAController;
+use App\Http\Controllers\AppFeedbackController;
+use App\Http\Controllers\FlatVisitorController;
+use App\Http\Controllers\Forms\GuestController;
+use App\Http\Controllers\Assets\AssetController;
+use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
-use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Vendor\InvoiceController;
-use App\Http\Controllers\Vendor\TenderController;
-use App\Http\Controllers\Vendor\WDAController;
-use App\Http\Controllers\Vendor\VendorBuildingController;
-use App\Http\Controllers\Gatekeeper\TenantsController;
-use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\Vendor\ItemsController;
-use App\Http\Controllers\Vendor\TLController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Building\FlatController;
+use App\Http\Controllers\Forms\SaleNocController;
+use App\Http\Controllers\Vendor\TenderController;
+use App\Http\Controllers\Community\PollController;
+use App\Http\Controllers\Community\PostController;
+use App\Http\Controllers\SubContractorsController;
+use App\Http\Controllers\Vendor\InvoiceController;
+use App\Http\Controllers\Forms\MoveInOutController;
+use App\Http\Controllers\Vendor\ContractController;
+use App\Http\Controllers\Vendor\ProposalController;
+use App\Http\Controllers\Forms\AccessCardController;
+use App\Http\Controllers\Services\ServiceController;
+use App\Http\Controllers\Technician\TasksController;
+use App\Http\Controllers\Building\BuildingController;
+use App\Http\Controllers\Community\CommentController;
+use App\Http\Controllers\Facility\FacilityController;
+use App\Http\Controllers\Forms\FitOutFormsController;
+use App\Http\Controllers\Security\SecurityController;
+use App\Http\Controllers\Community\PostLikeController;
+use App\Http\Controllers\ComplianceDocumentController;
+use App\Http\Controllers\Gatekeeper\TenantsController;
+use App\Http\Controllers\HelpDesk\ComplaintController;
+use App\Http\Controllers\Community\CommunityController;
+use App\Http\Controllers\Documents\DocumentsController;
+use App\Http\Controllers\Vendor\SnagDashboardController;
+use App\Http\Controllers\Api\Auth\RegistrationController;
+use App\Http\Controllers\Api\Auth\VerificationController;
+use App\Http\Controllers\Forms\ResidentialFormController;
+use App\Http\Controllers\Gatekeeper\PatrollingController;
+use App\Http\Controllers\Technician\TechnicianController;
+use App\Http\Controllers\Vendor\SelectServicesController;
+use App\Http\Controllers\Vendor\VendorBuildingController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Vendor\DocumentsUploadController;
+use App\Http\Controllers\Vendor\VendorComplaintController;
+use App\Http\Controllers\Vendor\EscalationMatrixController;
+use App\Http\Controllers\Vendor\VendorRegistrationController;
+use App\Http\Controllers\Api\Tally\TallyIntigrationController;
+use App\Http\Controllers\Notifications\NotificationController;
+use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
+use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,10 +107,10 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 
+// Login routes for mobile app
+Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 // These APIs work only if the user's account is active
 Route::middleware(['active'])->group(function () {
-    // Login routes for mobile app
-    Route::post('/customer-login', [AuthController::class, 'customerLogin']);
 
     // Vendor login
     Route::post('/vendor-login', [AuthController::class, 'vendorLogin']);
@@ -147,6 +154,27 @@ Route::group(['middleware' => ["auth:sanctum", "verified"]], function () {
 
     // List all buildings for the logged in user
     Route::get('/user/flats', [UserController::class, 'fetchUserFlats']);
+
+    //Add flat for residents
+    Route::post('/add-flat', [RegistrationController::class, 'addFlat']);
+
+    //show pending flats for logged in user
+    Route::get('/pending-flats', [UserController::class, 'pendingFlats']);
+
+    //List owner tenants
+    Route::get('/owner/tenants', [UserController::class, 'fetchTenants']);
+    //List all tenant cheques
+    Route::get('/tenant/cheques', [RentalDetailsController::class, 'tenantsCheques']);
+    //List all tenant family members
+    Route::get('/tenant/familyMembers', [FamilyMemberController::class, 'tenantsFamilyMembers']);
+    //List all tenant documents
+    Route::get('/tenant/documents', [DocumentsController::class, 'tenantDocuments']);
+    //List all tenant other documents
+    Route::get('/tenant/other-documents', [DocumentsController::class, 'tenantOtherDocuments']);
+    //List all tenant requests
+    Route::get('/tenant/requests', [AccessCardController::class, 'tenantRequests']);
+    //List all tenant Vehicles
+    Route::get('/tenant/vehicles', [VehicleController::class, 'tenantVehicles']);
 });
 /**
  * Middleware Group: API Token Protection
@@ -246,7 +274,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('complaints/{complaint}', [ComplaintController::class, 'show']);
 
     //Complaint Update API
-    Route::patch('complaints/{complaint}/update', [ComplaintController::class, 'update']);
+    Route::post('complaints/{complaint}/update', [ComplaintController::class, 'update']);
 
     // Add a comment for a complaint
     Route::post('complaints/{complaint}/comments', [CommentController::class, 'addComment']);
@@ -256,6 +284,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 
     // mark a complaint as resolved
     Route::post('complaints/{complaint}/resolve', [ComplaintController::class, 'resolve']);
+
+    // List preventive maintenance
+    Route::get('building/{building}/preventive_maintenance',[ComplaintController::class, 'maintenanceSchedule']);
 });
 
 /**
@@ -296,7 +327,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/family-members/{building}',[FamilyMemberController::class, 'store']);
     Route::get('/fetch-family-members/{building}/{unit?}',[FamilyMemberController::class, 'index']);
     Route::delete('/delete-family-members/{familyMember}',[FamilyMemberController::class, 'delete']);
-    Route::patch('/update-family-members/{familyMember}',[FamilyMemberController::class, 'update']);
+    Route::post('/update-family-members/{familyMember}',[FamilyMemberController::class, 'update']);
     Route::get('/show-family-members/{familyMember}',[FamilyMemberController::class, 'show']);
 });
 
@@ -325,6 +356,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::get('/documents', [DocumentsController::class, 'index']);
     Route::post('/document-upload', [DocumentsController::class, 'create']);
+    Route::post('/makaninumber-upload', [DocumentsController::class, 'makaniNumber']);
     Route::get('/fetch-other-documents', [DocumentsController::class, 'fetchOtherDocuments']);
 
     // List all Owners for a given flat
@@ -362,6 +394,26 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 //Contractor Request
 Route::post('/fit-out/contractor/{fitout}',[FitOutFormsController::class, 'contractorRequest']);
 
+//Bills related Api's
+Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('bills')->group(function () {
+    Route::get('/flat/{flat}',[BillController::class,'index']);
+});
+
+//RentalDetails Cheques Api's
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    Route::get('/rental-details/cheques', [RentalDetailsController::class, 'index']);
+    Route::post('/rentalCheque/{rentalCheque}/request-payment', [RentalDetailsController::class, 'requestPayment']);
+});
+
+//Permit To work Api's
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    Route::get('/work-list', [PermitWorkController::class, 'workList']);
+    Route::post('/work-list', [PermitWorkController::class, 'create']);
+    Route::get('/work-permit', [PermitWorkController::class, 'index']);
+    Route::post('/work-permit', [PermitWorkController::class, 'store']);
+    Route::get('/vendor/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
+});
+
 // API  to fetch Security for a building
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
     Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
@@ -392,18 +444,21 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/{vendor}/documents-upload', [DocumentsUploadController::class, 'documentsUpload']);
     Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
     Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
+    // login option vendor
+    Route::get('/login-as',[VendorRegistrationController::class,'loginAsOptions']);
 });
 
 // Vendor APIs after logging in
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
+    Route::get('/registered_with', [VendorRegistrationController::class, 'registeredWith']);
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::post('/{vendor}/edit-details', [VendorRegistrationController::class, 'editVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);
     Route::patch('/managers-deatils/{vendor}',[VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
-    
+
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
     Route::get('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'show']);
@@ -468,6 +523,58 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/{vendor}/items', [ItemsController::class, 'index']);
     Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
     Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
+    Route::post('/{vendor}/item', [ItemsController::class, 'create']);
+
+    //Sub Contractor APIs
+    Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
+    Route::post('/{vendor}/sub-contractor',[SubContractorsController::class,'store']);
+    Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'edit']);
+    Route::patch('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+
+
+    //Complaint create
+    Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
+    Route::get('/{vendor}/dashboard-reactive-stats',[VendorComplaintController::class,'dashboardReactive']);
+    Route::get('/{vendor}/reactive_maintenance',[VendorComplaintController::class,'reactiveMaintenance']);
+
+    //Preventive Maintenance
+    Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
+    Route::get('/{vendor}/dashboard-preventive-stats',[VendorComplaintController::class,'dashboardPreventive']);
+    //Form Requests for facility manager
+    Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
+    Route::get('/{vendor}/guest-registration/{guest}',[GuestController::class,'show']);
+    Route::patch('/{vendor}/guest-registration/{guest}',[GuestController::class,'updateStatus']);
+    Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
+    Route::get('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'show']);
+    Route::patch('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'updateStatus']);
+    Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
+    Route::get('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'show']);
+    Route::post('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);
+    Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
+    Route::get('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'show']);
+    Route::patch('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'updateStatus']);
+    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
+    Route::get('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'show']);
+    Route::patch('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'updateStatus']);
+    Route::get('/{vendor}/salenoc-form',[SaleNocController::class,'fmlist']);
+    Route::get('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'show']);
+    Route::post('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
+    Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
+    Route::get('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'show']);
+    Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'updateStatus']);
+
+    //Compliance document
+    Route::get('/{vendor}/compliance-document',[ComplianceDocumentController::class,'list']);
+    Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
+    Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
+    Route::get('/{vendor}/compliance-document-dashboard',[ComplianceDocumentController::class,'dashboardList']);
+
+    // View work permits for vendor
+    Route::get('/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
+    // View specific work permit details
+    Route::get('/work-permit/{workPermit}', [PermitWorkController::class, 'show']);
+    // Update work permit status
+    Route::patch('/work-permit/{workPermit}/update-status', [PermitWorkController::class, 'updateStatus']);
 });
 
 // Technician Related APIs
@@ -508,6 +615,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
     Route::get('/{asset}/technicians', [AssetController::class, 'listTechnicians']);
+    Route::post('/vendor/{vendor}/create',[AssetController::class, 'create']);
+    Route::get('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'showAsset']);
+    Route::post('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'updateAsset']);
 
     //PPM APIs
     Route::post('/create/ppm', [PPMController::class, 'store']);
@@ -582,6 +692,9 @@ Route::get('/app-version',[AppController::class, 'version']);
 //web enquiries
 Route::post('/web-enquiry',[EnquiryController::class,'store']);
 
+//web quatations
+Route::post('/web-quotation',[QuotationController::class,'store']);
+
 //webhook
 // Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
 // Route::get('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
@@ -601,3 +714,6 @@ Route::middleware(['authenticate.tally'])->group(function () {
 Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
 
 Route::post('/email-testing', [TestController::class, 'emailTriggering']);
+
+Route::get('push-notification', [NotificationController::class, 'pushNotification']);
+Route::get('push-notification-new', [NotificationController::class, 'pushNotificationNew']);

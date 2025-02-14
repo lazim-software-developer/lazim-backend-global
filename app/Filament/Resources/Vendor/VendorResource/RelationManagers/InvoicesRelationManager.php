@@ -35,7 +35,7 @@ class InvoicesRelationManager extends RelationManager
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
+                    'md' => 2,
                     'lg' => 2,
                 ])
                     ->schema([
@@ -81,7 +81,7 @@ class InvoicesRelationManager extends RelationManager
                             ->label('Document')
                             ->columnSpan([
                                 'sm' => 1,
-                                'md' => 1,
+                                'md' => 2,
                                 'lg' => 2,
                             ]),
                         TextInput::make('opening_balance')
@@ -352,7 +352,6 @@ class InvoicesRelationManager extends RelationManager
                                     'remarks'    => 'approved by md',
                                     'active'     => true,
                                 ]);
-
 
                                 $product_services = $connection->table('product_services')
                                     ->where(['name' => $record->contract->service->name, 'building_id' => $record->contract->building_id])

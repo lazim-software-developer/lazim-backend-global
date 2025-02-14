@@ -15,6 +15,7 @@ use App\Models\User\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class OrderObserver
 {
@@ -33,42 +34,115 @@ class OrderObserver
     {
         if ($order->payment_status == 'succeeded') {
 
-            $baseClass = class_basename($order->orderable_type);
-            $oaId = null;
-            $link = ''; 
-            Log::info('base'.class_basename($order->orderable_type));
-            Log::info('class'.$order->orderable_type);
-
             if ($order->orderable_type == AccessCard::class) {
-                $oaId = AccessCard::where('id', $order->orderable_id)->first()?->owner_association_id;
-                $link = AccessCardFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
+                $accessCard = AccessCard::where('id', $order->orderable_id)->first();
+                $oaIds = DB::table('building_owner_association')
+                    ->where('building_id', $accessCard?->building_id)
+                    ->pluck('owner_association_id');
+                $pm = OwnerAssociation::whereIn('id', $oaIds)->where('role', 'Property Manager')->first();
+
+                foreach($oaIds as $oaId){
+                    $oa         = OwnerAssociation::find($oaId);
+                    $flatexists = DB::table('property_manager_flats')
+                        ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                        ->exists();
+                    if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
+                        $user = User::whereIn('role_id', Role::whereIn('name', ['OA', 'Property Manager'])
+                            ->where('owner_association_id', $oaId)->pluck('id'))
+                            ->where('owner_association_id', $oaId)->get();
+                        $slug = OwnerAssociation::where('id', $oaId)->first()?->slug;
+                        $link = $slug
+                        ? AccessCardFormsDocumentResource::getUrl('edit', [$slug, $order->orderable_id])
+                        : url('/app/access-card-forms-documents/' . $order->orderable_id . '/edit');
+
+                        if ($user) {
+                            Notification::make()
+                                ->success()
+                                ->title("Payment Update")
+                                ->icon('heroicon-o-document-text')
+                                ->iconColor('success')
+                                ->actions([
+                                    Action::make('View')
+                                        ->button()
+                                        ->url(fn() => $link),
+                                ])
+                                ->body('Payment is done for ' . class_basename($order->orderable_type))
+                                ->sendToDatabase($user);
+                        }
+                    }
+                }
             }
             if ($order->orderable_type == FitOutForm::class) {
-                $oaId = FitOutForm::where('id', $order->orderable_id)->first()?->owner_association_id;
-                $link = FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
+                $buildingId = FitOutForm::where('id', $order->orderable_id)->first()?->building_id;
+                $oaIds = DB::table('building_owner_association')->where('building_id', $buildingId)->pluck('owner_association_id');
+                $pm = OwnerAssociation::whereIn('id', $oaIds)->where('role', 'Property Manager')->first();
+
+                foreach ($oaIds as $oaId) {
+                    $oa         = OwnerAssociation::find($oaId);
+                    $flatexists = DB::table('property_manager_flats')
+                        ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                        ->exists();
+                    if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
+                        $user = User::whereIn('role_id', Role::whereIn('name', ['OA', 'Property Manager'])
+                                ->where('owner_association_id', $oaId)->pluck('id'))
+                                ->where('owner_association_id', $oaId)->get();
+                        $slug = OwnerAssociation::where('id', $oaId)->first()?->slug;
+                        $link = $slug
+                        ? FitOutFormsDocumentResource::getUrl('edit', [$slug, $order->orderable_id])
+                        : url('/app/fit-out-forms-documents/' . $order->orderable_id . '/edit');
+
+                        if ($user) {
+                            Notification::make()
+                                ->success()
+                                ->title("Payment Update")
+                                ->icon('heroicon-o-document-text')
+                                ->iconColor('success')
+                                ->actions([
+                                    Action::make('View')
+                                        ->button()
+                                        ->url(fn() => $link),
+                                ])
+                                ->body('Payment is done for ' . class_basename($order->orderable_type))
+                                ->sendToDatabase($user);
+                        }
+                    }
+                }
             }
             if ($order->orderable_type == SaleNOC::class) {
-                $oaId = SaleNOC::where('id', $order->orderable_id)->first()?->owner_association_id;
-                $link = NocFormResource::getUrl('edit', [OwnerAssociation::where('id', $oaId)->first()?->slug, $order->orderable_id]);
-            }
-            Log::info('oa'.$oaId);
-            Log::info('link'.$link);
-            $user = User::where('role_id', Role::where('name', 'OA')->where('owner_association_id',$oaId)->first()->id)
-            ->where('owner_association_id',$oaId)->get();
-            Log::info('user'.$user);
-            if ($user) {
-                Notification::make()
-                    ->success()
-                    ->title("Payment Update")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('success')
-                    ->actions([
-                        Action::make('View')
-                            ->button()
-                            ->url(fn () => $link),
-                    ])
-                    ->body('Payment is done for ' . class_basename($order->orderable_type))
-                    ->sendToDatabase($user);
+                $buildingId = SaleNOC::where('id', $order->orderable_id)->first()?->building_id;
+                $oaIds = DB::table('building_owner_association')->where('building_id', $buildingId)->pluck('owner_association_id');
+                $pm = OwnerAssociation::whereIn('id', $oaIds)->where('role', 'Property Manager')->first();
+
+                foreach ($oaIds as $oaId) {
+                    $oa         = OwnerAssociation::find($oaId);
+                    $flatexists = DB::table('property_manager_flats')
+                        ->where(['flat_id' => $accessCard->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                        ->exists();
+                    if($oa->role == 'OA' && !$flatexists || ($oa->role == 'Property Manager' && $flatexists)){
+                        $user = User::whereIn('role_id', Role::whereIn('name', ['OA', 'Property Manager'])
+                                ->where('owner_association_id', $oaId)->pluck('id'))
+                                ->where('owner_association_id', $oaId)->get();
+                        $slug = OwnerAssociation::where('id', $oaId)->first()?->slug;
+                        $link = $slug
+                        ? NocFormResource::getUrl('edit', [$slug, $order->orderable_id])
+                        : url('/app/noc-forms/' . $order->orderable_id . '/edit');
+
+                        if ($user) {
+                            Notification::make()
+                                ->success()
+                                ->title("Payment Update")
+                                ->icon('heroicon-o-document-text')
+                                ->iconColor('success')
+                                ->actions([
+                                    Action::make('View')
+                                        ->button()
+                                        ->url(fn() => $link),
+                                ])
+                                ->body('Payment is done for ' . class_basename($order->orderable_type))
+                                ->sendToDatabase($user);
+                        }
+                    }
+                }
             }
         }
     }

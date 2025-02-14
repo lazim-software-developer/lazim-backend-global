@@ -2,11 +2,17 @@
 
 namespace App\Filament\Pages;
 
+use App\Jobs\SendInvoiceEmail;
+use App\Jobs\SendReceiptEmail;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
 use App\Models\OwnerAssociation;
 use App\Models\OwnerAssociationReceipt as ModelsOwnerAssociationReceipt;
+use App\Models\User\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Closure;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -20,6 +26,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Support\Facades\DB;
+use Log;
 use NumberFormatter;
 
 class OwnerAssociationReceipt extends Page
@@ -58,10 +65,24 @@ class OwnerAssociationReceipt extends Page
             }),
             Select::make('building_id')
             ->required()
+            ->afterStateUpdated(function(Set $set){
+                $set('flat_id', null);
+            })
              ->options(function () {
                 if(auth()->user()->role->name == 'Admin'){
                     return Building::pluck('name', 'id');
-                }else{
+                }elseif(auth()->user()->role->name == 'Property Manager'
+                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                    ->pluck('role')[0] == 'Property Manager'){
+                    $buildingIds = DB::table('building_owner_association')
+                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('building_id');
+
+                return Building::whereIn('id', $buildingIds)
+                    ->pluck('name', 'id');
+                }
+                else{
                     $oaId = auth()->user()?->owner_association_id;
                     return Building::where('owner_association_id', $oaId)
                         ->pluck('name', 'id');
@@ -78,10 +99,23 @@ class OwnerAssociationReceipt extends Page
             Select::make('flat_id')
             ->required()
             ->options(function (callable $get) {
+                $pmFlats = DB::table('property_manager_flats')
+                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                    ->where('active', true)
+                    ->pluck('flat_id')
+                    ->toArray();
+
+                if (auth()->user()->role->name == 'Property Manager'
+                ||OwnerAssociation::where('id', auth()->user()?->owner_association_id)) {
+                    return Flat::whereIn('id', $pmFlats)
+                        ->where('building_id', $get('building_id'))
+                        ->pluck('property_number', 'id');
+                }
+
                 return Flat::where('building_id', $get('building_id'))
                     ->pluck('property_number', 'id');
             })->visible(function (callable $get) {
-                if ($get('type') == 'building') {
+                if ($get('building_id') != null) {
                     return true;
                 }
                 return false;
@@ -89,6 +123,38 @@ class OwnerAssociationReceipt extends Page
             ->preload()
             ->live()
             ->label('Unit'),
+
+            Select::make('resident')
+                ->label('Resident')
+                ->hidden(function(callable $get){
+                    $userRole = auth()->user()->role->name;
+
+                    if ($userRole === 'Property Manager' && $get('flat_id') === null) {
+                        return true;
+                    }
+                    elseif($userRole === 'Property Manager' && $get('flat_id') != null){
+                        return false;
+                    }
+                    return true;
+                })
+                ->helperText('Select the resident to whom you want to send the generated receipt.')
+                ->options(function (callable $get) {
+                    $flatId    = $get('flat_id');
+                    $residents = FlatTenant::where('flat_id', $flatId)
+                        ->where('active', true)
+                        ->get()
+                        ->map(function ($tenant) {
+                            $role            = $tenant->role;
+                            $roleDescription = $role == 'Owner' ? 'Owner' : 'Tenant';
+                            return [
+                                'id'   => $tenant->tenant_id,
+                                'name' => $tenant->user->first_name . ' (' . $roleDescription . ')',
+                            ];
+                        });
+                    return $residents->pluck('name', 'id')->toArray();
+                })
+                ->reactive(),
+
             Select::make('paid_by')->required()
             ->options([
                 "owner" => "Owner",
@@ -141,23 +207,76 @@ class OwnerAssociationReceipt extends Page
     {
         try {
             $data = $this->form->getState();
-            $oam_id = DB::table('building_owner_association')->where('building_id',$data['building_id'])->where('active', true)->first();
-            $oam = OwnerAssociation::find($oam_id?->owner_association_id ?:auth()->user()->ownerAssociation->first()->id);
-            // $oam = auth()->user()->ownerAssociation;
+
+            $oam_id = DB::table('building_owner_association')->where('building_id', $data['building_id'])->where('active', true)->first();
+            $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->first()->id);
+
             $data['owner_association_id'] = $oam?->id;
             $receipt_id = strtoupper(substr($oam->name, 0, 4)) . date('YmdHis');
             $data['receipt_number'] = $receipt_id;
-            // dd($data);
+
+            // Create the receipt
             $receipt = ModelsOwnerAssociationReceipt::create($data);
+
+            // Generate the PDF
+            $pdf = Pdf::loadView('owner-association-receipts', ['data' => $receipt]);
+            $pdfDirectory = storage_path('app/public/receipts');
+            $pdfPath = $pdfDirectory . '/' . $receipt_id . '.pdf';
+
+            // Ensure the directory exists
+            if (!file_exists($pdfDirectory)) {
+                if (!mkdir($pdfDirectory, 0755, true)) {
+                    throw new Exception('Failed to create directory for storing receipts.');
+                }
+            }
+
+            // Save the PDF
+            if ($pdf->save($pdfPath)) {
+                Log::info('PDF generated and saved: ', ['path' => $pdfPath]);
+            } else {
+                Log::error('Failed to save PDF: ' . $pdfPath);
+                throw new Exception('Failed to save the receipt PDF.');
+            }
+
+            // Send email if applicable
+            if (auth()->user()->role->name == 'Property Manager' && isset($data['resident'])) {
+                $resident = User::find($data['resident']);
+                $pm_oa = auth()->user()?->first_name ?? '';
+
+                if ($resident && filter_var($resident->email, FILTER_VALIDATE_EMAIL)) {
+                    dispatch(new SendReceiptEmail($resident->email, $receipt, $pdfPath,$pm_oa));
+                } else {
+                    Log::warning('Resident not found or email invalid: ', [
+                        'resident_id' => $data['resident'],
+                        'email' => $resident ? $resident->email : null
+                    ]);
+                }
+            }
+
             Notification::make()
                 ->title("Receipt created successfully")
                 ->success()
                 ->send();
+
             session()->forget('receipt_data');
             session(['receipt_data' => $receipt->id]);
-            redirect()->route('receipt') ;
+
+            // Redirect to the receipts page
+            $appUrl = config('app.url'); // Get the APP_URL from the environment configuration
+            $redirectUrl = $appUrl . '/app/owner-association-receipts';
+            redirect()->to($redirectUrl);
+
         } catch (Halt $exception) {
+            Log::error('Error in save method: ', ['exception' => $exception->getMessage()]);
             return;
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in save method: ', ['exception' => $e->getMessage()]);
+            Notification::make()
+                ->title("Failed to create receipt")
+                ->body("An unexpected error occurred. Please try again.")
+                ->danger()
+                ->send();
         }
     }
+
 }

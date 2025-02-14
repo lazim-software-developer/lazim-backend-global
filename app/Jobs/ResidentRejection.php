@@ -18,7 +18,7 @@ class ResidentRejection implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $user,protected $mailCredentials, protected $record)
+    public function __construct(protected $user, protected $mailCredentials, protected $record, protected $pm_oa, protected $pm_logo)
     {
         //
     }
@@ -36,11 +36,17 @@ class ResidentRejection implements ShouldQueue
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
         $role = $this->record->document_type =='Ejari' ? 'tenant':'owner';
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.Residentrejection', ['user' => $this->user, 'record' => $this->record,'role' => $role], function ($message) {
+        $beautymail->send('emails.Residentrejection', [
+            'user' => $this->user,
+            'record' => $this->record,
+            'role' => $role,
+            'pm_oa' => $this->pm_oa,
+            'pm_logo' => $this->pm_logo // Pass the pm_logo variable
+        ], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Account Application Not Approved');
         });
 
         Artisan::call('queue:restart');

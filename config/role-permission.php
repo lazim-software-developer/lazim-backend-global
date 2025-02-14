@@ -83,7 +83,7 @@ return [
                 'view_any_vehicle',
                 'create_vehicle',
                 'update_vehicle',
-        
+
                 'view_complaintscomplaint',
                 'view_any_complaintscomplaint',
                 'create_complaintscomplaint',
@@ -96,7 +96,7 @@ return [
                 'view_any_complaintssuggession',
                 'create_complaintssuggession',
                 'update_complaintssuggession',
-                
+
                 'view_helpdeskcomplaint',
                 'view_any_helpdeskcomplaint',
                 'create_helpdeskcomplaint',
@@ -273,7 +273,7 @@ return [
             ]
             ],
         'Complaint Officer' => [
-                'permissions' => [    
+                'permissions' => [
                     'view_building::building',
                     'view_any_building::building',
                     'create_building::building',
@@ -298,7 +298,7 @@ return [
                     'view_any_oacomplaint::reports',
                     'create_oacomplaint::reports',
                     'update_oacomplaint::reports',
-    
+
                     'view_user::owner',
                     'view_any_user::owner',
                     'create_user::owner',
@@ -339,7 +339,7 @@ return [
                     'view_any_oacomplaint::reports',
                     'create_oacomplaint::reports',
                     'update_oacomplaint::reports',
-    
+
                     'view_user::owner',
                     'view_any_user::owner',
                     'create_user::owner',
@@ -358,6 +358,6 @@ return [
                     'create_delinquent::owner',
                     'update_delinquent::owner',
             ]
-        ]
+        ],
     ]
 ];

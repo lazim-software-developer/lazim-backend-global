@@ -6,6 +6,8 @@ use App\Filament\Resources\ItemResource;
 use App\Imports\ItemsListImport;
 use App\Models\Building\Building;
 use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
+use DB;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -41,10 +43,24 @@ class ListItems extends ListRecords
                     ->form([
                         Select::make('building_id')
                         ->required()
+                        ->preload()
                         ->relationship('building', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
                             // dd($tenants);
+                            if (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $buildingIds)
+                                    ->pluck('name', 'id');
+
+                            }
+
                             return Building::where('owner_association_id', $oaId)
                                 ->pluck('name', 'id');
                         })
@@ -76,9 +92,13 @@ class ListItems extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
+        $buildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id ?? Filament::getTenant()?->id)
+            ->where('active', true)
+            ->pluck('building_id');
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);
+        return parent::getTableQuery()->whereIn('building_id', $buildingIds);
     }
 }

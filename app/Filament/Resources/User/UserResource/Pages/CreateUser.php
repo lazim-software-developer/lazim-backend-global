@@ -4,6 +4,8 @@ namespace App\Filament\Resources\User\UserResource\Pages;
 
 use App\Filament\Resources\User\UserResource;
 use App\Jobs\AccountsManagerJob;
+use App\Jobs\CreateUserJob;
+use App\Jobs\FacilityManagerJob;
 use App\Jobs\MdCreateJob;
 use App\Models\AccountCredentials;
 use App\Models\OwnerAssociationUser;
@@ -46,6 +48,7 @@ class CreateUser extends CreateRecord
             'MD'                => MdCreateJob::class,
             'Complaint Officer' => AccountsManagerJob::class,
             'Legal Officer'     => AccountsManagerJob::class,
+            'Facility Manager'  => FacilityManagerJob::class
             // 'Managing Director' => GeneralAccountCreationJob::class,
             // 'Financial Manager' => GeneralAccountCreationJob::class,
             // 'Operations Engineer' => GeneralAccountCreationJob::class,
@@ -124,7 +127,20 @@ class CreateUser extends CreateRecord
                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
 
-            MdCreateJob::dispatch($user, $password, $mailCredentials);
+             $authUserRole = auth()->user()->role->name;
+            $pm_oa = auth()->user()?->first_name;
+            $pm_logo = auth()->user()?->ownerAssociation?->first()->profile_photo;
+
+            if ($authUserRole === 'Property Manager') {
+                // If Property Manager is creating users, use CreateUserJob
+                CreateUserJob::dispatch($user, $password, $mailCredentials, $pm_oa, $pm_logo);
+            // } elseif (array_key_exists($user->role?->name, $roleJobMap)) {
+            //     // For specific roles, use their mapped jobs
+            //     $jobClass = $roleJobMap[$user->role?->name];
+            //     $jobClass::dispatch($user, $password, $mailCredentials);
+            } else {
+                MdCreateJob::dispatch($user, $password, $mailCredentials);
+            }
         }
     }
 }

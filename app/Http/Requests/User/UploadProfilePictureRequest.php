@@ -22,7 +22,17 @@ class UploadProfilePictureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'profile_picture.required' => 'Please select an image to upload.',
+            'profile_picture.image' => 'The file must be an image.',
+            'profile_picture.mimes' => 'The image must be of type: jpeg, png, jpg.',
+            'profile_picture.max' => 'The image must not be greater than 2MB.',
         ];
     }
 }

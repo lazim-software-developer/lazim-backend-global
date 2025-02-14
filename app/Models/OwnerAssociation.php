@@ -6,6 +6,7 @@ use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FacilityBooking;
+use App\Models\Building\Flat;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Forms\SaleNOC;
@@ -25,7 +26,7 @@ class OwnerAssociation extends Model
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
         'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo','bank_account_number','trn_certificate',
-        'trade_license','dubai_chamber_document','memorandum_of_association','slug'
+        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role', 'emirates_id', 'trade_license_number', 'bank_account_holder_name'
     ];
 
     /**
@@ -55,6 +56,17 @@ class OwnerAssociation extends Model
 
     public function building(){
         return $this->belongsToMany(Building::class, 'building_owner_association');
+    }
+
+    public function buildings(){
+        return $this->belongsToMany(Building::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
+    }
+
+    public function propertyManagerFlats()
+    {
+        return $this->belongsToMany(Flat::class, 'property_manager_flats')
+            ->withPivot(['active']);
     }
 
     public function facilityBookings(){
@@ -101,5 +113,19 @@ class OwnerAssociation extends Model
     public function complaints()
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    public function flats()
+    {
+        return $this->hasMany(Flat::class);
+    }
+
+
+    public function emailTemplates(){
+        return $this->hasMany(EmailTemplate::class, 'owner_association_id');
+    }
+
+    public function bulkEmailManagement(){
+        return $this->hasMany(BulkEmailManagement::class, 'owner_association_id');
     }
 }

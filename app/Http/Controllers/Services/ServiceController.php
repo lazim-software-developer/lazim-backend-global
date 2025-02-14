@@ -27,6 +27,11 @@ class ServiceController extends Controller
     // Book a service
     public function bookService(ServiceBookingRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         // Check for existing bookings for the same facility, date, and time range
         $existingBooking = FacilityBooking::where([
             'bookable_id' => $request->service_id,
@@ -60,7 +65,7 @@ class ServiceController extends Controller
 
         return new CustomResponseResource([
             'title' => 'Booking Successful',
-            'message' => 'Service booking has been successfully created.',
+            'message' => 'Thank you for your request. One of our customer care representatives will contact you shortly with further details and an estimated cost.',
             'code' => 200,
         ]);
     }

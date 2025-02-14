@@ -55,7 +55,9 @@ class LegalOfficerResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('phone')
-                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
+                    ->length(9)
+                    ->placeholder('XXXXXXXXX')
+                    ->rules([function () {
                         return function (string $attribute, $value, Closure $fail) {
                             if (DB::table('users')->where('phone', '971'.$value)->count() > 0) {
                                 $fail('The phone is already taken by a User.');
@@ -67,6 +69,7 @@ class LegalOfficerResource extends Resource
                     ->maxLength(255),
                 FileUpload::make('profile_photo')
                     ->disk('s3')
+                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                     ->directory('dev')
                     ->image()
                     ->label('Profile Photo'),

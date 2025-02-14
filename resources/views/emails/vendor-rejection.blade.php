@@ -28,7 +28,7 @@
 		</tr>
         <tr>
 			<td class="paragraph">
-            To reupload your documents, try loging in. <a href="https://vendor.lazim.ae/login">link</a>
+            To reupload your documents, try loging in. <a href="{{ env('VENDOR_URL') }}/login">link</a>
 			</td>
 		</tr>
 		<tr>

@@ -66,7 +66,11 @@ class EditAccessCardFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Access card form status',
                         'body' => 'Your access card form has been approved.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => [
+                            'notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id,
+                        ],
                     ];
 
                     $this->expoNotification($message);
@@ -86,7 +90,10 @@ class EditAccessCardFormsDocument extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Access card form status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
+                            ],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
@@ -125,7 +132,11 @@ class EditAccessCardFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Access card form status!',
                         'body' => 'Your access card form has been rejected.',
-                        'data' => ['notificationType' => 'MyRequest'],
+                        'data' => [
+                            'notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id
+                        ],
                     ];
                     $this->expoNotification($message);
                 }
@@ -143,13 +154,16 @@ class EditAccessCardFormsDocument extends EditRecord
                             'iconColor' => 'danger',
                             'title' => 'Access card form status!',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
+                            ],
                             'format' => 'filament',
                             'url' => 'MyRequest',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);  
+                    ]);
         }
     }
 }

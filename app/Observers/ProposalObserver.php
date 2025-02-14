@@ -23,25 +23,34 @@ class ProposalObserver
     {
         $requiredPermissions = ['view_any_proposal'];
         $tenders = Tender::where('id', $proposal->tender_id)->first();
-        $building = Building::where('id', $tenders->building_id)->first();
-        $oam_id = DB::table('building_owner_association')->where('building_id', $tenders?->building_id)->where('active', true)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-        $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
-        Notification::make()
-            ->success()
-            ->title("New Proposal")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New proposal by ' . auth()->user()->first_name)
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(fn () => ProposalResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$proposal->id])),
-            ])
-            ->sendToDatabase($notifyTo);
+        $oam_ids = DB::table('building_owner_association')->where('building_id', $tenders?->building_id)
+            ->where('active', true)->pluck('owner_association_id');
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
+        foreach($oam_ids as $oam_id){
+            $notifyTo = User::where('owner_association_id', $oam_id)
+            ->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
+            Notification::make()
+                ->success()
+                ->title("New Proposal")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('New proposal by ' . auth()->user()->first_name)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function() use ($oam_id,$proposal){
+                            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                            if($slug){
+                                return ProposalResource::getUrl('edit', [$slug,$proposal?->id]);
+                            }
+                            return url('/app/proposals/' . $proposal?->id.'/edit');
+                        }),
+                ])
+                ->sendToDatabase($notifyTo);
+        }
     }
 
     /**
@@ -68,7 +77,7 @@ class ProposalObserver
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament',
-                        'url' => '',
+                        'url' => 'proposal',
                     ]),
                     'created_at' => now()->format('Y-m-d H:i:s'),
                     'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -90,7 +99,7 @@ class ProposalObserver
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament',
-                        'url' => '',
+                        'url' => 'contract',
                     ]),
                     'created_at' => now()->format('Y-m-d H:i:s'),
                     'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -112,7 +121,7 @@ class ProposalObserver
                         'view' => 'notifications::notification',
                         'viewData' => [],
                         'format' => 'filament',
-                        'url' => '',
+                        'url' => 'proposal',
                     ]),
                     'created_at' => now()->format('Y-m-d H:i:s'),
                     'updated_at' => now()->format('Y-m-d H:i:s'),

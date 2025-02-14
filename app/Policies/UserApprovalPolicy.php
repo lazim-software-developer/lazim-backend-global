@@ -2,8 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\User\User;
+use App\Models\Building\Flat;
 use App\Models\UserApproval;
+use App\Models\User\User;
+use DB;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserApprovalPolicy
@@ -30,6 +32,14 @@ class UserApprovalPolicy
      */
     public function view(User $user, UserApproval $userApproval): bool
     {
+        $buildingExists = DB::table('building_owner_association')
+            ->where(['owner_association_id' => auth()->user()?->owner_association_id, 'building_id' => $userApproval->flat?->building?->id])
+            ->where('active', true)
+            ->exists();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('view_user::approval') && $buildingExists;
+        }
         return $user->can('view_user::approval');
     }
 
@@ -53,6 +63,14 @@ class UserApprovalPolicy
      */
     public function update(User $user, UserApproval $userApproval): bool
     {
+        $buildingExists = DB::table('building_owner_association')
+            ->where(['owner_association_id' => auth()->user()?->owner_association_id , 'building_id' => $userApproval->flat?->building?->id])
+            ->where('active', true)
+            ->exists();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('update_user::approval') && $buildingExists;
+        }
         return $user->can('update_user::approval');
     }
 

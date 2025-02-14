@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddFlatForResidentsRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\RegisterWithEmiratesOrPassportRequest;
 use App\Http\Requests\Auth\ResendOtpRequest;
@@ -20,6 +21,7 @@ use App\Models\MollakTenant;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Models\UserApproval;
+use App\Models\UserApprovalAudit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -131,18 +133,20 @@ class RegistrationController extends Controller
             'owner_id' => $request->owner_id ?: null,
         ]);
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $connection->table('customers')->insert([
-            'customer_id' => $customerId,
-            'name' => $firstName,
-            'email'                => $request->email,
-            'contact' => $request->mobile,
-            'type' => $type,
-            'lang' => 'en',
-            'created_by' => $created_by,
-            'is_enable_login' => 0,
-        ]);
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if($created_by){
+            $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+            $connection->table('customers')->insert([
+                'customer_id' => $customerId,
+                'name' => $firstName,
+                'email'                => $request->email,
+                'contact' => $request->mobile,
+                'type' => $type,
+                'lang' => 'en',
+                'created_by' => $created_by,
+                'is_enable_login' => 0,
+            ]);
+        }
 
         // Store details to Flat tenants table
         FlatTenant::create([
@@ -154,7 +158,8 @@ class RegistrationController extends Controller
             'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
             'active' => 1,
             'role' => $type,
-            'owner_association_id' => $building->owner_association_id,
+            'owner_association_id' => $building?->owner_association_id,
+            'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
 
         // $customer = $connection->table('customers')->where(['email'=> $request->email,
@@ -171,7 +176,9 @@ class RegistrationController extends Controller
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
+        if($customerId){
+            AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
+        }
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
@@ -183,7 +190,7 @@ class RegistrationController extends Controller
 
     public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request)
     {
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
             $userData->where('owner_id', $request->get('owner_id'));
         }
@@ -209,7 +216,7 @@ class RegistrationController extends Controller
         }
 
         // Check if user exists in our DB
-        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
+        if (User::where(['email' => $request->email, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
@@ -229,20 +236,58 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        // Check if the given flat_id is already allotted to someone with active true
-        $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1])->exists();
-
-        if ($flatOwner) {
-            return (new CustomResponseResource([
-                'title' => 'flat_error',
-                'message' => 'Looks like this flat is already allocated to someone!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
-        }
-
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
+        // Check if the given flat_id is already allotted to someone with active true
+        if($type === 'Tenant'){
+            $flatOwner = DB::table('flat_tenants')
+            ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type])
+            ->exists();
 
+            if ($flatOwner) {
+                return (new CustomResponseResource([
+                    'title' => 'flat_error',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+
+            $ownerResiding = DB::table('flat_tenants')
+            ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
+            ->exists();
+
+            if($ownerResiding && $request->has('role') && $request->role == 'Property Manager'){
+                return (new CustomResponseResource([
+                    'title' => 'flat_error',
+                    'message' => 'Flat is already allocated to one owner residing in same flat!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
+        if($type === 'Owner' && $request->has('residing') && $request->residing){
+            // $flatOwner = DB::table('flat_tenants')
+            //     ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type, 'residing_in_same_flat' => true])
+            //     ->exists();
+
+            // if ($flatOwner) {
+            //     return (new CustomResponseResource([
+            //         'title' => 'flat_error',
+            //         'message' => 'Looks like this flat is already allocated to one owner residing in same flat!',
+            //         'code' => 400,
+            //     ]))->response()->setStatusCode(400);
+            // }
+            $tenantExists = DB::table('flat_tenants')
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant'])
+                ->exists();
+
+            if ($tenantExists && $request->has('role') && $request->role == 'Property Manager') {
+                return (new CustomResponseResource([
+                    'title' => 'flat_error',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
 
         // Identify role based on the type
         $role = Role::where('name', $type)->value('id');
@@ -261,33 +306,52 @@ class RegistrationController extends Controller
         ]);
 
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $connection->table('customers')->insert([
-            'customer_id' => $customerId,
-            'name' => $request->name,
-            'email'  => $request->email,
-            'contact' => $request->mobile,
-            'type' => $type,
-            'lang' => 'en',
-            'created_by' => $created_by,
-            'is_enable_login' => 0,
-        ]);
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if($created_by){
+            $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+            if($customerId){
+                $connection->table('customers')->insert([
+                    'customer_id' => $customerId,
+                    'name' => $request->name,
+                    'email'  => $request->email,
+                    'contact' => $request->mobile,
+                    'type' => $type,
+                    'lang' => 'en',
+                    'created_by' => $created_by,
+                    'is_enable_login' => 0,
+                ]);
+            }
+        }
 
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
 
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
-        $oam = OwnerAssociation::find($oam_id->owner_association_id ?: auth()->user()->ownerAssociation->id);
+        $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->id);
 
         $userApproval = UserApproval::create([
             'user_id' => $user->id,
             'document' => $imagePath,
             'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
             'emirates_document' => $emirates,
+            'emirates_document_expiry_date' => $request->has('emirates_document_expiry_date') ? $request->emirates_document_expiry_date : null,
+            'trade_license' => $tradeLicense,
             'passport' => $passport,
+            'passport_expiry_date' => $request->has('passport_expiry_date') ? $request->passport_expiry_date : null,
             'flat_id' => $request->flat_id,
+            'owner_association_id' => $oam?->id,
+        ]);
+
+        // Store details to UserApprovalAudit table for status history
+        UserApprovalAudit::create([
+            'user_approval_id' => $userApproval->id,
+            'document' => $imagePath,
+            'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
+            'emirates_document' => $emirates,
+            'trade_license' => $tradeLicense,
+            'passport' => $passport,
             'owner_association_id' => $oam?->id,
         ]);
 
@@ -297,22 +361,25 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  now(),
-            'end_date' => null,
-            'active' => 1,
+            'start_date' =>  $request->has('start_date') ? $request->start_date : now(),
+            'end_date' => $request->has('end_date') ? $request->end_date : null,
+            'active' => 0,
             'role' => $type,
             'owner_association_id' => $owner_association_id,
+            'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
 
         $customer = $connection->table('customers')->where(['email'=> $request->email,
             'contact' => $request->mobile])->first();
         $property = Flat::find($request->flat_id)?->property_number;
-        $connection->table('customer_flat')->insert([
-            'customer_id' => $customer?->id,
-            'flat_id' => $request->flat_id,
-            'building_id' => $request->building_id,
-            'property_number' => $property
-        ]);
+        if($customer && $property){
+            $connection->table('customer_flat')->insert([
+                'customer_id' => $customer?->id,
+                'flat_id' => $request->flat_id,
+                'building_id' => $request->building_id,
+                'property_number' => $property
+            ]);
+        }
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
@@ -326,6 +393,10 @@ class RegistrationController extends Controller
     }
 
     public function reuploadDocument(Request $request,UserApproval $resident){
+        if($request->has('building_id')){
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
         if($resident->status == null){
             return (new CustomResponseResource([
                 'title' => 'Error',
@@ -344,18 +415,31 @@ class RegistrationController extends Controller
             'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'trade_license' => 'nullable|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
         ]);
-        
+
         $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
 
         $userApproval = $resident->update([
             'document' => $imagePath,
             'emirates_document' => $emirates,
             'passport_document' => $passport,
+            'trade_license' => $tradeLicense,
             'status' => null,
             'remarks' => null,
+        ]);
+
+        UserApprovalAudit::create([
+            'user_approval_id' => $resident->id,
+            'document' => $imagePath,
+            'document_type' => $resident->document_type,
+            'emirates_document' => $emirates,
+            'trade_license' => $tradeLicense,
+            'passport' => $passport,
+            'owner_association_id' => $resident?->owner_association_id,
         ]);
 
         return (new CustomResponseResource([
@@ -392,7 +476,8 @@ class RegistrationController extends Controller
             'document_type' => strtolower($resident->document_type),
             'document' => env('AWS_URL').'/'.$resident->document,
             'emirates_document' => env('AWS_URL').'/'.$resident->emirates_document,
-            'passport' => env('AWS_URL').'/'.$resident->passport
+            'passport' => env('AWS_URL').'/'.$resident->passport,
+            'trade_license' => $resident->trade_license ? env('AWS_URL').'/'.$resident->trade_license : null,
         ];
     }
 
@@ -485,5 +570,114 @@ class RegistrationController extends Controller
         $owners = ApartmentOwner::whereIn('id', $users)->get();
 
         return RegisterOwnersList::collection($owners);
+    }
+     public function addFlat(AddFlatForResidentsRequest $request)
+    {
+        if ($request->has('global_building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->global_building_id, 'active' => true])->first()->owner_association_id;
+        }
+
+        $userData = User::find(auth()->id());
+
+        // Fetch the flat using the provided flat_id
+        $flat = Flat::find($request->flat_id);
+
+        // check if the flat is already registered to the same user
+        $flatTenant = FlatTenant::where(['flat_id'=> $request->flat_id,'tenant_id'=> $userData->id,'active'=>true])->first();
+        if ($flatTenant) {
+            return (new CustomResponseResource([
+                'title' => 'Registration error',
+                'message' => 'Looks like you have already registered for this flat!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
+        if($request->type == 'Tenant'){
+            // Check if the given flat_id is already allotted to someone with active true
+            $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1, 'role'=> 'Tenant'])->exists();
+            if ($flatOwner) {
+                return (new CustomResponseResource([
+                    'title' => 'Registration error',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
+                    'code' => 400,
+                ]))->response()->setStatusCode(400);
+            }
+            $ownerResiding = DB::table('flat_tenants')
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
+                ->exists();
+
+            if ($ownerResiding) {
+                return (new CustomResponseResource([
+                    'title'   => 'flat_error',
+                    'message' => 'Flat is already allocated to one owner residing in same flat!',
+                    'code'    => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
+        if ($request->type === 'Owner' && $request->has('residing') && $request->residing) {
+            $tenantExists = DB::table('flat_tenants')
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant'])
+                ->exists();
+
+            if ($tenantExists) {
+                return (new CustomResponseResource([
+                    'title'   => 'flat_error',
+                    'message' => 'Looks like this flat is already allocated to one tenant!',
+                    'code'    => 400,
+                ]))->response()->setStatusCode(400);
+            }
+        }
+
+        // Determine the type (tenant or owner)
+        $type = $request->input('type', 'Owner');
+
+        $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+
+        $userApproval = UserApproval::where('user_id', $userData->id)->first();
+        $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+
+        $userApproval = UserApproval::create([
+            'user_id' => $userData->id,
+            'document' => $imagePath,
+            'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
+            'emirates_document' => $userApproval->emirates_document,
+            'emirates_document_expiry_date' => $userApproval->emirates_document_expiry_date,
+            'passport' => $userApproval->passport,
+            'passport_expiry_date' => $userApproval->passport_expiry_date,
+            'flat_id' => $request->flat_id,
+            'owner_association_id' => $owner_association_id,
+        ]);
+
+        // Store details to UserApprovalAudit table for status history
+        UserApprovalAudit::create([
+            'user_approval_id' => $userApproval->id,
+            'document' => $imagePath,
+            'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
+            'emirates_document' => $userApproval->emirates_document,
+            'passport' => $userApproval->passport,
+            'owner_association_id' => $owner_association_id,
+        ]);
+
+        // Store details to Flat tenants table
+        FlatTenant::create([
+            'flat_id' => $request->flat_id,
+            'tenant_id' => $userData->id,
+            'primary' => true,
+            'building_id' => $request->building_id,
+            'start_date' =>  $request->has('start_date') ? $request->start_date : now(),
+            'end_date' => $request->has('end_date') ? $request->end_date : null,
+            'active' => 0,
+            'role' => $type,
+            'owner_association_id' => $owner_association_id,
+            'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
+        ]);
+
+        return (new CustomResponseResource([
+            'title' => 'Registration successful!',
+            'message' => "Request sent to admin for approval.",
+            'code' => 201,
+            'status' => 'approvalPending'
+        ]))->response()->setStatusCode(201);
     }
 }

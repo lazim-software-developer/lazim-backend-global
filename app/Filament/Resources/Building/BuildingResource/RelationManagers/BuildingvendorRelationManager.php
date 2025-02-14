@@ -2,27 +2,47 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Illuminate\Support\Facades\Auth;
 
 class BuildingvendorRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingvendor';
-    protected static ?string $modelLabel = 'Vendors';
+    // protected static ?string $modelLabel = 'Vendors';
+
+    protected static function getModelLabel(): string
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->role) {
+            return 'Vendors';
+        }
+
+        return match ($user->role->name) {
+            'Property Manager' => 'Facility Manager',
+            default => 'Vendors',
+        };
+    }
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return 'Vendors';
+        $user = Auth::user();
+
+        if (!$user || !$user->role) {
+            return 'Vendors';
+        }
+
+        return match ($user->role->name) {
+            'Property Manager' => 'Facility Manager',
+            default => 'Vendors',
+        };
+
     }
 
     public function form(Form $form): Form
@@ -30,22 +50,22 @@ class BuildingvendorRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('vender_name')
-                    ->relationship('vendor','name')
+                    ->relationship('vendor', 'name')
                     ->label('Vendor name'),
                 Select::make('vender_tl_number')
-                    ->relationship('vendor','tl_number')
+                    ->relationship('vendor', 'tl_number')
                     ->label('Vendor tl_number'),
                 Select::make('vender_tl_expiry')
-                    ->relationship('vendor','tl_expiry')
+                    ->relationship('vendor', 'tl_expiry')
                     ->label('Vendor tl_expiry'),
                 Select::make('vender_address_line_1')
-                    ->relationship('vendor','address_line_1')
+                    ->relationship('vendor', 'address_line_1')
                     ->label('Vendor address_line_1'),
                 Select::make('vender_landline_number')
-                    ->relationship('vendor','landline_number')
+                    ->relationship('vendor', 'landline_number')
                     ->label('Vendor landline_number'),
                 Select::make('vender_website')
-                    ->relationship('vendor','website')
+                    ->relationship('vendor', 'website')
                     ->label('Vendor website'),
 
             ]);

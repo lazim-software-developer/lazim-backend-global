@@ -121,7 +121,7 @@ class TenantResource extends Resource
                 Tables\Columns\TextColumn::make('contract_status')
                     ->searchable()
                     ->default('NA')
-                    ->label('Contract Status')
+                    ->label('Contract status')
                     ->limit(50),
             ])
             ->actions([

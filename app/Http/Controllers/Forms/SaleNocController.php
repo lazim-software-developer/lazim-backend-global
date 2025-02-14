@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Forms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\SaleNocRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\SaleNocResource;
 use App\Jobs\Forms\SalesNocRequestJob;
 use App\Jobs\SendSaleNocEmail;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\NocContacts;
 use App\Models\Forms\NocFormSignedDocument;
 use App\Models\Forms\SaleNOC;
 use App\Models\Order;
 use App\Models\OwnerAssociation;
+use App\Models\Vendor\Vendor;
+use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 
 class SaleNocController extends Controller
 {
+    use UtilsTrait;
     public function store(SaleNocRequest $request)
     {
         // Upload files using the fucntion optimizeDocumentAndUpload
@@ -29,13 +34,13 @@ class SaleNocController extends Controller
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
 
         $validated['user_id']              = auth()->user()->id;
-        $validated['owner_association_id'] = $oam_id?->owner_association_id;
+        $validated['owner_association_id'] = $oam_id->owner_association_id;
         $validated['submit_status']        = 'download_file';
         $validated['ticket_number']        = generate_ticket_number("SN");
 
         // Create the SaleNoc entry
         $saleNoc          = SaleNoc::create($validated);
-        $tenant           = Filament::getTenant()?->id ?? $oam_id?->owner_association_id;
+        $tenant           = Filament::getTenant()?->id ?? $oam_id->owner_association_id;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
 
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -89,6 +94,11 @@ class SaleNocController extends Controller
     // Upload Signed document from buyer or seller
     public function uploadDocument(Request $request, SaleNOC $saleNoc)
     {
+        if ($request->has('building_id') || $saleNoc->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $saleNoc->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $filePath = optimizeDocumentAndUpload($request->file, 'dev');
 
         // Check the existing value of submit_status column
@@ -113,7 +123,7 @@ class SaleNocController extends Controller
                 'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                 'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
-            // Send email to buyers attaching the document 
+            // Send email to buyers attaching the document
             SendSaleNocEmail::dispatch($saleNoc, $document, $mailCredentials)->delay(5);
         } else if ($status == 'seller_uploaded') {
             $saleNoc->update(['submit_status' => 'buyer_uploaded']);
@@ -159,10 +169,128 @@ class SaleNocController extends Controller
     // Upload individual documents for NOC form
     public function uploadNOCDocument(Request $request)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $path = optimizeDocumentAndUpload($request->file, 'dev');
 
         return response()->json([
             'path' => $path,
         ], 200);
+    }
+    public function fmlist(Vendor $vendor, Request $request)
+    {
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active',true)
+            ->pluck('building_id');
+
+        $saleNocForms = SaleNOC::whereIn('building_id', $buildingIds)->orderByDesc('created_at');
+
+        return SaleNocResource::collection($saleNocForms->paginate($request->paginate ?? 10));
+    }
+    public function updateStatus(Vendor $vendor, SaleNOC $saleNOC, Request $request)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $saleNOC->building_id)->where('active', true)->first()->owner_association_id;
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        $data = $request->only(['status', 'remarks']);
+        if($request->has('admin_document')){
+            $data['admin_document'] = optimizeDocumentAndUpload($request->admin_document);
+        }
+        $saleNOC->update($data);
+
+        if ($request->status == 'approved') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $saleNOC->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Sales NOC form status',
+                        'body'  => 'Your sales noc form has been approved.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $saleNOC->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your sales noc form has been approved.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title'     => 'Sales NOC form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        if ($request->status == 'rejected') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $saleNOC->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Sales NOC form status',
+                        'body'  => 'Your sales noc form has been rejected.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $saleNOC->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your sales noc form has been rejected.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title'     => 'Sales NOC form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+
+        return SaleNocResource::make($saleNOC);
+    }
+
+    public function show(Vendor $vendor, SaleNOC $saleNOC, Request $request)
+    {
+        return SaleNocResource::make($saleNOC);
     }
 }

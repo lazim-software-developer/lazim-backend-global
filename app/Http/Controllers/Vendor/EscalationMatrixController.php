@@ -9,11 +9,17 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\VendorEscalationMatrixResource;
 use App\Models\Vendor\Vendor;
 use App\Models\Vendor\VendorEscalationMatrix;
+use Illuminate\Support\Facades\DB;
+use Request;
 
 class EscalationMatrixController extends Controller
 {
     public function store(EscalationMatrixRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if (VendorEscalationMatrix::where('vendor_id', $vendor->id)->where('active', 1)->where('escalation_level', $request->escalation_level)->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Escalation Level exists!',
@@ -36,7 +42,12 @@ class EscalationMatrixController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function edit(EditEscalationMatrixRequest $request,VendorEscalationMatrix $escalationmatrix){
+    public function edit(EditEscalationMatrixRequest $request,VendorEscalationMatrix $escalationmatrix)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if (VendorEscalationMatrix::where('id','!=',$escalationmatrix->id)->where('vendor_id', $escalationmatrix->vendor_id)->where('active', 1)->where('escalation_level', $request->escalation_level)->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Escalation Level exists!',
@@ -61,7 +72,12 @@ class EscalationMatrixController extends Controller
     }
 
     // Delete escalation matrix
-    public function delete(VendorEscalationMatrix $escalationmatrix) {
+    public function delete(VendorEscalationMatrix $escalationmatrix,Request $request)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if($escalationmatrix->active == 0) {
             return (new CustomResponseResource([
                 'title' => 'Escalation Matrix already deleted',

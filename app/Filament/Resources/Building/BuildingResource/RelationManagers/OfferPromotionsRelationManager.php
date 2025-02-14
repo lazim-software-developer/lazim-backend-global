@@ -49,6 +49,7 @@ class OfferPromotionsRelationManager extends RelationManager
                         ->directory('dev')
                         ->openable(true)
                         ->downloadable(true)
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                         ->image()
                         ->maxSize(2048)
                         ->required()

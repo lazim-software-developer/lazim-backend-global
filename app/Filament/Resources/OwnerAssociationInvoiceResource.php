@@ -3,17 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OwnerAssociationInvoiceResource\Pages;
-use App\Filament\Resources\OwnerAssociationInvoiceResource\RelationManagers;
 use App\Models\OwnerAssociationInvoice;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class OwnerAssociationInvoiceResource extends Resource
@@ -42,20 +38,43 @@ class OwnerAssociationInvoiceResource extends Resource
                 TextColumn::make('type'),
                 TextColumn::make('job'),
                 TextColumn::make('month'),
-                TextColumn::make('description'),
-                TextColumn::make('quantity'),
+                TextColumn::make('description')->limit(50),
+                TextColumn::make('quantity')->default('NA'),
                 TextColumn::make('rate'),
                 TextColumn::make('tax'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'paid' => 'Paid',
+                        'pending' => 'Pending',
+                        'overdue' => 'Overdue',
+                        'NA' => 'NA',
+                        default => 'NA',
+                    })
+                    ->default('NA')
+                    ->visible(fn () => auth()->user()?->role->name == 'Property Manager')
+                    ->color(fn (string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'pending' => 'warning',
+                        'overdue' => 'danger',
+                        'NA' => 'gray',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                // Tables\Actions\ViewAction::make(),
-                // Tables\Actions\EditAction::make(),
-                Action::make('download')->url(function( OwnerAssociationInvoice $record){
-                    return route('invoice',['data' => $record]);
-                })
+                Action::make('download')->url(function (OwnerAssociationInvoice $record) {
+                    return route('invoice', ['data' => $record]);
+                }),
+                Action::make('edit')
+                    ->icon('heroicon-m-pencil-square')
+                    ->url(fn (OwnerAssociationInvoice $record): string =>
+                        "/app/owner-association-invoices/{$record->id}/edit"
+                    )
+                    ->visible(fn () => auth()->user()?->role->name == 'Property Manager'),
+
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
@@ -63,6 +82,7 @@ class OwnerAssociationInvoiceResource extends Resource
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->emptyStateHeading('No Invoices')
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
@@ -79,9 +99,7 @@ class OwnerAssociationInvoiceResource extends Resource
     {
         return [
             'index' => Pages\ListOwnerAssociationInvoices::route('/'),
-            // 'create' => Pages\CreateOwnerAssociationInvoice::route('/create'),
-            // 'view' => Pages\ViewOwnerAssociationInvoice::route('/{record}'),
-            // 'edit' => Pages\EditOwnerAssociationInvoice::route('/{record}/edit'),
+            'edit' => Pages\EditInvoiceStatus::route('/{record}/edit'),
         ];
     }
 }

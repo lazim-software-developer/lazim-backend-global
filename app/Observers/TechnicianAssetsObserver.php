@@ -25,7 +25,8 @@ class TechnicianAssetsObserver
                     'sound' => 'default',
                     'title' => 'New Asset Assigned',
                     'body' => 'A new Asset '.$assetName->name.' has been added to you. ',
-                    'data' => ['notificationType' => 'AssestTab'],
+                    'data' => ['notificationType' => 'AssestTab',
+                            'building_id' => $technicianAssets->building_id],
                 ];
                 $this->expoNotification($message);
                 DB::table('notifications')->insert([
@@ -41,7 +42,7 @@ class TechnicianAssetsObserver
                         'iconColor' => 'warning',
                         'title' => 'New Asset Assigned',
                         'view' => 'notifications::notification',
-                        'viewData' => [],
+                        'viewData' => ['building_id' => $technicianAssets->building_id,],
                         'format' => 'filament',
                         'url' => 'AssestTab',
                     ]),
