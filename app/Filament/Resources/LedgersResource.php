@@ -25,8 +25,8 @@ class LedgersResource extends Resource
 {
     protected static ?string $model = OAMInvoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Service charge ledgers';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Service charge ledgers';
     protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
@@ -51,12 +51,12 @@ class LedgersResource extends Resource
                 TextColumn::make('flat.property_number')
                     ->searchable()
                     ->default('NA')
-                    ->label('Unit Number')
+                    ->label('Unit number')
                     ->limit(50),
                 TextColumn::make('invoice_number')
                     ->searchable()
                     ->default("NA")
-                    ->label('Invoice Number'),
+                    ->label('Invoice number'),
                 TextColumn::make('invoice_quarter')
                     ->searchable()
                     ->label('Description'),
@@ -65,7 +65,7 @@ class LedgersResource extends Resource
                 TextColumn::make('invoice_pdf_link')
                     ->limit(20)
                     ->label('Invoice'),
-                TextColumn::make('invoice_amount')->formatStateUsing(fn ($state) => number_format($state, 2))
+                TextColumn::make('invoice_amount')->formatStateUsing(fn($state) => number_format($state, 2))
                     ->label('Invoice amount')->alignEnd(),
                 ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid')
                     ->alignEnd(),
@@ -73,26 +73,26 @@ class LedgersResource extends Resource
                     ->searchable()
                     ->default("NA")
                     ->alignEnd()
-                    ->label('Due Balance'),
+                    ->label('Due balance'),
                 TextColumn::make('previous_balance')
                     ->searchable()
                     ->default("NA")
                     ->alignEnd()
-                    ->label('Previous Balance'),
+                    ->label('Previous balance'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('invoice_date')
                     ->form([
-                        // Flatpickr::make('Date')
-                        //     ->range(true),
+                        Flatpickr::make('Date')
+                            ->range(true),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['Date'])) {
                             $segments = Str::of($data['Date'])->split('/[\s,]+/');
 
                             if (count($segments) === 3) {
-                                $from = $segments[0];
+                                $from  = $segments[0];
                                 $until = $segments[2];
 
                                 return $query->whereBetween('invoice_date', [$from, $until]);
@@ -105,13 +105,12 @@ class LedgersResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {

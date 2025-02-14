@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building\FacilityBookingResource\Pages;
 
 use App\Filament\Resources\Building\FacilityBookingResource;
+use App\Models\Building\FacilityBooking;
 use App\Models\ExpoPushNotification;
 use App\Models\Master\Facility;
 use App\Traits\UtilsTrait;
@@ -28,6 +29,8 @@ class EditFacilityBooking extends EditRecord
 
     public function afterSave()
     {
+        $record = $this->record;
+        $user = FacilityBooking::where('id', $record->id)->first();
         $facilityName = Facility::where('id', $this->record->bookable_id)->first();
         if ($this->record->approved == 1) {
             $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->user_id)->pluck('token');
@@ -38,7 +41,9 @@ class EditFacilityBooking extends EditRecord
                         'sound' => 'default',
                         'title' => $facilityName->name.' Booking Status.',
                         'body' => 'Your amenity booking request for '.$facilityName->name.' is approved',
-                        'data' => ['notificationType' => 'MyBookingsFacility'],
+                        'data' => ['notificationType' => 'MyBookingsFacility',
+                                    'building_id'      => $user->building_id,
+                                    'flat_id'          => $user->flat_id,],
                     ];
                     $this->expoNotification($message);
                 }
@@ -56,7 +61,8 @@ class EditFacilityBooking extends EditRecord
                             'iconColor' => 'warning',
                             'title' =>  $facilityName->name.' Booking Status.',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id'      => $user->building_id,
+                                            'flat_id'          => $user->flat_id,],
                             'format' => 'filament',
                             'url' => 'MyBookingsFacility',
                         ]),
@@ -74,7 +80,9 @@ class EditFacilityBooking extends EditRecord
                         'sound' => 'default',
                         'title' =>  $facilityName->name.' Booking Status.',
                         'body' => 'Your amenity booking request for '.$facilityName->name. ' is rejected',
-                        'data' => ['notificationType' => 'MyBookingsFacility'],
+                        'data' => ['notificationType' => 'MyBookingsFacility',
+                                    'building_id'      => $user->building_id,
+                                    'flat_id'          => $user->flat_id,],
                     ];
                     $this->expoNotification($message);
                 }
@@ -92,7 +100,8 @@ class EditFacilityBooking extends EditRecord
                             'iconColor' => 'danger',
                             'title' =>  $facilityName->name.' Booking Status.',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id'      => $user->building_id,
+                                            'flat_id'          => $user->flat_id,],
                             'format' => 'filament',
                             'url' => 'MyBookingsFacility',
                         ]),

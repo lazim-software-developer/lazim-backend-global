@@ -30,7 +30,8 @@ class CreatePoll extends CreateRecord
                             'url' => 'ComunityPostTab',
                             'title' => 'New Poll!',
                             'body' => 'New Poll created',
-                            'data' => ['notificationType' => 'ComunityPostTabPoll'],
+                            'data' => ['notificationType' => 'ComunityPostTabPoll',
+                                    'building_id' => $this->record->building_id],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -46,7 +47,7 @@ class CreatePoll extends CreateRecord
                                 'iconColor' => 'warning',
                                 'title' => 'New Poll!',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id' => $this->record->building_id],
                                 'format' => 'filament',
                                 'url' => 'ComunityPostTabPoll',
                             ]),

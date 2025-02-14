@@ -8,6 +8,7 @@ use App\Http\Requests\Forms\CreateGuestRequest;
 use App\Http\Requests\Forms\FlatVisitorRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Forms\VisitorResource;
+use App\Http\Resources\GuestResource;
 use App\Jobs\FlatVisitorMailJob;
 use App\Jobs\Forms\GuestRequestJob;
 use App\Models\AccountCredentials;
@@ -22,6 +23,7 @@ use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use App\Models\Visitor;
 use App\Models\Visitor\FlatVisitor;
 use App\Traits\UtilsTrait;
@@ -40,7 +42,7 @@ class GuestController extends Controller
      */
     public function store(CreateGuestRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $request->merge([
             'start_time'           => $request->start_date,
@@ -53,7 +55,7 @@ class GuestController extends Controller
             'ticket_number'        => generate_ticket_number("FV"),
         ]);
         $guest            = FlatVisitor::create($request->all());
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
@@ -106,7 +108,9 @@ class GuestController extends Controller
 
     public function saveFlatVisitors(FlatVisitorRequest $request)
     {
-        $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
         // $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
 
         $request->merge([
@@ -114,29 +118,48 @@ class GuestController extends Controller
             'end_time'             => $request->start_date,
             'phone'                => $request->phone,
             'email'                => $request->email,
-            'owner_association_id' => $ownerAssociationId,
+            'owner_association_id' => $oa_id,
             'type'                 => $request->type ?:'visitor',
         ]);
 
-        $requiredPermissions = ['view_any_visitor::form'];
         $visitor             = FlatVisitor::create($request->all());
-        $roles               = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
-        $user                = User::where('owner_association_id', $ownerAssociationId)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get() //->where('role_id', Role::where('name','OA')->value('id'))->get();
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
-        Notification::make()
-            ->success()
-            ->title('Visitor Request')
-            ->body("visitor request received for $request->start_date")
-            ->actions([
-                Action::make('View')
-                    ->button()
-                    ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
-            ])
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->sendToDatabase($user);
+        $oa_ids = DB::table('building_owner_association')->where('building_id', $request->building_id)
+            ->where('active', true)->pluck('owner_association_id');
+        $pm = OwnerAssociation::whereIn('id', $oa_ids)->where('role', 'Property Manager')->first();
+        $requiredPermissions = ['view_any_visitor::form'];
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
+
+        foreach($oa_ids as $oa_id){
+            $oa = OwnerAssociation::find($oa_id);
+            $flatexists = DB::table('property_manager_flats')
+                ->where(['flat_id' => $request->flat_id, 'active' => true, 'owner_association_id' => $oa->role == 'OA' ? $pm?->id : $oa->id])
+                ->exists();
+            if(($oa->role == 'Property Manager' && $flatexists) || $oa->role == 'OA' && !$flatexists){
+                $user = User::where('owner_association_id', $oa->id)->whereNotIn('role_id', $roles)
+                    ->whereNot('id', auth()->user()?->id)->get()
+                    ->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                Notification::make()
+                    ->success()
+                    ->title('Visitor Request')
+                    ->body("Visitor request received for $request->start_date")
+                    ->actions([
+                        Action::make('View')
+                            ->button()
+                            ->url(function() use ($oa,$visitor){
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                                }
+                                return url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                            }),
+                    ])
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->sendToDatabase($user);
+            }
+        }
 
         // Handle multiple images
         if ($request->hasFile('files')) {
@@ -188,7 +211,19 @@ class GuestController extends Controller
         $visitor = FlatVisitor::where('verification_code', $request->code)->first();
         $visitor->start_time = new Carbon($visitor->start_time);
         abort_if(!$visitor, 403, 'Invalid verification code');
-        abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $visitor->building_id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
+        // Only check approval status if not PM managed
+        if (!$isPMManaged) {
+            abort_if($visitor->status != 'approved', 403, 'Not yet verified by Admin.');
+        }
 
         if (!$visitor->verified) {
             return [
@@ -221,6 +256,11 @@ class GuestController extends Controller
     }
     public function visitorApproval(Request $request, FlatVisitor $visitor)
     {
+        if ($request->has('building_id')||$visitor->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $visitor->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $visitor->update([
             'verified' => true,
         ]);
@@ -235,13 +275,30 @@ class GuestController extends Controller
     // List all future visits for a building
     public function futureVisits(Request $request, Building $building)
     {
+        // Check if building is managed by Property Manager
+        $isPMManaged = DB::table('building_owner_association as boa')
+            ->join('owner_associations as oa', 'oa.id', '=', 'boa.owner_association_id')
+            ->where('boa.building_id', $building->id)
+            ->where('boa.active', true)
+            ->where('oa.role', 'Property Manager')
+            ->exists();
+
         // List only approved requests from flat_visitors table
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
-            ->where('status','approved')
+            ->when(!$isPMManaged, function ($query) {
+                return $query->where('status', 'approved');
+            })
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
+            })
+            ->when($request->has('search'),function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%')
+                      ->orWhere('email', 'like', '%' . $request->search . '%');
+                });
             })
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"));
 
@@ -251,6 +308,10 @@ class GuestController extends Controller
     // Notify tenant on visitor's visit
     public function notifyTenant(Request $request)
     {
+        if ($request->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
         $flat     = $request->input('flat_id');
         $building = $request->input('building_id');
 
@@ -405,5 +466,115 @@ class GuestController extends Controller
             'message' => 'successfull!',
             'code'    => 200,
         ]))->response()->setStatusCode(200);
+    }
+    public function fmlist(Vendor $vendor,Request $request)
+    {
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id', $vendor->id)->pluck('owner_association_id');
+
+        // $buildingIds = DB::table('building_owner_association')
+        //     ->whereIn('owner_association_id', $ownerAssociationIds)
+        //     ->where('active',true)
+        //     ->pluck('building_id');
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active',true)
+            ->pluck('building_id');
+
+        $flatVisitorIds = FlatVisitor::whereIn('building_id', $buildingIds)->where('type', 'guest')->pluck('id');
+
+        $guests = Guest::whereIn('flat_visitor_id',$flatVisitorIds)->orderByDesc('created_at');
+
+        return GuestResource::collection($guests->paginate($request->paginate ?? 10));
+
+    }
+    public function updateStatus(Vendor $vendor, Guest $guest, Request $request)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $guest->flatVisitor->building_id)->where('active', true)->first()->owner_association_id;
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        $data = $request->only(['status','remarks']);
+        $guest->update($data);
+
+        if ($request->status == 'approved') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $guest->flatVisitor->initiated_by)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Holiday homes guest registration form status.',
+                        'body'  => 'Your holiday homes guest registration form has been approved.',
+                        'data'  => ['notificationType' => 'InAppNotficationScreen'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id'   => $guest->flatVisitor->initiated_by,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => 'Your holiday homes guest registration form has been approved.',
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
+                            'iconColor' => 'warning',
+                            'title'     => 'Holiday homes guest registration form status',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => '',
+                        ]),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
+        if ($request->status == 'rejected') {
+            $expoPushTokens = ExpoPushNotification::where('user_id', $guest->flatVisitor->initiated_by)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Holiday homes guest registration form status.',
+                        'body'  => 'Your holiday homes guest registration form has been rejected.',
+                        'data'  => ['notificationType' => 'InAppNotficationScreen'],
+                    ];
+                    $this->expoNotification($message);
+                    DB::table('notifications')->insert([
+                        'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                        'type'            => 'Filament\Notifications\DatabaseNotification',
+                        'notifiable_type' => 'App\Models\User\User',
+                        'notifiable_id'   => $guest->flatVisitor->initiated_by,
+                        'data'            => json_encode([
+                            'actions'   => [],
+                            'body'      => 'Your holiday homes guest registration form has been rejected.',
+                            'duration'  => 'persistent',
+                            'icon'      => 'heroicon-o-document-text',
+                            'iconColor' => 'danger',
+                            'title'     => 'Holiday homes guest registration form status',
+                            'view'      => 'notifications::notification',
+                            'viewData'  => [],
+                            'format'    => 'filament',
+                            'url'       => '',
+                        ]),
+                        'created_at'      => now()->format('Y-m-d H:i:s'),
+                        'updated_at'      => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
+
+        return GuestResource::make($guest);
+    }
+
+    public function show(Vendor $vendor, Guest $guest, Request $request)
+    {
+        return GuestResource::make($guest);
     }
 }

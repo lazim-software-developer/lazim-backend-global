@@ -32,30 +32,40 @@ class AnnouncementNotifications extends Command
      */
     public function handle()
     {
-        $scheduledAt = Post::whereRaw("DATE_FORMAT(scheduled_at, '%Y-%m-%d %H:%i') = ?", [now()->format('Y-m-d H:i')])
+        $scheduledAt = Post::whereBetween('scheduled_at',[now()->startOfMinute(),
+        now()->startOfMinute()->addMinute()])
         ->where('status','published')->where('active',true)->get();
-        
+
         foreach($scheduledAt as $post){
-            $buildings = $post->building->pluck('id');
-            
+            $buildings = DB::table('building_post')
+                ->where('post_id',$post->id)
+                ->pluck('building_id')
+                ->unique();
+
             $tenant = FlatTenant::where('active',1)
-                    ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
-                    
-            foreach ($tenant as $user) {
-                $expoPushTokens = ExpoPushNotification::where('user_id', $user)->pluck('token');
-                
+                    ->whereIn('building_id',$buildings)->pluck('tenant_id')->unique();
+
+                foreach ($tenant as $user) {
+                $expoPushTokens = ExpoPushNotification::where('user_id', $user)
+                    ->pluck('token')->unique();
+
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
-                        
+
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
                             'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
                             'body' => strip_tags($post->content),
-                            'data' => ['notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost'],
+                            'data' => [
+                                'notificationType' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
+                                'building_id' => $post->building->pluck('id'),
+                            ],
                         ];
                         $this->expoNotification($message);
+                    }
+                }
                         DB::table('notifications')->insert([
                             'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
                             'type' => 'Filament\Notifications\DatabaseNotification',
@@ -69,15 +79,15 @@ class AnnouncementNotifications extends Command
                                 'iconColor' => 'warning',
                                 'title' => $post->is_announcement ? 'New Notice!' : 'New Post!',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => [
+                                    'building_id' => $post->building->pluck('id'),
+                                ],
                                 'format' => 'filament',
                                 'url' => $post->is_announcement ? 'ComunityPostTabNotice' : 'ComunityPostTabPost',
                             ]),
                             'created_at' => now()->format('Y-m-d H:i:s'),
                             'updated_at' => now()->format('Y-m-d H:i:s'),
                         ]);
-                    }
-                }
             }
         }
     }

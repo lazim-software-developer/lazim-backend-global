@@ -20,10 +20,13 @@ class TechnicianAccountCreationJob implements ShouldQueue
     public $user;
     public $password;
 
-    public function __construct($user, $password)
+    protected $vendor;
+
+    public function __construct($user, $password, $vendor)
     {
         $this->user     = $user;
         $this->password = $password;
+        $this->vendor   = $vendor;
     }
 
     /**
@@ -32,10 +35,10 @@ class TechnicianAccountCreationJob implements ShouldQueue
     public function handle()
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.technician_registration', ['user' => $this->user, 'password' => $this->password], function($message) {
+        $beautymail->send('emails.technician_registration', ['user' => $this->user, 'password' => $this->password, 'vendor'=> $this->vendor], function($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Welcome to Lazim – Account Successfully Created');
         });
     }
 }

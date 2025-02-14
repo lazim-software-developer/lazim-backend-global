@@ -1,19 +1,16 @@
 <?php
-
 namespace App\Filament\Resources\Building\FlatTenantResource\Pages;
 
-use Filament\Actions;
+use App\Filament\Resources\Building\FlatTenantResource;
 use App\Models\Master\Role;
-use App\Models\Building\Building;
-use Illuminate\Contracts\View\View;
+use DB;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Building\FlatTenantResource;
 
 class ListFlatTenants extends ListRecords
 {
     protected static string $resource = FlatTenantResource::class;
-    protected static ?string $title = 'Residents';
+    protected static ?string $title   = 'Residents';
 
     // protected function getHeaderActions(): array
     // {
@@ -23,11 +20,36 @@ class ListFlatTenants extends ListRecords
     // }
     protected function getTableQuery(): Builder
     {
-        $building = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
-        if(Role::where('id',auth()->user()->role_id)->first()->name == 'Admin')
-        {
-            return parent::getTableQuery();
+        $user = auth()->user();
+
+        $userRoleName = Role::where('id', $user->role_id)->value('name');
+
+        // $approvedTenants = FlatTenant::where('active', true)->pluck('tenant_id')->toArray();
+
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+
+        $pmFlats = DB::table('property_manager_flats')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('flat_id')
+            ->toArray();
+
+        if (auth()->user()?->role?->name == 'Property Manager') {
+            return parent::getTableQuery()
+                ->where('active', true)
+                ->whereIn('flat_id', $pmFlats)
+                ->whereIn('tenant_id', function ($query) {
+                    $query->select('user_id')
+                        ->from('user_approvals')
+                        ->where('status', 'approved');
+                });
+        } elseif ($userRoleName == 'OA') {
+            return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
+
         }
-        return parent::getTableQuery()->whereIn('building_id',$building);
+        return parent::getTableQuery();
     }
 }

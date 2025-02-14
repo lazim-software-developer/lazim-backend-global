@@ -9,11 +9,14 @@ use App\Http\Resources\MoveInOutResource;
 use App\Jobs\MoveInOutMailJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\MoveInOut;
 use App\Models\OwnerAssociation;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class MoveInOutController extends Controller
@@ -44,7 +47,7 @@ class MoveInOutController extends Controller
      */
     public function store(CreateFormRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
@@ -154,7 +157,167 @@ class MoveInOutController extends Controller
         $request->validate([
             'building_id' => 'required',
         ]);
-        $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id)->orderBy('moving_date')->get();
+        $mov = MoveInOut::where('status', 'approved')->where('moving_date', '>=', now()->toDateString())->where('building_id', $request->building_id);
+        if ($request->filled('type')) {
+            $mov->where('type', $request->type);
+        }
+
+        $mov = $mov->orderBy('moving_date')->get();
         return MoveInOutResource::collection($mov);
+    }
+
+    public function fmlist(Vendor $vendor,Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:move-out,move-in',
+        ]);
+
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+
+        // $buildingIds = DB::table('building_owner_association')
+        //         ->whereIn('owner_association_id',$ownerAssociationIds)
+        //         ->where('active',true)
+        //         ->pluck('building_id');
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
+            ->pluck('building_id');
+
+
+        $moveInOut = MoveInOut::whereIn('building_id',$buildingIds)->where('type',$request->type)->orderByDesc('created_at');
+
+        return MoveInOutResource::collection($moveInOut->paginate($request->paginate ?? 10));
+
+    }
+    public function updateStatus(Vendor $vendor, MoveInOut $moveInOut, Request $request)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $moveInOut->building_id)->where('active', true)->first()->owner_association_id;
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+        $data = $request->only(['status', 'remarks']);
+        $moveInOut->update($data);
+
+        if ($request->status == 'approved') {
+
+            //notification for who is created the form
+            $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Move-in form status',
+                        'body'  => 'Your move-in form has been approved.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $moveInOut->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your move-in form has been approved.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title'     => 'Move-in form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+            $security = $moveInOut->building->buildingPocs->where('active', true)->where('role_name', 'security')->first();
+            if ($security?->exists()) {
+                $id             = $security?->first()?->user_id;
+                $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
+                if ($expoPushTokens->count() > 0) {
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to'    => $expoPushToken,
+                            'sound' => 'default',
+                            'title' => 'Move-in',
+                            'body'  => 'New move-in form received.',
+                            'data'  => ['notificationType' => 'Move-in'],
+                        ];
+                        $this->expoNotification($message);
+                    }
+                }
+                DB::table('notifications')->insert([
+                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type'            => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id'   => $id,
+                    'data'            => json_encode([
+                        'actions'   => [],
+                        'body'      => 'New move-in form received.',
+                        'duration'  => 'persistent',
+                        'icon'      => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title'     => 'Move-in',
+                        'view'      => 'notifications::notification',
+                        'viewData'  => [],
+                        'format'    => 'filament',
+                        'url'       => 'Move-in',
+                    ]),
+                    'created_at'      => now()->format('Y-m-d H:i:s'),
+                    'updated_at'      => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        if ($request->status == 'rejected') {
+            //notification to whoever create submit the form
+            $expoPushTokens = ExpoPushNotification::where('user_id', $moveInOut->user_id)->pluck('token');
+            if ($expoPushTokens->count() > 0) {
+                foreach ($expoPushTokens as $expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Move-in form status',
+                        'body'  => 'Your move-in form has been rejected.',
+                        'data'  => ['notificationType' => 'MyRequest'],
+                    ];
+                    $this->expoNotification($message);
+                }
+            }
+            DB::table('notifications')->insert([
+                'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type'            => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id'   => $moveInOut->user_id,
+                'data'            => json_encode([
+                    'actions'   => [],
+                    'body'      => 'Your move-in form has been rejected.',
+                    'duration'  => 'persistent',
+                    'icon'      => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title'     => 'Move-in form status',
+                    'view'      => 'notifications::notification',
+                    'viewData'  => [],
+                    'format'    => 'filament',
+                    'url'       => 'MyRequest',
+                ]),
+                'created_at'      => now()->format('Y-m-d H:i:s'),
+                'updated_at'      => now()->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+
+        return MoveInOutResource::make($moveInOut);
+    }
+    public function show(Vendor $vendor, MoveInOut $moveInOut, Request $request)
+    {
+        return MoveInOutResource::make($moveInOut);
     }
 }

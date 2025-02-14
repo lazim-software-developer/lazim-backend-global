@@ -1,85 +1,32 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">Access Card Request</h2>
 
-@include('beautymail::templates.minty.contentStart')
-<tr>
-	<td class="paragraph">
-		Dear {{$user->first_name}},
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="20"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		We are pleased to inform you that your {{ $type }} request has been successfully submitted. Below are your ticket details:
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="title">
-		Ticket Details:
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="10"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Ticket Number: </strong> {{$ticket_number}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Building: </strong> {{$building}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Flat: </strong> {{$flat}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Type: </strong> {{$type}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Card Type: </strong> {{$card_type}}
-	</td>
-</tr>
+<p>Dear {{ $user->first_name }},</p>
 
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		Thank you for choosing Lazim. We are confident that you will find great value in our platform, and we look forward to serving you.
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		Warm regards,
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="5"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		The Lazim Team
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
+<p>We are pleased to confirm that your access card request has been successfully submitted.</p>
 
-@stop
+<div class="title">Ticket Details:</div>
+<p>
+    <strong>Ticket Number:</strong> {{ $ticket_number }}<br>
+    <strong>Building:</strong> {{ $building }}<br>
+    <strong>Flat:</strong> {{ $flat }}<br>
+    <strong>Request Type:</strong> Access Card<br>
+    <strong>Card Type:</strong> {{ $card_type }}
+</p>
+
+<p>Thank you for choosing Lazim.</p>
+
+<p>We are committed to ensuring a seamless process and look forward to assisting you further.</p>
+
+<p>Regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $property_manager_name }}</p>
+@endsection

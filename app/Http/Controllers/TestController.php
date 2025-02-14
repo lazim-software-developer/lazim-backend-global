@@ -220,9 +220,9 @@ class TestController extends Controller
         return ServiceParameterResource::collection(ServiceParameter::all());
     }
 
-    public function serviceRequest()
+    public function serviceRequest(Request $request)
     {
-        return OaServiceRequestResource::collection(OaServiceRequest::paginate(10));
+        return OaServiceRequestResource::collection(OaServiceRequest::paginate($request->paginate ?? 10));
     }
 
     public function getOaService(OaServiceRequest $oaService)
@@ -542,7 +542,7 @@ class TestController extends Controller
             return redirect('https://apps.apple.com/nz/app/lazim/id6475393837');
         } else {
             // Default redirection if OS is not recognized
-            return redirect('https://lazim.ae');
+            return redirect('https://resident.lazim.ae/');
         }
     }
 }

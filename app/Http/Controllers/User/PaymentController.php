@@ -11,6 +11,7 @@ use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
@@ -127,8 +128,13 @@ class PaymentController extends Controller
     }
 
     // Fetch payment status
-    public function fetchPaymentStatus(Order $order)
+    public function fetchPaymentStatus(Order $order, Request $request)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         try {

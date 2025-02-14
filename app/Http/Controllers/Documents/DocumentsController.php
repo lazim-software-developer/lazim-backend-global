@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Documents;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Document\DocumentRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Documents\DocumentLibraryResource;
-use App\Http\Resources\Documents\DocumentResource;
-use App\Models\Building\Building;
-use App\Models\Building\Document;
-use App\Models\Master\DocumentLibrary;
 use App\Models\Media;
 use App\Models\User\User;
+use Illuminate\Http\Request;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Master\DocumentLibrary;
+use App\Http\Requests\MakaniNumberRequest;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Document\DocumentRequest;
+use App\Http\Resources\Documents\DocumentResource;
+use App\Http\Resources\Documents\DocumentLibraryResource;
 
 class DocumentsController extends Controller
 {
@@ -20,12 +25,52 @@ class DocumentsController extends Controller
         $documents = DocumentLibrary::where('label', 'master')->get();
         return DocumentLibraryResource::collection($documents);
     }
+    public function tenantDocuments(Request $request)
+    {
+        $request->validate([
+            'flat_id'     => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+            'tenant_id'   => 'required|exists:users,id',
+        ]);
+        $users = User::where('id', $request->tenant_id)->select('id','first_name')->get();
 
+        $documentLibraries = DocumentLibrary::where('label', 'master')
+            ->whereNotIn('name', ['Makani Number','Title deed'])
+            ->get();
+
+        // Get the latest documents for each user and document type
+        $documents = Document::whereIn('documentable_id', $users->pluck('id'))
+            ->where(['documentable_type' => User::class])
+            ->whereIn('document_library_id', $documentLibraries->pluck('id'))
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy(['documentable_id', 'document_library_id'])
+            ->map(function ($userDocs) {
+                return $userDocs->map(function ($docs) {
+                    return $docs->first();
+                });
+            });
+        // Log::info('Documents: ' . $documents);
+
+        return response()->json([
+            'users' => $users->map(function ($user) use ($documents, $documentLibraries) {
+                $userDocs = $documents[$user->id] ?? collect();
+                return [
+                    'user_id' => $user?->id,
+                    'user_name' => $user?->first_name,
+                    'documents' => DocumentLibraryResource::collection($documentLibraries)->map(function ($resource) use ($user) {
+                        return $resource->additional(['tenant_id' => $user?->id]);
+                    })
+                ];
+            })
+        ]);
+    }
     public function create(DocumentRequest $request)
     {
         $currentDate = date('Y-m-d');
 
-        $building = Building::where('id', $request->building_id)->first();
+        $building = DB::table('building_owner_association')
+            ->where(['building_id' => $request->building_id,'active'=> true])->first()->owner_association_id;
 
         $document = Document::create([
             'document_library_id' => $request->document_library_id,
@@ -36,7 +81,7 @@ class DocumentsController extends Controller
             'documentable_type' => User::class,
             'name' => $request->name,
             'flat_id' => $request->flat_id ?? null,
-            'owner_association_id' => $building->owner_association_id
+            'owner_association_id' => $building
         ]);
 
         // Handle multiple images
@@ -62,12 +107,73 @@ class DocumentsController extends Controller
         }
     }
 
+    public function makaniNumber(MakaniNumberRequest $request)
+    {
+        $currentDate = date('Y-m-d');
+        $building = DB::table('building_owner_association')
+            ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+
+        // Check if document already exists
+        $existingDocument = Document::where([
+            'document_library_id' => $request->document_library_id,
+            'building_id' => $request->building_id,
+            'flat_id' => $request->flat_id,
+            'documentable_id' => auth()->user()->id,
+            'documentable_type' => User::class,
+        ])->first();
+
+        $documentData = [
+            'document_library_id'  => $request->document_library_id,
+            'building_id'          => $request->building_id,
+            'documentable_id'      => auth()->user()->id,
+            'status'               => 'submitted',
+            'expiry_date'          => date('Y-m-d', strtotime('+1 year', strtotime($currentDate))),
+            'documentable_type'    => User::class,
+            'name'                 => $request->name,
+            'flat_id'              => $request->flat_id ?? null,
+            'owner_association_id' => $building,
+            'url'                  => $request->number ?? null,
+        ];
+
+        if ($existingDocument) {
+            $existingDocument->update($documentData);
+            $message = 'Makani number updated successfully';
+        } else {
+            Document::create($documentData);
+            $message = 'Makani number added successfully';
+        }
+
+        return new CustomResponseResource([
+            'title'   => $message,
+            'message' => $message,
+            'code'    => 200,
+        ]);
+    }
+
     // Fetch other documents for the user
-    function fetchOtherDocuments()
+    function fetchOtherDocuments(Request $request)
     {
         $documents = auth()->user()->userDocuments()->where('documentable_type', 'App\Models\User\User')
-            ->where('document_library_id', 5)->get();
+            ->where('document_library_id', 5);
 
-        return DocumentResource::collection($documents);
+        return DocumentResource::collection($documents->paginate($request->paginate ?? 10));
+    }
+
+    public function tenantOtherDocuments(Request $request)
+    {
+        $request->validate([
+            'flat_tenant_id' => 'required|exists:users,id',
+            'building_id' => 'required|exists:buildings,id',
+            'flat_id' => 'required|exists:flats,id',
+        ]);
+
+        $user = User::findOrFail($request->flat_tenant_id);
+        $documents = $user->userDocuments()
+            ->where('documentable_type', 'App\Models\User\User')
+            ->where('document_library_id', 5)
+            ->where('building_id', $request->building_id)
+            ->where('flat_id', $request->flat_id);
+
+        return DocumentResource::collection($documents->paginate(10));
     }
 }

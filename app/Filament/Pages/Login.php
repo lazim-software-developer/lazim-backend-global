@@ -31,7 +31,7 @@ class Login extends AuthLogin
         $subdomain = $this->getSubdomain($host);
 
         if (!$subdomain) {
-            Filament::auth()->logout(); 
+            Filament::auth()->logout();
             throw ValidationException::withMessages([
                 'data.email' => __('Subdomain is required.'),
             ]);
@@ -80,7 +80,6 @@ class Login extends AuthLogin
 
         $user = auth()->user();
         $ownerAssociation = app('currentOwnerAssociation');
-        Log::info("User ID: {$user->id}, Owner Association ID: {$user->owner_association_id}");
 
         if ($user->owner_association_id !== $ownerAssociation->id) {
             Filament::auth()->logout();

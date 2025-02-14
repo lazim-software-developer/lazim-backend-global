@@ -51,7 +51,7 @@ class VendorServiceResource extends Resource
                             ->required()
                             ->placeholder('NA'),
                         Select::make('subcategory_id')
-                            ->label('Sub Categories')
+                            ->label('Sub categories')
                             ->relationship('subcategory', 'name')
                             ->searchable()
                             ->preload()

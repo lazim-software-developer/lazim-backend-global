@@ -23,6 +23,10 @@ class CreateFacility extends CreateRecord
             ->update([
                 'active'=>1
             ]);
+    }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

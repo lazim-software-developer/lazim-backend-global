@@ -6,6 +6,7 @@ use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
@@ -31,8 +32,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('User')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     DatePicker::make('date')
@@ -40,8 +41,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('Date')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TimePicker::make('start_time')
@@ -49,8 +50,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('Start Time')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TimePicker::make('end_time')
@@ -58,8 +59,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('End Time')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('order_id')
@@ -68,8 +69,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->default('NA')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('payment_status')
@@ -78,17 +79,18 @@ class FacilityBookingRelationManager extends RelationManager
                         ->default('NA')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
-                    TextInput::make('remarks')
+                    Textarea::make('remarks')
                         ->required()
                         ->default('NA')
+                        ->maxLength(250)
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('reference_number')
@@ -96,8 +98,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('Reference Number')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     // Toggle::make('approved')
@@ -117,8 +119,8 @@ class FacilityBookingRelationManager extends RelationManager
                         ->placeholder('Approved by')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
                 ]),
             ]);
@@ -152,7 +154,7 @@ class FacilityBookingRelationManager extends RelationManager
             ])
             ->actions([
                 Action::make('Update Status')
-                    ->visible(fn ($record) => $record->approved === false)
+                    ->visible(fn($record) => $record->approved === false)
                     ->button()
                     ->form([
                         Toggle::make('approved')
@@ -160,7 +162,7 @@ class FacilityBookingRelationManager extends RelationManager
                             ->required()
                             ->live(),
                     ])
-                    ->fillForm(fn (FacilityBooking $record): array => [
+                    ->fillForm(fn(FacilityBooking $record): array=> [
                         'approved' => $record->status,
                     ])
                     ->action(function (FacilityBooking $record, array $data): void {

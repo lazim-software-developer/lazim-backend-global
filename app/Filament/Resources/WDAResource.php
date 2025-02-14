@@ -2,34 +2,33 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
+use App\Filament\Resources\WDAResource\Pages;
 use App\Models\Accounting\WDA;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\WDAResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\WDAResource\RelationManagers;
-use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class WDAResource extends Resource
 {
-    protected static ?string $model = WDA::class;
+    protected static ?string $model      = WDA::class;
     protected static ?string $modelLabel = 'WDA';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -41,6 +40,7 @@ class WDAResource extends Resource
                 ])
                     ->schema([
                         TextInput::make('wda_number')
+                            ->label('WDA number')
                             ->disabled(),
                         DatePicker::make('date')
                             ->rules(['date'])
@@ -63,13 +63,13 @@ class WDAResource extends Resource
                             ->preload()
                             ->disabled()
                             ->searchable()
-                            ->label('Building Name'),
+                            ->label('Building name'),
                         Select::make('contract_id')
                             ->relationship('contract', 'contract_type')
                             ->preload()
                             ->disabled()
                             ->searchable()
-                            ->label('Contract Type'),
+                            ->label('Contract type'),
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
@@ -82,7 +82,7 @@ class WDAResource extends Resource
                             ->disabled()
                             ->disabled()
                             ->searchable()
-                            ->label('vendor Name'),
+                            ->label('Vendor name'),
                         Select::make('status')
                             ->options([
                                 'approved' => 'Approve',
@@ -91,9 +91,10 @@ class WDAResource extends Resource
                             ->disabled(function (WDA $record) {
                                 return $record->status != 'pending';
                             })
+                            ->required()
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
+                        Textarea::make('remarks')
                             ->rules(['max:150'])
                             ->visible(function (callable $get) {
                                 if ($get('status') == 'rejected') {
@@ -105,7 +106,7 @@ class WDAResource extends Resource
                                 return $record->status != 'pending';
                             })
                             ->required(),
-                    ])
+                    ]),
             ]);
     }
 
@@ -125,7 +126,7 @@ class WDAResource extends Resource
                 TextColumn::make('building.name')
                     ->label('Building'),
                 TextColumn::make('contract.contract_type')
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -133,7 +134,7 @@ class WDAResource extends Resource
                     ->options([
                         'approved' => 'Approve',
                         'rejected' => 'Reject',
-                        'pending' => 'Pending',
+                        'pending'  => 'Pending',
                     ])
                     ->searchable(),
                 SelectFilter::make('building_id')
@@ -170,9 +171,9 @@ class WDAResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListWDAS::route('/'),
+            'index'  => Pages\ListWDAS::route('/'),
             'create' => Pages\CreateWDA::route('/create'),
-            'edit' => Pages\EditWDA::route('/{record}/edit'),
+            'edit'   => Pages\EditWDA::route('/{record}/edit'),
         ];
     }
 }

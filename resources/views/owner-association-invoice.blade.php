@@ -41,11 +41,13 @@
             <div class="text-center py-2">
                 <span class="text-2xl font-bold text-gray-900">{{$data->type == 'building'? 'INVOICE' : 'TAX INVOICE'}}</span>
             </div>
-            
+
             <!-- Header -->
             <div class="flex justify-between">
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900">{{$data->owner?->name}}</h2>
+                    <h2 class="text-sm font-bold text-gray-900">
+                        {{ auth()->user()->role->name == 'Property Manager' ? auth()->user()->first_name : $data->owner?->name }}
+                    </h2>
                     <p class="text-sm font-bold text-gray-900">{{$data->type == 'building'? $data->building?->name : ' '}}</p>
                     <p class="text-sm text-gray-600">P: {{$data->owner?->phone}}</p>
                     <p class="text-sm text-gray-600">{{$data->owner?->email}}</p>
@@ -83,7 +85,9 @@
                         <tr>
                             <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">SL NO.</th>
                             <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">Description</th>
-                            <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">Quantity</th>
+                            @if ($data->quantity)
+                            <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; text-align: center;">Quantity</th>
+                            @endif
                             <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">Rate</th>
                             <th class="border-b-2 border-gray-300 p-2 text-xs text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">Amount</th>
                         </tr>
@@ -92,9 +96,13 @@
                         <tr>
                             <td class="p-2" style="border: 1px solid #ddd; padding: 8px; text-align: center;">1</td>
                             <td class="p-2" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{$data->description}}</td>
-                            <td class="p-2" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{$data->quantity}}</td>
+                            @if ($data->quantity)
+                            <td class="p-2" style="border: 1px solid #ddd; text-align: center;">{{$data->quantity}}</td>
+                            @endif
                             <td class="p-2" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{$data->rate}}</td>
-                            <td class="p-2" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{$data->quantity * $data->rate}}</td>
+                            <td class="p-2" style="border: 1px solid #ddd; text-align: center;">
+                                {{$data->quantity ? $data->quantity * $data->rate : $data->rate}}
+                            </td>
                         </tr>
                         <!-- Add more rows as needed -->
                         <tr>
@@ -120,7 +128,9 @@
                 <table class="w-1/2 text-left border-collapse" style="border: 1px solid #ddd; border-collapse: collapse;">
                     <tr>
                         <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">Invoice Subtotal</td>
-                        <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{$data->quantity * $data->rate}}</td>
+                        <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; text-align: center;">
+                            {{$data->quantity ? $data->quantity * $data->rate : $data->rate}}
+                        </td>
                     </tr>
                     <tr>
                         <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">VAT%</td>
@@ -128,7 +138,9 @@
                     </tr>
                     <tr>
                         <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">VAT Amount</td>
-                        <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{($data->quantity * $data->rate * $data->tax)/100 }}</td>
+                        <td class="p-2 text-sm text-gray-600" style="border: 1px solid #ddd; text-align: center;">
+                            {{($data->quantity ? $data->quantity * $data->rate : $data->rate) * $data->tax / 100}}
+                        </td>
                     </tr>
                     <tr>
                         <td class="p-2 text-sm text-gray-600 font-bold" style="border: 1px solid #ddd; padding: 8px; text-align: center;">TOTAL AED</td>

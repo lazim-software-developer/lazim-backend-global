@@ -26,7 +26,7 @@ class CommentObserver
                 if ($complaint->technician_id) {
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                     if ($complaint->complaint_type == 'snag'){
-                            
+
                         if ($complaint->status == 'open'){
                             $notificationType = 'PendingRequests';
                         }
@@ -45,15 +45,16 @@ class CommentObserver
                     else{
                         $notificationType = 'InAppNotficationScreen';
                     }
-                    
+
                     if ($expoPushTokens->count() > 0) {
                         foreach ($expoPushTokens as $expoPushToken) {
                             $message = [
                                 'to' => $expoPushToken,
                                 'sound' => 'default',
                                 'title' => 'New Comment',
-                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                                'data' => ['notificationType' => $notificationType],
+                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
+                                'data' => ['notificationType' => $notificationType,
+                                        'building_id' => $complaint->building_id],
                             ];
                             $this->expoNotification($message);
                             DB::table('notifications')->insert([
@@ -63,13 +64,13 @@ class CommentObserver
                                 'notifiable_id' => $complaint->technician_id,
                                 'data' => json_encode([
                                     'actions' => [],
-                                    'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
+                                    'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
                                     'duration' => 'persistent',
                                     'icon' => 'heroicon-o-document-text',
                                     'iconColor' => 'warning',
                                     'title' => 'New Comment',
                                     'view' => 'notifications::notification',
-                                    'viewData' => [],
+                                    'viewData' => ['building_id' => $complaint->building_id],
                                     'format' => 'filament',
                                     'url' => $notificationType,
                                 ]),
@@ -92,8 +93,12 @@ class CommentObserver
                         $notificationType = 'InAppNotficationScreen';
                     }
                     if ($complaint->complaint_type == 'snag'){
-                                
+
                         $notificationType = 'MyComplaints';
+                    }
+                    if ($complaint->complaint_type == 'preventive_maintenance'){
+
+                        $notificationType = 'PreventiveMaintenance';
                     }
                     $expoPushTokens = ExpoPushNotification::where('user_id',  $complaint->user_id)->pluck('token');
                         if ($expoPushTokens->count() > 0) {
@@ -102,8 +107,14 @@ class CommentObserver
                                     'to' => $expoPushToken,
                                     'sound' => 'default',
                                     'title' => 'New Comment',
-                                    'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                                    'data' => ['notificationType' => $notificationType],
+                                    'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
+                                    'data' => [
+                                        'notificationType' => $notificationType,
+                                        'complaintId'      => $complaint?->id,
+                                        'open_time' => $complaint?->open_time,
+                                        'close_time' => $complaint?->close_time,
+                                        'due_date' => $complaint?->due_date,
+                                    ],
                                 ];
                                 $this->expoNotification($message);
                                 DB::table('notifications')->insert([
@@ -113,13 +124,18 @@ class CommentObserver
                                     'notifiable_id' => $complaint->user_id,
                                     'data' => json_encode([
                                         'actions' => [],
-                                        'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
+                                        'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
                                         'duration' => 'persistent',
                                         'icon' => 'heroicon-o-document-text',
                                         'iconColor' => 'warning',
                                         'title' => 'New Comment',
                                         'view' => 'notifications::notification',
-                                        'viewData' => [],
+                                        'viewData' => [
+                                            'complaintId'      => $complaint?->id,
+                                            'open_time' => $complaint?->open_time,
+                                            'close_time' => $complaint?->close_time,
+                                            'due_date' => $complaint?->due_date,
+                                        ],
                                         'format' => 'filament',
                                         'url' => $notificationType,
                                     ]),
@@ -149,15 +165,25 @@ class CommentObserver
                             $notificationType = 'InAppNotficationScreen';
                         }
                         if ($complaint->complaint_type == 'snag'){
-                            
+
                                 $notificationType = 'MyComplaints';
+                        }
+                        if ($complaint->complaint_type == 'preventive_maintenance'){
+
+                                $notificationType = 'PreventiveMaintenance';
                         }
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'New Comment',
-                            'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
-                            'data' => ['notificationType' => $notificationType],
+                            'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
+                            'data' => [
+                                'notificationType' => $notificationType,
+                                'complaintId'      => $complaint?->id,
+                                'open_time' => $complaint?->open_time,
+                                'close_time' => $complaint?->close_time,
+                                'due_date' => $complaint?->due_date,
+                            ],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -167,13 +193,18 @@ class CommentObserver
                             'notifiable_id' => $complaint->user_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your complaint. Check the application for the infomation.',
+                                'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
                                 'title' => 'New Comment',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => [
+                                    'complaintId'      => $complaint?->id,
+                                    'open_time' => $complaint?->open_time,
+                                    'close_time' => $complaint?->close_time,
+                                    'due_date' => $complaint?->due_date,
+                                ],
                                 'format' => 'filament',
                                 'url' => $notificationType,
                             ]),

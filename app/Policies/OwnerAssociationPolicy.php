@@ -18,7 +18,7 @@ class OwnerAssociationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_owner::association');
+        return $user->can('view_any_owner::association') || $user->can('view_any_property::manager');
     }
 
     /**
@@ -30,7 +30,7 @@ class OwnerAssociationPolicy
      */
     public function view(User $user, OwnerAssociation $ownerAssociation): bool
     {
-        return $user->can('view_owner::association');
+        return $user->can('view_owner::association') || $user->can('view_property::manager');
     }
 
     /**
@@ -41,7 +41,7 @@ class OwnerAssociationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_owner::association');
+        return $user->can('create_owner::association') || $user->can('create_property::manager');
     }
 
     /**
@@ -53,7 +53,7 @@ class OwnerAssociationPolicy
      */
     public function update(User $user, OwnerAssociation $ownerAssociation): bool
     {
-        return $user->can('update_owner::association');
+        return $user->can('update_owner::association') || $user->can('update_property::manager');
     }
 
     /**

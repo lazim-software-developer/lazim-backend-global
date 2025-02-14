@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\Flat;
 use App\Models\OwnerAssociation;
+use App\Models\Remark;
 use App\Models\Vendor\Vendor;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Complaint extends Model
 {
@@ -47,7 +49,8 @@ class Complaint extends Model
         'flat_id',
         'complaint_location',
         'ticket_number',
-        'type'
+        'type',
+        'selected_service',
     ];
 
     protected $searchableFields = ['*'];
@@ -58,6 +61,8 @@ class Complaint extends Model
         'photo' => 'array',
         'remarks' => 'array',
     ];
+
+    protected $with = ['media']; // Eager load media by default
 
     public function ownerAssociation()
     {
@@ -93,7 +98,7 @@ class Complaint extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function media()
+    public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediaable');
     }
@@ -119,5 +124,10 @@ class Complaint extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function remarks()
+    {
+        return $this->hasMany(Remark::class);
     }
 }

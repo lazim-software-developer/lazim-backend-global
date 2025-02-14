@@ -19,6 +19,10 @@ class FlatTenantRelationManager extends RelationManager
 {
     protected static string $relationship = 'tenants';
 
+    protected static ?string $title = 'Resident History';
+
+    protected static ?string $pluralModelLabel = 'Resident History';
+
     public function form(Form $form): Form
     {
         return $form
@@ -74,25 +78,35 @@ class FlatTenantRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('flat.description')->limit(50),
-            Tables\Columns\TextColumn::make('user.first_name')->limit(50),
-            Tables\Columns\IconColumn::make('primary'),
-            Tables\Columns\TextColumn::make('start_date')->dateTime(),
-            Tables\Columns\TextColumn::make('end_date')->dateTime(),
-            Tables\Columns\IconColumn::make('active'),
-        ])
-        ->defaultSort('created_at', 'desc')
+        return $table->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes())
+            ->columns([
+                // Tables\Columns\TextColumn::make('flat.description')->limit(50),
+                Tables\Columns\TextColumn::make('user.first_name')->limit(50),
+                // Tables\Columns\IconColumn::make('primary'),
+                Tables\Columns\TextColumn::make('start_date')->date()
+                    ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA'),
+                Tables\Columns\TextColumn::make('end_date')->date()
+                    ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA'),
+                Tables\Columns\TextColumn::make('role')->label('Type'),
+                Tables\Columns\TextColumn::make('active')->label('Contract status')
+                    ->formatStateUsing(fn(string $state) => $state ? 'Ongoing' : 'Ended')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        '1' => 'success',
+                        '0' => 'danger',
+                        '' => 'danger',
+                    }),
+            ])
+            ->defaultSort('active', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -100,7 +114,7 @@ class FlatTenantRelationManager extends RelationManager
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 }

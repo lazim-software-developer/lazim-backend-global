@@ -101,7 +101,9 @@ class EditFitOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Fitout form status',
                         'body'  => 'Your fitout form has been approved.',
-                        'data'  => ['notificationType' => 'MyRequest'],
+                        'data'  => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -119,7 +121,8 @@ class EditFitOutFormsDocument extends EditRecord
                     'iconColor' => 'warning',
                     'title'     => 'Fitout form status',
                     'view'      => 'notifications::notification',
-                    'viewData'  => [],
+                    'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format'    => 'filament',
                     'url'       => 'MyRequest',
                 ]),
@@ -137,7 +140,9 @@ class EditFitOutFormsDocument extends EditRecord
                         'sound' => 'default',
                         'title' => 'Fitout form status',
                         'body'  => 'Your fitout form has been rejected.',
-                        'data'  => ['notificationType' => 'MyRequest'],
+                        'data'  => ['notificationType' => 'MyRequest',
+                            'building_id' => $this->record->building_id,
+                            'flat_id' => $this->record->flat_id,],
                     ];
                     $this->expoNotification($message);
                 }
@@ -155,7 +160,8 @@ class EditFitOutFormsDocument extends EditRecord
                     'iconColor' => 'danger',
                     'title'     => 'Fitout form status',
                     'view'      => 'notifications::notification',
-                    'viewData'  => [],
+                    'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format'    => 'filament',
                     'url'       => 'MyRequest',
                 ]),

@@ -2,33 +2,27 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
+use App\Filament\Resources\TenderResource\Pages;
+use App\Filament\Resources\TenderResource\RelationManagers\ProposalsRelationManager;
 use App\Models\Accounting\Tender;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\TenderResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TenderResource\RelationManagers;
-use App\Filament\Resources\TenderResource\RelationManagers\ProposalsRelationManager;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TenderResource extends Resource
 {
     protected static ?string $model = Tender::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
-    protected static ?string $modelLabel = 'Tenders';
+    protected static ?string $modelLabel      = 'Tenders';
 
     public static function form(Form $form): Form
     {
@@ -43,15 +37,15 @@ class TenderResource extends Resource
                     ->preload()
                     ->searchable()
                     ->disabled()
-                    ->label('Building Name'),
+                    ->label('Building'),
                 Select::make('budget_id')
                     ->relationship('budget', 'budget_period')
                     ->preload()
                     ->searchable()
                     ->disabled()
-                    ->label('Budget Period'),
+                    ->label('Budget period'),
                 Select::make('service_id')
-                    ->relationship('service','name')
+                    ->relationship('service', 'name')
                     ->preload()
                     ->searchable()
                     ->disabled()
@@ -59,7 +53,7 @@ class TenderResource extends Resource
                 TextInput::make('tender_type')
                     ->placeholder('NA')
                     ->disabled()
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
                 DatePicker::make('date')
                     ->rules(['date'])
                     ->required()
@@ -81,11 +75,11 @@ class TenderResource extends Resource
                 TextColumn::make('building.name')
                     ->searchable()
                     ->default('NA')
-                    ->label('Building Name'),
+                    ->label('Building'),
                 TextColumn::make('budget.budget_period')
                     ->searchable()
                     ->default('NA')
-                    ->label('Budget Period'),
+                    ->label('Budget period'),
                 TextColumn::make('service.name')
                     ->searchable()
                     ->default('NA')
@@ -93,7 +87,7 @@ class TenderResource extends Resource
                 TextColumn::make('tender_type')
                     ->searchable()
                     ->default('NA')
-                    ->label('Contract Type'),
+                    ->label('Contract type'),
                 TextColumn::make('date')
                     ->date(),
                 TextColumn::make('end_date')
@@ -129,8 +123,8 @@ class TenderResource extends Resource
     {
         return [
             'index' => Pages\ListTenders::route('/'),
-            'view' => Pages\ViewTender::route('/{record}'),
-            'edit' => Pages\EditTender::route('/{record}/edit'),
+            'view'  => Pages\ViewTender::route('/{record}'),
+            'edit'  => Pages\EditTender::route('/{record}/edit'),
         ];
     }
 }

@@ -55,13 +55,13 @@ class InvoiceController extends Controller
 
     public function store(CreateInvoiceRequest $request, Vendor $vendor)
     {
-        $connection = DB::connection('lazim_accounts');
+        $wda        = WDA::find($request->wda_id);
+        $oa_id      = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()->owner_association_id;
+
         $document = optimizeDocumentAndUpload($request->file);
 
-        $wda        = WDA::find($request->wda_id);
         $name       = $vendor->OA->name;
         $invoice_id = strtoupper(substr($name, 0, 4)) . date('YmdHis');
-        $oa_id      = DB::table('building_owner_association')->where('building_id', $wda->building_id)->where('active', true)->first()?->owner_association_id;
         $request->merge([
             'building_id'          => $wda->building_id,
             'contract_id'          => $wda->contract_id,
@@ -75,42 +75,6 @@ class InvoiceController extends Controller
 
         $invoice = Invoice::create($request->all());
         $wda->update(['invoice_status' => 'submitted']);
-
-
-        // //Inserting vendor record into lazim-accounts database
-        // $created_by = DB::connection('lazim_accounts')->table('users')->where(['owner_association_id' => $oa_id, 'type' => 'company'])->first()?->id;
-
-        // $accountsVendorId = DB::connection('lazim_accounts')->table('venders')->where('lazim_vendor_id', $vendor->id)->first()?->id;
-        // $service          = $wda->service;
-        // $subCategory      = $wda->service->subcategory;
-        // $category         = $wda->service->subcategory->category;
-
-        // if ($accountsVendorId) {
-        //     DB::connection('lazim_accounts')->table('bills')->insert([
-        //         'bill_id'          => DB::connection('lazim_accounts')->table('bills')->latest()->first()?->id + 1,
-        //         'vender_id'        => $accountsVendorId,
-        //         'bill_date'        => $request->date,
-        //         'due_date'         => Carbon::parse($request->date)->addDays(30),
-        //         'order_number'     => random_int(1000000, 9999999),
-        //         'status'           => 0,
-        //         'shipping_display' => 1,
-        //         'send_date'        => $request->date,
-        //         'category_id'      => 3,
-        //         'created_by'       => $created_by,
-        //         'created_at'       => now(),
-        //         'updated_at'       => now(),
-        //         'building_id'      => $wda->building_id,
-        //         'lazim_invoice_id' => $invoice->id,
-        //     ]);
-        //     DB::connection('lazim_accounts')->table('bill_products')->insert([
-        //         'bill_id' => DB::connection('lazim_accounts')->table('bills')->where('lazim_invoice_id', $invoice->id)->first()->id,
-        //         'product_id' => DB::connection('lazim_accounts')->table('product_services')->where('name',$wda->service->name)->first()?->id,
-        //         'quantity' => 1,
-        //         'tax' => DB::connection('lazim_accounts')->table('taxes')->where(['building_id'=>$wda->building_id,'name'=>'VAT'])->first()->id,
-        //         'discount' => 0,
-        //         'price' => $request->invoice_amount / (1 + 5 / 100),
-        //     ]);
-        // }
 
         return (new CustomResponseResource([
             'title'   => 'Success',
@@ -142,6 +106,10 @@ class InvoiceController extends Controller
 
     public function edit(InvoiceUpdateRequest $request, Invoice $invoice)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $documentUrl = optimizeDocumentAndUpload($request->file);
 
         $audit = InvoiceAudit::create([

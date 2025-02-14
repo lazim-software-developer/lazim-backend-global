@@ -37,20 +37,26 @@ class PollNotifications extends Command
             now()->startOfMinute()
         ])
         ->where('status','published')->where('active',true)->distinct()->get();
-        $buildings=$scheduledAt->pluck('building_id');
+
+        $buildings=DB::table('building_poll')
+            ->whereIn('poll_id',$scheduledAt->pluck('id'))
+            ->distinct()
+            ->pluck('building_id');
             $tenant = FlatTenant::where('active',1)
                     ->whereIn('building_id',$buildings)->distinct()->pluck('tenant_id');
-                
+
             foreach ($tenant as $user) {
                 $expoPushToken = ExpoPushNotification::where('user_id', $user)->first()?->token;
-                if ($expoPushToken) {                       
+                if ($expoPushToken) {
                         $message = [
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'url' => 'ComunityPostTab',
                             'title' => 'New Poll!',
                             'body' => 'New Poll launched',
-                            'data' => ['notificationType' =>  'ComunityPostTabPoll' ],
+                            'data' => ['notificationType' =>  'ComunityPostTabPoll',
+                                        'building_id' => $buildings,
+                            ],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -66,7 +72,7 @@ class PollNotifications extends Command
                                 'iconColor' => 'warning',
                                 'title' => 'New Poll!',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id'=>$buildings],
                                 'format' => 'filament',
                                 'url' => 'ComunityPostTabPoll',
                             ]),
