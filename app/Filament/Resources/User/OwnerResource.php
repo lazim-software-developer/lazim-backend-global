@@ -207,9 +207,13 @@ class OwnerResource extends Resource
                     Select::make('building_id')
                     ->rules(['exists:buildings,id'])
                     ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::pluck('name', 'id');
+                        }else{
                         return Building::where('owner_association_id', auth()->user()->owner_association_id)
                             ->where('resource', 'Default')
                             ->pluck('name', 'id');
+                        }
                     })
                     ->reactive()
                     ->preload()

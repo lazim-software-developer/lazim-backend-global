@@ -5,6 +5,7 @@ namespace App\Models;
 use Sushi\Sushi;
 use App\Models\User\User;
 use Illuminate\Support\Arr;
+use App\Models\MollakTenant;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
@@ -86,6 +87,10 @@ class OwnerAssociation extends Model
     public function owners()
     {
         return $this->hasMany(ApartmentOwner::class);
+    }
+    public function tenants()
+    {
+        return $this->hasMany(MollakTenant::class);
     }
 
     public function posts()
