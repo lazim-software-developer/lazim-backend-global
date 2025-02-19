@@ -7,11 +7,12 @@ use App\Models\User\User;
 use App\Models\FlatOwners;
 use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ApartmentOwner extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
 
