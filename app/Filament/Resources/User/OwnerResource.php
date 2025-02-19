@@ -13,12 +13,14 @@ use App\Models\ApartmentOwner;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Enums\FiltersLayout;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\OwnerResource\Pages;
@@ -72,7 +74,7 @@ class OwnerResource extends Resource
                                     if ($record) {
                                         $query->where('id', '!=', $record->id);
                                     }
-                                    
+                                    $query->whereNull('deleted_at');
                                     if ($query->exists()) {
                                         $fail("This owner mobile number is already registered with this owner association.");
                                     }
@@ -106,7 +108,7 @@ class OwnerResource extends Resource
                                 if ($record) {
                                     $query->where('id', '!=', $record->id);
                                 }
-                                
+                                $query->whereNull('deleted_at');
                                 if ($query->exists()) {
                                     $fail("This owner email is already registered with this owner association.");
                                 }
@@ -136,6 +138,7 @@ class OwnerResource extends Resource
                                     if (!empty($buildingId)) {
                                         $query->where('building_id', $buildingId);
                                     }
+                                    $query->whereNull('deleted_at');
                                     if ($query->exists()) {
                                         $fail("This passport number is already registered with this owner association.");
                                     }
@@ -164,6 +167,7 @@ class OwnerResource extends Resource
                                     if (!empty($buildingId)) {
                                         $query->where('building_id', $buildingId);
                                     }
+                                    $query->whereNull('deleted_at');
                                     if ($query->exists()) {
                                         $fail("This emirates id is already registered with this owner association.");
                                     }
@@ -193,6 +197,7 @@ class OwnerResource extends Resource
                                     if (!empty($buildingId)) {
                                         $query->where('building_id', $buildingId);
                                     }
+                                    $query->whereNull('deleted_at');
                                     if ($query->exists()) {
                                         $fail("This trade license id is already registered with this owner association.");
                                     }
@@ -301,6 +306,20 @@ class OwnerResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Action::make('delete')
+                ->button()
+                ->action(function ($record) {
+                    $record->delete();
+
+                    Notification::make()
+                        ->title('Tenants Deleted Successfully')
+                        ->success()
+                        ->send()
+                        ->duration('4000');
+                })
+                ->requiresConfirmation()
+                ->modalHeading('Are you sure you want to delete this ?')
+                ->modalButton('Delete'),
                 // Action::make('Notify Owner')
                 // ->button()
                 // ->action(function (array $data,$record){
