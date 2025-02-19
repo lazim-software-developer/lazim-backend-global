@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\City;
 use App\Models\Master\Role;
+use Illuminate\Validation\Rule;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Imports\OAM\BudgetImport;
@@ -120,9 +121,9 @@ class BuildingResource extends Resource
                             'required'
                         ])
                         ->unique(
-                            'buildings',
-                            'property_group_id',
-                            fn(?Model $record) => $record,
+                            table: 'buildings',
+                            column: 'property_group_id',
+                            ignorable: fn ($record) => $record
                         ),
 
                     TextInput::make('address_line1')
@@ -132,7 +133,7 @@ class BuildingResource extends Resource
                         ->placeholder('Address line 1'),
 
                     TextInput::make('address_line2')
-                        ->rules(['required','max:500', 'string'])
+                        ->rules(['max:500', 'string'])
                         ->nullable()
                         ->label('Address line 2')
                         ->placeholder('Address Line 2'),

@@ -18,7 +18,7 @@ class CreateOwner extends CreateRecord
     {
                     $building = Building::find($this->record->building_id);
                     $Assignnflats = FlatOwners::where('owner_id',$this->record->id)->get();
-                    $connection = DB::connection('lazim_accounts');
+                    $connection = DB::connection(env('SECOND_DB_CONNECTION'));
                     foreach($Assignnflats as $flat_value){
                     $flatDetail=Flat::where('id',$flat_value->flat_id)->first();
                     $customer = $connection->table('customers')->where('created_by', auth()->user()?->id)->orderByDesc('customer_id')->first();
