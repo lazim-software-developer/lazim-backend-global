@@ -77,7 +77,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200 whitespace-nowrap dark:divide-white/5">
             @foreach ($paginationResponse['items'] as $invoice)
-                <tr class="{{ $tr_row }}">
+                <tr>
                     <td class="{{ $cssClassRow }}">
                         <div class="fi-ta-col-wrp">
                             <div class="fi-ta-text grid w-full gap-y-1 px-3 py-2">
@@ -102,7 +102,7 @@
                                         <div class="fi-ta-text-item inline-flex items-center gap-1.5  ">
                                             <span
                                                 class="fi-ta-text-item-label text-sm leading-6 text-gray-950 dark:text-white  ">
-                                                {{ $invoice['customer_id'] }}</span>
+                                                {{ $invoice['customer']['name'] }}</span>
                                         </div>
                                     </div>
                                 </div>
