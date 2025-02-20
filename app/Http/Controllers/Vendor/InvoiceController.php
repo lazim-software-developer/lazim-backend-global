@@ -2,25 +2,29 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Vendor\CreateInvoiceRequest;
-use App\Http\Requests\Vendor\InvoiceUpdateRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Vendor\InvoiceResource;
-use App\Http\Resources\Vendor\InvoiceStatsResource;
-use App\Http\Resources\Vendor\WdaInvoiceResource;
-use App\Models\Accounting\Invoice;
-use App\Models\Accounting\InvoiceAudit;
-use App\Models\Accounting\WDA;
-use App\Models\InvoiceApproval;
-use App\Models\Vendor\Vendor;
+use App\Core\Traits\DateTrait;
+use App\Core\Traits\PaginatedResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use App\Models\Accounting\WDA;
+use App\Models\InvoiceApproval;
+use App\Models\Accounting\Invoice;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Services\GenericHttpService;
 use Illuminate\Support\Facades\Http;
+use App\Models\Accounting\InvoiceAudit;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\InvoiceResource;
+use App\Http\Resources\Vendor\WdaInvoiceResource;
+use App\Http\Requests\Vendor\CreateInvoiceRequest;
+use App\Http\Requests\Vendor\InvoiceUpdateRequest;
+use App\Http\Resources\Vendor\InvoiceStatsResource;
 
 class InvoiceController extends Controller
 {
+    use PaginatedResponseTrait, DateTrait;
     public function index(Request $request)
     {
         // Get the date filter or use the current month and year
@@ -214,5 +218,24 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice)
     {
         return new InvoiceResource($invoice);
+    }
+
+    public function invoiceGrid(Request $request)
+    {
+
+        $requestPayload =  [
+            'from_date' => $request->from_date ?? $this->startOfMonth()->toDateString(),
+            'to_date' => $request->to_date ??  $this->endOfMonth()->toDateString(),
+            'customer' => $request->customer ?? null,
+            'status' => $request->status ?? null,
+            'page' => $request->page ?? 1,
+            'per_page' => $request->per_page ?? 20,
+            'order_by' => $request->order_by ?? 'created_at',
+            'direction' => $request->direction ?? 'desc',
+        ];
+
+        $response = GenericHttpService::post('/report/invoice', $requestPayload);
+        $paginationResponse =  $this->mapPaginatedResponse($response);
+        return view('filament.resources.invoice.partials.invoice-grid', compact('paginationResponse'));
     }
 }

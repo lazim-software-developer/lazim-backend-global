@@ -22,6 +22,7 @@ use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\Vendor\MasterController;
 use App\Http\Controllers\BuildingImportController;
 use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Http\Controllers\Vendor\InvoiceController;
 use App\Filament\Resources\Building\BuildingResource;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
@@ -119,3 +120,4 @@ Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('
 
 Route::post('/qr/feedback', [FeedbackController::class, 'submitFeedback'])->name('qr.feedback.submit');
 Route::get('/qr/feedback', [FeedbackController::class, 'index'])->name('qr.feedback.index');
+Route::get('/inovice/list', action: [InvoiceController::class, 'invoiceGrid'])->name('invoice.ajax-load-invoices');

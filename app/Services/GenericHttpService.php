@@ -44,17 +44,19 @@ class GenericHttpService
         try {
             // Attempt to make the request with retries
             $response = self::makeHttpRequest($method, $url, $headers, $data, $attempts);
-            return [
-                'success' => true,
-                'data' => $response->json(),
-                'message' => 'Request successful.'
-            ];
+            // return [
+            //     'success' => true,
+            //     'data' => $response->json(),
+            //     'message' => 'Request successful.'
+            // ];
+            return $response->json();
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Something went wrong. Please try again later.',
-                'details' => $e->getMessage()
+                //'message' => 'Something went wrong. Please try again later.',
+                'message' => $e->getMessage(),
+                'errors' => [],
             ];
         }
     }
@@ -62,7 +64,7 @@ class GenericHttpService
     // Making HTTP request with retry mechanism
     private static function makeHttpRequest(string $method, string $url, array $headers, array $data, int $attempts)
     {
-        $baseUrl = env('API_BASE_URL', 'http://127.0.0.1:8000/api');
+        $baseUrl = env('API_BASE_URL', 'http://127.0.0.1:8001/api');
         $response = null;
         while ($attempts-- > 0) {
             try {
