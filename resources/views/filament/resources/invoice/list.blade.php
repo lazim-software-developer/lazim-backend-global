@@ -6,6 +6,8 @@
         <link href="{{ asset('assets/custom-plugins/ajax-modal/ajax-modal.css') }}" rel="stylesheet">
         <!-- Custom CSS File Import -->
         <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     @endpush
     @push('scripts')
         <!-- Include Your Plugin Script -->
@@ -45,53 +47,69 @@
                                 "success"
                             );
                             console.log("Item deleted!");
-                            // Here, you can call your delete function or AJAX request
                         }
                     });
                 }
             });
         </script>
-
+        <script>
+            document.getElementById("toggle-filter").addEventListener("click", function() {
+                let filterContainer = document.getElementById("filter-container");
+                filterContainer.classList.toggle("hidden");
+            });
+        </script>
 
         <script>
             $('#invoice-grid').ajaxGridPlugin({
-                url: "{{ route('invoice.ajax-load-invoices') }}", // Your URL
+                url: "{{ route('invoice.ajax-load-invoices') }}",
                 extraParams: {
                     search: ""
-                }, // Initial extra params
-                // showSearchField: false, // Whether to show search field
-                searchFormId: '#search-form', // Form ID for search
-                autoTriggerSearchOnInit: true, // This will auto-trigger the search click when the grid initializes
-                // searchInputSelector: '#search-invoice' // The search input selector
+                },
+                searchFormId: '#search-form',
+                autoTriggerSearchOnInit: true,
             });
         </script>
     @endpush
-    {{-- <div class="button-container">
-        <a class="custom-button" data-modal-link="true" data-title="Create Building"
-            href="{{ route('building.ajax-create') }}">Create
-            Building
-        </a>
-    </div> --}}
     <div
         class="fi-ta-ctn divide-y divide-gray-200 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10">
 
         <div class="flex justify-end p-4">
-            <div class="flex gap-2">
-                <form id="search-form">
-                    <input type="date" name="from_date" class="form-control" value="2024-01-01">
-                    <input type="date" name="to_date" class="form-control" value="2024-12-31">
-                    <input type="text" name="customer" class="form-control">
-                    <button data-button-search="true" class="btn btn-sm btn-primary" id="filter-btn">Filter</button>
-                </form>
-            </div>
-            {{-- <a class="btn btn-sm btn-success custom-button" id="export-table" data-bs-toggle="tooltip" title="Export Data">
-            <i class="ti ti-download"></i> Export
-        </a> --}}
+            <!-- Filter Icon Button -->
+            <button id="toggle-filter" class="btn btn-sm btn-secondary flex items-center gap-2">
+                <i class="fas fa-filter h-5 w-5 filter-gray"></i>
+            </button>
+
+            <!-- Filter Form (Initially Hidden) -->
+
+        </div>
+
+        <div class="flex gap-2 hidden p-4" id="filter-container">
+
+            <form id="search-form" class="flex gap-4 w-full items-center">
+                <div class="flex flex-col w-1/4">
+                    <label for="from_date" class="text1">From Date</label>
+                    <input type="date" id="from_date" name="from_date" class="form-control" value="2024-01-01">
+                </div>
+
+
+                <div class="flex flex-col w-1/4">
+                    <label for="to_date" class="text1">To Date</label>
+                    <input type="date" id="to_date" name="to_date" class="form-control" value="2024-12-31">
+                </div>
+
+
+                <div class="flex flex-col w-1/4">
+                    <label for="customer" class="text1">Customer Name</label>
+                    <input type="text" id="customer" name="customer" class="form-control">
+                </div>
+
+
+                <div class="flex flex-col w-1/4">
+                    <button data-button-search="true" class="custom-buttons" id="filter-btn">Filter</button>
+                </div>
+            </form>
         </div>
         <div id="invoice-grid">
         </div>
     </div>
-
-    {{-- @include('filament.resources.create-building') --}}
-
 </x-filament::page>
