@@ -24,7 +24,7 @@ class BankStatementResource extends Resource
 {
     protected static ?string $model = OAMReceipts::class;
 
-    protected static ?string $modelLabel = 'Receivables';
+    protected static ?string $modelLabel = 'Receipt';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -38,60 +38,59 @@ class BankStatementResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at', 'desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('flat.property_number')->searchable()->label('Unit'),
                 TextColumn::make('receipt_number')->searchable(),
                 TextColumn::make('receipt_date')->label('Payment date'),
                 TextColumn::make('payment_mode')->label('Payment mode'),
-                TextColumn::make('noqodi_info')->label('Invoice number')->searchable()->default('NA')->formatStateUsing(fn ($state) => json_decode($state)? json_decode($state)->invoiceNumber : 'NA'),
-                TextColumn::make('from_date')->label('General fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0),
-                TextColumn::make('to_date')->label('Reserve fund')->formatStateUsing(fn ($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->reservedFundAmount, 2) : 0),
+                TextColumn::make('noqodi_info')->label('Invoice number')->searchable()->default('NA')->formatStateUsing(fn($state) => json_decode($state) ? json_decode($state)->invoiceNumber : 'NA'),
+                TextColumn::make('from_date')->label('General fund')->formatStateUsing(fn($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0),
+                TextColumn::make('to_date')->label('Reserve fund')->formatStateUsing(fn($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->reservedFundAmount, 2) : 0),
                 TextColumn::make('receipt_amount')->label('Total'),
             ])
             ->filters([
                 Filter::make('invoice_date')
                     ->form([
                         Select::make('year')
-                        ->searchable()
-                        ->placeholder('Select Year')
-                        ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+                            ->searchable()
+                            ->placeholder('Select Year')
+                            ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (isset($data['year'])) {
-                                return $query
-                                    ->when(
-                                        $data['year'],
-                                        fn (Builder $query, $year) => $query->whereYear('receipt_date', $year)
-                                    );
+                            return $query
+                                ->when(
+                                    $data['year'],
+                                    fn(Builder $query, $year) => $query->whereYear('receipt_date', $year)
+                                );
                         }
 
-                            return $query;
-                        }),
+                        return $query;
+                    }),
                 Filter::make('Building')
                     ->form([
                         Select::make('building')
-                        ->searchable()
-                        ->options(function () {
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                return Building::all()->pluck('name', 'id');
-                            }
-                            else{
-                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                ->pluck('name', 'id');
-                            } 
-                        })
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->pluck('name', 'id');
+                                }
+                            })
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
-                        }),
-                    ],layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+                    }),
+            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
 
             ->actions([
                 // Tables\Actions\EditAction::make(),
@@ -100,7 +99,8 @@ class BankStatementResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
+                ]),
+            ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
