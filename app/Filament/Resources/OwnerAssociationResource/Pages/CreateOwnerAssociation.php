@@ -20,6 +20,11 @@ class CreateOwnerAssociation extends CreateRecord
     protected ?string $heading        = 'Owner Association';
 
     protected static string $resource = OwnerAssociationResource::class;
+    public $password;
+    protected function beforeCreate()
+    {
+        $this->password = $this->data['password'];
+    }
 
     public function afterCreate()
     {
@@ -105,14 +110,13 @@ class CreateOwnerAssociation extends CreateRecord
             $this->LazimAccountDatabase($data, $user, $password);
             // Send email with credentials
             $slug = $data->slug;
-            AccountCreationJob::dispatch($user, $password, $slug);
+            AccountCreationJob::dispatch($user, $this->password, $slug);
         } 
     }
 
     public function LazimAccountDatabase($data, $user, $password) {
-        $connection = DB::connection('lazim_accounts');
+        $connection = DB::connection(env('SECOND_DB_CONNECTION'));
         $building_id = DB::table('building_owner_association')->where('owner_association_id' , $data->id)->first()?->building_id;
-        $connection = DB::connection('lazim_accounts');
         $connection->table('users')->insert([
             'name' => $data->name,
             'email'                => $data->email,
