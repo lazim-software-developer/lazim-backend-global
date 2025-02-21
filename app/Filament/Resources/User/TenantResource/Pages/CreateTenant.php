@@ -4,10 +4,13 @@ namespace App\Filament\Resources\User\TenantResource\Pages;
 
 use Filament\Actions;
 use App\Models\User\User;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
 use App\Models\Master\Role;
+use Filament\Facades\Filament;
+use App\Models\Building\Building;
+use App\Models\AccountCredentials;
+use Illuminate\Support\Facades\DB;
 use App\Models\Building\FlatTenant;
+use App\Jobs\WelcomeOwnerNotificationJob;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\User\TenantResource;
 
@@ -74,5 +77,18 @@ class CreateTenant extends CreateRecord
             'building_id' => $this->record->building_id,
             'primary' => !$primary,
         ]);
+
+        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+        $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+        $mailCredentials = [
+            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+        ];
+        $OaName = Filament::getTenant()?->name ?? 'Admin';
+        WelcomeOwnerNotificationJob::dispatch($this->record->email, $this->record->name, $building->name, $mailCredentials, $OaName);
     }
 }

@@ -5,15 +5,19 @@ namespace App\Filament\Resources\User\OwnerResource\Pages;
 use Filament\Actions;
 use App\Models\FlatOwners;
 use App\Models\Building\Flat;
+use Filament\Facades\Filament;
 use App\Models\Building\Building;
+use App\Models\AccountCredentials;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\WelcomeNotificationJob;
+use App\Jobs\WelcomeOwnerNotificationJob;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\User\OwnerResource;
 
 class CreateOwner extends CreateRecord
 {
     protected static string $resource = OwnerResource::class;
-
+    
     public function afterCreate()
     {
                     $building = Building::find($this->record->building_id);
@@ -61,5 +65,20 @@ class CreateOwner extends CreateRecord
                     // Attach the owner to the flat
                     $flatDetail->owners()->syncWithoutDetaching($this->record->id);
                 }
+
+                //Triger Email to Owner
+                $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+                $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+                $mailCredentials = [
+                    'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                    'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                    'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                    'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                    'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                    'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                ];
+                $OaName = Filament::getTenant()?->name ?? 'Admin';
+                WelcomeOwnerNotificationJob::dispatch($this->record->email, $this->record->name, $building->name, $mailCredentials, $OaName);
+                
     }
 }
