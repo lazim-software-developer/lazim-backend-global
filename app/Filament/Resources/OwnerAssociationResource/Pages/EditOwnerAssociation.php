@@ -50,5 +50,10 @@ class EditOwnerAssociation extends EditRecord
             'profile_photo' => $data->profile_photo,
             'active'  => $data->active,
         ]);
+
+        $connection = DB::connection(env('SECOND_DB_CONNECTION'));
+        $connection->table('users')->where('email', $data->email)->where('owner_association_id', $data->id)->update([
+            'name' => $data->name,
+        ]);
     }
 }
