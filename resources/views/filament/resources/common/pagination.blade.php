@@ -10,7 +10,7 @@
 
     <p class="pagination-info">Showing {{ ($currentPage - 1) * $perPage + 1 }} to
         {{ min($currentPage * $perPage, $totalItems) }} of
-        {{ $totalItems }} items ({{ $perPage }} results).</p>
+        {{ $totalItems }} results</p>
 
     @if ($totalPages > 1)
         <div class="pagination-container" id="pagination-container">
