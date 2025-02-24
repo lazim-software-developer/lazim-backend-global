@@ -440,7 +440,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
-                                NavigationItem::make('Receivables')
+                                NavigationItem::make('Receipts')
                                     ->url(BankStatementResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_bank::statement'))
                                     ->icon('heroicon-s-document-text')

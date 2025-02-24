@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers\User;
 
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Order;
+use Stripe\PaymentIntent;
+use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use App\Core\Traits\DateTrait;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceChargeResource;
+use App\Services\GenericHttpService;
+use Illuminate\Support\Facades\Http;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
-use App\Models\Building\Flat;
-use App\Models\Order;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Core\Traits\PaginatedResponseTrait;
+use App\Http\Resources\ServiceChargeResource;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Http;
-use Stripe\PaymentIntent;
-use Stripe\Stripe;
 
 class PaymentController extends Controller
 {
+    use PaginatedResponseTrait, DateTrait;
     public function fetchServiceCharges(Request $request, Flat $flat)
     {
         // $perPage = 10;
@@ -74,8 +78,8 @@ class PaymentController extends Controller
 
         // return response()->json($paginatedItems);
 
-        $invoice = OAMInvoice::where('flat_id',$flat->id)->latest('invoice_date')->first();
-        if ($invoice){
+        $invoice = OAMInvoice::where('flat_id', $flat->id)->latest('invoice_date')->first();
+        if ($invoice) {
             return ['data' => [new ServiceChargeResource($invoice)]];
         }
         return ['data' => []];
@@ -153,16 +157,33 @@ class PaymentController extends Controller
     {
         $invoice =  OAMInvoice::where('flat_id', $flat->id)->latest('invoice_date')->first();
         $receipts = OAMReceipts::where('flat_id', $flat->id)
-        ->where('receipt_date', '>=', $invoice->invoice_date)
-        ->get();
+            ->where('receipt_date', '>=', $invoice->invoice_date)
+            ->get();
         $balance = $invoice->due_amount;
         if ($receipts->isNotEmpty()) {
             $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
         }
         return [
-            "data" =>[
+            "data" => [
                 'outstanding_balance' => $balance,
-                'virtual_account_number' => $flat->virtual_account_number,]
+                'virtual_account_number' => $flat->virtual_account_number,
+            ]
         ];
+    }
+
+    public function receiptGrid(Request $request)
+    {
+
+        $requestPayload =  [
+            'from_date' => $request->from_date ?? $this->startOfMonth()->toDateString(),
+            'to_date' => $request->to_date ??  $this->endOfMonth()->toDateString(),
+            'customer' => $request->customer ?? null,
+            'page' => $request->page ?? 1,
+            'per_page' => $request->per_page ?? 20,
+        ];
+
+        $response = GenericHttpService::post('/report/receipt', $requestPayload);
+        $paginationResponse =  $this->mapPaginatedResponse($response);
+        return view('filament.resources.receipt.partials.receipt-grid', compact('paginationResponse'));
     }
 }

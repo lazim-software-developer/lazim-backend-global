@@ -10,6 +10,8 @@ class ListBankStatements extends ListRecords
 {
     protected static string $resource = BankStatementResource::class;
 
+    protected static string $view = 'filament.resources.receipt.list';
+
     protected function getHeaderActions(): array
     {
         return [

@@ -26,6 +26,7 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Filament\Resources\Building\BuildingResource;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
+use App\Http\Controllers\User\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,3 +122,4 @@ Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('
 Route::post('/qr/feedback', [FeedbackController::class, 'submitFeedback'])->name('qr.feedback.submit');
 Route::get('/qr/feedback', [FeedbackController::class, 'index'])->name('qr.feedback.index');
 Route::get('/inovice/list', action: [InvoiceController::class, 'invoiceGrid'])->name('invoice.ajax-load-invoices');
+Route::get('/receipt/list', action: [PaymentController::class, 'receiptGrid'])->name('receipt.ajax-load-receipts');
