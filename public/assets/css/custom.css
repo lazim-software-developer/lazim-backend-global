@@ -1,0 +1,402 @@
+/* Custom Button Styling */
+.custom-button {
+    background-color: #FF6432;
+    /* Orange Color */
+    color: rgb(255 255 255/var(--tw-text-opacity, 1));
+    padding: 10px 20px;
+    border-radius: .5rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    font-size: .975rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+    white-space: nowrap;
+
+}
+
+.custom-button:hover {
+    background-color: #FF8C00;
+    /* Darker Orange */
+    transform: scale(1.05);
+}
+
+.custom-button:focus-visible {
+    outline: 2px solid #FF7F50;
+    /* Coral */
+    outline-offset: 2px;
+}
+
+.custom-button:active {
+    background-color: #E07B00;
+    transform: scale(0.98);
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    /* Aligns the button to the right end */
+
+    position: absolute;
+    right: 2em;
+    top: 7.5em;
+    gap: 5px;
+}
+
+/* Card Container */
+/* Card Container */
+.card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+/* Full-Width Card */
+.card {
+    width: 100vw;
+    /* Full viewport width */
+    min-height: 80vh;
+    /* Full viewport height */
+    background: #fff;
+    border-radius: 10px;
+    /* box-shadow: 0px 4px 10px rgba(43, 42, 42, 0.1); */
+    padding: 20px;
+    border: 2px solid #ebebeb;
+    box-sizing: border-box;
+    /* Padding include kare width calculation me */
+}
+
+/* Card Header */
+/* .card-header {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+} */
+
+/* Form Styling */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 8px;
+    border: 1.5px solid #d7d5d5;
+    border-radius: 10px;
+    font-size: 1rem;
+
+}
+
+.form-group textarea,
+.form-group input::placeholder {
+    color: #B0B0B0;
+    opacity: 0.8;
+    font-size: .875rem;
+}
+
+.form-group input:focus {
+    border: 2.5px solid #FF6432 !important;
+    /* Orange border */
+    outline: none !important;
+    /* Remove default blue outline */
+    box-shadow: none !important;
+    /* Ensure no box-shadow is applied */
+
+}
+
+.form-group span {
+    color: black;
+    --tw-text-opacity: 1;
+    font-size: 0.875rem;
+    /* 14px */
+    font-weight: 500;
+    line-height: 1.5rem;
+    /* 24px */
+    margin-bottom: 0.2rem;
+    /* padding: 0.25rem 0.5rem; */
+    display: inline-block;
+}
+
+
+.form-group span.required-asterisk {
+    color: red;
+    /* font-weight: bold; */
+}
+
+/* Button Styling */
+.form-actions {
+    display: flex;
+    justify-content: center;
+}
+
+
+
+.custom-button {
+    background-color: #FF6432;
+    color: white;
+    padding: 10px 20px;
+    border-radius: .5rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    font-size: .975rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    border: none;
+}
+
+.custom-button:hover {
+    background-color: #e65528;
+}
+
+
+/* Label Styling */
+
+
+.custom-input::placeholder {
+    color: #B0B0B0;
+    opacity: 0.8;
+    font-size: .875rem;
+
+}
+
+.toggle-checkbox {
+    display: none;
+}
+
+/* Style for the toggle */
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    bottom: 20px;
+}
+
+/* Inner circle of the toggle */
+.toggle-switch::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* When the checkbox is checked (on) */
+.toggle-checkbox:checked+.toggle-switch {
+    background-color: #4CAF50;
+    /* Green when toggled on */
+}
+
+/* When the checkbox is checked (on), move the circle */
+.toggle-checkbox:checked+.toggle-switch::before {
+    transform: translateX(30px);
+    /* Move the circle to the right */
+}
+
+.custum-text {
+    color: #FF6432;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+}
+
+.custum-text:hover {
+    text-decoration: underline;
+
+}
+
+.delete-btn {
+    color: #e60404;
+    ;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+}
+
+.delete-btn:hover {
+    text-decoration: underline;
+}
+
+.main-pagination{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 40px;
+}
+
+/* PAGING CSS */
+/* Container to center pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    
+    /* margin-top: 10px;
+    margin-bottom: 10px; */
+}
+
+/* Style for the pagination list */
+.pagination-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 5px;
+    font-family: Arial, sans-serif;
+}
+
+/* Style for each pagination item */
+.page-item {
+    /* margin-top: 10px;
+    margin-bottom: 10px; */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.page-link {
+    display: block;
+    padding: 4px 8px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f9f9f9;
+    border-radius: 3px;
+    transition: background-color 0.3s;
+}
+
+/* Active page style */
+.page-item.active .page-link {
+    background-color: #FF6432;
+    color: white;
+}
+
+/* Hover effect for page links */
+.page-link:hover {
+    background-color: #e0e0e0;
+}
+
+/* Disabled page style */
+.page-item.disabled .page-link {
+    background-color: #f1f1f1;
+    color: #aaa;
+    pointer-events: none;
+}
+
+/* Style for the pagination info */
+.pagination-info {
+    color: #374151;
+    text-align: center;
+    /* margin-top: 10px; */
+    /* margin-bottom: 5px; */
+    font-size: 14px;
+    /* color: #555; */
+    font-weight: 500;
+    line-height: 1.5rem;
+    font-size: .875rem;
+}
+
+.filter-gray {
+    color: gray;
+
+}
+
+
+.custom-input:focus {
+    border: 2.5px solid #FF6432 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #6B7280;
+    font-size: 14px;
+    
+}
+
+.form-control:focus {
+    border-radius: 8px;
+    border: 1px solid #6B7280;
+    border: 2.5px solid #FF6432 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+
+.text1{
+    font-weight: 500;
+    line-height: 1.5rem;
+    font-size: .875rem;
+    padding: 8px 2px;
+}
+
+
+/* Custom Button Styling */
+.custom-buttons {
+    background-color: #FF6432;
+    /* Orange Color */
+    color: rgb(255 255 255/var(--tw-text-opacity, 1));
+    padding: 10px 20px;
+    margin-top: 40px;
+    border-radius: .5rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    font-size: .975rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+    white-space: nowrap;
+
+}
+
+.custom-buttons:hover {
+    background-color: #FF8C00;
+    /* Darker Orange */
+    transform: scale(1.05);
+}
+
+.custom-buttons:focus-visible {
+    outline: 2px solid #FF7F50;
+    /* Coral */
+    outline-offset: 2px;
+}
+
+.custom-buttons:active {
+    background-color: #E07B00;
+    transform: scale(0.98);
+}
