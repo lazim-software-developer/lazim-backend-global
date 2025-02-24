@@ -12,12 +12,21 @@ class CreateFacility extends CreateRecord
 {
     protected static string $resource = FacilityResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Create Amenity';
+    }
+
     protected function afterCreate(){
 
         Facility::where('id', $this->record->id)
             ->update([
                 'active'=>1
             ]);
+    }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

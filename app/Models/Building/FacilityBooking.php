@@ -6,6 +6,7 @@ use App\Models\OaUserRegistration;
 use App\Models\User\User;
 use App\Models\Master\Facility;
 use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,9 +16,12 @@ class FacilityBooking extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
-        'facility_id',
+        'bookable_id',
         'user_id',
+        'bookable_type',
         'building_id',
         'date',
         'start_time',
@@ -28,6 +32,9 @@ class FacilityBooking extends Model
         'reference_number',
         'approved',
         'approved_by',
+        'owner_association_id',
+        'flat_id',
+        'description',
     ];
 
     protected $searchableFields = ['*'];
@@ -40,6 +47,10 @@ class FacilityBooking extends Model
         'approved' => 'boolean',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function facility()
     {
         return $this->belongsTo(Facility::class);
@@ -60,5 +71,10 @@ class FacilityBooking extends Model
    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function bookable()
+    {
+        return $this->morphTo();
     }
 }

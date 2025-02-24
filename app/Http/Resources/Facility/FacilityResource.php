@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Facility;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FacilityResource extends JsonResource
@@ -17,7 +18,7 @@ class FacilityResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'icon' => $this->icon,
+            'icon' => Storage::disk('s3')->url($this->icon),
             'active' => $this->active,
         ];
     }

@@ -1,29 +1,33 @@
 <?php
-
 namespace App\Filament\Resources\Building;
 
 use App\Filament\Resources\Building\FlatResource\Pages;
-use App\Filament\Resources\Building\FlatResource\RelationManagers;
+use App\Filament\Resources\Building\FlatResource\RelationManagers\DocumentsRelationManager;
+use App\Models\Building\Building;
 use App\Models\Building\Flat;
-use Filament\Forms;
+use App\Models\Master\Role;
+use App\Models\OwnerAssociation;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class FlatResource extends Resource
 {
     protected static ?string $model = Flat::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Flats';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Units';
     protected static ?string $navigationGroup = 'Flat Management';
-
 
     public static function form(Form $form): Form
     {
@@ -32,22 +36,168 @@ class FlatResource extends Resource
                 Grid::make([
                     'sm' => 1,
                     'md' => 1,
-                    'lg' => 2,])
+                    'lg' => 2])
                     ->schema([
-                    TextInput::make('number')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Number'),
-                    TextInput::make('floor')
-                        ->rules(['numeric'])
-                        ->required()
-                        ->numeric()
-                        ->placeholder('Floor'),
-                    TextInput::make('description')
-                        ->rules(['max:50', 'string'])
-                        ->placeholder('Description'),
-                ]),
+                        TextInput::make('property_number')
+                            ->label('Unit Number')
+                            ->required()
+                            ->unique(
+                                Flat::class,
+                                'property_number',
+                                ignoreRecord: true,
+                                modifyRuleUsing: function (\Illuminate\Validation\Rules\Unique $rule, Get $get) {
+                                    return $rule->where('building_id', $get('building_id'));
+                                }
+                            )
+                            ->validationMessages([
+                                'unique' => 'Unit Number already exists in the selected building.',
+                            ])
+                            ->regex('/^[\w\-\s]+$/')
+                            ->placeholder('Unit Number'),
+                        Select::make('owner_association_id')
+                            ->required()
+                            ->options(function () {
+                                return OwnerAssociation::where('role', 'Property Manager')->pluck('name', 'id');
+                            })
+                            ->visible(auth()->user()->role->name === 'Admin')
+                            ->live()
+                            ->afterStateUpdated(function (Set $set) {
+                                $set('building_id', null);
+                            })
+                            ->preload()
+                            ->searchable()
+                            ->label('Select Property Manager'),
+                        Select::make('building_id')
+                            ->helperText(function (callable $get) {
+                                $pmId = $get('owner_association_id');
+                                if ($pmId == null && auth()->user()->role->name != 'Property Manager') {
+                                    return 'Select a Property manager to load the Buildings.';
+                                }
+                            })
+                            ->noSearchResultsMessage('No Buildings found linked to the selected property manager.')
+                            ->disabled(function (callable $get) {
+                                if ($get('owner_association_id') === null &&
+                                    auth()->user()->role->name != 'Property Manager') {
+                                    return true;
+                                }
+                            })
+                            ->live()
+                            ->rules(['exists:buildings,id'])
+                            ->relationship('building', 'name')
+                            ->options(function (Get $get) {
+                                $buildings = DB::table('building_owner_association')
+                                    ->where('owner_association_id', $get('owner_association_id') ??
+                                        auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+                                return Building::whereIn('id', $buildings)->pluck('name', 'id');
+                            })
+                            ->reactive()
+                            ->preload()
+                            ->required()
+                            ->searchable()
+                            ->placeholder('Building')
+                            ->label('Select Building'),
+                        Select::make('property_type')
+                            ->options([
+                                'Shop'   => 'Shop',
+                                'Office' => 'Office',
+                                'Unit'   => 'Unit',
+                            ])
+                            ->label('Property Type')
+                            ->required()
+                            ->searchable(),
+                        TextInput::make('suit_area')
+                            ->placeholder('NA')
+                            ->label('Suit Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'), // Allow numbers and special characters
+                        TextInput::make('actual_area')
+                            ->placeholder('NA')
+                            ->label('Actual Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('balcony_area')
+                            ->placeholder('NA')
+                            ->label('Balcony Area')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('applicable_area')
+                            ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                            ->placeholder('NA')
+                            ->numeric(),
+                        TextInput::make('virtual_account_number')
+                            ->placeholder('NA')
+                            ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                            ->numeric(),
+                        TextInput::make('parking_count')
+                            ->placeholder('NA')
+                            ->label('Parking Count')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, $get, Set $set) {
+                                if (! $state) {
+                                    return;
+                                }
+
+                                $buildingId = $get('building_id');
+                                $building   = Building::find($buildingId);
+
+                                // Check if building exists and has parking count defined
+                                if (! $building || ! $building->parking_count) {
+                                    Notification::make()
+                                        ->title('Parking not available')
+                                        ->body("This building does not have any parking spaces allocated.")
+                                        ->danger()
+                                        ->send();
+
+                                    $set('parking_count', null);
+                                    return;
+                                }
+
+                                // Continue with existing validation for parking count limit
+                                $flatsParkingQuery = Flat::where('building_id', $buildingId)
+                                    ->where(function ($query) use ($get) {
+                                        if ($get('id')) {
+                                            $query->where('id', '!=', $get('id'));
+                                        }
+                                    });
+
+                                $totalFlatsParking = $flatsParkingQuery->sum('parking_count');
+                                $newTotal          = $totalFlatsParking + (int) $state;
+
+                                if ($newTotal > $building->parking_count) {
+                                    Notification::make()
+                                        ->title('Invalid parking count')
+                                        ->body("Total parking count of all flats ({$newTotal}) cannot exceed building's parking count ({$building->parking_count})")
+                                        ->danger()
+                                        ->send();
+
+                                    $set('parking_count', null);
+                                }
+                            })
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('plot_number')
+                            ->placeholder('NA')
+                            ->label('Plot Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('makhani_number')
+                            ->placeholder('NA')
+                            ->label('Makani Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('dewa_number')
+                            ->placeholder('NA')
+                            ->label('DEWA Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('etisalat/du_number')
+                            ->label('DU/Etisalat Number')
+                            ->placeholder('NA')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('btu/ac_number')
+                            ->placeholder('NA')
+                            ->label('BTU/AC Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                        TextInput::make('lpg_number')
+                            ->placeholder('NA')
+                            ->label('LPG Number')
+                            ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
+                    ]),
             ]);
     }
 
@@ -56,49 +206,119 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
-                Tables\Columns\TextColumn::make('number')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('floor')
-                    ->toggleable()
-                    ->searchable(true, null, true),
-                Tables\Columns\TextColumn::make('description')
-                    ->toggleable()
-                    ->searchable(true, null, true)
+                TextColumn::make('property_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Unit Number'),
+                TextColumn::make('building.name')
+                    ->default('NA')
+                    ->searchable()
                     ->limit(50),
+                TextColumn::make('suit_area')
+                    ->formatStateUsing(fn($record) => is_numeric($record->suit_area)
+                        ? number_format((float) $record->suit_area, 2)
+                        : 'NA')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+
+                TextColumn::make('actual_area')
+                    ->formatStateUsing(fn($record) => is_numeric($record->actual_area)
+                        ? number_format((float) $record->actual_area, 2)
+                        : 'NA')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('balcony_area')
+                    ->formatStateUsing(fn($record) => is_numeric($record->balcony_area)
+                        ? number_format((float) $record->balcony_area, 2)
+                        : 'NA')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('applicable_area')
+                    ->formatStateUsing(fn($record) => is_numeric($record->applicable_area)
+                        ? number_format((float) $record->applicable_area, 2)
+                        : 'NA')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('virtual_account_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->visible(! in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
+                    ->limit(50),
+                TextColumn::make('parking_count')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('plot_number')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
+                TextColumn::make('tenants.role')
+                    ->label('Occupied By')
+                    ->default('NA'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('building_id')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                            $buildings = DB::table('building_owner_association')
+                                ->where('owner_association_id', auth()->user()->owner_association_id)
+                                ->where('active', true)
+                                ->pluck('building_id');
+                            return Building::whereIn('id', $buildings)->pluck('name', 'id');
+
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
+                    ->searchable()
+                    ->label('Building')
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
-            FlatResource\RelationManagers\FlatTenantRelationManager::class,
-            FlatResource\RelationManagers\FlatVisitorRelationManager::class,
-            FlatResource\RelationManagers\UserRelationManager::class,
-        ];
+        if (auth()->user()?->role?->name === 'Property Manager') {
+
+            return [
+                // FlatResource\RelationManagers\FlatDomesticHelpRelationManager::class,
+                // FlatResource\RelationManagers\FlatTenantRelationManager::class,
+                // FlatResource\RelationManagers\FlatVisitorRelationManager::class,
+                // FlatResource\RelationManagers\UserRelationManager::class,
+                DocumentsRelationManager::class,
+            ];
+        }
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFlats::route('/'),
+            'index'  => Pages\ListFlats::route('/'),
             'create' => Pages\CreateFlat::route('/create'),
-            'edit' => Pages\EditFlat::route('/{record}/edit'),
+            'edit'   => Pages\EditFlat::route('/{record}/edit'),
+            // 'view' => ViewFlat::route('/{record}'),
         ];
     }
 }

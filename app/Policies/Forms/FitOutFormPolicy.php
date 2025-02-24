@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Policies\Forms;
+
+use App\Models\Forms\FitOutForm;
+use App\Models\User\User;
+use DB;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class FitOutFormPolicy
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can view any models.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->can('view_any_fit::out::forms::document');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function view(User $user, FitOutForm $fitOutForm): bool
+    {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('view_fit::out::forms::document')
+            && in_array($fitOutForm->building_id, $pmbuildingIds);
+        }
+
+        return $user->can('view_fit::out::forms::document');
+    }
+
+    /**
+     * Determine whether the user can create models.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function create(User $user): bool
+    {
+        return $user->can('create_fit::out::forms::document');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function update(User $user, FitOutForm $fitOutForm): bool
+    {
+        $pmbuildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id', auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id')
+            ->toArray();
+
+        if (auth()->user()->role->name == 'Property Manager') {
+            return $user->can('update_fit::out::forms::document')
+            && in_array($fitOutForm->building_id, $pmbuildingIds);
+        }
+
+        return $user->can('update_fit::out::forms::document');
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function delete(User $user, FitOutForm $fitOutForm): bool
+    {
+        return $user->can('{{ Delete }}');
+    }
+
+    /**
+     * Determine whether the user can bulk delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('{{ DeleteAny }}');
+    }
+
+    /**
+     * Determine whether the user can permanently delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function forceDelete(User $user, FitOutForm $fitOutForm): bool
+    {
+        return $user->can('{{ ForceDelete }}');
+    }
+
+    /**
+     * Determine whether the user can permanently bulk delete.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('{{ ForceDeleteAny }}');
+    }
+
+    /**
+     * Determine whether the user can restore.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function restore(User $user, FitOutForm $fitOutForm): bool
+    {
+        return $user->can('{{ Restore }}');
+    }
+
+    /**
+     * Determine whether the user can bulk restore.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('{{ RestoreAny }}');
+    }
+
+    /**
+     * Determine whether the user can replicate.
+     *
+     * @param  \App\Models\User\User  $user
+     * @param  \App\Models\Forms\FitOutForm  $fitOutForm
+     * @return bool
+     */
+    public function replicate(User $user, FitOutForm $fitOutForm): bool
+    {
+        return $user->can('{{ Replicate }}');
+    }
+
+    /**
+     * Determine whether the user can reorder.
+     *
+     * @param  \App\Models\User\User  $user
+     * @return bool
+     */
+    public function reorder(User $user): bool
+    {
+        return $user->can('{{ Reorder }}');
+    }
+
+}

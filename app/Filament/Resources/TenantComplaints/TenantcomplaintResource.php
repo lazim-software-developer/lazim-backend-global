@@ -26,7 +26,7 @@ class TenantcomplaintResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Complaints';
     protected static ?string $navigationGroup = 'Flat Management';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -60,7 +60,8 @@ class TenantcomplaintResource extends Resource
                         ->required()
                         ->placeholder('Category'),
                     FileUpload::make('photo')
-                        ->nullable(),
+                        ->nullable()
+                        ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB'),
                     TextInput::make('remarks'),
 
                     Select::make('status')
@@ -107,6 +108,7 @@ class TenantcomplaintResource extends Resource
                     ->searchable(true, null, true)
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -115,7 +117,7 @@ class TenantcomplaintResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

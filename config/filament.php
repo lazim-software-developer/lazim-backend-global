@@ -25,6 +25,16 @@ return [
 
     ],
 
+    'pages' => [
+        // ...
+        App\Filament\Pages\BudgetListing::class,
+    ],
+
+    'auth' => [
+        'logout' => [
+            'response' => \App\Filament\MyLogoutResponse::class,
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk

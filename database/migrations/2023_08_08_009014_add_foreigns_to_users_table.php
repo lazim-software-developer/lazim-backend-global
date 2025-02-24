@@ -14,10 +14,8 @@ return new class extends Migration {
             $table
                 ->foreign('role_id')
                 ->references('id')
-                ->on('roles')
-                ->onUpdate('CASCADE')
-                ->onDelete('CASCADE');
-           
+                ->on('roles');
+
         });
     }
 

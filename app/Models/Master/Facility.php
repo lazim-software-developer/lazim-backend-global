@@ -14,6 +14,8 @@ class Facility extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['name', 'icon','building_id', 'active','owner_association_id'];
 
     protected $searchableFields = ['*'];
@@ -21,11 +23,6 @@ class Facility extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
-
-    public function bookings()
-    {
-        return $this->hasMany(FacilityBooking::class);
-    }
 
     public function buildings()
     {
@@ -35,6 +32,8 @@ class Facility extends Model
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
-
-
+    public function bookings()
+    {
+        return $this->morphMany(FacilityBooking::class, 'bookable');
+    }
 }

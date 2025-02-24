@@ -10,7 +10,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateBuildingPoc extends CreateRecord
 {
-    protected ?string $heading        = 'Building Manager';
+    protected ?string $heading        = 'Security';
     protected static string $resource = BuildingPocResource::class;
 
     protected function afterCreate()

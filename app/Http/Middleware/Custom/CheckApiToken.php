@@ -20,7 +20,7 @@ class CheckApiToken
             return (new CustomResponseResource([
                 'title' => 'Unauthorized',
                 'message' => 'You are unauthorized to access this API',
-                'errorCode' => 403, 
+                'code' => 403, 
             ]))->response()->setStatusCode(401);
         }
 

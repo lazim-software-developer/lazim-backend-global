@@ -16,7 +16,8 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required',
-            'role' => 'required|in:Owner,Tenant'
+            'role' => 'required|in:Owner,Tenant',
+            'owner_id' => 'nullable|integer'
         ];
     }
 

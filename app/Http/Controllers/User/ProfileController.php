@@ -9,6 +9,7 @@ use App\Http\Requests\User\UploadProfilePictureRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\User\ProfileResource;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -54,15 +55,20 @@ class ProfileController extends Controller
     // Change Password
     public function changePassword(ChangePasswordRequest $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $user = auth()->user();
 
         // Check if the provided current password matches the one in the database
         if (!Hash::check($request->current_password, $user->password)) {
-            return new CustomResponseResource([
+            return (new CustomResponseResource([
                 'title' => 'Password Update Failed',
                 'message' => 'The provided current password does not match our records.',
-                'errorCode' => 422,
-            ]);
+                'code' => 422,
+                'status' => 'error',
+            ]))->response()->setStatusCode(422);
         }
 
         // Update the user's password

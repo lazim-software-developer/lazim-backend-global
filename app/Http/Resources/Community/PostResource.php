@@ -24,7 +24,9 @@ class PostResource extends JsonResource
             'liked' => $this->is_liked_by_user,
             'likes' => $this->likes()->count(),
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
-            'date' => $this->scheduled_at_diff
+            'date' => $this->scheduled_at_diff,
+            'allow_comment' =>$this->allow_comment,
+            'allow_like' => $this->allow_like
         ];
     }
 }

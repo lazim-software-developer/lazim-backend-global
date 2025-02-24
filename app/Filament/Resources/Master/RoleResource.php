@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class RoleResource extends Resource
 {
@@ -27,8 +28,9 @@ class RoleResource extends Resource
                     'lg' => 2])
                     ->schema([
                         TextInput::make('name')
-                            ->rules(['max:50', 'string'])
+                            ->rules(['max:50', 'regex:/^[a-zA-Z\s]*$/'])
                             ->required()
+                            ->disabledOn('edit')
                             ->placeholder('Name'),
                     ]),
             ]);
@@ -44,9 +46,10 @@ class RoleResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
-                    ->searchable(true, null, true)
+                    ->searchable()
                     ->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -55,18 +58,18 @@ class RoleResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            RoleResource\RelationManagers\UsersRelationManager::class,
+            // RoleResource\RelationManagers\UsersRelationManager::class,
         ];
     }
 

@@ -10,6 +10,8 @@ class PostLike extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['post_id', 'user_id'];
 
     public function user()

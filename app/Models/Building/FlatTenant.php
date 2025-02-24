@@ -3,12 +3,14 @@
 namespace App\Models\Building;
 
 use App\Models\OaUserRegistration;
+use App\Models\RentalDetail;
 use App\Models\User\User;
 use App\Models\Building\Flat;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Building\Complaint;
+use App\Models\OwnerAssociation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,6 +18,8 @@ class FlatTenant extends Model
 {
     use HasFactory;
     use Searchable;
+
+    protected $connection = 'mysql';
 
     protected $fillable = [
         'flat_id',
@@ -25,6 +29,9 @@ class FlatTenant extends Model
         'start_date',
         'end_date',
         'active',
+        'role',
+        'owner_association_id',
+        'residing_in_same_flat',
     ];
 
     protected $searchableFields = ['*'];
@@ -38,6 +45,10 @@ class FlatTenant extends Model
         'active' => 'boolean',
     ];
 
+    public function ownerAssociation()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
     public function flat()
     {
         return $this->belongsTo(Flat::class);
@@ -57,9 +68,20 @@ class FlatTenant extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
-    }public function oaUserRegistration()
+    }
+    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function rentalDetails()
+    {
+        return $this->hasMany(RentalDetail::class);
+    }
+
+    public function makaniNumber()
+    {
+        return $this->hasOne(Document::class, 'flat_id', 'flat_id')->where('name', 'Makani number');
     }
 
 }

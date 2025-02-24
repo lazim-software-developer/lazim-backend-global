@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Http\Controllers\Vendor;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\Vendor\ContractResource;
+use App\Http\Resources\Vendor\TenderResource;
+use App\Models\Accounting\Proposal;
+use App\Models\Accounting\Tender;
+use App\Models\Vendor\Contract;
+use App\Models\Vendor\Vendor;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class TenderController extends Controller
+{
+    public function index(Request $request)
+    {
+        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
+
+        $tendersIds = DB::table('tender_vendors')
+            ->where('vendor_id', $vendor->id)
+            ->latest()
+            ->pluck('tender_id');
+
+        $tenders = Tender::whereIn('id', $tendersIds)->paginate($request->paginate ?? 10);
+
+        return TenderResource::collection($tenders);
+    }
+
+    // Create proposal
+    public function store(Tender $tender, Request $request)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+        $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
+
+        $proposalExists = Proposal::where(['tender_id' => $tender->id, 'vendor_id' => $vendor->id])->exists();
+
+        if($tender->end_date < now()->toDateString()){
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Tender has expired!',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
+        if ($proposalExists) {
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'You have already submitted proposal for this tender',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+        $filePath = optimizeDocumentAndUpload($request->file('file'), 'dev');
+
+
+        Proposal::create([
+            'tender_id' => $tender->id,
+            'amount' => $request->amount,
+            'submitted_by' => $vendor->id,
+            'submitted_on' => now(),
+            'document' => $filePath,
+            'vendor_id' => $vendor->id
+        ]);
+
+        DB::table('tender_vendors')->where([
+            'tender_id' => $tender->id,
+            'vendor_id' => $vendor->id
+        ])->update([
+            'status' => 'applied'
+        ]);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Proposal submitted successfully!',
+            'code' => 201,
+        ]))->response()->setStatusCode(201);
+    }
+}

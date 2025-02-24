@@ -21,11 +21,13 @@ class AccountCreationJob implements ShouldQueue
      */
     public $user;
     public $password;
+    public $slug;
 
-    public function __construct($user, $password)
+    public function __construct($user, $password,$slug)
     {
         $this->user     = $user;
         $this->password = $password;
+        $this->slug     = $slug;
     }
 
     /**
@@ -34,7 +36,7 @@ class AccountCreationJob implements ShouldQueue
     public function handle()
     {
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.oa-user_registration', ['user' => $this->user, 'password' => $this->password], function($message) {
+        $beautymail->send('emails.oa-user_registration', ['user' => $this->user, 'password' => $this->password,'slug'=>$this->slug], function($message) {
             $message
                 ->to($this->user->email, $this->user->first_name)
                 ->subject('Welcome to Lazim!');

@@ -13,6 +13,8 @@ class Contact extends Model
     use HasFactory;
     use Searchable;
 
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'name',
         'phone',

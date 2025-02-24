@@ -9,10 +9,18 @@ class Media extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
+
     protected $fillable = ['name', 'url', 'mediaable_id', 'mediaable_type'];
 
     public function mediaable()
     {
         return $this->morphTo();
+    }
+
+    public function getModelNameAttribute()
+    {
+        return class_basename($this->mediaable_type);
     }
 }

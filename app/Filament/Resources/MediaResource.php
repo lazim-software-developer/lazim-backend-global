@@ -3,10 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MediaResource\Pages;
-use App\Filament\Resources\MediaResource\RelationManagers;
+use App\Models\Building\Complaint;
+use App\Models\Building\Document;
 use App\Models\Community\Post;
 use App\Models\Media;
-use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -15,12 +15,8 @@ use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MediaResource extends Resource
 {
@@ -38,25 +34,31 @@ class MediaResource extends Resource
                         'md' => 1,
                         'lg' => 1,
                     ])->schema([
-                            TextInput::make('name')
-                                ->rules(['max:30','regex:/^[a-zA-Z\s]*$/'])
-                                ->required()
-                                ->placeholder('Name'),
+                        TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->disabled()
+                            ->required()
+                            ->placeholder('Name'),
 
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->image()
-                                ->required(),
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
+                            ->disabled()
+                            ->required()
+                            ->label('File'),
 
-                            MorphToSelect::make('mediaable')
-                                ->types([
-                                    Type::make(Post::class)->titleAttribute('content'),
-                                ])
-                                ->label('Mediaable')
-                                ->required(),
-                    ])
-                ])
+                        MorphToSelect::make('mediaable')
+                            ->types([
+                                Type::make(Post::class)->titleAttribute('content'),
+                                Type::make(Complaint::class)->titleAttribute('complaint'),
+                                Type::make(Document::class)->titleAttribute('name'),
+                            ])
+                            ->disabled()
+                            ->label('Mediaable')
+                            ->required(),
+                    ]),
+                ]),
             ]);
     }
 
@@ -66,56 +68,59 @@ class MediaResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->toggleable()
+                    ->default('NA')
                     ->searchable(),
-                
-                ImageColumn::make('url')
-                    ->disk('s3')
-                    ->circular()
-                    ->alignCenter()
-                    ->width(200)
-                    ->height(50)
-                    ->size(40)
+                TextColumn::make('model_name')
+                    ->label('Media Type')
                     ->toggleable()
+                    ->default('NA')
                     ->searchable(),
 
-                TextColumn::make('mediaable.content')
-                    ->toggleable()
-                    ->searchable(),
-                
-                TextColumn::make('mediaable_type')
-                    ->toggleable()
-                    ->searchable(),
-                
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
+        // ->actions([
+        //     Tables\Actions\EditAction::make(),
+        // ])
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ])
+        // ->emptyStateActions([
+        //     Tables\Actions\CreateAction::make(),
+        // ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMedia::route('/'),
+            'index'  => Pages\ListMedia::route('/'),
             'create' => Pages\CreateMedia::route('/create'),
-            'edit' => Pages\EditMedia::route('/{record}/edit'),
+            'edit'   => Pages\EditMedia::route('/{record}/edit'),
         ];
-    }    
+    }
+
+    public function rules(): array
+    {
+        return [
+            'url' => 'max:2048', // Add any other rules as needed
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'url.max' => 'The uploaded image must be less than 2MB.',
+        ];
+    }
 }

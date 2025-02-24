@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ComplaintsRelationManager extends RelationManager
 {
@@ -32,7 +33,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('complaintable_id')
                         ->rules(['max:255'])
                         ->placeholder('Complaintable Id')
@@ -41,7 +42,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     Select::make('user_id')
                         ->rules(['exists:users,id'])
                         ->relationship('user', 'first_name')
@@ -52,7 +53,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('complaint_type')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Complaint Type')
@@ -61,7 +62,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('category')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Category')
@@ -70,7 +71,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('open_time')
                         ->rules(['date'])
                         ->placeholder('Open Time')
@@ -79,7 +80,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     DateTimePicker::make('close_time')
                         ->rules(['date'])
                         ->placeholder('Close Time')
@@ -88,13 +89,13 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     KeyValue::make('photo')->columnSpan([
                         'default' => 12,
                         'md' => 12,
                         'lg' => 12,
                     ]),
-    
+
                     KeyValue::make('remarks')
                         ->required()
                         ->columnSpan([
@@ -102,7 +103,7 @@ class ComplaintsRelationManager extends RelationManager
                             'md' => 12,
                             'lg' => 12,
                         ]),
-    
+
                     TextInput::make('status')
                         ->rules(['max:50', 'string'])
                         ->placeholder('Status')
@@ -130,11 +131,12 @@ class ComplaintsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('close_time')->dateTime(),
                 Tables\Columns\TextColumn::make('status')->limit(50),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -142,11 +144,11 @@ class ComplaintsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
+                //Tables\Actions\CreateAction::make(),
             ]);
     }
 }

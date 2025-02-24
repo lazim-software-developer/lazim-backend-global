@@ -54,7 +54,7 @@ class OaUserRegistration extends Mailable
             $message
 
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Welcome to Lazim!');
+                ->subject('Welcome to Lazim - Start Exploring Now');
 
         });
     }

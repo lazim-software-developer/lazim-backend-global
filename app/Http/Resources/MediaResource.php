@@ -17,7 +17,7 @@ class MediaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'url'=> Storage::disk('s3')->url($this->url)
+            'url'=> $this->url ? Storage::disk('s3')->url($this->url) : null,
         ];
     }
 }

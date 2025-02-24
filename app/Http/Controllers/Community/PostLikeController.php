@@ -7,11 +7,20 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Community\Post;
 use App\Models\Community\PostLike;
+use App\Models\ExpoPushNotification;
+use App\Traits\UtilsTrait;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class PostLikeController extends Controller
 {
-    public function like(Post $post)
+    use UtilsTrait;
+    public function like(Post $post,Request $request)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $existingLike = PostLike::where('post_id', $post->id)
             ->where('user_id', auth()->user()->id)
             ->first();
@@ -20,7 +29,7 @@ class PostLikeController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have already liked this post.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
@@ -32,7 +41,7 @@ class PostLikeController extends Controller
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post liked successfully.',
-            'errorCode' => 200,
+            'code' => 200,
         ]))->response()->setStatusCode(200);
     }
 
@@ -46,16 +55,15 @@ class PostLikeController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'You have not liked this post.',
-                'errorCode' => 400,
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
         $existingLike->delete();
-
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Post unliked successfully.',
-            'errorCode' => 200,
+            'code' => 200,
         ]))->response()->setStatusCode(200);
     }
 

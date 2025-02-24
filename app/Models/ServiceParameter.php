@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ServiceParameter extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $fillable = [
         'name',
         'value',

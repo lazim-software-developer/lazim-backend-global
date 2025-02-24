@@ -22,7 +22,7 @@ class VerificationController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Invalid OTP. Please try again.',
-                'errorCode' => 400, 
+                'code' => 400, 
             ]))->response()->setStatusCode(400);
         }
 

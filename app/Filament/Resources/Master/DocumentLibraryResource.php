@@ -8,7 +8,6 @@ use App\Models\Master\DocumentLibrary;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -18,6 +17,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class DocumentLibraryResource extends Resource
 {
@@ -57,7 +57,7 @@ class DocumentLibraryResource extends Resource
                     FileUpload::make('url')->label('Document')
                         ->required()
                         ->disk('s3')
-                        ->downloadable()
+                        ->downloadable(true)
                         ->preserveFilenames(),
                     ]),
             ]);
@@ -84,6 +84,7 @@ class DocumentLibraryResource extends Resource
                 ->searchable(true, null, true)
                 ->limit(50),
         ])
+        ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -92,7 +93,7 @@ class DocumentLibraryResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
