@@ -35,16 +35,15 @@ class CreatePropertyManager extends CreateRecord
         return $data;
     }
 
-    protected function beforeCreate(Model $record): void
+    protected function beforeCreate(): void
     {
-        dd($record);
+        dd($this->data);
         // Check if the phone number is already used by another user or owner association
         $phoneExists = DB::table('owner_associations')
-            ->where('phone', $record->phone)
-            ->where('id', '!=', $record->id)
+            ->where('phone', $this->data['phone'])
             ->exists() ||
         DB::table('users')
-            ->where('phone', $record->phone)
+            ->where('phone', $this->data['phone'])
             ->exists();
 
         if ($phoneExists) {
@@ -60,11 +59,10 @@ class CreatePropertyManager extends CreateRecord
 
         // Check if the email is already used by another user or owner association
         $emailExists = DB::table('owner_associations')
-            ->where('email', $record->email)
-            ->where('id', '!=', $record->id)
+            ->where('email', $this->data['email'])
             ->exists() ||
         DB::table('users')
-            ->where('email', $record->email)
+            ->where('email', $this->data['email'])
             ->exists();
 
         if ($emailExists) {
