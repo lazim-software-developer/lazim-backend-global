@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
+use Filament\Notifications\Notification;
 
 class CreatePropertyManager extends CreateRecord
 {
@@ -34,32 +35,44 @@ class CreatePropertyManager extends CreateRecord
         return $data;
     }
 
-    public static function beforeSave(Model $record): void
+    protected function beforeCreate(): void
     {
         // Check if the phone number is already used by another user or owner association
         $phoneExists = DB::table('owner_associations')
-            ->where('phone', $record->phone)
-            ->where('id', '!=', $record->id)
+            ->where('phone', $this->data['phone'])
             ->exists() ||
         DB::table('users')
-            ->where('phone', $record->phone)
+            ->where('phone', $this->data['phone'])
             ->exists();
 
         if ($phoneExists) {
-            throw ValidationException::withMessages(['phone' => 'The phone number is already taken.']);
+            Notification::make()
+                ->warning()
+                ->title('Duplicate phone number!')
+                ->body('The phone number is already taken.')
+                ->persistent()
+                ->send();
+
+            $this->halt();
         }
 
         // Check if the email is already used by another user or owner association
         $emailExists = DB::table('owner_associations')
-            ->where('email', $record->email)
-            ->where('id', '!=', $record->id)
+            ->where('email', $this->data['email'])
             ->exists() ||
         DB::table('users')
-            ->where('email', $record->email)
+            ->where('email', $this->data['email'])
             ->exists();
 
         if ($emailExists) {
-            throw ValidationException::withMessages(['email' => 'The email address is already taken.']);
+            Notification::make()
+                ->warning()
+                ->title('Duplicate email!')
+                ->body('The email is already taken.')
+                ->persistent()
+                ->send();
+
+            $this->halt();
         }
     }
 
