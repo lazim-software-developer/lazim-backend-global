@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
+use Filament\Notifications\Notification;
 
 class CreatePropertyManager extends CreateRecord
 {
@@ -34,8 +35,9 @@ class CreatePropertyManager extends CreateRecord
         return $data;
     }
 
-    public static function beforeSave(Model $record): void
+    protected function beforeCreate(Model $record): void
     {
+        dd($record);
         // Check if the phone number is already used by another user or owner association
         $phoneExists = DB::table('owner_associations')
             ->where('phone', $record->phone)
@@ -46,7 +48,14 @@ class CreatePropertyManager extends CreateRecord
             ->exists();
 
         if ($phoneExists) {
-            throw ValidationException::withMessages(['phone' => 'The phone number is already taken.']);
+            Notification::make()
+                ->warning()
+                ->title('Duplicate phone number!')
+                ->body('The phone number is already taken.')
+                ->persistent()
+                ->send();
+
+            $this->halt();
         }
 
         // Check if the email is already used by another user or owner association
@@ -59,7 +68,14 @@ class CreatePropertyManager extends CreateRecord
             ->exists();
 
         if ($emailExists) {
-            throw ValidationException::withMessages(['email' => 'The email address is already taken.']);
+            Notification::make()
+                ->warning()
+                ->title('Duplicate email!')
+                ->body('The email is already taken.')
+                ->persistent()
+                ->send();
+
+            $this->halt();
         }
     }
 
