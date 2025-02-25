@@ -4,8 +4,10 @@ namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Floor;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Building\Building;
 use App\Forms\Components\FloorQrCode;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -14,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class FloorsRelationManager extends RelationManager
 {
@@ -24,18 +27,21 @@ class FloorsRelationManager extends RelationManager
         return $form
             ->schema([
                 TextInput::make('floors')
-                    ->numeric()
-                    ->disabled()
+                    ->disabled(fn (?Floor $record): bool => $record !== null && (request()->routeIs('*.view') || request()->routeIs('*.create')))
                     ->placeholder('Floors')
-                    ->label('Floor'),
+                    ->label('Floor')
+                    ->maxLength(50)
+                    ->rules(['max:50']),
                 Select::make('building_id')
                     ->relationship('building', 'name')
                     ->preload()
-                    ->disabled()
+                    ->disabled(fn (?Floor $record): bool => $record !== null && (request()->routeIs('*.edit') || request()->routeIs('*.create')))
                     ->searchable()
-                    ->label('Building Name'),
+                    ->label('Building Name')
+                    ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit'),
                 FloorQrCode::make('qr_code')
-                    ->label('QR Code'),
+                    ->label('QR Code')
+                    ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
 
@@ -51,19 +57,33 @@ class FloorsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                // Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                ->after(function (Floor $record) {
+                    $qrCodeContent = [
+                        'floors' => $record->floors,
+                        'building_id' => $record->building_id,
+                    ];
+                    // Generate a QR code using the QrCode library
+                    $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+                    // Update the qr_code field in the floors table
+                    Floor::where('floors', $record->floors)
+                    ->where('building_id', $record->building_id)
+                    ->whereNull('qr_code')
+                    ->update(['qr_code' => $qrCode]);
+                }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([
-                // Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make(),
             ]);
     }
 }
