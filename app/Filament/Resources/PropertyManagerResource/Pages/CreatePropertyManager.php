@@ -37,7 +37,6 @@ class CreatePropertyManager extends CreateRecord
 
     protected function beforeCreate(): void
     {
-        dd($this->data);
         // Check if the phone number is already used by another user or owner association
         $phoneExists = DB::table('owner_associations')
             ->where('phone', $this->data['phone'])
