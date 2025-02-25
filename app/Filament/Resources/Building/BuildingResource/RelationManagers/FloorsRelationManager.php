@@ -70,6 +70,11 @@ class FloorsRelationManager extends RelationManager
                     ->where('building_id', $record->building_id)
                     ->whereNull('qr_code')
                     ->update(['qr_code' => $qrCode]);
+
+                    $floorCount = Floor::where('building_id', $record->building_id)->count();
+
+                    Building::where('id', $record->building_id)
+                    ->update(['floors' => $floorCount]);
                 }),
             ])
             ->actions([
