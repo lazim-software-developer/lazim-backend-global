@@ -57,8 +57,8 @@ class AnnouncementResource extends Resource
                             return function (string $attribute, $value, Closure $fail) {
                                 $trimmedString = preg_replace('/\s+/', ' ', $value);
                                 $trimmedString = trim($trimmedString);
-                                if (strlen($value) > 400) {
-                                    $fail('The content should be less than 400 characters.');
+                                if (strlen($value) > 1500) {
+                                    $fail('The content should be less than 1500 characters.');
                                 }
                                 if (strlen($value) < 10) {
                                     $fail('The content should be greater than 30 characters.');
