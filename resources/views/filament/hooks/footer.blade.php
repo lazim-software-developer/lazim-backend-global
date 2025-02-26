@@ -74,36 +74,10 @@
                     (currentUrl.endsWith('/app') && anchorHref === '/app')) {
                     item.setAttribute("style", "background-color:lightgray;");
                 }
-
-                // Add specific highlight for dashboard
-                if ((currentUrl.endsWith('/admin') && anchorHref === '/admin') ||
-                    (currentUrl.endsWith('/app') && anchorHref === '/app')) {
-                    item.setAttribute("style", "background-color:lightgray;");
-                }
             });
 
             // Handle Sidebar collapse
             const sidebarStore = window.Alpine.store('sidebar');
-
-            // Hide Dashboard label text and button
-            document.querySelectorAll('[data-group-label]').forEach(el => {
-                if (el.dataset.groupLabel === 'Dashboard') {
-                    const labelElement = el.querySelector('.fi-sidebar-group-button span');
-                    if (labelElement) {
-                        labelElement.textContent = '';
-                    }
-                    const button = el.querySelector('.fi-sidebar-group-button');
-                    if (button) {
-                        button.style.display = 'none';
-                    }
-                }
-            });
-
-            // Extract data-group-label values and filter out "Dashboard"
-            const labels = Array.from(document.querySelectorAll('[data-group-label]'))
-                .map(el => el.dataset.groupLabel)
-                .filter(label => label !== 'Dashboard');
-
 
             // Hide Dashboard label text and button
             document.querySelectorAll('[data-group-label]').forEach(el => {
@@ -131,9 +105,6 @@
                 // Skip toggling if it's the Dashboard
                 if (groupLabel === 'Dashboard') return;
 
-                // Skip toggling if it's the Dashboard
-                if (groupLabel === 'Dashboard') return;
-
                 // Check if the group is currently open
                 if (!this.groupIsCollapsed(groupLabel)) {
                     this.collapsedGroups.push(groupLabel);
@@ -145,9 +116,6 @@
                 localStorage.setItem('collapsedGroups', JSON.stringify(this.collapsedGroups));
             };
 
-            if (groupToOpen !== 'Dashboard') {
-                sidebarStore.toggleCollapsedGroup(groupToOpen);
-            }
             if (groupToOpen !== 'Dashboard') {
                 sidebarStore.toggleCollapsedGroup(groupToOpen);
             }
