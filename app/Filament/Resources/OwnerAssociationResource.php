@@ -109,7 +109,7 @@ class OwnerAssociationResource extends Resource
                                             // Jab $record null ho (create mode me validation)
                                             if (!$record) {
                                                 // Owner association me phone number ki uniqueness check karna
-                                                if (DB::table('owner_associations')->where('phone', $value)->exists()) {
+                                                if (DB::table('owner_associations')->where('phone', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by an OA.');
                                                 }
 
@@ -122,7 +122,7 @@ class OwnerAssociationResource extends Resource
                                             }
 
                                             // Existing record ke liye validation
-                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('phone', $value)->count() > 0) {
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('phone', $value)->whereNull('deleted_at')->count() > 0) {
                                                 $fail('The phone is already taken by an OA.');
                                             }
 
@@ -168,7 +168,7 @@ class OwnerAssociationResource extends Resource
                                             // Create mode ke liye validation (jab $record null ho)
                                             if (!$record) {
                                                 // Owner association me email ki uniqueness check karna
-                                                if (DB::table('owner_associations')->where('email', $value)->exists()) {
+                                                if (DB::table('owner_associations')->where('email', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by an OA.');
                                                 }
 
@@ -181,7 +181,7 @@ class OwnerAssociationResource extends Resource
                                             }
 
                                             // Update mode ke liye validation (jab $record null nahi hai)
-                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('email', $value)->count() > 0) {
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('email', $value)->whereNull('deleted_at')->count() > 0) {
                                                 $fail('The email is already taken by an OA.');
                                             }
 
