@@ -42,7 +42,13 @@ class GuestRequestJob implements ShouldQueue
 
         $oaId = DB::table('building_owner_association')
             ->where(['building_id' => $this->dataObj->building_id, 'active' => 1])->first()?->owner_association_id;
-        $property_manager_name = OwnerAssociation::where('id', $oaId)->first()?->name;
+        
+        $ownerAssociation = OwnerAssociation::where('id', $oaId)->first();
+        $property_manager_name = $ownerAssociation?->name;
+        $property_manager_logo = $ownerAssociation?->profile_photo;
+        
+        // Add AWS URL to logo path if logo exists
+        $property_manager_logo = $property_manager_logo ? env('AWS_URL') . '/' . $property_manager_logo : null;
 
         $beautymail = app()->make(Beautymail::class);
 
@@ -52,7 +58,8 @@ class GuestRequestJob implements ShouldQueue
             'building' => $this->dataObj->building->name,
             'flat' => $this->dataObj->flat->property_number,
             'type' => 'Guest registration',
-            'property_manager_name' => $property_manager_name
+            'property_manager_name' => $property_manager_name,
+            'property_manager_logo' => $property_manager_logo
         ], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
