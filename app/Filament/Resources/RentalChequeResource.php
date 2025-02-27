@@ -2,7 +2,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RentalChequeResource\Pages;
-use App\Models\OwnerAssociation;
 use App\Models\RentalCheque;
 use DB;
 use Filament\Forms\Components\DatePicker;
@@ -159,35 +158,20 @@ class RentalChequeResource extends Resource
 
             ])
             ->filters([
-
-                SelectFilter::make('flat_property_number')
-                    ->label('Flat Number')
+                SelectFilter::make('property_number')
+                    ->relationship('rentalDetail.flat', 'property_number')
                     ->preload()
+                    ->searchable()
                     ->options(function () {
-                        $pmBuildings = DB::table('building_owner_association')
-                            ->where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->where('active', true)
-                            ->pluck('building_id')
-                            ->toArray();
                         $pmFlats = DB::table('property_manager_flats')
                             ->where('owner_association_id', auth()->user()?->owner_association_id)
                             ->where('active', true)
                             ->pluck('flat_id')
                             ->toArray();
+                        $flats = DB::table('flats')->whereIn('id', $pmFlats)->pluck('property_number')->toArray();
+                        return $flats;
+                    }),
 
-                        if (auth()->user()->role->name == 'Property Manager'
-                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                                ->pluck('role')[0] == 'Property Manager') {
-                            return DB::table('flats')
-                                ->whereIn('id', $pmFlats)
-                                ->pluck('property_number', 'id');
-                        }
-
-                        return DB::table('flats')
-                            ->whereIn('building_id', $pmBuildings)
-                            ->pluck('property_number', 'id');
-                    })
-                    ->searchable(),
                 SelectFilter::make('flat_tenant_name')
                     ->label('Flat Tenant Name')
                     ->relationship(
