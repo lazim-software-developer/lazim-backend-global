@@ -42,7 +42,13 @@ class AccessCardRequestJob implements ShouldQueue
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
         $oaId = DB::table('building_owner_association')
             ->where(['building_id' => $this->accessCard->building_id, 'active' => 1])->first()?->owner_association_id;
-        $property_manager_name = OwnerAssociation::where('id', $oaId)->first()?->name;
+        
+        $ownerAssociation = OwnerAssociation::where('id', $oaId)->first();
+        $property_manager_name = $ownerAssociation?->name;
+        $property_manager_logo = $ownerAssociation?->profile_photo;
+        
+        // Add AWS URL to logo path if logo exists
+        $property_manager_logo = $property_manager_logo ? env('AWS_URL') . '/' . $property_manager_logo : null;
 
         $beautymail = app()->make(Beautymail::class);
 
@@ -53,7 +59,8 @@ class AccessCardRequestJob implements ShouldQueue
             'flat' => $this->accessCard->flat->property_number,
             'type' => 'Access Card',
             'card_type' => $this->accessCard->card_type,
-            'property_manager_name' => $property_manager_name ?? '',
+            'property_manager_name' => $property_manager_name,
+            'property_manager_logo' => $property_manager_logo,
         ], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
