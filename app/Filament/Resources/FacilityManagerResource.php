@@ -83,13 +83,13 @@ class FacilityManagerResource extends Resource
                                             ->validationMessages([
                                                 'required' => 'Phone Number is required',
                                                 'unique'   => 'This phone number is already registered',
-                                                'length'   => 'Phone number must be 9 digits',
                                             ])
                                             ->prefix('+971')
                                             ->unique(User::class, 'phone', ignorable: fn($record) => $record?->user)
                                             ->disabledOn('edit')
-                                            ->length(9)
-                                            ->placeholder('XXXXXXXXX'),
+                                            ->minLength(9)
+                                            ->maxLength(15)
+                                            ->placeholder('Enter phone number'),
                                     ]),
                             ])->columnSpan(2),
 
@@ -126,8 +126,8 @@ class FacilityManagerResource extends Resource
                                     ->placeholder('Enter complete address'),
                                 TextInput::make('website')
                                     ->label('Website')
-                                    ->url()
-                                    ->placeholder('https://example.com'),
+                                    ->placeholder('Enter Website URL')
+                                    ->maxLength(250),
                                 Grid::make(2)
                                     ->schema([
                                         DatePicker::make('tl_expiry')
@@ -200,7 +200,7 @@ class FacilityManagerResource extends Resource
                     ->description('Details of the authorized manager.')
                     ->icon('heroicon-o-user')
                     ->collapsible()
-                    // ->collapsed()
+                // ->collapsed()
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -227,13 +227,13 @@ class FacilityManagerResource extends Resource
                                 TextInput::make('managers.0.phone')
                                     ->label('Manager Phone')
                                     ->tel()
-                                    ->length(9)
-                                    ->placeholder('XXXXXXXXX')
+                                    ->minLength(9)
+                                    ->maxLength(15)
+                                    ->placeholder('Enter phone number')
                                     ->live()
                                     ->required()
                                     ->validationMessages([
                                         'required' => 'Manager Phone is required',
-                                        'length'   => 'Phone number must be 9 digits',
                                     ]),
                                 // ->required(fn($get) => !empty($get('managers.0.name')) || !empty($get('managers.0.email'))),
                             ]),
@@ -272,7 +272,7 @@ class FacilityManagerResource extends Resource
                             if ($state['status'] === 'rejected' && ! empty($state['remarks'])) {
                                 RejectedFMJob::dispatch($user, $password, $email, $state['remarks'], $pm_oa);
                             } elseif ($state['status'] === 'approved') {
-                                if($user->password === null){
+                                if ($user->password === null) {
                                     $user->password = Hash::make($password);
                                     $user->save();
                                 }

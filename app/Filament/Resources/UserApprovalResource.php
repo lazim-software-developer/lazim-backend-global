@@ -185,11 +185,11 @@ class UserApprovalResource extends Resource
                                         ->numeric()
                                         ->lazy()
                                         ->suffix('AED')
-                                        ->maxValue(999999999.99) // Max 9 digits before decimal, 2 after
+                                        ->maxValue(99999999.99) // Adjusted max value to fit within the allowed range
                                         ->validationMessages([
                                             'required'  => 'Contract amount is required',
                                             'numeric'   => 'Contract amount must be a number',
-                                            'max_value' => 'Contract amount cannot exceed 999,999,999.99 AED',
+                                            'max_value' => 'Contract amount cannot exceed 99,999,999.99 AED', // Updated error message
                                         ])
                                         ->afterStateUpdated(function ($get, $set, $state) {
                                             // Get the number of cheques
@@ -228,6 +228,20 @@ class UserApprovalResource extends Resource
 
                                     Select::make('number_of_cheques')
                                         ->required()
+                                        ->disabled(function ($record) {
+                                            if (! $record) {
+                                                return false;
+                                            }
+
+                                            $flatTenant = DB::table('flat_tenants')
+                                                ->where('tenant_id', $record->user_id)
+                                                ->where('flat_id', $record->flat_id)
+                                                ->where('role', 'Tenant')
+                                                ->latest()
+                                                ->first();
+                                            return $flatTenant && RentalDetail::where('flat_tenant_id', $flatTenant->id)
+                                                ->exists();
+                                        })
                                         ->options([
                                             '1'  => '1',
                                             '2'  => '2',
@@ -251,36 +265,46 @@ class UserApprovalResource extends Resource
                                             ]);
 
                                             $set('cheques', $cheques);
-                                        })
-                                        ->disabled(fn($record) => RentalDetail::where('flat_tenant_id', $record?->id)->exists()),
+                                        }),
                                     DatePicker::make('contract_start_date')
                                         ->required()
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $startDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('start_date');
+                                                if ($startDate) {
+                                                    $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                                                    $set('contract_start_date', $startDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     DatePicker::make('contract_end_date')
                                         ->required()
                                         ->after('contract_start_date')
-                                        ->default(function ($record) {
+                                        ->afterStateHydrated(function ($state, $set, $record) {
                                             if ($record) {
-                                                return DB::table('flat_tenants')
+                                                $endDate = DB::table('flat_tenants')
                                                     ->where('tenant_id', $record->user_id)
                                                     ->where('flat_id', $record->flat_id)
-                                                    ->where('role', 'Tenant')
                                                     ->value('end_date');
+                                                if ($endDate) {
+                                                    $endDate = Carbon::parse($endDate)->format('Y-m-d');
+                                                    $set('contract_end_date', $endDate);
+                                                }
                                             }
-                                            return null;
                                         }),
                                     TextInput::make('advance_amount')
                                         ->required()
                                         ->numeric()
+                                        ->live()
+                                        ->disabled(fn($record, $state) => static::shouldDisableField($record))
+                                    // ->disabled(function (callable $get) {
+                                    //     if ($get('contract_status' == 'Contract ended')) {
+                                    //         return true;
+                                    //     }
+                                    // })
                                         ->label('Security Deposit')
                                         ->suffix('AED')
                                         ->maxValue(999999999.99)
@@ -290,6 +314,13 @@ class UserApprovalResource extends Resource
                                             'max_value' => 'Security deposit cannot exceed 999,999,999.99 AED',
                                         ]),
                                     Select::make('advance_amount_payment_mode')
+                                    // ->disabled(function (callable $get) {
+                                    //     if ($get('contract_status' == 'Contract ended')) {
+                                    //         return true;
+                                    //     }
+                                    // })
+                                        ->disabled(fn($record, $state) => static::shouldDisableField($record))
+                                        ->live()
                                         ->required()
                                         ->label('Security Deposit Payment Mode')
                                         ->options([
@@ -518,21 +549,30 @@ class UserApprovalResource extends Resource
     // Add this method to handle form submission
     protected function handleFormSubmission($data)
     {
-        if ($data['status'] === 'approved') {
-            // Validate cheque amounts
-            if (isset($data['cheques']) && isset($data['admin_fee'])) {
-                $chequesSum = collect($data['cheques'])->sum('amount');
-                if ($chequesSum != $data['admin_fee']) {
-                    Notification::make()
-                        ->title('Incorrect Cheque Amounts')
-                        ->body('The sum of cheque amounts must equal the contract amount')
-                        ->danger()
-                        ->send();
-                    return false;
+        try {
+            if ($data['status'] === 'approved') {
+                // Validate cheque amounts
+                if (isset($data['cheques']) && isset($data['admin_fee'])) {
+                    $chequesSum = collect($data['cheques'])->sum('amount');
+                    if ($chequesSum != $data['admin_fee']) {
+                        Notification::make()
+                            ->title('Incorrect Cheque Amounts')
+                            ->body('The sum of cheque amounts must equal the contract amount')
+                            ->danger()
+                            ->send();
+                        return false;
+                    }
                 }
             }
+            return true;
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error')
+                ->body('Failed to create rental details: ' . $e->getMessage())
+                ->danger()
+                ->send();
+            return false;
         }
-        return true;
     }
 
     // Add this helper method to the class

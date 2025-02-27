@@ -16,6 +16,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EditUserApproval extends EditRecord
 {
@@ -32,6 +33,9 @@ class EditUserApproval extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         if (auth()->user()?->role->name !== 'Property Manager') {
+            $user          = User::find($data['user_id']);
+            $data['email'] = $user->email;
+            $data['phone'] = $user->phone;
             return $data;
         }
 
@@ -74,7 +78,6 @@ class EditUserApproval extends EditRecord
                 })->toArray();
             }
         }
-
         return $data;
     }
 
@@ -102,8 +105,8 @@ class EditUserApproval extends EditRecord
                         'status' => $data['contract_status'] ?? 'Active',
                         'contract_start_date' => $data['contract_start_date'],
                         'contract_end_date' => $data['contract_end_date'],
-                        'advance_amount' => $data['advance_amount'],
-                        'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
+                        // 'advance_amount' => $data['advance_amount'],
+                        // 'advance_amount_payment_mode' => $data['advance_amount_payment_mode'],
                     ]);
                 } else {
                     // Only validate and create rental details if they don't exist

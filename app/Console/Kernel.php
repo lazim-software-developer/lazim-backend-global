@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
@@ -35,8 +34,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('buildings:handle-pm-detachments')->daily();
         $schedule->command('invoices:check-overdue')->daily();
         // $schedule->command('receipts:check-overdue')->daily();
-
-
+        $schedule->command('rental:check-contracts')->dailyAt('23:55');
     }
 
     /**

@@ -26,6 +26,7 @@ class FlatsRelationManager extends RelationManager
             ->schema([
                 Grid::make(['default' => 0])->schema([
                     TextInput::make('property_number')
+                        ->regex('/^[\w\-\s]+$/')
                         ->rules(['numeric'])
                         ->numeric()
                         ->label('Unit Number')

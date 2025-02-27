@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\BuildingsRelationManagerResource\RelationManagers;
 
 use App\Models\Building\Building;
@@ -46,18 +45,18 @@ class BuildingsRelationManager extends RelationManager
                         Select::make('building_id')
                             ->label('Building')
                             ->options(function (RelationManager $livewire) {
-                                $pmId = OwnerAssociation::where('email', auth()->user()->email)->pluck('id')[0];
-
+                                $pmId       = auth()->user()?->owner_association_id;
                                 $buildingId = DB::table('building_owner_association')
                                     ->where('owner_association_id', $pmId)
                                     ->where('active', true)
                                     ->pluck('building_id');
 
                                 $existingBuildingIds = DB::table('building_vendor')
-                                    ->whereIn('vendor_id', $livewire->ownerRecord)
+                                    ->where('vendor_id', $livewire->ownerRecord->id)
                                     ->where('active', true)
                                     ->where('owner_association_id', $pmId)
-                                    ->pluck('building_id');
+                                    ->pluck('building_id')
+                                    ->toArray();
 
                                 return Building::whereIn('id', $buildingId)
                                     ->whereNotIn('id', $existingBuildingIds)->pluck('name', 'id');
@@ -91,7 +90,7 @@ class BuildingsRelationManager extends RelationManager
                     ->action(function (array $data, RelationManager $livewire): void {
                         $ownerAssociation = OwnerAssociation::where('email', auth()->user()->email)->first();
 
-                        if (!$ownerAssociation) {
+                        if (! $ownerAssociation) {
                             throw new \Exception('Owner association not found for the current user.');
                         }
 
