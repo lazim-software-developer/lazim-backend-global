@@ -245,6 +245,8 @@ class OwnerAssociationResource extends Resource
                                 ->default(auth()->user()?->id),
                                 Hidden::make('updated_by')
                                 ->default(auth()->user()?->id),
+                                Hidden::make('resource')
+                                ->default('Lazim'),
                             Toggle::make('verified')
                                 ->rules(['boolean'])
                                 ->default(true)
@@ -380,6 +382,9 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bank_account_number')
+                    ->default('NA')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('resource')
                     ->default('NA')
                     ->searchable(),
             ])
