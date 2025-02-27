@@ -42,7 +42,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Lazim Logo" class="logo">
+            <img src="https://lazim-dev.s3.ap-south-1.amazonaws.com/dev/01JN2XZW0YY3YDSS9W7DSKETMV.png"
+             alt="Lazim Logo" class="logo">
         </div>
         <hr class="header-divider">
         <div class="content">
