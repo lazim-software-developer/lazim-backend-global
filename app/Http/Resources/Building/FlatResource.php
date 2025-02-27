@@ -35,6 +35,9 @@ class FlatResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'property_manager' => $this->whenLoaded('ownerAssociation', function () {
+                return $this->ownerAssociation?->role === 'Property Manager';
+            }, false),
         ];
     }
 }

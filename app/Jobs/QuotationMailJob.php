@@ -9,14 +9,15 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Snowfire\Beautymail\Beautymail;
 
-class EmailOtp implements ShouldQueue
+
+class QuotationMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $otp, protected $type, protected $email)
+    public function __construct(protected $quotation)
     {
         //
     }
@@ -26,15 +27,11 @@ class EmailOtp implements ShouldQueue
      */
     public function handle(): void
     {
-        $data = [
-            'emailOtp' => $this->type == 'email' ? $this->otp : '',
-        ];
-
         $beautymail = app()->make(Beautymail::class);
-        $beautymail->send('emails.email-otp', ['data' => $data], function($message) {
+        $beautymail->send('emails.quotationMail', ['quotation' => $this->quotation], function ($message) {
             $message
-                ->to($this->email)
-                ->subject('OTP Verification');
+                ->to('bd@lazim.ae')
+                ->subject('New Quotation Request');
         });
     }
 }

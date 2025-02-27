@@ -8,19 +8,20 @@ use Illuminate\Support\Arr;
 use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
+use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
+use App\Models\Building\Complaint;
+use App\Models\Building\FacilityBooking;
+use App\Models\Building\Flat;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Vendor\Contract;
-use App\Models\Accounting\Budget;
-use App\Models\Building\Building;
-use Spatie\Sluggable\SlugOptions;
-use App\Models\Building\Complaint;
-use App\Services\GenericHttpService;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Building\FacilityBooking;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\SlugOptions;
+use App\Services\GenericHttpService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OwnerAssociation extends Model
 {
@@ -50,7 +51,11 @@ class OwnerAssociation extends Model
         'slug',
         'created_by',
         'updated_by',
-        'resource'
+        'resource',
+        'role',
+        'emirates_id',
+        'trade_license_number',
+        'bank_account_holder_name'
     ];
 
     public function users()
@@ -68,13 +73,18 @@ class OwnerAssociation extends Model
         return $this->hasMany(Budget::class);
     }
 
-    public function buildings()
-    {
-        return $this->belongsToMany(Building::class, 'building_owner_association');
+    public function buildings(){
+        return $this->belongsToMany(Building::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
     }
 
-    public function facilityBookings()
+    public function propertyManagerFlats()
     {
+        return $this->belongsToMany(Flat::class, 'property_manager_flats')
+            ->withPivot(['active']);
+    }
+
+    public function facilityBookings(){
         return $this->hasMany(FacilityBooking::class);
     }
 
@@ -126,6 +136,11 @@ class OwnerAssociation extends Model
     {
         return $this->belongsToMany(Vendor::class, 'owner_association_vendor')->withPivot(['status']);
     }
+    public function flats()
+    {
+        return $this->hasMany(Flat::class);
+    }
+
 
     public function emailTemplates(){
         return $this->hasMany(EmailTemplate::class, 'owner_association_id');

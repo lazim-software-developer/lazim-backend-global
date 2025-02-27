@@ -353,7 +353,6 @@ class InvoicesRelationManager extends RelationManager
                                     'active'     => true,
                                 ]);
 
-
                                 $product_services = $connection->table('product_services')
                                     ->where(['name' => $record->contract->service->name, 'building_id' => $record->contract->building_id])
                                     ->first();

@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Building\Flat;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Vehicle extends Model
 {
@@ -21,5 +22,9 @@ class Vehicle extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
     }
 }

@@ -2,30 +2,29 @@
 
 namespace App\Filament\Resources\User;
 
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\UserResource\Pages;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon       = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel      = 'Owner';
-    protected static ?string $navigationGroup      = 'Flat Management';
-    protected static ?string $modelLabel = 'Users';
+    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel       = 'Owner';
+    protected static ?string $navigationGroup       = 'Flat Management';
+    protected static ?string $modelLabel            = 'Users';
     protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
@@ -33,7 +32,7 @@ class UserResource extends Resource
             Grid::make([
                 'sm' => 1,
                 'md' => 1,
-                'lg' => 2
+                'lg' => 2,
             ])
                 ->schema([
                     TextInput::make('first_name')
@@ -58,8 +57,8 @@ class UserResource extends Resource
                         ->placeholder('Email'),
 
                     TextInput::make('phone')
-                        ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                        // ->required()
+                        ->length(9)
+                    // ->required()
                         ->disabledOn('edit')
                         ->prefix('971')
                         ->unique(
@@ -80,13 +79,16 @@ class UserResource extends Resource
                     //     ->placeholder('Lazim Id'),
                     Select::make('roles')
                         ->relationship('roles', 'name')
-                        // ->multiple()
+                        ->disabledOn('edit')
+                    // ->multiple()
                         ->options(function () {
                             if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Role::where('name', 'Admin')->pluck('name', 'id');
                             } else {
                                 $oaId = auth()->user()?->owner_association_id;
-                                return Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
+                                return Role::whereNotIn('name',
+                                    ['Admin', 'Security', 'Tenant', 'OA', 'Owner', 'Managing    Director', 'Technician',
+                                        'Vendor', 'Property Manager', 'Facility Manager'])
                                     ->where('owner_association_id', $oaId)
                                     ->pluck('name', 'id');
                             }
@@ -108,8 +110,8 @@ class UserResource extends Resource
                     //     ->hidden()
                     //     ->nullable(),
                     Toggle::make('active')
-                        // ->rules(['boolean'])
-                        // ->default(true)
+                    // ->rules(['boolean'])
+                        ->default(true)
                         ->nullable(),
 
                 ]),
@@ -122,23 +124,27 @@ class UserResource extends Resource
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             $roles = Role::where('name', 'Admin')->pluck('id');
         } else {
-            $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])->pluck('id');
+            $roles = Role::whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor', 'Facility Manager'])->pluck('id');
         }
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', $roles)->where('id', '!=', auth()->user()->id))
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
+                    ->toggleable()
                     ->searchable()
                     ->limit(15),
                 Tables\Columns\TextColumn::make('email')
+                    ->toggleable()
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
+                    ->toggleable()
                     ->searchable()
                     ->limit(50)
                     ->default('NA'),
-                Tables\Columns\ToggleColumn::make('active'),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->toggleable(),
                 // Tables\Columns\TextColumn::make('lazim_id')
                 //     ->toggleable()
                 //     ->searchable()

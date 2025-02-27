@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\AuthenticateTallyApi;
 use App\Http\Middleware\MollakToken;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -72,6 +73,9 @@ class Kernel extends HttpKernel
         'phone.verified' => \App\Http\Middleware\Custom\CheckPhoneVerified::class,
         'active.gatekeeper' => \App\Http\Middleware\Custom\CheckActiveGateKeeper::class,
         'check.MollakToken' => MollakToken::class,
-        'authenticate.tally' => AuthenticateTallyApi::class
+        'authenticate.tally' => AuthenticateTallyApi::class,
+        'role' => RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
     ];
 }

@@ -38,23 +38,6 @@ class EditHelpdeskcomplaint extends EditRecord
         return $data;
     }
 
-    public function beforeSave()
-    {
-        $data = $this->form->getState();
-        
-        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
-
-            Remark::create([
-                'remarks' => $data['remarks'],
-                'type' => 'Issue',
-                'status' => $data['status'],
-                'user_id' => auth()->user()->id,
-                'complaint_id' => $this->record->id,
-            ]);
-        }
-
-    }
-
     public function afterSave()
     {
         $role = Role::where('id', auth()->user()->role_id)->first();
@@ -72,7 +55,14 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been resolved by a ' . $role->name . ' ' . auth()->user()->first_name,
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabResolved': ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'InAppNotficationScreen'),
+                        'complaintId'      => $this->record?->id,
+                        'open_time' => $this->record?->open_time,
+                        'close_time' => $this->record?->close_time,
+                        'due_date' => $this->record?->due_date,
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id
+                    ],
                     ];
                     $this->expoNotification($message);
                 }
@@ -90,9 +80,16 @@ class EditHelpdeskcomplaint extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => [
+                                'complaintId'      => $this->record?->id,
+                                'open_time' => $this->record?->open_time,
+                                'close_time' => $this->record?->close_time,
+                                'due_date' => $this->record?->due_date,
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id
+                            ],
                             'format' => 'filament',
-                            'url' => 'HelpDeskTabResolved',
+                            'url' => $this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance':'HelpDeskTabResolved',
                         ]),
                         'created_at' => now()->format('Y-m-d H:i:s'),
                         'updated_at' => now()->format('Y-m-d H:i:s'),
@@ -107,10 +104,10 @@ class EditHelpdeskcomplaint extends EditRecord
                         'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
                         'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                         'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-                    ];           
+                    ];
                     $complaintType = "Issue";
                     $remarks = Remark::where('complaint_id',$this->record->id)->get();
-                    
+
                     ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
         }
 
@@ -123,7 +120,9 @@ class EditHelpdeskcomplaint extends EditRecord
                         'sound' => 'default',
                         'title' => 'Facility support issue status',
                         'body' => 'A issue has been moved to In-progress',
-                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen'],
+                        'data' => ['notificationType' => $this->record->complaint_type == 'help_desk'? 'HelpDeskTabPending':'InAppNotficationScreen',
+                        'building_id' => $this->record->building_id,
+                        'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -141,7 +140,8 @@ class EditHelpdeskcomplaint extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Facility support issue status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => 'HelpDeskTabPending',
                         ]),

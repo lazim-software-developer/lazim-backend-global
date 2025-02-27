@@ -1,89 +1,44 @@
-@extends('beautymail::templates.minty')
+@extends('emails.layouts.email')
 
 @section('content')
+<h2 style="color: #2b6cb0; margin: 0 0 20px 0;">{{ ucfirst($type) }} Request</h2>
 
-@include('beautymail::templates.minty.contentStart')
-<tr>
-	<td class="paragraph">
-		Dear {{$user->first_name}},
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="20"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		We are pleased to inform you that your {{ $type }} request has been successfully submitted. Below are your ticket details:
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="title">
-		Ticket Details:
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="10"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Ticket Number: </strong> {{$ticket_number}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Building: </strong> {{$building}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Flat: </strong> {{$flat}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Type: </strong> {{$type}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Moving Date: </strong> {{$moving_date}}
-	</td>
-</tr>
-<tr>
-	<td class="paragraph">
-		<strong>Moving Time: </strong> {{$moving_time}}
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		Thank you for choosing Lazim. We are confident that you will find great value in our platform, and we look forward to serving you.
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		Warm regards,
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="5"></td>
-</tr>
-<tr>
-	<td class="paragraph">
-		The Lazim Team
-	</td>
-</tr>
-<tr>
-	<td width="100%" height="25"></td>
-</tr>
-@include('beautymail::templates.minty.contentEnd')
+<p>Dear {{ $user->first_name }},</p>
 
-@stop
+<p>We are pleased to confirm that your {{ $type }} request has been successfully submitted.</p>
+
+<div class="title">@if($type == 'move-in') Request Details: @else Ticket Details: @endif</div>
+<p>
+    <strong>@if($type == 'move-in')Ticket Number:@else Ticket Number:@endif</strong> {{ $ticket_number }}<br>
+    <strong>Building:</strong> {{ $building }}<br>
+    <strong>Flat:</strong> {{ $flat }}<br>
+    @if($type == 'move-in')
+    <strong>Move-In Date:</strong> {{ $moving_date }}<br>
+    <strong>Move-In Time:</strong> {{ $moving_time }}
+    @else
+    <strong>Request Type:</strong> Move-Out<br>
+    <strong>Moving Date:</strong> {{ $moving_date }}<br>
+    <strong>Moving Time:</strong> {{ $moving_time }}
+    @endif
+</p>
+
+@if($type == 'move-in')
+<p>We are excited to welcome you and are committed to ensuring a seamless move-in experience.</p>
+<p>If you have any questions or require assistance, feel free to contact us.</p>
+<p>Thank you for choosing Lazim.</p>
+@else
+<p>Thank you for choosing us.</p>
+<p>We appreciate your cooperation and are here to ensure a smooth process for your move-out.</p>
+<p>If you need any further assistance, please feel free to reach out to us.</p>
+@endif
+
+<p>Regards,</p>
+
+@if(isset($property_manager_logo) && $property_manager_logo)
+<p>
+    <img src="{{ $property_manager_logo }}" alt="Property Manager" style="max-width: 150px; height: auto;">
+</p>
+@endif
+
+<p>{{ $property_manager_name }}</p>
+@endsection

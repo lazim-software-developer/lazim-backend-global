@@ -6,31 +6,48 @@ use App\Models\Building\Building;
 use App\Services\AuthenticationService;
 use App\Services\GenericHttpService;
 use App\Services\SessionCryptoService;
+use App\Models\Master\Role;
+use DB;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
-use Filament\Pages\Actions\Modal\Actions\ButtonAction;
 use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Pages\Dashboard\Actions\FilterAction;
-use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
+    protected function isPropertyManager(): bool
+    {
+        return auth()->user()->role->name =='Property Manager';
+    }
+
     public function filtersForm(Form $form): Form
     {
+        if ($this->isPropertyManager()) {
+            return $form->schema([]);
+        }
+
         return $form
             ->schema([
                 Section::make('Filters')
                     ->schema([
                         Select::make('building')
                             ->label('Select Building')
-                            ->options(Building::where('owner_association_id', auth()->user()->owner_association_id)
-                                ->pluck('name', 'id')) // Fetch building names and IDs
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role->id)->first()->name == 'Property Manager') {
+                                    return Building::whereIn('id',
+                                        DB::table('building_owner_association')
+                                            ->where('owner_association_id', auth()->user()->owner_association_id)
+                                            ->where('active', true)
+                                            ->pluck('building_id')
+                                    )->pluck('name', 'id');
+                                }return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->pluck('name', 'id');
+                            })
                             ->searchable(),
                         DatePicker::make('startDate')
                             ->reactive()
@@ -42,7 +59,7 @@ class Dashboard extends BaseDashboard
                             ->label('End Date')
                             ->reactive()
                             ->minDate(fn(callable $get) => $get('startDate'))
-                            ->maxDate(now())
+                            ->maxDate(now()),
                     ])
                     ->columns(3), // Adjust the layout to accommodate three columns
             ]);
@@ -50,6 +67,10 @@ class Dashboard extends BaseDashboard
 
     protected function getActions(): array
     {
+        if ($this->isPropertyManager()) {
+            return [];
+        }
+
         return [
             Action::make('Accounting Module')
                 ->label('Accounting Module')
@@ -64,12 +85,12 @@ class Dashboard extends BaseDashboard
     public function resetFilters()
     {
         // $this->filters = [];
-        $this->filters['building'] = null;
+        $this->filters['building']  = null;
         $this->filters['startDate'] = null;
-        $this->filters['endDate'] = null;
+        $this->filters['endDate']   = null;
 
         session()->forget('filters');
-        // $this->redirect('/admin'); 
+        // $this->redirect('/admin');
         // $this->dispatchBrowserEvent('filters-reset');
 
     }

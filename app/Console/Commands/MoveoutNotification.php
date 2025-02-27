@@ -53,7 +53,13 @@ class MoveoutNotification extends Command
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$moveout?->id])),
+                            ->url(function() use ($moveout){
+                                $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveout?->id]);
+                                }
+                                return url('/app/move-out-forms-documents/' . $moveout?->id.'/edit');
+                            }),
                     ])
                     ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
@@ -66,6 +72,6 @@ class MoveoutNotification extends Command
                 'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
             ];
             MoveoutNotificationJob::dispatch($user, $moveout, $mailCredentials);
-        }   
+        }
     }
 }

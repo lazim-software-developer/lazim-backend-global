@@ -7,20 +7,20 @@ use App\Models\Vendor\Vendor;
 use App\Filament\Pages\CustomPage;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
+use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\Master\PDFController;
+use App\Http\Controllers\OwnerAssociationInvoice;
+use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Http\Controllers\ReserveFundController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\Vendor\DelinquentController;
+use App\Http\Controllers\Vendor\MasterController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\Master\PDFController;
-use App\Http\Controllers\GeneralFundController;
-use App\Http\Controllers\ReserveFundController;
-use App\Http\Controllers\TrialBalanceController;
-use App\Http\Controllers\OwnerAssociationInvoice;
-use App\Http\Controllers\Vendor\MasterController;
-use App\Http\Controllers\OwnerAssociationReceipts;
-use App\Http\Controllers\Vendor\DelinquentController;
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 
 /*
@@ -32,15 +32,18 @@ use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 Livewire::setUpdateRoute(function ($handle) {
     return Route::post('GIT/lazim-backend/public/livewire/update', $handle);
 });
 Route::get('/', function () {
-    return redirect('/admin');
+    return redirect('/app/login');
 });
 // Route::get('/admin/custom-page', CustomPage::class)->name('filament.pages.custom-page');
+// Route::get('/app', function () {
+//     return redirect('/app/login');
+// });
 
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/dashboard', function () {
@@ -51,7 +54,6 @@ Route::middleware(['auth:sanctum', 'verified'])
 Route::prefix('/')
     ->middleware(['auth:sanctum', 'verified']);
 Route::get('/vendors/create', VendorRegistration::class);
-
 
 // Service chanrge
 Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);
@@ -110,3 +112,15 @@ Route::get('/redirect-os', [TestController::class, 'redirectBasedOnOS'])->name('
 
 Route::post('/qr/feedback', [FeedbackController::class, 'submitFeedback'])->name('qr.feedback.submit');
 Route::get('/qr/feedback', [FeedbackController::class, 'index'])->name('qr.feedback.index');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/app/edit-invoice-status/{record}', \App\Filament\Resources\OwnerAssociationInvoiceResource\Pages\EditInvoiceStatus::class)
+        ->middleware('role:Property Manager') // Add role middleware to ensure only Property Managers can access
+        ->name('edit-invoice-status');
+
+    // Route::get('/app/edit-receipt-status/{record}', \App\Filament\Resources\OwnerAssociationReceiptResource\Pages\EditStatus::class)
+    // ->middleware('role:Property Manager')
+    // ->name('edit-receipt-status');
+
+
+});

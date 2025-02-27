@@ -24,8 +24,8 @@ class NotificationsResource extends JsonResource
             'body' => $jsonData['body'] ?? null,
             'isSubmitted' =>$this->read_at ? true : false,
             'date'=>Carbon::parse($this->created_at)->diffForHumans(),
+            'viewData' => $jsonData['viewData'] ?? null,
             'url'=> $jsonData['url'] ?? null,
         ];
     }
 }
-

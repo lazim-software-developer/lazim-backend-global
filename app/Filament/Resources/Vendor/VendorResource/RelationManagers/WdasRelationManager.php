@@ -3,33 +3,32 @@
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
 use App\Models\Accounting\WDA;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
-class WdasRelationManager extends RelationManager {
+class WdasRelationManager extends RelationManager
+{
     protected static string $relationship = 'wdas';
-    protected static ?string $modelLabel = 'WDA';
+    protected static ?string $modelLabel  = 'WDA';
 
-    public static function getTitle(Model $ownerRecord, string $pageClass): string {
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
         return 'WDA';
     }
 
-    public function form(Form $form): Form {
+    public function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Grid::make([
@@ -89,12 +88,13 @@ class WdasRelationManager extends RelationManager {
                             ->disabled(function (WDA $record) {
                                 return $record->status != 'pending';
                             })
+                             ->required()
                             ->searchable()
                             ->live(),
-                        TextInput::make('remarks')
+                        Textarea::make('remarks')
                             ->rules(['max:150'])
                             ->visible(function (callable $get) {
-                                if($get('status') == 'rejected') {
+                                if ($get('status') == 'rejected') {
                                     return true;
                                 }
                                 return false;
@@ -103,10 +103,11 @@ class WdasRelationManager extends RelationManager {
                                 return $record->status != 'pending';
                             })
                             ->required(),
-                    ])
+                    ]),
             ]);
     }
-    public function table(Table $table): Table {
+    public function table(Table $table): Table
+    {
         return $table
             ->columns([
                 TextColumn::make('date')
@@ -125,12 +126,12 @@ class WdasRelationManager extends RelationManager {
             ])
             ->filters([
                 SelectFilter::make('status')
-                ->options([
-                    'approved' => 'Approve',
-                    'rejected' => 'Reject',
-                    'pending' => 'Pending',
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                        'pending'  => 'Pending',
                     ])
-                ->searchable(),    
+                    ->searchable(),
             ])
             ->headerActions([
                 //Tables\Actions\CreateAction::make(),
@@ -138,18 +139,18 @@ class WdasRelationManager extends RelationManager {
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
-                        if($data['status'] != 'pending') {
+                        if ($data['status'] != 'pending') {
                             $data['status_updated_by'] = auth()->user()->id;
                         }
-                        
+
                         return $data;
                     })
                     ->mutateRecordDataUsing(function (array $data): array {
-                        if($data['status'] == 'pending'){
+                        if ($data['status'] == 'pending') {
                             $data['status'] = null;
                         }
                         return $data;
-                    })
+                    }),
                 //Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

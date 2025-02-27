@@ -2,17 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\IncidentResource\Pages;
-use App\Filament\Resources\IncidentResource\RelationManagers;
-use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use App\Models\Incident;
-use App\Models\Master\Role;
 use App\Models\User\User;
-use Closure;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -20,16 +13,12 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 
 class IncidentResource extends Resource
@@ -88,37 +77,37 @@ class IncidentResource extends Resource
                             })
                             ->searchable()
                             ->live(),
-                        Repeater::make('comments')
-                            ->relationship('comments')
-                            ->helperText(function($state){
-                                return $state == [] ? 'No Comments' : '';
-                            })
-                            ->schema([
-                                Grid::make([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
-                                ])->schema([
-                                    Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                    ->readOnly(function($state){
-                                        if($state != null){
-                                            return true;
-                                        }
-                                        return false;
-                                    }),
-                                    Hidden::make('user_id')->default(auth()->user()?->id),
-                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled()              
-                                ])
-                            ])->deletable(false)
-                            ->columnSpan([
-                                'sm' => 1,
-                                'md' => 1,
-                                'lg' => 2,
-                            ]),
+                        // Repeater::make('comments')
+                        //     ->relationship('comments')
+                        //     ->helperText(function ($state) {
+                        //         return $state == [] ? 'No Comments' : '';
+                        //     })
+                        //     ->schema([
+                        //         Grid::make([
+                        //             'sm' => 1,
+                        //             'md' => 1,
+                        //             'lg' => 2,
+                        //         ])->schema([
+                        //             Textarea::make('body')->label('comment')->required()->maxLength(50)
+                        //                 ->readOnly(function ($state) {
+                        //                     if ($state != null) {
+                        //                         return true;
+                        //                     }
+                        //                     return false;
+                        //                 }),
+                        //             Hidden::make('user_id')->default(auth()->user()?->id),
+                        //             DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
+                        //         ]),
+                        //     ])->deletable(false)
+                        //     ->columnSpan([
+                        //         'sm' => 1,
+                        //         'md' => 1,
+                        //         'lg' => 2,
+                        //     ]),
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No media' : '';
                             })
                             ->schema([
@@ -126,13 +115,11 @@ class IncidentResource extends Resource
                                     ->disk('s3')
                                     ->directory('dev')
                                     ->maxSize(2048)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->openable(true)
                                     ->downloadable(true)
                                     ->label('File'),
-                            ])
-                            ->visible(function ($record) {
-                                return $record && $record->media()->exists();
-                            }),
+                            ]),
                     ]),
             ]);
     }
@@ -161,24 +148,7 @@ class IncidentResource extends Resource
                     ->limit(50),
             ])
             ->filters([
-                SelectFilter::make('building_id')
-                    ->label('Building')
-                    ->preload()
-                    ->searchable()
-                    ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Building::all()->pluck('name', 'id');
-                        } else {
-                            $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                            return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                        }
-                    }),
-            
-                SelectFilter::make('status')
-                    ->options([
-                        'open' => 'Open',
-                        'closed' => 'Closed'
-                    ])
+                //
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
@@ -194,17 +164,17 @@ class IncidentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CommentsRelationManager::class
+            CommentsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIncidents::route('/'),
+            'index'  => Pages\ListIncidents::route('/'),
             'create' => Pages\CreateIncident::route('/create'),
-            'view' => Pages\ViewIncident::route('/{record}'),
-            'edit' => Pages\EditIncident::route('/{record}/edit'),
+            'view'   => Pages\ViewIncident::route('/{record}'),
+            'edit'   => Pages\EditIncident::route('/{record}/edit'),
         ];
     }
 

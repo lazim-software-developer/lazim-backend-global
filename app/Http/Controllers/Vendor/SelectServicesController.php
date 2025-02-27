@@ -13,6 +13,7 @@ use App\Models\Master\Service;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SelectServicesController extends Controller
 {
@@ -35,7 +36,7 @@ public function listServices(SubCategory $subcategory)
             'active' => 1,
             'owner_association_id' => $vendor->owner_association_id,
         ]);
-        
+
         $service = Service::firstOrCreate(
             [
                 'name' => $request->name
@@ -55,18 +56,45 @@ public function listServices(SubCategory $subcategory)
 
     public function tagServices(SelectServicesRequest $request, Vendor $vendor)
     {
-        $vendor->services()->syncWithoutDetaching([$request->service]);
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
 
-        return (new CustomResponseResource([
-            'title' => 'Service taged!',
-            'message' => "",
-            'code' => 201,
-            'status' => 'success',
-        ]))->response()->setStatusCode(201);
+        try {
+            // Check if service is already tagged
+            if ($vendor->services()->where('service_id', $request->service)->exists()) {
+                return (new CustomResponseResource([
+                    'title'   => 'Service already exists.',
+                    'message' => 'Service already exists.',
+                    'code'    => 409,
+                    'status'  => 'error',
+                ]))->response()->setStatusCode(409);
+            }
+
+            $vendor->services()->syncWithoutDetaching([$request->service]);
+
+            return (new CustomResponseResource([
+                'title'   => 'Service tagged successfully.',
+                'message' => 'Service tagged successfully',
+                'code'    => 201,
+                'status'  => 'success',
+            ]))->response()->setStatusCode(201);
+        } catch (\Exception $e) {
+            return (new CustomResponseResource([
+                'title'   => 'Error',
+                'message' => 'Failed to tag service. Please try again.',
+                'code'    => 500,
+                'status'  => 'error',
+            ]))->response()->setStatusCode(500);
+        }
     }
 
     public function untagServices(SelectServicesRequest $request, Vendor $vendor)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $vendor->services()->detach([$request->service]);
 
         return (new CustomResponseResource([
@@ -114,5 +142,6 @@ public function listServices(SubCategory $subcategory)
             ["id"=>228,
             "name"=>"Other"]
             ]];
+
     }
 }

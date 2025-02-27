@@ -18,7 +18,7 @@ class ServicePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_master::vendor::service');
+        return $user->can('view_any_master::vendor::service') || $user->can('view_any_master::service');
     }
 
     /**
@@ -30,7 +30,7 @@ class ServicePolicy
      */
     public function view(User $user, Service $service): bool
     {
-        return $user->can('view_master::vendor::service');
+        return $user->can('view_master::vendor::service') || $user->can('view_master::service');
     }
 
     /**
@@ -41,7 +41,7 @@ class ServicePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_master::vendor::service');
+        return $user->can('create_master::vendor::service') || $user->can('create_master::service');
     }
 
     /**
@@ -53,7 +53,7 @@ class ServicePolicy
      */
     public function update(User $user, Service $service): bool
     {
-        return $user->can('update_master::vendor::service');
+        return $user->can('update_master::vendor::service') || $user->can('update_master::service');
     }
 
     /**

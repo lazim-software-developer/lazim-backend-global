@@ -2,31 +2,24 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
 use App\Models\Master\Service;
-use App\Models\BuildingService;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class BuildingserviceRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingservice';
-    protected static ?string $modelLabel = 'Personal Service';
+    protected static ?string $modelLabel  = 'Personal Service';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -42,7 +35,6 @@ class BuildingserviceRelationManager extends RelationManager
                     'md' => 1,
                     'lg' => 1,
                 ])
-                    ->columns(2)
                     ->schema([
                         TextInput::make('name')
                             ->rules(['max:50', 'string'])
@@ -53,8 +45,7 @@ class BuildingserviceRelationManager extends RelationManager
                         TextInput::make('code')
                             ->alphaDash()
                             ->required()
-                            ->placeholder('NA')
-                            ->disabledOn('edit'),
+                            ->placeholder('NA'),
                         TextInput::make('payment_link')
                             ->placeholder('NA')
                             ->url(),
@@ -101,7 +92,7 @@ class BuildingserviceRelationManager extends RelationManager
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

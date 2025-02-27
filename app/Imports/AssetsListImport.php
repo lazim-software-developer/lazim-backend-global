@@ -168,11 +168,11 @@ class AssetsListImport implements ToCollection, WithHeadingRow
                         ],
                         'verify'=>false,
                     ]);
-        
+
                     $content = json_decode($response->getBody()->getContents());
-                    
-                    // $this->record->qr_code = $content->url;  
-                      // pass this url to database 
+
+                    // $this->record->qr_code = $content->url;
+                      // pass this url to database
                     // $this->record->save();
                     $asset->update([
                         'qr_code' => $content->url,

@@ -36,6 +36,7 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 {
     if ($file) {
         $extension = $file->getClientOriginalExtension();
+        Log::info($extension);
 
         if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
             $optimizedImage = Image::make($file)

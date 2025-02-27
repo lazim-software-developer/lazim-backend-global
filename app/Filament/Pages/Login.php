@@ -80,7 +80,6 @@ class Login extends AuthLogin
 
         $user = auth()->user();
         $ownerAssociation = app('currentOwnerAssociation');
-        Log::info("User ID: {$user->id}, Owner Association ID: {$user->owner_association_id}");
 
         if ($user->owner_association_id !== $ownerAssociation->id) {
             Filament::auth()->logout();

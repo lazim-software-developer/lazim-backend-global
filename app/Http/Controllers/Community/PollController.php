@@ -8,12 +8,13 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Community\Poll;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PollController extends Controller
 {
     public function index(Building $building)
     {
-        $count = request('count', 10);
+        $count = request('paginate', 10);
         $polls = Poll::with(['responses' => function ($query) {
             $query->where('submitted_by', auth()->id());
         }])
@@ -32,6 +33,11 @@ class PollController extends Controller
 
     public function store(Request $request, Poll $poll)
     {
+        if ($request->has('building_id')) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         // Check if the user has already submitted a response for this poll
         $existingResponse = $poll->responses()->where('submitted_by', auth()->id())->first();
 

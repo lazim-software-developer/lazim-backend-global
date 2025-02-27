@@ -2,6 +2,9 @@
 
 namespace App\Models\Building;
 
+use App\Models\ApartmentSafety;
+use App\Models\BuildingVendor;
+use App\Models\EmergencyNumber;
 use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
@@ -18,7 +21,6 @@ use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
 use App\Models\Accounting\WDA;
-use App\Models\BuildingVendor;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
@@ -28,7 +30,6 @@ use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
 use App\Models\BuildingService;
-use App\Models\EmergencyNumber;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Facility;
 use App\Models\Vendor\Contract;
@@ -80,6 +81,11 @@ class Building extends Model
         'created_by',
         'updated_by',
         'deleted_at',
+        'mollak_property_id',
+        'managed_by',
+        'address',
+        'building_type',
+        'parking_count'
     ];
 
     protected $casts = [
@@ -117,6 +123,10 @@ class Building extends Model
     public function ruleregulations()
     {
         return $this->hasMany(RuleRegulation::class);
+    }
+    public function appartmentsafety()
+    {
+        return $this->hasMany(ApartmentSafety::class);
     }
     public function saleNoc()
     {
@@ -195,6 +205,13 @@ class Building extends Model
     {
         return $this->belongsTo(OwnerAssociation::class);
     }
+
+    public function ownerAssociations()
+    {
+        return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
+    }
+
     public function posts()
     {
         return $this->belongsToMany(Post::class);
@@ -307,8 +324,33 @@ class Building extends Model
     {
         return $this->hasMany(LegalNotice::class);
     }
-    public function DeleteAssociatedRecord($value)
+
+    public function getLocationAttribute(): array
     {
-        echo "Enter";die;
+        return [
+            "lat" => (float)$this->lat,
+            "lng" => (float)$this->lng,
+        ];
     }
+
+    public function setLocationAttribute(?array $location): void
+    {
+        if (is_array($location))
+        {
+            $this->attributes['lat'] = $location['lat'];
+            $this->attributes['lng'] = $location['lng'];
+            unset($this->attributes['location']);
+        }
+    }
+
+    public static function getLatLngAttributes(): array
+    {
+        return [
+            'lat' => 'lat',
+            'lng' => 'lng',
+        ];
+    }
+
+
+
 }

@@ -80,15 +80,15 @@ class OwnerAssociationResource extends Resource
                                 ->disabled(function (callable $get) {
                                     // Get the current operation (create or edit)
                                     $isCreate = !$get('id'); // if id exists, it's edit operation
-                                
+
                                     // If it's create operation, return false (not disabled)
                                     if ($isCreate) {
                                         return false;
                                     }
-                                
+
                                     // For edit operation, apply your existing logic
                                     return Role::where('id', auth()->user()->role_id)
-                                        ->first()->name != 'Admin' && 
+                                        ->first()->name != 'Admin' &&
                                         DB::table('owner_associations')
                                         ->where('slug', $get('slug'))
                                         ->exists();
@@ -98,6 +98,10 @@ class OwnerAssociationResource extends Resource
                                 ->unique(table: 'owner_associations', ignoreRecord: true)
                                 // ->disabled()
                                 ->placeholder('TRN Number'),
+                            TextInput::make('mollak_id')->label('OA Number')
+                                ->required()
+                                ->disabled()
+                                ->placeholder('OA Number'),
                             TextInput::make('phone')
                                 ->rules([
                                     'regex:/^\+?(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/',
@@ -144,7 +148,7 @@ class OwnerAssociationResource extends Resource
                                     }
                                 ])
                                 ->required()
-                                // ->live()
+                                ->live()
                                 ->disabled(function (callable $get) {
                                     return Role::where('id', auth()->user()->role_id)
                                         ->first()->name != 'Admin' && DB::table('owner_associations')
@@ -213,7 +217,7 @@ class OwnerAssociationResource extends Resource
                                     }
                                 ])
                                 ->required()
-                                // ->live()
+                                ->live()
                                 ->disabled(function (callable $get) {
                                     return Role::where('id', auth()->user()->role_id)
                                         ->first()->name != 'Admin' && DB::table('owner_associations')
@@ -433,5 +437,5 @@ class OwnerAssociationResource extends Resource
             'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
-    
+
 }

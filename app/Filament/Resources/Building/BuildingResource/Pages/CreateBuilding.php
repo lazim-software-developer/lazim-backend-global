@@ -48,7 +48,9 @@ class CreateBuilding extends CreateRecord
         DB::table('building_owner_association')->updateOrInsert([
             'owner_association_id' => $data->owner_association_id,
             'building_id' => $data->id,
-            'from' => now()->toDateString(),
+            'from'                 => $this->data['from'],
+            'to'                   => $this->data['to'],
+            'active'               => true,
         ]);
     }
 
@@ -73,5 +75,17 @@ class CreateBuilding extends CreateRecord
             'created_at' => now(),
             'updated_at' => now()
         ]);
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['show_inhouse_services'] = 0;
+        $data['managed_by']        = 'Property Manager';
+        return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

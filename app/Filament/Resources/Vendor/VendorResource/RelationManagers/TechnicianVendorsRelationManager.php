@@ -2,12 +2,9 @@
 
 namespace App\Filament\Resources\Vendor\VendorResource\RelationManagers;
 
-use App\Models\Building\Complaint;
 use App\Models\User\User;
-use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -30,34 +27,9 @@ class TechnicianVendorsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                ->disabled()
-                ->formatStateUsing(function($record){
-                    return User::where('id',$record->technician_id)->value('first_name');
-                }),
-                TextInput::make('phone')
-                ->disabled()
-                ->formatStateUsing(function($record){
-                    return User::where('id',$record->technician_id)->value('phone');
-                }),
-                Forms\Components\Toggle::make('active')
-                ->rules([function ($record) {
-                    return function (string $attribute, $value, Closure $fail) use ($record) {
-                        if (!$value) {
-                            if (!$value && $record) {
-                                // Example: Check if there are open complaints for the technician
-                                if (Complaint::where('technician_id', $record->technician_id)
-                                    ->where('status', 'open')
-                                    ->exists()) {
-
-                                    // Prevent deactivation and send a custom validation error
-                                    $fail('This technician has open complaints and cannot be deactivated.');
-                                }
-                            }
-                        }
-                    };
-                },])
-                
+                Forms\Components\TextInput::make('active')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 
@@ -95,7 +67,7 @@ class TechnicianVendorsRelationManager extends RelationManager
                 //     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
                 // Tables\Actions\DissociateAction::make(),
                 //Tables\Actions\DeleteAction::make(),
             ])

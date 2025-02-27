@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PollResource\Pages;
 
+use App\Models\OwnerAssociation;
 use Filament\Actions;
 use App\Models\Master\Role;
 use App\Models\Building\Building;
@@ -23,8 +24,17 @@ class ListPolls extends ListRecords
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
-        {   
+        if(auth()->user()->role->name == 'Admin'){
+            return parent::getTableQuery();
+        }
+        if(auth()->user()->role->name == 'Property Manager'
+        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                ->pluck('role')[0] == 'Property Manager')
+        {
+            return parent::getTableQuery()->where('owner_association_id',auth()->user()?->owner_association_id);
+        }
+        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
+        {
             // return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id'));
             return Poll::where('owner_association_id',Filament::getTenant()->id);
         }

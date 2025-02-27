@@ -31,6 +31,11 @@ return [
         'namespace' => 'App\\Filament\\Pages',
     ],
 
+    'auth' => [
+        'logout' => [
+            'response' => \App\Filament\MyLogoutResponse::class,
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk

@@ -28,7 +28,7 @@ class EditComplaintssuggession extends EditRecord
     public function beforeSave()
     {
         $data = $this->form->getState();
-        
+
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
 
             Remark::create([
@@ -53,7 +53,9 @@ class EditComplaintssuggession extends EditRecord
                         'sound' => 'default',
                         'title' => 'Suggestion Acknowledgement',
                         'body' => 'Your suggestion has been acknowledged by '.auth()->user()->first_name.'. Thank you for your suggestion.',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -69,7 +71,8 @@ class EditComplaintssuggession extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Suggestion Acknowledgement',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => '',
                         ]),
@@ -88,10 +91,10 @@ class EditComplaintssuggession extends EditRecord
                         'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
                         'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
                         'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-                    ];           
+                    ];
                     $complaintType = "Suggession";
                     $remarks = Remark::where('complaint_id',$this->record->id)->get();
-                    
+
                     ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
 
         }
@@ -107,7 +110,9 @@ class EditComplaintssuggession extends EditRecord
                         'sound' => 'default',
                         'title' => 'Suggestion Status',
                         'body' => 'Your suggestion is moved to In-Progress',
-                        'data' => ['notificationType' => 'InAppNotficationScreen'],
+                        'data' => ['notificationType' => 'InAppNotficationScreen',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -123,7 +128,8 @@ class EditComplaintssuggession extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Suggestion Acknowledgement',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->building_id,
+                                            'flat_id' => $this->record->flat_id],
                             'format' => 'filament',
                             'url' => '',
                         ]),

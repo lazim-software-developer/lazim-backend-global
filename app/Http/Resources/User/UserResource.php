@@ -18,7 +18,9 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->first_name,
-            'profile_pic' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : null
+            'profile_pic' => $this->profile_photo ? Storage::disk('s3')->url($this->profile_photo) : null,
+            'email' => $this->email,
+            'phoneNo' => $this->phone,
         ];
     }
 }

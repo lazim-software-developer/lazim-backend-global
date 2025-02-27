@@ -5,24 +5,18 @@ namespace App\Filament\Resources\Building;
 use App\Filament\Resources\Building\DocumentsResource\Pages\CreateDocuments;
 use App\Filament\Resources\Building\DocumentsResource\Pages\EditDocuments;
 use App\Filament\Resources\Building\DocumentsResource\Pages\ListDocuments;
-use App\Models\Building\Building;
 use App\Models\Building\Document;
-use App\Models\Building\FlatTenant;
-use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -35,9 +29,9 @@ class DocumentsResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Vendor';
+    protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup       = 'Document Management';
+    protected static ?string $navigationLabel       = 'Vendor';
     protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {

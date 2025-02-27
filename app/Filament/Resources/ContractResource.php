@@ -28,10 +28,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ContractResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ContractResource\RelationManagers;
 use Filament\Forms\Components\Section;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 
 class ContractResource extends Resource
@@ -42,6 +42,7 @@ class ContractResource extends Resource
     protected static ?string $navigationGroup = 'Oam';
 
     public static $bm = null;
+    private static $notificationShown = false;  // Add this line
 
     public static function form(Form $form): Form
     {
@@ -72,7 +73,7 @@ class ContractResource extends Resource
                             else{
                                 return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->reactive()
                         ->required()
@@ -147,42 +148,76 @@ class ContractResource extends Resource
                             $startDate = $get('start_date');
                             $serviceId = $get('service_id');
                             $vendor_id = $get('vendor_id');
-                    
+
                             if (!$buildingId || !$startDate || !$serviceId || !$vendor_id) {
                                 return false;
                             }
-                    
+
                             $startYear = Carbon::parse($startDate)->year;
-                            
-                            $budgetId = Budget::where('building_id', $buildingId)
-                                ->where('owner_association_id', auth()->user()->owner_association_id)
-                                ->whereYear('budget_from', $startYear)->value('id') ?? null;
-                    
+
+                            if(auth()->user()->role->name == 'Admin'){
+                                $budgetId = Budget::where('building_id', $buildingId)
+                                    ->whereYear('budget_from', $startYear)->value('id') ?? null;
+                            }else{
+                                $budgetId = Budget::where('building_id', $buildingId)
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->whereYear('budget_from', $startYear)->value('id') ?? null;
+                            }
+
+                            if (!$budgetId) {
+                                $set('budget_amount', null);
+                                $set('remaining_amount', null);
+                                if (!self::$notificationShown) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title("No budget found for the selected building for year {$startYear}")
+                                        ->send();
+                                    self::$notificationShown = true;
+                                }
+                                return true;
+                            }
+
                             $budget = Budgetitem::where('budget_id', $budgetId)
                                 ->where('service_id', $serviceId)
                                 ->value('total') ?? null;
+
+                            if (!$budget) {
+                                $set('budget_amount', null);
+                                $set('remaining_amount', null);
+                                if (!self::$notificationShown) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('No budget allocated for the selected service')
+                                        ->seconds(2)
+                                        ->send();
+                                    self::$notificationShown = true;
+                                }
+                                return true;
+                            }
+
+                            self::$notificationShown = false;  // Reset flag when validation passes
 
                             $contractsQuery = Contract::where([
                                 ['building_id', $get('building_id')],
                                 ['service_id', $get('service_id')],
                                 ['vendor_id', $get('vendor_id')]
                             ]);
-                            
+
                             $contractAmountSum = $contractsQuery->sum('amount');
-                            
+
                             if ($contractAmountSum > 0) {
-                                $budgetAmount = $get('budget_amount'); 
+                                $budgetAmount = $get('budget_amount');
                                 $difference = abs($budgetAmount - $contractAmountSum);
                                 $difference = round($difference, 2);
-                            
-                                self::$bm = $difference; 
+
+                                self::$bm = $difference;
                             } else {
                                 self::$bm = $budget;
                             }
 
                             $set('remaining_amount', self::$bm);
                             $set('budget_amount', $budget);
-                                
+
                             return true;
                         }),
 
@@ -247,56 +282,6 @@ class ContractResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
-                SelectFilter::make('contract_type')
-                    ->options([
-                        'AMC' => 'AMC',
-                        'One time' => 'One time'
-                    ]),
-                SelectFilter::make('vendor_id')
-                    ->label('Vendor')
-                    ->options(function(){
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            $vendorId =  DB::table('owner_association_vendor')->pluck('vendor_id');
-                            return Vendor::whereIn('id',$vendorId)->pluck('name','id');
-                        } else {
-                            $vendorId =  DB::table('owner_association_vendor')->where('owner_association_id',auth()->user()->owner_association_id)->pluck('vendor_id');
-                            return Vendor::whereIn('id',$vendorId)->pluck('name','id');
-                        }
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->native(false),
-                
-                Filter::make('year')
-                    ->form([
-                        Select::make('year')
-                            ->options(function () {
-                                $currentYear = Carbon::now()->year; // Get the current year
-                                $years = [];
-                            
-                                // Generate past 10 years including the current year
-                                for ($i = 0; $i < 10; $i++) {
-                                    $years[$currentYear - $i] = $currentYear - $i;
-                                }
-                            
-                                return $years; 
-                            })
-                            ->label('Year')
-                            ->placeholder('Select Year')
-                            ->required(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['year']) && $data['year']) {
-                            $query->where(function ($query) use ($data) {
-                                $year = $data['year'];
-                                $query->whereYear('start_date', '=', $year)  // Filter records where the start date year matches
-                                      ->orWhereYear('end_date', '=', $year);  // Filter records where the end date year matches
-                            });
-                        }
-                
-                        return $query;
-                    }),
-                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

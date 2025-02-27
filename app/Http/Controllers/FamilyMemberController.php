@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FamilyMember;
+use Illuminate\Http\Request;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
+use App\Models\Master\DocumentLibrary;
 use App\Http\Requests\FamilyMemberRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\FamilyMemberDetailsResource;
-use App\Models\Building\Building;
-use App\Models\FamilyMember;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class FamilyMemberController extends Controller
 {
     public function store(FamilyMemberRequest $request, Building $building)
     {
         $userId = auth()->user()->id;
-        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
         $request->merge([
             'user_id' => $userId,
             'owner_association_id' => $oa_id,
@@ -25,12 +28,30 @@ class FamilyMemberController extends Controller
 
         $family = FamilyMember::create($request->all());
 
+        if($request->has('others')){
+            foreach ($request->others as $file) {
+                $path = optimizeDocumentAndUpload($file['file']);
+                $family->documents()->create([
+                    'name' => 'Other Document',
+                    'document_library_id' => DocumentLibrary::where('name', 'Other documents')->first()->id,
+                    'building_id' => $building->id,
+                    'owner_association_id' => $oa_id,
+                    'url' => $path,
+                    'status' => 'pending',
+                    'documentable_id' => $family->id,
+                    'documentable_type' => FamilyMember::class,
+                    'flat_id' => $request->flat_id,
+                    // 'expiry_date' => $file['expiry_date'],
+                ]);
+            }
+        }
+
         return (new CustomResponseResource([
             'title' => 'Success',
             'message' => 'Family member added successfully',
             'code' => 201,
             'status' => 'success',
-            'data' => $family,
+            'data' => FamilyMemberDetailsResource::make($family),
         ]))->response()->setStatusCode(201);
     }
 
@@ -38,9 +59,9 @@ class FamilyMemberController extends Controller
     {
         $userId = auth()->user()?->id;
 
-        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()?->owner_association_id;
+        $oa_id = DB::table('building_owner_association')->where('building_id', $building->id)->where('active', true)->first()->owner_association_id;
 
-        $familyQuery = FamilyMember::where('user_id', $userId)->where(['owner_association_id' => $oa_id, 'building_id' => $building->id,'active'=>true]);
+        $familyQuery = FamilyMember::where('user_id', $userId)->where(['building_id' => $building->id,'active'=>true]);
 
         if($request->unit) {
             $familyQuery->where('flat_id', $request->unit);
@@ -48,14 +69,42 @@ class FamilyMemberController extends Controller
 
         $family = $familyQuery->get();
         return [
-            'data' => $family,
+            'data' => FamilyMemberDetailsResource::collection($family),
         ];
     }
 
     public function update(FamilyMemberRequest $request, FamilyMember $familyMember)
     {
+        if ($familyMember->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $familyMember->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         $familyMember->update($request->all());
-        $familyMember->save();
+
+        if ($request->has('deleted_files')) {
+            Document::whereIn('id', $request->deleted_files)
+                ->where(['documentable_id' => $familyMember->id, 'documentable_type' => FamilyMember::class])
+                ->delete();
+        }
+
+        if($request->has('others')){
+            foreach($request->others as $file){
+                $path = optimizeDocumentAndUpload($file['file']);
+                $familyMember->documents()->create([
+                    'name' => 'Other Document',
+                    'document_library_id' => DocumentLibrary::where('name', 'Other documents')->first()->id,
+                    'building_id' => $familyMember->building_id,
+                    'owner_association_id' => $familyMember->owner_association_id,
+                    'url' => $path,
+                    'status' => 'pending',
+                    'documentable_id' => $familyMember->id,
+                    'documentable_type' => FamilyMember::class,
+                    'flat_id' => $request->flat_id,
+                    // 'expiry_date' => $file['expiry_date'],
+                ]);
+            }
+        }
 
         return (new CustomResponseResource([
             'title' => 'Updated Successfully',
@@ -63,11 +112,15 @@ class FamilyMemberController extends Controller
             'code' => 200,
             'status' => 'success'
         ]))->response()->setStatusCode(200);
-
     }
 
     public function delete(FamilyMember $familyMember)
     {
+        if ($familyMember->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $familyMember->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
         if (!$familyMember) {
             return (new CustomResponseResource([
                 'title' => 'Not Found',
@@ -80,7 +133,7 @@ class FamilyMemberController extends Controller
         $familyMember->save();
         return (new CustomResponseResource([
             'title' => 'Success',
-            'message' => 'Family member deactivated successfully',
+            'message' => 'Family member deleted successfully',
             'code' => 200,
             'status' => 'success',
         ]))->response()->setStatusCode(200);
@@ -90,5 +143,34 @@ class FamilyMemberController extends Controller
     {
         return new FamilyMemberDetailsResource($familyMember);
 
+    }
+     public function tenantsFamilyMembers(Request $request)
+    {
+        $request->validate([
+            'flat_id'     => 'required|exists:flats,id',
+            'building_id' => 'required|exists:buildings,id',
+            'tenant_id'   => 'required|exists:users,id',
+        ]);
+        // $user       = auth()->user();
+        // $flatTenant = FlatTenant::where([
+        //     'tenant_id'   => $user->id,
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        // ])->first();
+        // abort_if($flatTenant->role !== 'Owner', 403, 'You are not Owner');
+
+        // $tenants = FlatTenant::where([
+        //     'building_id' => $request->building_id,
+        //     'flat_id'     => $request->flat_id,
+        //     'active'      => true,
+        //     'role'        => 'Tenant',
+        // ])->pluck('tenant_id');
+        $tenants = $request->tenant_id;
+        $familyQuery = FamilyMember::where('user_id', $tenants)
+            ->where(['building_id' => $request->building_id,'active'=>true,'flat_id'=>$request->flat_id])
+            ->orderByDesc('id')->get();
+
+        return FamilyMemberDetailsResource::collection($familyQuery);
     }
 }

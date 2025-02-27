@@ -35,13 +35,13 @@ class CheckUserActive
                 $inactive = true;
             }
         }
-        
-        // If inactive, return error 
+
+        // If inactive, return error
         if($inactive) {
             return (new CustomResponseResource([
                 'title' => 'Account Status',
-                'message' => 'Please wait while we verify your details. You’ll receive a confirmation soon.',
-                'code' => 400, 
+                'message' => 'Access denied. Please contact the admin team.',
+                'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 

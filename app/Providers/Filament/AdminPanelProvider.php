@@ -98,13 +98,88 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
+                    $builder->groups([
+                        NavigationGroup::make('Dashboard')
+                            ->items([
+                                NavigationItem::make('Dashboard')
+                                    ->icon('heroicon-o-home')
+                                    ->activeIcon('heroicon-s-home')
+                                    ->url('/admin'),
+                            ])
+                            ->collapsed(true),
+                    ]);
+                // }
+                    $user = User::find(auth()->user()->id) ;
                 $builder->groups([
-                    NavigationGroup::make('Dashboard')
+                    NavigationGroup::make('Master')
                         ->items([
-                            NavigationItem::make('Dashboard')
-                                ->icon('heroicon-o-home')
-                                ->activeIcon('heroicon-s-home')
-                                ->url('/admin'),
+                            NavigationItem::make('Tenants')
+                                ->url('/admin/mollak-tenants')
+                                ->hidden(!$user->can('view_any_mollak::tenant'))
+                                ->icon('heroicon-o-users')
+                                ->activeIcon('heroicon-o-users')
+                                ->sort(1),
+                            NavigationItem::make('Resident Approval')
+                                ->url(UserApprovalResource::getUrl('index'))
+                                ->hidden(!$user->can('view_any_user::approval'))
+                                ->icon('heroicon-o-users')
+                                ->activeIcon('heroicon-o-users')
+                                ->sort(2),
+                            NavigationItem::make('Owner association')
+                                ->url('/admin/owner-associations')
+                                ->hidden(!$user->can('view_any_owner::association'))
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(8),
+                            NavigationItem::make('Resident documents')
+                                ->url('/admin/tenant-documents')
+                                ->hidden(!$user->can('view_any_tenant::document'))
+                                ->icon('heroicon-o-user-circle')
+                                ->activeIcon('heroicon-o-user-circle')
+                                ->sort(9),
+                            NavigationItem::make('Facilities')
+                                ->label('Amenities')
+                                ->hidden(!$user->can('view_any_master::facility'))
+                                ->url('/admin/master/facilities')
+                                ->icon('heroicon-o-cube-transparent')
+                                ->activeIcon('heroicon-o-cube-transparent')
+                                ->sort(10),
+                            NavigationItem::make('Roles')
+                                ->hidden(function () {
+                                    $userRoleId = auth()->user()->role_id;
+                                    $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
+
+                                    return !in_array($userRoleId, $adminRoleIds);
+                                })
+                                ->url('/admin/shield/roles')
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(11),
+                            NavigationItem::make('In-house services')
+                                ->label('Personal services')
+                                ->hidden(!$user->can('view_any_master::service'))
+                                ->url('/admin/master/services')
+                                ->icon('heroicon-m-wrench')
+                                ->activeIcon('heroicon-m-wrench')
+                                ->sort(12),
+                            NavigationItem::make('Vendor services')
+                                ->hidden(!$user->can('view_any_master::vendor::service'))
+                                ->url('/admin/master/vendor-services')
+                                ->icon('heroicon-m-wrench-screwdriver')
+                                ->activeIcon('heroicon-m-wrench-screwdriver')
+                                ->sort(13),
+                            NavigationItem::make('Users')
+                                ->hidden(!$user->can('view_any_user::user'))
+                                ->url(UserResource::getUrl('index'))
+                                ->icon('heroicon-s-user-group')
+                                ->activeIcon('heroicon-s-user-group')
+                                ->sort(14),
+                            NavigationItem::make('Documents')
+                                ->hidden(!$user->can('page_Documents'))
+                                ->url('/admin/documents')
+                                ->icon('heroicon-s-document-text')
+                                ->activeIcon('heroicon-s-document-text')
+                                ->sort(15),
                         ])
                         ->collapsed(true),
                 ]);
@@ -252,11 +327,10 @@ class AdminPanelProvider extends PanelProvider
                     $user->can('view_any_building::flat') ||
                     $user->can('view_any_building::facility::booking') ||
                     $user->can('view_any_building::service::booking')  ||
-                    $user->can('view_any_patrolling') ||
                     $user->can('view_any_oacomplaint::reports')
                 ) {
                     $builder->groups([
-                        NavigationGroup::make('Property management')
+                        NavigationGroup::make('Building management')
                             ->items([
                                 NavigationItem::make('Buildings')
                                     ->url('/admin/building/buildings')
@@ -283,12 +357,6 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-m-wrench')
                                     ->activeIcon('heroicon-m-wrench')
                                     ->sort(4),
-                                NavigationItem::make('Patrollings')
-                                    ->url(PatrollingResource::getUrl('index'))
-                                    ->visible($user->can('view_any_patrolling'))
-                                    ->icon('heroicon-o-magnifying-glass-circle')
-                                    ->activeIcon('heroicon-o-magnifying-glass-circle')
-                                    ->sort(5),
                                 NavigationItem::make('OA Complaint Reports')
                                     ->url(OacomplaintReportsResource::getUrl('index'))
                                     ->visible($user->can('view_any_oacomplaint::reports'))
@@ -567,6 +635,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(5),
                                 NavigationItem::make('Residential')
                                     ->url('/admin/residential-forms')
+                                    // ->hidden(auth()->user()->role->name !== 'Admin')
                                     ->hidden(!$user->can('view_any_residential::form'))
                                     ->icon('heroicon-s-building-library')
                                     ->activeIcon('heroicon-s-building-library')
@@ -729,7 +798,8 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_snags') || $user->can('view_any_incident')) {
+                if ($user->can('view_any_snags') || $user->can('view_any_incident') ||
+                $user->can('view_any_patrolling')){
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
@@ -745,6 +815,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-c-map-pin')
                                     ->activeIcon('heroicon-c-map-pin')
                                     ->sort(2),
+                                NavigationItem::make('Patrollings')
+                                    ->url(PatrollingResource::getUrl('index'))
+                                    ->visible($user->can('view_any_patrolling'))
+                                    ->icon('heroicon-o-magnifying-glass-circle')
+                                    ->activeIcon('heroicon-o-magnifying-glass-circle')
+                                    ->sort(5),
                             ])
                             ->collapsed(true),
                     ]);
@@ -793,7 +869,22 @@ class AdminPanelProvider extends PanelProvider
 
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
                 // FilamentApexChartsPlugin::make()
             ]);
     }

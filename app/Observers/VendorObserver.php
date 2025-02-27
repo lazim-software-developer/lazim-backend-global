@@ -18,7 +18,7 @@ class VendorObserver
     public function created(Vendor $vendor): void
     {
         $requiredPermissions = ['view_any_vendor::vendor'];
-        $roles = Role::where('owner_association_id',$vendor->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff','Facility Manager'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
@@ -32,7 +32,13 @@ class VendorObserver
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', [OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug,$vendor->id])),
+                    ->url(function() use ($vendor){
+                        $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return VendorResource::getUrl('edit', [$slug,$vendor->id]);
+                        }
+                        return url('/app/facility-managers/' . $vendor->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($notifyTo);
     }

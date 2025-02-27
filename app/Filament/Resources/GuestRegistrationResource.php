@@ -1,37 +1,32 @@
 <?php
-
 namespace App\Filament\Resources;
 
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
+use App\Filament\Resources\GuestRegistrationResource\Pages;
+use App\Models\Building\Building;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
-use Illuminate\Support\Str;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
+use App\Models\OwnerAssociation;
 use App\Models\Visitor\FlatVisitor;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
+use DB;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\JoinClause;
-use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\GuestRegistrationResource\Pages;
-use App\Models\Building\Flat;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-
 
 class GuestRegistrationResource extends Resource
 {
@@ -76,30 +71,30 @@ class GuestRegistrationResource extends Resource
                         ]),
                     select::make('flat_visitor_id')
                         ->relationship('flatVisitor', 'name')
-                        // ->createOptionForm([
-                        //     Select::make('building_id')
-                        //         ->relationship('building', 'name')
-                        //         ->preload()
-                        //         ->searchable()
-                        //         ->label('Building Name'),
-                        //     Select::make('flat_id')
-                        //         ->relationship('flat', 'property_number')
-                        //         ->preload()
-                        //         ->searchable()
-                        //         ->label('Property No'),
-                        //     TextInput::make('name'),
-                        //     TextInput::make('phone'),
-                        //     Hidden::make('type')
-                        //         ->default('Guest'),
-                        //     Hidden::make('initiated_by')
-                        //         ->default(auth()->user()->id),
-                        //     TextInput::make('email'),
-                        //     DatePicker::make('start_time')
-                        //         ->label('From Date'),
-                        //     DatePicker::make('end_time')
-                        //         ->label('To Date'),
-                        //     TextInput::make('number_of_visitors'),
-                        // ])
+                    // ->createOptionForm([
+                    //     Select::make('building_id')
+                    //         ->relationship('building', 'name')
+                    //         ->preload()
+                    //         ->searchable()
+                    //         ->label('Building Name'),
+                    //     Select::make('flat_id')
+                    //         ->relationship('flat', 'property_number')
+                    //         ->preload()
+                    //         ->searchable()
+                    //         ->label('Property No'),
+                    //     TextInput::make('name'),
+                    //     TextInput::make('phone'),
+                    //     Hidden::make('type')
+                    //         ->default('Guest'),
+                    //     Hidden::make('initiated_by')
+                    //         ->default(auth()->user()->id),
+                    //     TextInput::make('email'),
+                    //     DatePicker::make('start_time')
+                    //         ->label('From Date'),
+                    //     DatePicker::make('end_time')
+                    //         ->label('To Date'),
+                    //     TextInput::make('number_of_visitors'),
+                    // ])
                         ->options(function (callable $get) {
                             $name = FlatVisitor::find($get('flat_visitor_id'));
                             return [
@@ -126,7 +121,7 @@ class GuestRegistrationResource extends Resource
                                 ->unique(
                                     'flat_visitors',
                                     'phone',
-                                    fn (?Model $record) => $record
+                                    fn(?Model $record) => $record
                                 ),
                             Hidden::make('type')
                                 ->default('Guest'),
@@ -181,13 +176,13 @@ class GuestRegistrationResource extends Resource
                     CheckboxList::make('rejected_fields')
                         ->label('Please select rejected fields')
                         ->options([
-                            'passport_number' => 'Passport Number',
+                            'passport_number'    => 'Passport Number',
                             'visa_validity_date' => 'Tourist/Visitor visa validity date',
-                            'stay_duration' => 'duration of stay',
-                            'start_date' => 'Guest arrival date',
+                            'stay_duration'      => 'duration of stay',
+                            'start_date'         => 'Guest arrival date',
                             'number_of_visitors' => 'Number of visitors',
-                            'end_date' => 'Guest departure date',
-                            'email' => 'Guest Email',
+                            'end_date'           => 'Guest departure date',
+                            'email'              => 'Guest Email',
                         ])
                         ->columns(4)
                         ->columnSpan([
@@ -200,8 +195,8 @@ class GuestRegistrationResource extends Resource
                                 return true;
                             }
                             return false;
-                        })
-                ])
+                        }),
+                ]),
             ]);
     }
 
@@ -209,105 +204,79 @@ class GuestRegistrationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('ticket_number')
-                    ->default('NA')
-                    ->label('Ticket Number'),
+                // TextColumn::make('ticket_number')
+                //     ->default('NA')
+                //     ->label('Ticket Number'),
                 ViewColumn::make('Name')->view('tables.columns.name'),
                 TextColumn::make('stay_duration')
                     ->searchable()
                     ->alignCenter()
                     ->default('NA')
                     ->label('Stay duration(days)'),
-                ViewColumn::make('Building')->view('tables.columns.building'),
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
+                ViewColumn::make('Building')->view('tables.columns.building'),
                 TextColumn::make('remarks')
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'approved'                        => 'success',
+                        'rejected'                        => 'danger',
+                        'NA'                              => 'gray',
+                        default                           => 'primary',
+                    })
+                    ->formatStateUsing(function (string $state) {
+                        return match ($state) {
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            default    => 'NA',
+                        };
+                    })
                     ->searchable()
-                    ->default('Pending'),
+                    ->default('NA'),
             ])
+
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2)  // Ensure layout is in two columns
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query->when(
-                        isset($data['Building']),
-                        function ($query) use ($data) {
-                            $query->whereHas('flatVisitor', function ($query) use ($data) {
-                                $query->whereHas('building', function ($query) use ($data) {
-                                    $query->where('id', $data['Building']);
-                                });
-                            });
-                        }
-                    )
-                    ->when(
-                        isset($data['flat']),
-                        function ($query) use ($data) {
-                            $query->whereHas('flatVisitor', function ($query) use ($data) {
-                                $query->where('flat_id', $data['flat']); 
-                            });
-                        }
-                    );
-                }),
-
-                Filter::make('status')
                     ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                                'NA' => 'Pending'
-                            ])
-                            ->label('Status')
-                            ->placeholder('Select Status')
-                            ->required(),
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } 
+                                if (auth()->user()->role->name == 'Property Manager'
+                                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                    $buildingIds = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+
+                                    return Building::whereIn('id', $buildingIds)
+                                        ->pluck('name', 'id');
+
+                                } elseif (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
+                                }
+                                return Building::all()->pluck('name', 'id');
+                            }),
                     ])
-                    ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
-                        $selectedStatus = $data['status'] ?? null;
-                        
-                        if ($selectedStatus === 'NA') {
-                            $query->whereNull('status')
-                                    ->orWhereNotIn('status', ['approved', 'rejected']);
-                        }elseif ($selectedStatus !== null) {
-                            $query->where('status', $selectedStatus);
-                        }
-
-                        return $query;
-                    })
-
-            
+                        return $query->when(
+                            isset($data['Building']),
+                            function ($query) use ($data) {
+                                $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                    $query->whereHas('building', function ($query) use ($data) {
+                                        $query->where('id', $data['Building']);
+                                    });
+                                });
+                            }
+                        );
+                    }),
             ])
-            ->filtersFormColumns(3) 
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ])
@@ -334,7 +303,7 @@ class GuestRegistrationResource extends Resource
         return [
             'index' => Pages\ListGuestRegistrations::route('/'),
             // 'view' => Pages\ViewGuestRegistrations::route('/{record}'),
-            'edit' => Pages\EditGuestRegistration::route('/{record}/edit'),
+            'edit'  => Pages\EditGuestRegistration::route('/{record}/edit'),
         ];
     }
 }

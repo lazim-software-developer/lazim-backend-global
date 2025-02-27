@@ -1,5 +1,5 @@
-<script> 
-    var scrollToSection = function(event) { 
+<script>
+    var scrollToSection = function(event) {
         setTimeout(() => {
             const activeSidebarItem = document.querySelectorAll('.fi-sidebar-item');
             const sidebarWrapper = document.querySelector('.fi-sidebar-nav')
@@ -11,8 +11,45 @@
                 const anchorHref = anchor.getAttribute('href');
                 const myEnvVar = "{{ env('APP_URL') }}";
 
-                // Updated condition to properly handle both /admin and /app paths
-                if (currentUrl.includes(anchorHref) &&
+                // Strict condition for ComplaintsEnquiryResource
+                if ((currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries') && anchorHref === '/app/complaintsenquiries') ||
+                    (currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries/') && anchorHref === '/app/complaintsenquiries')) {
+                    const activeItemOffsetTop = item.offsetTop;
+                    const sidebarScrollPosition = activeItemOffsetTop - sidebarWrapper.offsetTop;
+                    sidebarWrapper.scrollTo({
+                        top: sidebarScrollPosition,
+                        behavior: 'smooth'
+                    });
+                    // Add color class to the matched item
+                    item.setAttribute("style", "background-color:lightgray;");
+
+                    // Get the parent group of the matched item
+                    const parentGroup = item.closest('[data-group-label]');
+
+                    if (parentGroup) {
+                        groupToOpen = parentGroup.dataset.groupLabel;
+                    }
+                }
+                // Strict condition for ComplaintsSuggessionsResource
+                else if ((currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions') && anchorHref === '/app/complaintssuggessions') ||
+                    (currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions/') && anchorHref === '/app/complaintssuggessions')) {
+                    const activeItemOffsetTop = item.offsetTop;
+                    const sidebarScrollPosition = activeItemOffsetTop - sidebarWrapper.offsetTop;
+                    sidebarWrapper.scrollTo({
+                        top: sidebarScrollPosition,
+                        behavior: 'smooth'
+                    });
+                    // Add color class to the matched item
+                    item.setAttribute("style", "background-color:lightgray;");
+
+                    // Get the parent group of the matched item
+                    const parentGroup = item.closest('[data-group-label]');
+
+                    if (parentGroup) {
+                        groupToOpen = parentGroup.dataset.groupLabel;
+                    }
+                }
+                else if (!currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries') && !currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions') && currentUrl.includes(anchorHref) &&
                     !(anchorHref === '/admin' || anchorHref === '/app') &&
                     (currentUrl.includes('/admin/') || currentUrl.includes('/app/'))) {
                     const activeItemOffsetTop = item.offsetTop;

@@ -71,12 +71,12 @@ class OwnerResource extends Resource
                                 ->label('Unit Number'),
                             // ViewField::make('Building')
                             //     ->view('forms.components.building-name-owner')
-                        ])
-                        // ->columnSpan([
-                        //     'sm' => 1,
-                        //     'md' => 1,
-                        //     'lg' => 2,
-                        // ]),
+                        ]),
+                    // ->columnSpan([
+                    //     'sm' => 1,
+                    //     'md' => 1,
+                    //     'lg' => 2,
+                    // ]),
                 ]),
 
         ]);

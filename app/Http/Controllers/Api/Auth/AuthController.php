@@ -2,28 +2,32 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\GateKeeperLoginRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\Building\Document;
 use App\Models\User\User;
+use App\Traits\UtilsTrait;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use Illuminate\Support\Carbon;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\NotIn;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\FlatTenant;
-use App\Models\ExpoPushNotification;
-use App\Models\OwnerAssociation;
-use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Auth\GateKeeperLoginRequest;
 
 class AuthController extends Controller
 {
+    use UtilsTrait;
     /**
      * Login route for OA user
      */
@@ -58,6 +62,23 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
+        $vendors = $user->technicianVendors()
+            ->with(['vendor.buildings' => function ($query) {
+                $query->wherePivot('active', 1);
+            }])
+            ->get();
+
+        $buildings = $vendors->flatMap(function ($technicianVendor) {
+            return $technicianVendor->vendor->buildings;
+        })->unique('id');
+
+        if ($buildings->isEmpty()) {
+            return (new CustomResponseResource([
+                'title'   => 'Unauthorized!',
+                'message' => 'No active buildings. Please contact admin!',
+                'code'    => 400,
+            ]))->response()->setStatusCode(400);
+        }
         // if (!$user->phone_verified) {
         //     return (new CustomResponseResource([
         //         'title' => 'Phone Verification Required',
@@ -77,7 +98,6 @@ class AuthController extends Controller
                                 ->where(['tokenable_type' => 'user', 'tokenable_id' => $user->id])->delete();
                         }
                         $token = $user->createToken($user->role->name)->plainTextToken;
-
                         $refreshToken = Str::random(40);
                         DB::table('refresh_tokens')->insert([
                             'user_id' => $user->id,
@@ -127,9 +147,6 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        if ($user && in_array($user?->role->name, ['Owner', 'Tenant'])) {
-            abort_if(FlatTenant::where('tenant_id', $user->id)->where('active', true)->count() < 1, 422, "Currently, you don't have any active units.");
-        }
 
         // Check if the user's email and phone number is verified
 
@@ -146,6 +163,34 @@ class AuthController extends Controller
             return (new CustomResponseResource([
                 'title' => 'Phone Verification Required',
                 'message' => 'Phone number is not verified.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        $flatExists = FlatTenant::where('tenant_id', $user->id)->where('active', true)->exists();
+        if(!$user->active && !$flatExists){
+            return (new CustomResponseResource([
+                'title' => 'Access Forbidden',
+                'message' => 'Account under review. Please wait.',
+                'code' => 403,
+                'data' => $user
+            ]))->response()->setStatusCode(403);
+        }
+
+        if(!$user->active){
+            return (new CustomResponseResource([
+                'title' => 'Account Status',
+                'message' => 'Access denied. Please contact the admin team.',
+                'code' => 400,
+            ]))->response()->setStatusCode(403);
+        }
+
+        // no active flats for resident
+        if (!$flatExists) {
+            return (new CustomResponseResource([
+                'title' => 'Access Forbidden',
+                'message' => 'You currently have no active units. Please contact admin.',
                 'code' => 403,
                 'data' => $user
             ]))->response()->setStatusCode(403);
@@ -284,7 +329,7 @@ class AuthController extends Controller
         if (!$building->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Error',
-                'message' => "You don't have access to login to the application!",
+                'message' => "No active buildings. Please contact admin.!",
                 'code' => 403,
             ]))->response()->setStatusCode(403);
         }
@@ -326,7 +371,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
-        if ($user->role->name != 'Vendor') {
+        if (!in_array($user->role->name, ['Vendor','Facility Manager'])) {
             return (new CustomResponseResource([
                 'title' => 'Unauthorized!',
                 'message' => 'You are not authorized to login!',
@@ -360,7 +405,25 @@ class AuthController extends Controller
         //     ]))->response()->setStatusCode(403);
         // }
 
-        if ($user && $user->vendors->first()->status == 'rejected') {
+        $documents = Document::where('documentable_id', $user->vendors->first()?->id)
+            ->whereNotNull('url')
+            ->exists();
+        //check if vendor has uploaded documnets
+        if (!$documents) {
+            return (new CustomResponseResource([
+                'title'   => 'redirect_documents',
+                'message' => "Upload required documents to proceed",
+                'code'    => 403,
+                'data'    => $user->vendors->first(),
+            ]))->response()->setStatusCode(400);
+        }
+
+        $oneActive = DB::table('owner_association_vendor')
+            ->where('vendor_id', $user->vendors->first()->id)
+            ->where(['active'=> true, 'status'=> 'approved'])
+            ->exists();
+
+        if ($user && $user->vendors->first()->status == 'rejected' && !$oneActive) {
             return (new CustomResponseResource([
                 'title' => 'Documents rejected',
                 'message' => 'Documents are rejected, you will be redirected to documents upload page.',
@@ -369,7 +432,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if ($user && $user->vendors->first()->status != 'approved') {
+        if ($user && $user->vendors->first()->status != 'approved' && !$oneActive) {
             return (new CustomResponseResource([
                 'title' => 'Approve Pending',
                 'message' => 'Your Document approval is pending!',
@@ -377,6 +440,7 @@ class AuthController extends Controller
                 'data' => $user->vendors->first()
             ]))->response()->setStatusCode(400);
         }
+
         // Create a new access token
         $token = $user->createToken($user->role->name)->plainTextToken;
 
@@ -389,6 +453,12 @@ class AuthController extends Controller
         ]);
 
         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
+
+        $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
+        $oaIds  = DB::table('owner_association_vendor')->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])->pluck('owner_association_id');
+        $registeredWith = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+
+        $user->setAttribute('registered_with',$registeredWith);
 
         return response()->json([
             'token' => $token,

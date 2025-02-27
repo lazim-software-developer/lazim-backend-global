@@ -2,15 +2,17 @@
 
 namespace App\Jobs\Forms;
 
+use App\Models\OwnerAssociation;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Facades\DB;
+use Snowfire\Beautymail\Beautymail;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Config;
-use Snowfire\Beautymail\Beautymail;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class AccessCardRequestJob implements ShouldQueue
 {
@@ -38,7 +40,10 @@ class AccessCardRequestJob implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-        
+        $oaId = DB::table('building_owner_association')
+            ->where(['building_id' => $this->accessCard->building_id, 'active' => 1])->first()?->owner_association_id;
+        $property_manager_name = OwnerAssociation::where('id', $oaId)->first()?->name;
+
         $beautymail = app()->make(Beautymail::class);
 
         $beautymail->send('emails.forms.access_card_request', [
@@ -48,11 +53,12 @@ class AccessCardRequestJob implements ShouldQueue
             'flat' => $this->accessCard->flat->property_number,
             'type' => 'Access Card',
             'card_type' => $this->accessCard->card_type,
+            'property_manager_name' => $property_manager_name ?? '',
         ], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject('Access card Request Submitted');
+                ->subject('Access Card Request Acknowledgment');
         });
 
         Artisan::call('queue:restart');

@@ -18,6 +18,7 @@ class SelectServicesResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'subcategory_id' => $this->subcategory_id,
         ];
     }
 }

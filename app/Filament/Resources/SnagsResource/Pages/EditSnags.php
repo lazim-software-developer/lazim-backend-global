@@ -35,7 +35,9 @@ class EditSnags extends EditRecord
                         'sound' => 'default',
                         'title' => 'Snags status',
                         'body' => 'Your Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                        'data' => ['notificationType' => 'MyComplaints'],
+                        'data' => ['notificationType' => 'MyComplaints',
+                                'building_id' => $this->record->building_id,
+                                'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -51,7 +53,8 @@ class EditSnags extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Snags status',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                            'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => 'MyComplaints',
                         ]),
@@ -69,7 +72,9 @@ class EditSnags extends EditRecord
                             'sound' => 'default',
                             'title' => 'Snags status',
                             'body' => 'A Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
-                            'data' => ['notificationType' => 'ResolvedRequests'],
+                            'data' => ['notificationType' => 'ResolvedRequests',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                         ];
                         $this->expoNotification($message);
                         DB::table('notifications')->insert([
@@ -85,7 +90,8 @@ class EditSnags extends EditRecord
                                 'iconColor' => 'warning',
                                 'title' => 'Snags status',
                                 'view' => 'notifications::notification',
-                                'viewData' => [],
+                                'viewData' => ['building_id'=> $this->record->building_id,
+                                                'flat_id' => $this->record->flat_id],
                                 'format' => 'filament',
                                 'url' => 'ResolvedRequests',
                             ]),

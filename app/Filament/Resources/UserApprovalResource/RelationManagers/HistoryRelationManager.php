@@ -9,16 +9,12 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class HistoryRelationManager extends RelationManager
 {
@@ -38,16 +34,16 @@ class HistoryRelationManager extends RelationManager
                     ->label('Status updated on')
                     ->disabled(),
                 Grid::make(2)->schema([
-                Textarea::make('remarks')
-                    ->maxLength(250)
-                    ->rows(5)
-                    ->required()
-                    ->visible(function (Get $get) {
-                        if ($get('status') == 'rejected') {
-                            return true;
-                        }
-                        return false;
-                    }),
+                    Textarea::make('remarks')
+                        ->maxLength(250)
+                        ->rows(5)
+                        ->required()
+                        ->visible(function (Get $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        }),
                 ]),
 
                 Section::make('Documents')
@@ -86,12 +82,11 @@ class HistoryRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn (Builder $query) => $query->where('status', '!=', null))
-            ->defaultSort('updated_at', 'desc')
+        return $table
             ->recordTitleAttribute('status')
             ->columns([
-                TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state))->default('Pending'),
-                TextColumn::make('remarks')->default('NA')->limit(30),
+                TextColumn::make('status')->formatStateUsing(fn($state) => ucwords($state)),
+                TextColumn::make('remarks')->default('NA'),
                 TextColumn::make('user.first_name')->default('NA')->limit(20),
                 TextColumn::make('updated_at')->date()
                     ->formatStateUsing(fn(?string $state) => $state ? $state : 'NA')->label('Status updated on'),

@@ -29,7 +29,9 @@ class ListBudgets extends ListRecords
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
-        $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+        $buildings_id = DB::table('building_owner_association')
+            ->where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+            ->where('active', true)->pluck('building_id');
         return parent::getTableQuery()->whereIn('building_id', $buildings_id);
     }
 
@@ -48,9 +50,12 @@ class ListBudgets extends ListRecords
                                 return Building::all()->pluck('name', 'id');
                             }
                             else{
-                                return Building::where('owner_association_id', Filament::getTenant()->id)
+                                $buildings_id = DB::table('building_owner_association')
+                                ->where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+                                ->where('active', true)->pluck('building_id');
+                                return Building::whereIn('id', $buildings_id)
                                 ->pluck('name', 'id');
-                            } 
+                            }
                         })
                         ->preload()
                         ->searchable()
@@ -59,6 +64,7 @@ class ListBudgets extends ListRecords
                     Select::make('budget_period')
                         ->label('Select Budget Period')
                         ->options([
+                            'Jan 2025 - Dec 2025' => '2025',
                             'Jan 2024 - Dec 2024' => '2024',
                             'Jan 2023 - Dec 2023' => '2023',
                             'Jan 2022 - Dec 2022' => '2022',

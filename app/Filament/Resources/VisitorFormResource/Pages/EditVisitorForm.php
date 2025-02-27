@@ -47,7 +47,9 @@ class EditVisitorForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Visitor form status.',
                         'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
-                        'data' => ['notificationType' => 'InAppNotfication'],
+                        'data' => ['notificationType' => 'InAppNotfication',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                     DB::table('notifications')->insert([
@@ -63,7 +65,8 @@ class EditVisitorForm extends EditRecord
                             'iconColor' => 'warning',
                             'title' => 'Visitor form status.',
                             'view' => 'notifications::notification',
-                            'viewData' => [],
+                            'viewData' => ['building_id' => $this->record->flatVisitor->building_id,
+                                            'flat_id' => $this->record->flatVisitor->flat_id],
                             'format' => 'filament',
                             'url' => '',
                         ]),

@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LedgersResource\Pages;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Building\Building;
-use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms\Components\Select;
@@ -17,10 +16,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -28,8 +25,8 @@ class LedgersResource extends Resource
 {
     protected static ?string $model = OAMInvoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $modelLabel = 'Service charge ledgers';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel      = 'Service charge ledgers';
     protected static ?string $navigationGroup = 'Ledgers';
 
     public static function form(Form $form): Form
@@ -68,7 +65,7 @@ class LedgersResource extends Resource
                 TextColumn::make('invoice_pdf_link')
                     ->limit(20)
                     ->label('Invoice'),
-                TextColumn::make('invoice_amount')->formatStateUsing(fn ($state) => number_format($state, 2))
+                TextColumn::make('invoice_amount')->formatStateUsing(fn($state) => number_format($state, 2))
                     ->label('Invoice amount')->alignEnd(),
                 ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid')
                     ->alignEnd(),
@@ -95,7 +92,7 @@ class LedgersResource extends Resource
                             $segments = Str::of($data['Date'])->split('/[\s,]+/');
 
                             if (count($segments) === 3) {
-                                $from = $segments[0];
+                                $from  = $segments[0];
                                 $until = $segments[2];
 
                                 return $query->whereBetween('invoice_date', [$from, $until]);
@@ -103,53 +100,26 @@ class LedgersResource extends Resource
                         }
                         return $query;
                     }),
-                    
-                    Filter::make('building')
+                Filter::make('Building')
                     ->form([
-                        Select::make('building_id')
-                            ->label('Building')
-                            ->native(false)
+                        Select::make('building')
+                            ->searchable()
                             ->options(function () {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 } else {
-                                    $buildingId = DB::table('building_owner_association')
-                                        ->where('owner_association_id', auth()->user()?->owner_association_id)
-                                        ->where('active', true)
-                                        ->pluck('building_id');
-                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->pluck('name', 'id');
                                 }
-                            })
-                            ->searchable()
-                            ->reactive()  // Make it reactive to trigger updates in flat selection
-                            ->afterStateUpdated(function (callable $set, $state) {
-                                $set('flat_id', null); // Reset the flat selection when the building changes
                             }),
-                        
-                        Select::make('flat_id')
-                            ->label('Flat')
-                            ->native(false)
-                            ->options(function (callable $get) {
-                                $selectedBuildingId = $get('building_id'); // Get selected building ID
-                                if (empty($selectedBuildingId)) {
-                                    return [];  // If no building is selected, return an empty array
-                                }
-                                return Flat::where('building_id', $selectedBuildingId)->pluck('property_number', 'id');
-                            })
-                            ->searchable(),
                     ])
-                    ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['building_id'])) {
-                            $query->where('building_id', $data['building_id']);
-                        }
-                        if (!empty($data['flat_id'])) {
-                            $query->where('flat_id', $data['flat_id']);
-                        }
-                        return $query;
-                    })
-                
-
+                        return $query
+                            ->when(
+                                $data['building'],
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                            );
+                    }),
             ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),

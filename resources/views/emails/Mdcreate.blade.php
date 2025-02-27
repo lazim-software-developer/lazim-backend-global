@@ -45,7 +45,8 @@
 		</tr>
 		<tr>
             <td class="paragraph">
-                To access your account and use our platform, click on <a href="https://qa-admin.lazim.ae/">this link</a>
+                To access your account and use our platform, click on
+               <a href="{{ env('APP_URL') }}/">this link</a>
 			</td>
 		</tr>
         <tr>

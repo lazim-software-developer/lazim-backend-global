@@ -29,8 +29,6 @@ use App\Models\Master\Service;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\DB;
 
 class OacomplaintReportsResource extends Resource
 {
@@ -173,6 +171,7 @@ class OacomplaintReportsResource extends Resource
                             ->rules('file|mimes:jpeg,jpg,png|max:2048')
                             ->directory('dev')
                             ->openable(true)
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->downloadable(true)
                             ->image()
                             ->required()
@@ -221,18 +220,7 @@ class OacomplaintReportsResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                    SelectFilter::make('building_id')
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->searchable()
-                        ->preload()
-                        ->label('Building')
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

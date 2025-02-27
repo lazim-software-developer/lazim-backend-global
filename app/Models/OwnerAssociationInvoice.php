@@ -15,8 +15,8 @@ class OwnerAssociationInvoice extends Model
     protected $table = 'owner_association_invoices';
 
     protected $fillable = [
-        'date', 'due_date', 'type','bill_to','mode_of_payment','supplier_name','job','month','description', 'quantity',
-        'rate', 'tax', 'address', 'trn', 'invoice_number','owner_association_id','building_id'
+        'date', 'due_date', 'type', 'bill_to', 'mode_of_payment', 'supplier_name', 'job', 'month', 'description', 'quantity',
+        'rate', 'tax', 'address', 'trn', 'invoice_number', 'owner_association_id', 'building_id', 'status'
     ];
 
     public function building(){

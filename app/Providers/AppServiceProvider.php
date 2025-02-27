@@ -71,6 +71,9 @@ use App\Observers\FacilityServiceBookingObserver;
 use App\Services\GenericHttpService;
 use App\Services\SessionLocalService;
 use App\Services\SessionService;
+use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
+use App\Filament\MyLogoutResponse;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -149,5 +152,7 @@ class AppServiceProvider extends ServiceProvider
                 ->filtersLayout(FiltersLayout::AboveContentCollapsible)
                 ->paginationPageOptions([10, 25, 50]);
         });
+
+        $this->app->bind(LogoutResponseContract::class, MyLogoutResponse::class);
     }
 }

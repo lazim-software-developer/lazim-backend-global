@@ -83,6 +83,12 @@ return [
             'HappinessCenterChart',
             'ProposalOverview',
             'RegistrationChart',
+            //pm widgets
+            'BillsOverviewWidget',
+            'MoveInOutChart',
+            'RentalChequeStatusOverview',
+            'UnitContractExpiryOverview',
+            'UnitStatusOverview',
         ],
 
         'resources' => [
