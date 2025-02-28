@@ -120,6 +120,8 @@ class FlatResource extends Resource
                         ->default(auth()->user()?->id),
                         Hidden::make('updated_by')
                         ->default(auth()->user()?->id),
+                        Hidden::make('resource')
+                        ->default('Lazim'),
                         MarkdownEditor::make('description')
                             ->toolbarButtons([
                                 'bold',
@@ -141,6 +143,10 @@ class FlatResource extends Resource
         return $table
             ->poll('60s')
             ->columns([
+                TextColumn::make('resource')
+                    ->default('NA')
+                    ->searchable()
+                    ->label('Resource'),
                 TextColumn::make('floor')
                     ->default('NA')
                     ->searchable()

@@ -281,6 +281,8 @@ class TenantResource extends Resource
                         ->minDate(now()->startOfDay()),
                     Hidden::make('owner_association_id')
                     ->default(auth()->user()?->owner_association_id),
+                    Hidden::make('resource')
+                    ->default('Lazim'),
                     Select::make('contract_status')
                         ->options([
                             'pass auditing'  => 'Pass Auditing',
@@ -299,6 +301,11 @@ class TenantResource extends Resource
         return $table
             // ->defaultGroup('name')
             ->columns([
+                Tables\Columns\TextColumn::make('resource')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Resource')
+                    ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
