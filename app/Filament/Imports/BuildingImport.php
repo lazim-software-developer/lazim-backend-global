@@ -80,7 +80,7 @@ class BuildingImport implements ToCollection, WithHeadingRow
                     'owner_association_id'        => $ownerAssociation->id,
                     'allow_postupload' => $row['allow_post_upload']== true ? 1 : 0,
                     'show_inhouse_services'          => $row['show_inhouse_services']== true ? 1 : 0,
-                    'resource'            => 'Default',
+                    'resource'            => 'Lazim',
                     'status'                 => 1,
                     'created_by'                 => auth()->user()?->id,
                     'updated_by'                 => auth()->user()?->id,

@@ -81,7 +81,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                     'parking_count'          => $row['parking_count'],
                     'plot_number'            => $row['plot_number'],
                     'status'                 => 1,
-                    'resource'               => 'Default',
+                    'resource'               => 'Lazim',
                     'created_by'                 => auth()->user()?->id,
                     'updated_by'                 => auth()->user()?->id,
                 ]);
