@@ -209,6 +209,8 @@ class OwnerResource extends Resource
                         ->label('Trade License Number'),
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
+                    Hidden::make('resource')
+                    ->default('Lazim'),
                     Select::make('building_id')
                     ->rules(['exists:buildings,id'])
                     ->options(function () {
@@ -298,6 +300,11 @@ class OwnerResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Email')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('resource')
+                    ->searchable()
+                    ->default('NA')
+                    ->label('Resource')
                     ->limit(50),
                 ViewColumn::make('Property Number')->view('tables.columns.apartment-ownerflat')->alignCenter(),
                 ViewColumn::make('Building')->view('tables.columns.apartment-ownerbuilding')->alignCenter(),

@@ -144,7 +144,8 @@ class BuildingResource extends Resource
                     ->default(auth()->user()?->id),
                     Hidden::make('updated_by')
                     ->default(auth()->user()?->id),
-
+                    Hidden::make('resource')
+                    ->default('Lazim'),
                     TextInput::make('area')
                         ->rules(['max:100', 'string'])
                         ->required()
@@ -256,11 +257,11 @@ class BuildingResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                // Tables\Columns\TextColumn::make('address_line1')
-                //     ->toggleable()
-                //     ->searchable()
-                //     ->default('NA')
-                //     ->limit(50),
+                Tables\Columns\TextColumn::make('resource')
+                    ->toggleable()
+                    ->searchable()
+                    ->default('NA')
+                    ->limit(50),
                 // Tables\Columns\TextColumn::make('address_line2')
                 //     ->toggleable()
                 //     ->searchable()
