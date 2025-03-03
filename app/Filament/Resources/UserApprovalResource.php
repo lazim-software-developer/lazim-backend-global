@@ -88,22 +88,22 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin')),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                         FileUpload::make('passport')
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin')),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                         DatePicker::make('emirates_document_expiry_date')
                             ->label('Emirates ID Expiry')
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'))
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA'))
                             ->minDate(Carbon::today()),
                         DatePicker::make('passport_expiry_date')
                             ->label('Passport Expiry')
                             ->minDate(Carbon::today())
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin')),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                     ])
                     ->columns(3),
                 Section::make('Approval Details')
