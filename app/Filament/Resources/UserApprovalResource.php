@@ -1,30 +1,31 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserApprovalResource\Pages;
-use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
-use App\Models\Building\Flat;
-use App\Models\RentalDetail;
-use App\Models\UserApproval;
-use Carbon\Carbon;
 use DB;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Carbon\Carbon;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\RentalDetail;
+use App\Models\UserApproval;
+use App\Models\Building\Flat;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\UserApprovalResource\Pages;
+use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
 
 class UserApprovalResource extends Resource
 {
@@ -87,20 +88,22 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->disabled(),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                         FileUpload::make('passport')
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->disabled(),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                         DatePicker::make('emirates_document_expiry_date')
                             ->label('Emirates ID Expiry')
-                            ->disabled(),
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA'))
+                            ->minDate(Carbon::today()),
                         DatePicker::make('passport_expiry_date')
                             ->label('Passport Expiry')
-                            ->disabled(),
+                            ->minDate(Carbon::today())
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                     ])
                     ->columns(3),
                 Section::make('Approval Details')
