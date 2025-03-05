@@ -158,7 +158,7 @@ class RegistrationController extends Controller
             'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
             'active' => 1,
             'role' => $type,
-            'owner_association_id' => $building->owner_association_id,
+            'owner_association_id' => $building?->owner_association_id,
             'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
 
@@ -439,7 +439,7 @@ class RegistrationController extends Controller
             'emirates_document' => $emirates,
             'trade_license' => $tradeLicense,
             'passport' => $passport,
-            'owner_association_id' => $resident->owner_association_id,
+            'owner_association_id' => $resident?->owner_association_id,
         ]);
 
         return (new CustomResponseResource([

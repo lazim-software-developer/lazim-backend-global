@@ -135,54 +135,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('heroicon-o-users')
                                 ->activeIcon('heroicon-o-users')
                                 ->sort(2),
-                            // NavigationItem::make('MD')
-                            //     ->url('/admin/m-d-s')
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(3),
-                            // NavigationItem::make('Accounts Manager')
-                            //     ->url('/admin/accounts-managers')
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(4),
-                            // NavigationItem::make('Building Engineer')
-                            //     ->url(BuildingEngineerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(5),
-                            // NavigationItem::make('Complaint Officer')
-                            //     ->url(ComplaintOfficerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(6),
-                            // NavigationItem::make('Legal Officer')
-                            //     ->url(LegalOfficerResource::getUrl('index'))
-                            //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                            //     ->icon('heroicon-o-users')
-                            //     ->activeIcon('heroicon-o-users')
-                            //     ->sort(7),
-                            // NavigationItem::make('Medias')
-                            //     ->url('/admin/media')
-                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                            //     ->icon('heroicon-m-photo')
-                            //     ->activeIcon('heroicon-m-photo')
-                            //     ->sort(2),
                             NavigationItem::make('Owner association')
                                 ->url('/admin/owner-associations')
                                 ->hidden(!$user->can('view_any_owner::association'))
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(8),
-                            // NavigationItem::make('Cities')
-                            //     // ->hidden(DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] == 'Admin' ? false : true)
-                            //     ->url('/admin/master/cities')
-                            //     ->icon('heroicon-m-globe-americas')
-                            //     ->activeIcon('heroicon-m-globe-americas')
-                            //     ->sort(4),
                             NavigationItem::make('Resident documents')
                                 ->url('/admin/tenant-documents')
                                 ->hidden(!$user->can('view_any_tenant::document'))
@@ -598,6 +556,18 @@ class AdminPanelProvider extends PanelProvider
                                 ->visible($user->can('view_any_poll'))
                                 ->activeIcon('heroicon-s-hand-thumb-up')
                                 ->sort(3),
+                            NavigationItem::make('Email Management')
+                                ->url('/admin/send-bulk-emails')
+                                ->icon('heroicon-s-paper-airplane')
+                                ->activeIcon('heroicon-s-paper-airplane')
+                                // ->visible($user->can('view_any_email::template'))
+                                ->sort(4),
+                            NavigationItem::make('Email Template')
+                                ->url('/admin/email-templates')
+                                ->icon('heroicon-s-document-text')
+                                ->activeIcon('heroicon-s-document-text')
+                                // ->visible($user->can('view_any_send::bulk::email'))
+                                ->sort(5),
                         ])
                         ->collapsed(true),
                 ]);
