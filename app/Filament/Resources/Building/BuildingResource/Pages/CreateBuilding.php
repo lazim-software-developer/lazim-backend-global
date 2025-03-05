@@ -14,6 +14,10 @@ class CreateBuilding extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        if (array_key_exists('search', $data)) {
+            $data['address'] = $data['search'];
+        }
+
         $data['show_inhouse_services'] = 0;
         $data['managed_by']        = 'Property Manager';
         return $data;
