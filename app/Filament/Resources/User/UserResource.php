@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -154,7 +155,17 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('role_id')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Role::all()->pluck('name', 'id');
+                        } else {
+                            return Role::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
+                    })
+                    ->label('Role')
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

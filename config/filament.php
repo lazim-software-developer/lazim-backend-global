@@ -28,6 +28,7 @@ return [
     'pages' => [
         // ...
         App\Filament\Pages\BudgetListing::class,
+        'namespace' => 'App\\Filament\\Pages',
     ],
 
     'auth' => [

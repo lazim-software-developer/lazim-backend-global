@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Forms;
 
+use App\Models\OwnerAssociation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ResidentialFormRequest extends FormRequest
@@ -26,17 +27,17 @@ class ResidentialFormRequest extends FormRequest
             'name' => 'required|string',
             'building_id' => 'required|exists:buildings,id',
             'flat_id' => 'required|exists:flats,id',
-            'passport_number' => 'required|string',
             'number_of_adults' => 'required|integer',
             'number_of_children' => 'required|integer',
             'office_number' => 'nullable|string',
             'trn_number' => 'nullable|string',
-            'passport_expires_on' => 'required|date',
             'emirates_id' => 'required|string',
-            'emirates_expires_on' => 'required|date',
             'title_deed_number' => 'string',
             'emergency_contact' => 'required|json',
-            'file_passport_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'passport_number' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|string' : 'nullable|string',
+            'passport_expires_on' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|date' : 'nullable|date',
+            'file_passport_url' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048' : 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'emirates_expires_on' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|date' : 'nullable|date',
             'file_emirates_url' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'file_title_deed_url' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'file_tenancy_contract' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',

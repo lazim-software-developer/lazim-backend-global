@@ -1,5 +1,11 @@
 <?php
 
+use Livewire\Livewire;
+use Filament\Pages\Page;
+use App\Models\Master\Role;
+use App\Models\Vendor\Vendor;
+use App\Filament\Pages\CustomPage;
+use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use App\Filament\Pages\OAM\CreateTender;
 use App\Http\Controllers\FeedbackController;
@@ -12,9 +18,10 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\TrialBalanceController;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Http\Controllers\Vendor\MasterController;
-use App\Livewire\VendorRegistration;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\HomeController;
+use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,9 +34,13 @@ use Illuminate\Support\Facades\Session;
 |
  */
 
+Livewire::setUpdateRoute(function ($handle) {
+    return Route::post('GIT/lazim-backend/public/livewire/update', $handle);
+});
 Route::get('/', function () {
     return redirect('/app/login');
 });
+// Route::get('/admin/custom-page', CustomPage::class)->name('filament.pages.custom-page');
 // Route::get('/app', function () {
 //     return redirect('/app/login');
 // });
