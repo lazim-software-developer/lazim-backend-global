@@ -61,11 +61,15 @@ class EditBuilding extends EditRecord
                 ];
                 // Generate a QR code using the QrCode library
                 $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
-                Floor::create([
-                    'floors'      => $countfloor,
-                    'building_id' => $this->record->id,
-                    'qr_code'     => $qrCode,
-                ]);
+                Floor::firstOrCreate(
+                    [
+                        'floors' => $countfloor,
+                        'building_id' => $this->record->id,
+                    ],
+                    [
+                        'qr_code' => $qrCode,
+                    ]
+                );
                 $countfloor = $countfloor - 1;
             }
         }

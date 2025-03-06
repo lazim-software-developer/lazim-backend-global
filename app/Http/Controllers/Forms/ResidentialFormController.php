@@ -21,12 +21,12 @@ class ResidentialFormController extends Controller
 {
     use UtilsTrait;
     public function store(ResidentialFormRequest $request)
-    {
+    { 
         $validated = $request->validated();
 
         $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
-        $validated['passport_url'] = optimizeDocumentAndUpload($request->file('file_passport_url'));
+        $validated['passport_url'] = $request->file('file_passport_url')?: optimizeDocumentAndUpload($request->file('file_passport_url'));
         $validated['emirates_url'] = optimizeDocumentAndUpload($request->file('file_emirates_url'));
 
         if ($request->hasFile('file_title_deed_url')) {

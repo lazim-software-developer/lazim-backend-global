@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\User\User;
+use App\Models\FlatOwners;
 use App\Models\Forms\Guest;
 use App\Models\LegalNotice;
 use App\Models\MollakTenant;
@@ -10,24 +11,27 @@ use App\Models\UserApproval;
 use App\Models\Forms\SaleNOC;
 use App\Models\ApartmentOwner;
 use App\Models\CoolingAccount;
+use App\Models\Forms\MoveInOut;
+use App\Mail\OaUserRegistration;
 use App\Models\Forms\AccessCard;
 use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\Scopes\Searchable;
-use App\Models\OaUserRegistration;
 use App\Models\Building\FlatTenant;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Visitor\FlatDomesticHelp;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Flat extends Model
 {
     use HasFactory;
     use Searchable;
+    use SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -46,6 +50,8 @@ class Flat extends Model
         'virtual_account_number',
         'parking_count',
         'plot_number',
+        'resource',
+        'status',
         'makhani_number',
         'dewa_number',
         'etisalat/du_number',
@@ -96,14 +102,16 @@ class Flat extends Model
         return $this->belongsTo(OaUserRegistration::class);
     }
 
-    public function owners() {
+    public function owners()
+    {
         return $this->belongsToMany(ApartmentOwner::class, 'flat_owner', 'flat_id', 'owner_id')->where('active', 1);
     }
     public function documents()
     {
         return $this->hasMany(Document::class);
     }
-    public function mollakTenants() {
+    public function mollakTenants()
+    {
         return $this->hasMany(MollakTenant::class);
     }
     public function moveinOut()
@@ -149,5 +157,9 @@ class Flat extends Model
     public function legalNotices()
     {
         return $this->hasMany(LegalNotice::class);
+    }
+    public function flatOwners()
+    {
+        return $this->hasMany(FlatOwners::class, 'flat_id');
     }
 }
