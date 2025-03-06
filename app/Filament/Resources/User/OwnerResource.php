@@ -368,7 +368,20 @@ class OwnerResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Name')
-                    ->limit(50),
+                    ->limit(50)
+                    ->formatStateUsing(function ($state, $record): string {
+                        // Get owner_status directly from the record
+                        $ownerStatus = $record->owner_status ?? '';
+                        
+                        // Check if we have both state and status
+                        if ($state && $ownerStatus === 'VIP') {
+                            return $state . " (VIP)";
+                        }
+                        
+                        // Fallback to just state if status is not VIP
+                        return $state ?? '';
+                    })
+                    ->html(),
                 Tables\Columns\TextColumn::make('mobile')
                     ->searchable()
                     ->default('NA')
