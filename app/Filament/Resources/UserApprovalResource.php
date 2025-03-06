@@ -7,14 +7,17 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
+use App\Models\FlatOwners;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\RentalDetail;
 use App\Models\UserApproval;
 use App\Models\Building\Flat;
+use App\Models\ApartmentOwner;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -23,6 +26,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserApprovalResource\Pages;
 use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
@@ -106,6 +110,72 @@ class UserApprovalResource extends Resource
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA')),
                     ])
                     ->columns(3),
+                    Section::make('Owners Information')
+            ->schema([
+                Tabs::make('Owners')
+                    ->tabs(function ($record) {
+                        // Early return if no record
+                        if (!$record || !$record->flat_id) {
+                            return [
+                                Tabs\Tab::make('no_data')
+                                    ->label('No Data')
+                                    ->schema([
+                                        Placeholder::make('no_data')
+                                            ->content('No owner data available.')
+                                    ])
+                            ];
+                        }
+                        
+                        // Get all flat owners associated with this flat
+                        $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
+                        
+                        if ($flatOwners->isEmpty()) {
+                            return [
+                                Tabs\Tab::make('no_owners')
+                                    ->label('No Owners')
+                                    ->schema([
+                                        Placeholder::make('')
+                                            ->content('No owners found for this flat.')
+                                    ])
+                            ];
+                        }
+                        
+                        $tabs = [];
+                        
+                        // Create a tab for each owner
+                        foreach ($flatOwners as $index => $flatOwner) {
+                            $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
+                            
+                            if ($ownerDetail) {
+                                $tabs[] = Tabs\Tab::make("owner_{$index}")
+                                    ->label($ownerDetail->name ?? "Owner " . ($index + 1))
+                                    ->schema([
+                                        Placeholder::make("owner_{$index}_name")
+                                            ->label('Name')
+                                            ->content($ownerDetail->name ?? 'N/A'),
+                                        Placeholder::make("owner_{$index}_email")
+                                            ->label('Email')
+                                            ->content($ownerDetail->email ?? 'N/A'),
+                                        Placeholder::make("owner_{$index}_phone")
+                                            ->label('Phone')
+                                            ->content($ownerDetail->mobile ?? 'N/A'),
+                                        Placeholder::make("owner_{$index}_passport")
+                                            ->label('Passport')
+                                            ->content($ownerDetail->passport ?? 'N/A'),
+                                        Placeholder::make("owner_{$index}_emirates_id")
+                                            ->label('Emirates ID')
+                                            ->content($ownerDetail->emirates_id ?? 'N/A'),
+                                        Placeholder::make("owner_{$index}_trade_license")
+                                            ->label('Trade License')
+                                            ->content($ownerDetail->trade_license ?? 'N/A'),
+                                    ])
+                                    ->columns(2);
+                            }
+                        }
+                        
+                        return $tabs;
+                    })
+            ]),
                 Section::make('Approval Details')
                     ->schema([
                         Grid::make(2)->schema([
