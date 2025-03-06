@@ -13,8 +13,6 @@ use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
-use App\Models\Forms\SaleNOC;
-use Spatie\Sluggable\HasSlug;
 use App\Models\ApartmentOwner;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
