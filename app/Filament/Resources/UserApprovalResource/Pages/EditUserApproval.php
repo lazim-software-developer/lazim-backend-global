@@ -207,7 +207,7 @@ class EditUserApproval extends EditRecord
 
         $user  = User::find($this->record->user_id);
         $pm_oa = auth()->user()?->first_name ?? '';
-        $pm_logo = auth()->user()?->ownerAssociation?->first()?->profile_photo ?? null;
+        $pm_logo = auth()->user()?->ownerAssociation?->first()->profile_photo??null;
         if ($this->data['status'] == 'approved' &&
         $this->record->status == null &&
             DB::table('flat_tenants')

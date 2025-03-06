@@ -7,16 +7,18 @@ use App\Models\FlatOwners;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ApartmentOwner extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $connection = 'mysql';
 
     protected $table = 'apartment_owners';
 
-    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id'];
+    protected $fillable = ['owner_number', 'email', 'name', 'mobile', 'passport', 'emirates_id', 'trade_license', 'flat_id','owner_association_id'
+    ,'building_id','owner_status','resource','primary_owner_mobile','primary_owner_email','deleted_at','created_by','updated_by'];
 
     public function ownerAssociation()
     {

@@ -13,6 +13,9 @@ use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
+use App\Models\Forms\SaleNOC;
+use Spatie\Sluggable\HasSlug;
+use App\Models\ApartmentOwner;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\Vendor\Contract;
@@ -22,6 +25,7 @@ use Spatie\Sluggable\SlugOptions;
 use App\Services\GenericHttpService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class OwnerAssociation extends Model
 {
@@ -71,6 +75,10 @@ class OwnerAssociation extends Model
     public function budgets()
     {
         return $this->hasMany(Budget::class);
+    }
+    public function owners()
+    {
+        return $this->hasMany(ApartmentOwner::class);
     }
 
     public function buildings(){
