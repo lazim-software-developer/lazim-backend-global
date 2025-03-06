@@ -347,27 +347,30 @@ class RegistrationController extends Controller
                 'primary' => $primary ? 0 : 1,
             ]);
         }
-
+        // $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+        // $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+        // $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+        // $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
         if ($request->hasFile('emirates_document')) {
-        $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
-        }else{
-            $imagePath=null;
-        }
-        if ($request->hasFile('emirates_document')) {
-        $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
-        }else{
-            $emirates=null;
-        }
-        if ($request->hasFile('passport_document')) {
-        $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
-        }else{
-            $passport=null;
-        }
-        if ($request->hasFile('trade_license')) {
-        $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
-        }else{
-            $tradeLicense=null;
-        }
+            $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
+            }else{
+                $imagePath=null;
+            }
+            if ($request->hasFile('emirates_document')) {
+            $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
+            }else{
+                $emirates=null;
+            }
+            if ($request->hasFile('passport_document')) {
+            $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
+            }else{
+                $passport=null;
+            }
+            if ($request->hasFile('trade_license')) {
+            $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
+            }else{
+                $tradeLicense=null;
+            }
 
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
         $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->id);

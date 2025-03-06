@@ -15,6 +15,17 @@ use App\Filament\Resources\Building\BuildingResource;
 class CreateBuilding extends CreateRecord
 {
     protected static string $resource = BuildingResource::class;
+  
+  protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (array_key_exists('search', $data)) {
+            $data['address'] = $data['search'];
+        }
+
+        $data['show_inhouse_services'] = 0;
+        $data['managed_by']        = 'Property Manager';
+        return $data;
+    }
     public function afterCreate()
     {
         $this->CreateFloor($this->record);
@@ -75,13 +86,6 @@ class CreateBuilding extends CreateRecord
             'created_at' => now(),
             'updated_at' => now()
         ]);
-    }
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $data['show_inhouse_services'] = 0;
-        $data['managed_by']        = 'Property Manager';
-        return $data;
     }
 
     protected function getRedirectUrl(): string
