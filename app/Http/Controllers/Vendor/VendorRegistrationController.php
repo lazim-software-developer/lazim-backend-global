@@ -177,13 +177,8 @@ class VendorRegistrationController extends Controller
 
     public function companyDetails(CompanyDetailsRequest $request)
     {
-        // $request->merge([
-        //     'name' => User::find($request->owner_id)->first_name,
-        // ]);
-        $user = User::find($request->owner_id);
 
-        // Owner ko find kar rahe hain
-        // $owner = User::find($request->owner_id);
+        $user = User::find($request->owner_id);
 
         // Pehle check karenge ki vendor exist karta hai ya nahi
         $vendor = Vendor::where('id', $request->vendor_id)
@@ -222,11 +217,6 @@ class VendorRegistrationController extends Controller
             $message = "Company details successfully created!";
         }
 
-        // if ($user) {
-        //     $user->ownerAssociation()->syncWithoutDetaching([
-        //         $request->owner_association_id => ['from' => now()->toDateString()]
-        //     ]);
-        // }
 
         $vendor->ownerAssociation()->syncWithoutDetaching([
             $request->owner_association_id => ['from' => now()->toDateString()]
