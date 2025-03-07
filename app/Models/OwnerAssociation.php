@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Accounting\Budget;
-use App\Models\Building\Building;
-use App\Models\Building\Complaint;
-use App\Models\Building\FacilityBooking;
+use App\Models\User\User;
 use App\Models\Building\Flat;
+use App\Models\Forms\SaleNOC;
+use Spatie\Sluggable\HasSlug;
+use App\Models\ApartmentOwner;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
-use App\Models\Forms\SaleNOC;
-use App\Models\User\User;
 use App\Models\Vendor\Contract;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\HasSlug;
+use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
 use Spatie\Sluggable\SlugOptions;
+use App\Models\Building\Complaint;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Building\FacilityBooking;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OwnerAssociation extends Model
 {
@@ -57,7 +58,10 @@ class OwnerAssociation extends Model
     public function building(){
         return $this->belongsToMany(Building::class, 'building_owner_association');
     }
-
+    public function owners()
+    {
+        return $this->hasMany(ApartmentOwner::class);
+    }
     public function buildings(){
         return $this->belongsToMany(Building::class, 'building_owner_association')
         ->withPivot(['from', 'to', 'active']);
