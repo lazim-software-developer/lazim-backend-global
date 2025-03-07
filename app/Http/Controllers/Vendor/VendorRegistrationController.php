@@ -95,7 +95,7 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            if($vendor){
+            if ($vendor) {
                 $isAttached = $vendor->ownerAssociation()->wherePivot('owner_association_id', $request->owner_association_id)->exists();
 
                 if ($isAttached) {
@@ -107,7 +107,7 @@ class VendorRegistrationController extends Controller
                     ]))->response()->setStatusCode(403);
                 }
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(), 'active' => false]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
@@ -116,7 +116,6 @@ class VendorRegistrationController extends Controller
                     'data' => $vendor,
                 ]))->response()->setStatusCode(200);
             }
-
         } else {
             $existingEmail = User::where(['email' => $request->email])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
@@ -178,14 +177,60 @@ class VendorRegistrationController extends Controller
 
     public function companyDetails(CompanyDetailsRequest $request)
     {
-        $request->merge([
-            'name' => User::find($request->owner_id)->first_name,
-        ]);
+        // $request->merge([
+        //     'name' => User::find($request->owner_id)->first_name,
+        // ]);
         $user = User::find($request->owner_id);
-        $vendor = Vendor::create($request->all());
 
-        $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
-        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
+        // Owner ko find kar rahe hain
+        // $owner = User::find($request->owner_id);
+
+        // Pehle check karenge ki vendor exist karta hai ya nahi
+        $vendor = Vendor::where('id', $request->vendor_id)
+            ->where('tl_number', $request->tl_number)
+            ->where('landline_number', $request->landline_number)
+            ->where('owner_id', $request->owner_id)
+            ->first();
+
+
+        if ($vendor) {
+            // Agar vendor exist karta hai toh usko update karenge
+            $vendor->update([
+                'name' => optional($user)->first_name ?? $request->name,
+                'address_line_1' => $request->address_line_1,
+                'website' => $request->website,
+                'tl_expiry' => $request->tl_expiry,
+                'risk_policy_expiry' => $request->risk_policy_expiry,
+                'owner_association_id' => $request->owner_association_id,
+            ]);
+
+            $message = "Company details successfully updated!";
+        } else {
+            // Agar vendor exist nahi karta toh naye record create karenge
+            $vendor = Vendor::create([
+                'owner_id' => $request->owner_id,
+                'tl_number' => $request->tl_number,
+                'landline_number' => $request->landline_number,
+                'name' => optional($user)->first_name ?? $request->name,
+                'address_line_1' => $request->address_line_1,
+                'website' => $request->website,
+                'tl_expiry' => $request->tl_expiry,
+                'risk_policy_expiry' => $request->risk_policy_expiry,
+                'owner_association_id' => $request->owner_association_id,
+            ]);
+
+            $message = "Company details successfully created!";
+        }
+
+        // if ($user) {
+        //     $user->ownerAssociation()->syncWithoutDetaching([
+        //         $request->owner_association_id => ['from' => now()->toDateString()]
+        //     ]);
+        // }
+
+        $vendor->ownerAssociation()->syncWithoutDetaching([
+            $request->owner_association_id => ['from' => now()->toDateString()]
+        ]);
 
         $doc = Document::create([
             "name" => "risk_policy",
@@ -198,7 +243,7 @@ class VendorRegistrationController extends Controller
         ]);
 
         return (new CustomResponseResource([
-            'title' => 'Company Details entered successful!',
+            'title' => $message,
             'message' => "",
             'code' => 201,
             'status' => 'success',
@@ -206,8 +251,18 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function managerDetails(ManagerDetailsRequest $request, Vendor $vendor)
+    public function managerDetails(ManagerDetailsRequest $request, $vendorId)
     {
+
+        $vendor = Vendor::find($vendorId);
+
+        if (!$vendor) {
+            return (new CustomResponseResource([
+                'message' => 'Invalid vendor ID provided.',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
         $request->merge(['vendor_id' => $vendor->id]);
 
         $existingVendorEmail = VendorManager::where(['email' => $request->email])->first();
@@ -266,10 +321,9 @@ class VendorRegistrationController extends Controller
                 'code' => 400
             ]))->response()->setStatusCode(400);
         }
-        if($managerId){
+        if ($managerId) {
             $manager = VendorManager::find($managerId)->update($request->all());
-        }
-        else{
+        } else {
             $manager = VendorManager::create($request->all());
         }
 
@@ -295,9 +349,9 @@ class VendorRegistrationController extends Controller
         return new VendorResource(auth()->user()->vendors()->first());
     }
 
-    public function editVendorDetails(EditVendorRequest $request,Vendor $vendor)
+    public function editVendorDetails(EditVendorRequest $request, Vendor $vendor)
     {
-        if(isset($request->name)){
+        if (isset($request->name)) {
             $request->merge([
                 'first_name' => $request->name
             ]);
