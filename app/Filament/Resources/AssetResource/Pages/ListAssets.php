@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\AssetResource\Pages;
 
+use App\Models\OwnerAssociation;
+use DB;
 use Filament\Actions;
 use App\Filament\Resources\AssetResource;
 use App\Imports\AssetsListImport;
@@ -27,7 +29,22 @@ class ListAssets extends ListRecords
     protected static ?string $title = 'Assets';
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        $buildingIds = DB::table('building_owner_association')
+            ->where('owner_association_id',auth()->user()?->owner_association_id)
+            ->where('active', true)
+            ->pluck('building_id');
+        if(auth()->user()?->role?->name === 'Admin'){
+            return parent::getTableQuery();
+        }
+        if(auth()->user()?->role?->name === 'Property Manager' ||
+        OwnerAssociation::where('id', auth()->user()->owner_association_id)
+                                    ->pluck('role')[0] == 'Property Manager'){
+            return parent::getTableQuery()->whereIn('building_id', $buildingIds);
+        }
+        // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'){
+        //     return parent::getTableQuery();
+        // }
+        elseif(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
             return parent::getTableQuery();
         }
         return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
@@ -39,13 +56,13 @@ class ListAssets extends ListRecords
             Actions\CreateAction::make(),
             ExportAction::make()->exports([
                 ExcelExport::make()->withColumns([
-                    Column::make('name')->heading('Asset Name'),
-                    Column::make('location')->heading('Location'),
-                    Column::make('floor')->heading('Floor'),
-                    Column::make('division')->heading('Division'),
-                    Column::make('discipline')->heading('Discipline'),
-                    Column::make('frequency_of_service')->heading('Frequency of service'),
-                    Column::make('description')->heading('Description'),
+                    Column::make('name')->heading('asset_name'),
+                    Column::make('location'),
+                    Column::make('floor'),
+                    Column::make('division'),
+                    Column::make('discipline'),
+                    Column::make('frequency_of_service'),
+                    Column::make('description'),
                 ])
                 ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
             ])->label('Download sample file'),
@@ -55,10 +72,24 @@ class ListAssets extends ListRecords
                     ->form([
                         Select::make('building_id')
                         ->required()
+                        ->preload()
                         ->relationship('building', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
                             // dd($tenants);
+                            if (auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager') {
+                                $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Building::whereIn('id', $buildingIds)
+                                    ->pluck('name', 'id');
+
+                            }
+
                             return Building::where('owner_association_id', $oaId)
                                 ->pluck('name', 'id');
                         })
@@ -99,8 +130,8 @@ class ListAssets extends ListRecords
 
                 Action::make('QR Codes')->label('Download QR Codes')
                 ->action(function(){
-                    
-                    $data = Parent::getTableQuery()->get();
+                    $query = $this->getTableQuery();
+                    $data = $query->get();
 
                     $pdf = Pdf::loadView('filament.custom.asset-fetch-data', compact('data'));
                         return response()->streamDownload(

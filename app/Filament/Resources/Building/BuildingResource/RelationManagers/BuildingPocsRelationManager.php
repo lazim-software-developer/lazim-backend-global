@@ -42,8 +42,8 @@ class BuildingPocsRelationManager extends RelationManager
             ->schema([
                 Grid::make([
                     'sm' => 1,
-                    'md' => 1,
-                    'lg' => 1,
+                    'md' => 2,
+                    'lg' => 2,
                 ])->schema([
 
                     Select::make('user_id')
@@ -55,7 +55,8 @@ class BuildingPocsRelationManager extends RelationManager
                             'user_id',
                         )
                         ->options(function () {
-                            return User::where('role_id', 12)
+                            $role_id = Role::where('name', 'Security')->first()->id;
+                            return User::where('role_id', $role_id)
                                 ->select('id', 'first_name')
                                 ->pluck('first_name', 'id')
                                 ->toArray();
@@ -70,12 +71,13 @@ class BuildingPocsRelationManager extends RelationManager
                                 ->required()
                                 ->maxLength(255),
                             TextInput::make('phone')
-                                ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
-                                ->required()
-                                ->maxLength(255),
+                                ->length(9)
+                                ->placeholder('XXXXXXXXX')
+                                ->required(),
                             FileUpload::make('profile_photo')
                                 ->disk('s3')
                                 ->directory('dev')
+                                ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                 ->image()
                                 ->label('Profile Photo'),
                             Toggle::make('active')
@@ -132,6 +134,12 @@ class BuildingPocsRelationManager extends RelationManager
                     ->visible(fn(RelationManager $livewire) => BuildingPoc::where('building_id', $livewire->ownerRecord->id)->where('active', 1)->count() == 0)
                     ->button()
                     ->form([
+                        Grid::make([
+                            'sm' => 1,
+                            'md' => 2,
+                            'lg' => 2   ,
+                        ])
+                    ->schema([
                         TextInput::make('first_name')
                             ->required(),
                         TextInput::make('last_name')
@@ -147,7 +155,7 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
+                            ->rules([function () {
                                 return function (string $attribute, $value, Closure $fail) {
                                     if (DB::table('users')->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
@@ -155,11 +163,13 @@ class BuildingPocsRelationManager extends RelationManager
                                 };
                             }])
                             ->prefix('971')
+                            ->placeholder('XXXXXXXXX')
                             ->required()
-                            ->maxLength(255),
+                            ->length(9),
                         FileUpload::make('profile_photo')
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->label('Profile Photo'),
                         Toggle::make('active')
@@ -170,6 +180,7 @@ class BuildingPocsRelationManager extends RelationManager
                             ->default(function (RelationManager $livewire) {
                                 return $livewire->ownerRecord->id;
                             }),
+                        ])
                     ])
                     ->action(function (RelationManager $livewire, array $data): void {
 
@@ -183,7 +194,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'phone'                => '971' . $data['phone'],
                             'profile_photo'        => $data['profile_photo'],
                             'active'               => $data['active'],
-                            'role_id'              => Role::where('owner_association_id',$oa_id)->where('name','Security')->first()?->id,
+                            'role_id'              => Role::where('name','Security')->first()?->id,
                             'owner_association_id' => $oa_id,
                             'email_verified'       => 1,
                             'phone_verified'       => 1,
@@ -205,7 +216,7 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-                            
+
                             $mailCredentials = [
                                 'mail_mailer'=> $credentials->mailer??env('MAIL_MAILER'),
                                 'mail_host' => $credentials->host??env('MAIL_HOST'),
@@ -250,19 +261,22 @@ class BuildingPocsRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255),
                         TextInput::make('phone')
-                            ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
+                            ->rules([ function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
                                     if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             }])
+                            ->length(9)
+                            ->placeholder('XXXXXXXXX')
                             ->prefix('971')
                             ->required()
                             ->maxLength(255),
                         FileUpload::make('profile_photo')
                             ->disk('s3')
                             ->directory('dev')
+                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                             ->image()
                             ->label('Profile Photo'),
                         Toggle::make('active')
@@ -333,11 +347,20 @@ class BuildingPocsRelationManager extends RelationManager
                         }
                         $userId->active = $data['active'];
                         $userId->save();
+
+                        if(!$userId->active){
+                            $record->tokens()->delete();
+                            DB::table('refresh_tokens')
+                                ->where('user_id', $record->id)
+                                ->delete();
+                        }
                     })
                     ->slideOver(),
 
                     Action::make('delete')
                     ->button()
+                    ->requiresConfirmation()
+                    ->modalDescription('Are you sure you want to delete this record?')
                     ->action(function($record){
                         $record->delete();
 

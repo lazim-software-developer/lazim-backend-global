@@ -34,6 +34,7 @@ class FacilityBooking extends Model
         'approved_by',
         'owner_association_id',
         'flat_id',
+        'description',
     ];
 
     protected $searchableFields = ['*'];

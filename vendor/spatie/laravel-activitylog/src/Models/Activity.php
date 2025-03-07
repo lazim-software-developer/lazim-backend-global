@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Contracts\Activity as ActivityContract;
 
 /**
@@ -25,9 +24,9 @@ use Spatie\Activitylog\Contracts\Activity as ActivityContract;
  * @property \Illuminate\Support\Collection|null $properties
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $causer
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $causer
  * @property-read \Illuminate\Support\Collection $changes
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $subject
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $subject
  *
  * @method static \Illuminate\Database\Eloquent\Builder|\Spatie\Activitylog\Models\Activity causedBy(\Illuminate\Database\Eloquent\Model $causer)
  * @method static \Illuminate\Database\Eloquent\Builder|\Spatie\Activitylog\Models\Activity forBatch(string $batchUuid)
@@ -129,26 +128,5 @@ class Activity extends Model implements ActivityContract
     public function scopeForBatch(Builder $query, string $batchUuid): Builder
     {
         return $query->where('batch_uuid', $batchUuid);
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($activity) {
-            // Generate a hash of the JSON column
-            $jsonHash = md5(json_encode($activity->properties));
-
-            // Check if a record with this hash already exists
-            $existingActivity = Activity::where('json_hash', $jsonHash)->first();
-
-            if ($existingActivity) {
-                // If a duplicate is found, cancel the creation
-                return false;
-            }
-
-            // Set the hash value to the activity
-            $activity->json_hash = $jsonHash;
-        });
     }
 }

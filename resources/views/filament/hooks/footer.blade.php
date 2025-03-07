@@ -1,8 +1,8 @@
-<script> 
-    var scrollToSection = function(event) { 
+<script>
+    var scrollToSection = function(event) {
         setTimeout(() => {
             const activeSidebarItem = document.querySelectorAll('.fi-sidebar-item');
-            const sidebarWrapper = document.querySelector('.fi-sidebar-nav')
+            const sidebarWrapper = document.querySelector('.fi-sidebar-nav');
             const currentUrl = window.location.href;
             let groupToOpen = null;
 
@@ -11,25 +11,30 @@
                 const anchorHref = anchor.getAttribute('href');
                 const myEnvVar = "{{ env('APP_URL') }}";
 
-                // Updated condition to properly handle both /admin and /app paths
-                if (currentUrl.includes(anchorHref) &&
-                    !(anchorHref === '/admin' || anchorHref === '/app') &&
-                    (currentUrl.includes('/admin/') || currentUrl.includes('/app/'))) {
+                // Combine scrolling logic into a single function
+                const scrollToItem = (item) => {
                     const activeItemOffsetTop = item.offsetTop;
                     const sidebarScrollPosition = activeItemOffsetTop - sidebarWrapper.offsetTop;
                     sidebarWrapper.scrollTo({
                         top: sidebarScrollPosition,
                         behavior: 'smooth'
                     });
-                    // Add color class to the matched item
                     item.setAttribute("style", "background-color:lightgray;");
-
-                    // Get the parent group of the matched item
                     const parentGroup = item.closest('[data-group-label]');
-
                     if (parentGroup) {
                         groupToOpen = parentGroup.dataset.groupLabel;
                     }
+                };
+
+                // Check conditions and scroll
+                if ((currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries') && anchorHref === '/app/complaintsenquiries') ||
+                    (currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries/') && anchorHref === '/app/complaintsenquiries') ||
+                    (currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions') && anchorHref === '/app/complaintssuggessions') ||
+                    (currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions/') && anchorHref === '/app/complaintssuggessions') ||
+                    (!currentUrl.startsWith(myEnvVar + '/app/complaintsenquiries') && !currentUrl.startsWith(myEnvVar + '/app/complaintssuggessions') && currentUrl.includes(anchorHref) &&
+                    !(anchorHref === '/admin' || anchorHref === '/app') &&
+                    (currentUrl.includes('/admin/') || currentUrl.includes('/app/')))) {
+                    scrollToItem(item);
                 }
 
                 // Add specific highlight for dashboard
@@ -41,7 +46,6 @@
 
             // Handle Sidebar collapse
             const sidebarStore = window.Alpine.store('sidebar');
-
             // Hide Dashboard label text and button
             document.querySelectorAll('[data-group-label]').forEach(el => {
                 if (el.dataset.groupLabel === 'Dashboard') {
@@ -65,24 +69,19 @@
             sidebarStore.collapsedGroups = labels;
 
             sidebarStore.toggleCollapsedGroup = function(groupLabel) {
-                // Skip toggling if it's the Dashboard
                 if (groupLabel === 'Dashboard') return;
-
-                // Check if the group is currently open
                 if (!this.groupIsCollapsed(groupLabel)) {
                     this.collapsedGroups.push(groupLabel);
                 } else {
                     this.collapsedGroups = this.collapsedGroups.filter(label => label !== groupLabel);
                 }
-
-                // Persist the collapsedGroups to localStorage
                 localStorage.setItem('collapsedGroups', JSON.stringify(this.collapsedGroups));
             };
 
             if (groupToOpen !== 'Dashboard') {
                 sidebarStore.toggleCollapsedGroup(groupToOpen);
             }
-        }, 1)
+        }, 100); // Increased timeout to allow for DOM readiness
     };
 
     document.addEventListener('livewire:navigated', scrollToSection);

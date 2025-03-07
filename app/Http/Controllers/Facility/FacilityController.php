@@ -10,10 +10,11 @@ use App\Http\Resources\CustomResponseResource;
 use App\Models\Building\Building;
 use App\Models\Building\FacilityBooking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FacilityController extends Controller
 {
-    public function index(Building $building)
+    public function index(Request $request, Building $building)
     {
         $facilities = $building->facilities->where('active',true);
         return FacilityResource::collection($facilities);
@@ -21,6 +22,11 @@ class FacilityController extends Controller
 
     public function bookFacility(FacilityBookingRequest $request, Building $building)
     {
+        if ($building->id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $building->id, 'active' => true])->first()->owner_association_id;
+        }
+
         // Check for existing bookings for the same facility, date, and time range
         $existingBooking = FacilityBooking::where([
             'bookable_id' => $request->facility_id,
@@ -67,7 +73,7 @@ class FacilityController extends Controller
 
         return new CustomResponseResource([
             'title' => 'Booking Successful',
-            'message' => 'Amenity booking has been successfully created.',
+            'message' => 'Thank you for your request. One of our customer care representatives will contact you shortly with further details and an estimated cost.',
             'code' => 200,
         ]);
     }
@@ -86,7 +92,7 @@ class FacilityController extends Controller
         } elseif ($type === 'services') {
             $query->where('bookable_type', 'App\Models\Master\Service');
         }
-        $bookings = $query->latest()->paginate(10);
+        $bookings = $query->latest()->paginate($request->paginate ?? 10);
 
         return FacilityBookingResource::collection($bookings);
     }

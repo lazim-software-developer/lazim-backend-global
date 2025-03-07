@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\UserApprovalResource\Pages;
 
-use App\Filament\Resources\UserApprovalResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\UserApprovalResource;
 
 class CreateUserApproval extends CreateRecord
 {

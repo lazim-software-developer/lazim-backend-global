@@ -59,7 +59,9 @@ class EditNocForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Sales NOC form status',
                         'body'  => 'Your sales noc form has been approved.',
-                        'data'  => ['notificationType' => 'MyRequest'],
+                        'data'  => ['notificationType' => 'MyRequest',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -77,7 +79,8 @@ class EditNocForm extends EditRecord
                     'iconColor' => 'warning',
                     'title'     => 'Sales NOC form status',
                     'view'      => 'notifications::notification',
-                    'viewData'  => [],
+                    'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format'    => 'filament',
                     'url'       => 'MyRequest',
                 ]),
@@ -95,7 +98,9 @@ class EditNocForm extends EditRecord
                         'sound' => 'default',
                         'title' => 'Sales NOC form status',
                         'body'  => 'Your sales noc form has been rejected.',
-                        'data'  => ['notificationType' => 'MyRequest'],
+                        'data'  => ['notificationType' => 'MyRequest',
+                                    'building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     ];
                     $this->expoNotification($message);
                 }
@@ -113,7 +118,8 @@ class EditNocForm extends EditRecord
                     'iconColor' => 'danger',
                     'title'     => 'Sales NOC form status',
                     'view'      => 'notifications::notification',
-                    'viewData'  => [],
+                    'viewData'  => ['building_id' => $this->record->building_id,
+                                    'flat_id' => $this->record->flat_id],
                     'format'    => 'filament',
                     'url'       => 'MyRequest',
                 ]),

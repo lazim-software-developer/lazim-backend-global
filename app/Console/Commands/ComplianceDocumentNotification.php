@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Mail\ComplianceDocumentReminder;
+use App\Models\ComplianceDocument;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
+
+class ComplianceDocumentNotification extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:compliance-document-notification';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        // Get today's date
+        $today = Carbon::today();
+
+        // Fetch all contracts nearing expiry within 60 days
+        $complianceDocument = ComplianceDocument::whereBetween('expiry_date', [$today,$today->copy()->addDays(30)])
+            ->get();
+
+        foreach ($complianceDocument as $document) {
+            $daysLeft = $today->diffInDays(Carbon::parse($document->expiry_date), false);
+
+            if ($daysLeft > 7 && $daysLeft <= 30) {
+                // Weekly reminder
+                if ($document->last_reminded_at === null || $today->isSameDay($document->last_reminded_at->addWeek())) {
+                    // Send email
+                    Mail::to($document->vendor->user->email)->send(new ComplianceDocumentReminder($document));
+                    // Update reminder timestamp
+                    $document->update(['last_reminded_at' => $today]);
+                }
+            } elseif ($daysLeft <= 7) {
+                // Daily reminder
+                // Send email
+                Mail::to($document->vendor->user->email)->send(new ComplianceDocumentReminder($document));
+                // Update reminder timestamp
+                $document->update(['last_reminded_at' => $today]);
+            }
+        }
+        Artisan::call('optimize:clear');
+    }
+}

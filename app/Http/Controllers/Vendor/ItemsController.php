@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ItemCreateRequest;
 use App\Http\Requests\Vendor\ItemManagmentRequest;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\Vendor\ItemsResource;
@@ -10,15 +11,25 @@ use App\Models\Item;
 use App\Models\ItemInventory;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemsController extends Controller
 {
     public function index(Request $request,Vendor $vendor){
-       $items=$vendor->items();
-       return ItemsResource::collection($items->paginate($request->query('count', 10)));
+       $items = $vendor->items()
+                ->when($request->filled('type'), function ($query) use ($vendor, $request) {
+                    $buildings = $vendor->buildings->where('pivot.active', true)->unique()
+                        ->filter(function($buildings) use($request){
+                            return $buildings->ownerAssociations->where('pivot.active', true)->contains('role',$request->type);
+                        });
+                    $query->whereIn('building_id', $buildings->pluck('id'));
+                });
+       return ItemsResource::collection($items->paginate($request->paginate ?? 10));
     }
 
-    public function updateItems(ItemManagmentRequest $request,Item $item){
+    public function updateItems(ItemManagmentRequest $request,Item $item)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $item->building_id)->where('active', true)->first()->owner_association_id;
 
         if($request->type == 'used' && $item->quantity < $request->quantity ){
             return (new CustomResponseResource([
@@ -58,4 +69,24 @@ class ItemsController extends Controller
     public function viewItem(Item $item){
         return new ItemsResource($item);
      }
+    public function create(Vendor $vendor,ItemCreateRequest $request)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
+        $data = $request->only(['name','quantity','building_id','description']);
+        $data['owner_association_id'] = DB::table('building_owner_association')->where('building_id',$request->building_id)->first()->owner_association_id;
+        $item = Item::create($data);
+
+        $vendor->items()->attach($item->id);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Item created successfully!',
+            'status' => 'success',
+            'code' => 201,
+            'data' => $item,
+        ]))->response()->setStatusCode(200);
+    }
 }

@@ -34,8 +34,9 @@ class TechnicianController extends Controller
 {
     public function registration(AddTechnicianRequest $request)
     {
-        // $vendor= Vendor::where('owner_id', auth()->user()->id)->first();
-        // return !(TechnicianAssets::where('asset_id', 1)->where('vendor_id', $vendor->id)->where('active',1)->exists());
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
 
         $request->merge([
             'first_name' => $request->name,
@@ -45,7 +46,7 @@ class TechnicianController extends Controller
             'phone_verified' => true,
         ]);
 
-        $user = User::create($request->all());
+        $user = User::create($request->except('building_id'));
 
         $vendor = Vendor::where('owner_id', auth()->user()->id)->first();
         $name = $vendor->name;
@@ -62,9 +63,10 @@ class TechnicianController extends Controller
             'position'       => $request->position
         ]);
 
+
         $technician->services()->syncWithoutDetaching([$request->service_id]);
 
-        TechnicianAccountCreationJob::dispatch($user, $password);
+        TechnicianAccountCreationJob::dispatch($user, $password, $vendor->name);
 
         $assets = $vendor->assets->unique();
         foreach ($assets as $asset) {
@@ -88,24 +90,28 @@ class TechnicianController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function index(Service $service, Vendor $vendor)
+    public function index(Service $service, Vendor $vendor, Request $request)
     {
 
         $technicians = $service->technicianVendors->where('vendor_id', $vendor->id)->where('active',true)->pluck('id');
         // $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $service?->id)->pluck('technician_vendor_id');
         $technicians = TechnicianVendor::whereIn('id', $technicians);
 
-        return ServiceTechnicianResource::collection($technicians->paginate(5));
+        return ServiceTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function edit(EditTechnicianRequest $request, User $technician)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if(isset($request->name)){
             $request->merge([
                 'first_name' => $request->name
             ]);
         }
-        $technician->update($request->all());
+        $technician->update($request->except('building_id'));
 
         return (new CustomResponseResource([
             'title' => 'Details updated!',
@@ -119,13 +125,17 @@ class TechnicianController extends Controller
     {
         $contract = Contract::where('vendor_id', $vendor->id)
             ->where('service_id', $service->id)->where('end_date', '>=', Carbon::now()->toDateString())->first()?->service_id;
-        $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract)->pluck('technician_vendor_id');
+        $serviceTechnician = DB::table('service_technician_vendor')->where('service_id', $contract ?? $service->id)->pluck('technician_vendor_id');
         $technicians = TechnicianVendor::whereIn('id', $serviceTechnician)->where('active', true)->where('vendor_id', $vendor->id)->get();
         return ListTechnicianResource::collection($technicians);
     }
 
     public function activeDeactive(ActiveRequest $request, TechnicianVendor $technician)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         if (!$request->active && Complaint::where('technician_id', $technician?->technician_id)->where('status', 'open')->exists()) {
             return (new CustomResponseResource([
                 'title' => 'Technician cannot be deactivated!',
@@ -152,6 +162,9 @@ class TechnicianController extends Controller
 
     public function attachTechnician(ServiceIdRequest $request, TechnicianVendor $technician)
     {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
 
         if ($technician->active == false) {
             return (new CustomResponseResource([
@@ -229,9 +242,9 @@ class TechnicianController extends Controller
         return ListTechnicianResource::collection($technicians);
     }
 
-    public function allTechnician(Vendor $vendor){
+    public function allTechnician(Vendor $vendor, Request $request){
         $technicians = TechnicianVendor::where('vendor_id', $vendor->id);
-        return ListAllTechnicianResource::collection($technicians->paginate(10));
+        return ListAllTechnicianResource::collection($technicians->paginate($request->paginate ?? 10));
     }
 
     public function fetchTechnicianAssetDetails(Asset $asset)

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Building\AssignFlatsToTenant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -99,6 +100,9 @@ class FetchOwnersForFlat implements ShouldQueue
                     // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
                     $this->flat->owners()->syncWithoutDetaching($owner->id);
+
+                    // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
+                    AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $owner->id, $customerId, 'Owner')->delay(now()->addSeconds(5));
                 }
             }
         }

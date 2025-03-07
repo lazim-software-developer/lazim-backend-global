@@ -3,12 +3,7 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use App\Models\Building\Complaint;
-use App\Models\TechnicianVendor;
 use App\Models\User\User;
-use App\Models\Vendor\ServiceVendor;
-use App\Models\Vendor\Vendor;
-use Closure;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -16,12 +11,9 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -76,7 +68,7 @@ class IncidentsRelationManager extends RelationManager
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No media' : '';
                             })
                             ->schema([
@@ -85,6 +77,7 @@ class IncidentsRelationManager extends RelationManager
                                     ->directory('dev')
                                     ->maxSize(2048)
                                     ->openable(true)
+                                    ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
                                     ->downloadable(true)
                                     ->label('File'),
                             ])
@@ -93,47 +86,47 @@ class IncidentsRelationManager extends RelationManager
                                 'md' => 1,
                                 'lg' => 2,
                             ]),
-                            DateTimePicker::make('open_time')->disabled()->label('created at'),
-                            Textarea::make('complaint')->label('Incident Details')
-                                ->disabled()
-                                ->placeholder('Complaint'),
-                            Select::make('status')
-                                ->options([
-                                    'open'   => 'Open',
-                                    'closed' => 'Closed',
-                                ])
-                                ->disabled(function (Complaint $record) {
-                                    return $record->status != 'open';
-                                })
-                                ->searchable()
-                                ->live(),
-                            Repeater::make('comments')
-                                ->relationship('comments')
-                                ->helperText(function($state){
-                                    return $state == [] ? 'No Comments' : '';
-                                })
-                                ->schema([
-                                    Grid::make([
-                                        'sm' => 1,
-                                        'md' => 1,
-                                        'lg' => 2,
-                                    ])->schema([
-                                        Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                        ->readOnly(function($state){
-                                            if($state != null){
+                        DateTimePicker::make('open_time')->disabled()->label('created at'),
+                        Textarea::make('complaint')->label('Incident Details')
+                            ->disabled()
+                            ->placeholder('Complaint'),
+                        Select::make('status')
+                            ->options([
+                                'open'   => 'Open',
+                                'closed' => 'Closed',
+                            ])
+                            ->disabled(function (Complaint $record) {
+                                return $record->status != 'open';
+                            })
+                            ->searchable()
+                            ->live(),
+                        Repeater::make('comments')
+                            ->relationship('comments')
+                            ->helperText(function ($state) {
+                                return $state == [] ? 'No Comments' : '';
+                            })
+                            ->schema([
+                                Grid::make([
+                                    'sm' => 1,
+                                    'md' => 1,
+                                    'lg' => 2,
+                                ])->schema([
+                                    Textarea::make('body')->label('comment')->required()->maxLength(50)
+                                        ->readOnly(function ($state) {
+                                            if ($state != null) {
                                                 return true;
                                             }
                                             return false;
                                         }),
-                                        Hidden::make('user_id')->default(auth()->user()?->id),
-                                        DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled()              
-                                    ])
-                                ])->deletable(false)
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2,
+                                    Hidden::make('user_id')->default(auth()->user()?->id),
+                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled(),
                                 ]),
+                            ])->deletable(false)
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ]),
 
                     ]),
             ]);

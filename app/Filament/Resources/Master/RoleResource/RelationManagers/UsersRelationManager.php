@@ -27,8 +27,8 @@ class UsersRelationManager extends RelationManager
                         ->default('NA')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('last_name')
@@ -38,33 +38,33 @@ class UsersRelationManager extends RelationManager
                         ->default('NA')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('email')
                         ->rules(['email'])
-                        ->unique('users', 'email', fn (?Model $record) => $record)
+                        ->unique('users', 'email', fn(?Model $record) => $record)
                         ->email()
                         ->required()
                         ->default('NA')
                         ->placeholder('Email')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     TextInput::make('phone')
                         ->rules(['max:10', 'string'])
-                        ->unique('users', 'phone', fn (?Model $record) => $record)
+                        ->unique('users', 'phone', fn(?Model $record) => $record)
                         ->placeholder('Phone')
                         ->required()
                         ->default('NA')
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
 
                     Toggle::make('active')
@@ -73,8 +73,8 @@ class UsersRelationManager extends RelationManager
                         ->default(0)
                         ->columnSpan([
                             'default' => 12,
-                            'md' => 12,
-                            'lg' => 12,
+                            'md'      => 12,
+                            'lg'      => 12,
                         ]),
                 ]),
             ]);

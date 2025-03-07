@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\OwnerAssociation;
+use Carbon\Carbon;
 use Closure;
+use DB;
 use Filament\Forms;
 use App\Models\Item;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -33,6 +37,7 @@ class ItemInventoryResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel = 'Item inventory';
     protected static ?string $navigationGroup = 'Inventory Management';
+    protected static bool $isScopedToTenant = false;
     public static function form(Form $form): Form
     {
         return $form
@@ -49,18 +54,30 @@ class ItemInventoryResource extends Resource
                             if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
                                 return Item::pluck('name', 'id');
                             }
+                            elseif(auth()->user()->role->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                            ->pluck('role')[0] == 'Property Manager'){
+                                    $buildingIds = DB::table('building_owner_association')
+                                    ->where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('active', true)
+                                    ->pluck('building_id');
+
+                                return Item::whereIn('building_id', $buildingIds)
+                                    ->pluck('name', 'id');
+
+                                }
                             return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'))->pluck('name', 'id');
                         })
                         ->required()
                         ->searchable(),
-                    DateTimePicker::make('date')
+                    DatePicker::make('date')
                         ->rules(['date'])
                         ->required()
                         // ->minDate(now())
-                        ->displayFormat('d-M-Y h:i A'),
+                        ->displayFormat('d-M-Y'),
                     Select::make('type')
                         ->options([
-                            'incoming' => 'Incoming',
+                            'incoming' => 'Restocking',
                             'used' => 'Used',
                         ])
                         ->required()
@@ -101,8 +118,17 @@ class ItemInventoryResource extends Resource
             ->columns([
                 TextColumn::make('item.name')
                     ->searchable(),
-                TextColumn::make('date'),
-                TextColumn::make('type')->searchable()->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextColumn::make('date')
+                ->formatStateUsing(function($state){
+                    return Carbon::parse($state)->toFormattedDateString();
+                }),
+                TextColumn::make('type')->searchable()
+                ->formatStateUsing(function ($state) {
+                    if($state == 'incoming'){
+                        return 'Restocking';
+                    }
+                    return ucfirst($state);
+                }),
                 TextColumn::make('quantity')
                     ->searchable(),
                 TextColumn::make('user.first_name')

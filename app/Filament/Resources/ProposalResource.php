@@ -2,54 +2,37 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Asset;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\BuildingVendor;
-use App\Models\Master\Service;
-use App\Models\Vendor\Contract;
-use App\Models\TechnicianAssets;
-use App\Models\TechnicianVendor;
-use Filament\Resources\Resource;
-use App\Models\Accounting\Budget;
-use App\Models\Accounting\Tender;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\ProposalResource\Pages;
 use App\Models\Accounting\Proposal;
+use App\Models\Building\Building;
+use App\Models\Master\Role;
+use App\Models\Master\Service;
+use App\Models\User\User;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Log;
-use App\Models\Vendor\ServiceVendor;
-use function Laravel\Prompts\select;
-use App\Models\Accounting\Budgetitem;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use function Laravel\Prompts\select;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\ProposalResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ProposalResource\RelationManagers;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ProposalResource extends Resource
 {
     protected static ?string $model = Proposal::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Oam';
-    protected static ?string $modelLabel = 'Proposals';
+    protected static ?string $modelLabel      = 'Proposals';
 
     protected static bool $isScopedToTenant = false;
 
@@ -67,23 +50,13 @@ class ProposalResource extends Resource
                     ->disabled(),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
-                    ->label('Vendor Name')
+                    ->label('Vendor')
                     ->disabled(),
                 TextInput::make('submitted_on')
                     ->disabled()
                     ->default(now()),
                 ViewField::make('Budget amount')
-                        ->view('forms.components.budgetamount'),
-                FileUpload::make('document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->label('Document')
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ]),
+                    ->view('forms.components.budgetamount'),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -107,7 +80,14 @@ class ProposalResource extends Resource
                         return $record->status != null;
                     })
                     ->required(),
-            ])
+                FileUpload::make('document')
+                    ->disk('s3')
+                    ->downloadable(true)
+                    ->openable(true)
+                    ->directory('dev')
+                    ->disabled()
+                    ->label('Document'),
+            ]),
         ]);
     }
 
@@ -117,8 +97,8 @@ class ProposalResource extends Resource
             ->columns([
                 TextColumn::make('amount')->searchable()->label('Amount'),
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
-                TextColumn::make('submittedBy.name')->searchable()->label('Vendor Name'),
-                TextColumn::make('submitted_on')->label('Submitted On'),
+                TextColumn::make('submittedBy.name')->searchable()->label('Vendor name'),
+                TextColumn::make('submitted_on')->label('Submitted on'),
                 TextColumn::make('status')->default('NA')->searchable()->label('Status'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -138,13 +118,12 @@ class ProposalResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->preload()
                             ->placeholder('Select Building'),
@@ -199,7 +178,7 @@ class ProposalResource extends Resource
                             }
                         );
                     }),
-            ],layout: FiltersLayout::AboveContent)->filtersFormColumns(4)
+            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -224,9 +203,9 @@ class ProposalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProposals::route('/'),
+            'index'  => Pages\ListProposals::route('/'),
             'create' => Pages\CreateProposal::route('/create'),
-            'edit' => Pages\EditProposal::route('/{record}/edit'),
+            'edit'   => Pages\EditProposal::route('/{record}/edit'),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models\Building;
 
 use App\Models\OaUserRegistration;
+use App\Models\RentalDetail;
 use App\Models\User\User;
 use App\Models\Building\Flat;
 use App\Models\Building\Building;
@@ -30,6 +31,7 @@ class FlatTenant extends Model
         'active',
         'role',
         'owner_association_id',
+        'residing_in_same_flat',
     ];
 
     protected $searchableFields = ['*'];
@@ -66,9 +68,20 @@ class FlatTenant extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
-    }public function oaUserRegistration()
+    }
+    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
+    }
+
+    public function rentalDetails()
+    {
+        return $this->hasMany(RentalDetail::class);
+    }
+
+    public function makaniNumber()
+    {
+        return $this->hasOne(Document::class, 'flat_id', 'flat_id')->where('name', 'Makani number');
     }
 
 }

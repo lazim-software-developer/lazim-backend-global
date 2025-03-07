@@ -3,14 +3,16 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
+use Snowfire\Beautymail\Beautymail;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Config;
-use Snowfire\Beautymail\Beautymail;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class MoveInOutMailJob implements ShouldQueue
 {
@@ -38,6 +40,15 @@ class MoveInOutMailJob implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
+        $oaId = DB::table('building_owner_association')
+            ->where(['building_id' => $this->moveInOut->building_id, 'active' => 1])->first()?->owner_association_id;
+        
+        $ownerAssociation = OwnerAssociation::where('id', $oaId)->first();
+        $property_manager_name = $ownerAssociation?->name;
+        $property_manager_logo = $ownerAssociation?->profile_photo;
+        
+        // Add AWS URL to logo path if logo exists
+        $property_manager_logo = $property_manager_logo ? env('AWS_URL') . '/' . $property_manager_logo : null;
 
         $beautymail = app()->make(Beautymail::class);
 
@@ -48,12 +59,14 @@ class MoveInOutMailJob implements ShouldQueue
             'flat' => $this->moveInOut->flat->property_number,
             'type' => $this->moveInOut->type,
             'moving_date' => date("d-M-Y", strtotime($this->moveInOut->moving_date)),
-            'moving_time' => date("d-M-Y", strtotime($this->moveInOut->moving_time)),
+            'moving_time' => date("h:i A", strtotime($this->moveInOut->moving_time)), // Changed time format
+            'property_manager_name' => $property_manager_name,
+            'property_manager_logo' => $property_manager_logo,
         ], function ($message) {
             $message
                 ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
                 ->to($this->user->email, $this->user->first_name)
-                ->subject(ucwords($this->moveInOut->type) . ' Request Submitted');
+                ->subject(ucwords($this->moveInOut->type) . ' Request Acknowledgment');
         });
         Artisan::call('queue:restart');
     }

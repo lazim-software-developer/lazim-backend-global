@@ -3,10 +3,60 @@
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
 use App\Filament\Resources\Building\BuildingResource;
-use Filament\Actions;
+use App\Models\Floor;
+use DB;
 use Filament\Resources\Pages\CreateRecord;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CreateBuilding extends CreateRecord
 {
     protected static string $resource = BuildingResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (array_key_exists('search', $data)) {
+            $data['address'] = $data['search'];
+        }
+
+        $data['show_inhouse_services'] = 0;
+        $data['managed_by']        = 'Property Manager';
+        return $data;
+    }
+
+    protected function afterCreate()
+    {
+        if($this->record->floors != null){
+             $countfloor = $this->record->floors;
+            while ($countfloor > 0) {
+                // Build an object with the required properties
+                $qrCodeContent = [
+                    'floors' => $countfloor,
+                    'building_id' => $this->record->id,
+                ];
+                // Generate a QR code using the QrCode library
+                $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+                Floor::create([
+                    'floors'      => $countfloor,
+                    'building_id' => $this->record->id,
+                    'qr_code'     => $qrCode,
+                ]);
+                $countfloor = $countfloor - 1;
+            }
+        }
+
+        if(auth()->user()->role->name == 'Property Manager'){
+            DB::table('building_owner_association')->insert([
+                'building_id'          => $this->record->id,
+                'owner_association_id' => auth()->user()->owner_association_id,
+                'from'                 => $this->data['from'],
+                'to'                   => $this->data['to'],
+                'active'               => true,
+            ]);
+        }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

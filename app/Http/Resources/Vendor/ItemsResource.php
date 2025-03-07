@@ -19,6 +19,7 @@ class ItemsResource extends JsonResource
             'name' => $this->name,
             'quantity' => $this->quantity,
             'description' => $this->description,
+            'building_id' => $this->building_id,
             'building_name' => $this->building->name,
         ];
     }

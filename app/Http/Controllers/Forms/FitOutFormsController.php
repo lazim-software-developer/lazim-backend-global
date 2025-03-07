@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorFormRequest;
 use App\Http\Requests\Forms\CreateFitOutFormsRequest;
 use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\FitOutFormResource;
 use App\Jobs\FitOutContractorMailJob;
 use App\Models\AccountCredentials;
 use App\Models\Building\Building;
@@ -17,11 +18,13 @@ use App\Models\Master\DocumentLibrary;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Vendor\Vendor;
 use App\Traits\UtilsTrait;
 use Filament\Facades\Filament;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class FitOutFormsController extends Controller
@@ -32,7 +35,7 @@ class FitOutFormsController extends Controller
      */
     public function store(CreateFitOutFormsRequest $request)
     {
-        $ownerAssociationId = Building::find($request->building_id)->owner_association_id;
+        $ownerAssociationId = DB::table('building_owner_association')->where(['building_id' => $request->building_id,'active'=>true])->first()->owner_association_id;
 
         $form = FitOutForm::create([
             'building_id'                  => $request->building_id,
@@ -49,7 +52,7 @@ class FitOutFormsController extends Controller
 
         $name             = $request->contractor_name;
         $email            = $request->email;
-        $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id ?? $ownerAssociationId;
+        $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
         $mailCredentials = [
@@ -92,6 +95,11 @@ class FitOutFormsController extends Controller
 
     public function contractorRequest(ContractorFormRequest $request, FitOutForm $fitout)
     {
+        if ($request->has('building_id')||$fitout->building_id) {
+            DB::table('building_owner_association')
+                ->where(['building_id' => $request->building_id ?? $fitout->building_id, 'active' => true])->first()->owner_association_id;
+        }
+
 
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
@@ -121,11 +129,11 @@ class FitOutFormsController extends Controller
             Document::create($request->all());
         }
         $requiredPermissions = ['view_any_fit::out::forms::document'];
-        $roles               = Role::where('owner_association_id', $fitout->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
+        $roles               = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff', 'Facility Manager'])->pluck('id');
         $user                = User::where('owner_association_id', $fitout->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
-            }); //->where('role_id',Role::where('name','OA')->first()->id)->first();
+            });
         Notification::make()
             ->success()
             ->title("Fitout Contractor Request! ")
@@ -135,7 +143,13 @@ class FitOutFormsController extends Controller
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $fitout->owner_association_id)->first()?->slug, $fitout->id])),
+                    ->url(function() use ($fitout){
+                        $slug = OwnerAssociation::where('id',$fitout->owner_association_id)->first()?->slug;
+                        if($slug){
+                            return FitOutFormsDocumentResource::getUrl('edit', [$slug,$fitout?->id]);
+                        }
+                        return url('/app/fit-out-forms-documents/' . $fitout?->id.'/edit');
+                    }),
             ])
             ->sendToDatabase($user);
 
@@ -157,5 +171,47 @@ class FitOutFormsController extends Controller
         }
 
         return response()->noContent();
+    }
+     public function fmlist(Vendor $vendor,Request $request)
+    {
+        // $ownerAssociationIds = DB::table('owner_association_vendor')
+        //     ->where('vendor_id',$vendor->id)->pluck('owner_association_id');
+
+        // $buildingIds = DB::table('building_owner_association')
+        //         ->whereIn('owner_association_id',$ownerAssociationIds)
+        //         ->where('active',true)
+        //         ->pluck('building_id');
+
+        $buildingIds = DB::table('building_vendor')
+            ->where('vendor_id', $vendor->id)
+            ->where('active', true)
+            ->pluck('building_id');
+
+        $fitOut = FitOutForm::whereIn('building_id',$buildingIds)->orderByDesc('created_at');
+
+        return FitOutFormResource::collection($fitOut->paginate($request->paginate ?? 10));
+
+    }
+     public function updateStatus(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
+    {
+        $oa_id = DB::table('building_owner_association')->where('building_id', $fitOutForm->building_id)->where('active', true)->first()->owner_association_id;
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'remarks' => 'required_if:status,rejected|max:150',
+        ]);
+
+        $data = $request->only(['status','remarks']);
+        if ($request->has('admin_document')) {
+            $data['admin_document'] = optimizeDocumentAndUpload($request->admin_document);
+        }
+
+        $fitOutForm->update($data);
+
+        return FitOutFormResource::make($fitOutForm);
+    }
+    public function show(Vendor $vendor, FitOutForm $fitOutForm, Request $request)
+    {
+        return FitOutFormResource::make($fitOutForm);
     }
 }

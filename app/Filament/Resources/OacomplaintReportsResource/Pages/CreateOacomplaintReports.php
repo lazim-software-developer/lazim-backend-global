@@ -40,10 +40,10 @@ class CreateOacomplaintReports extends CreateRecord
         }
         elseif($this->record?->type == 'Vendor'){
             $user_id = $this->record?->vendor_id;
-            $code = '';
+            $code = 'task';
         }
         elseif($this->record?->type == 'Gatekeeper'){
-            $user_id = $this->record?->user_id; 
+            $user_id = $this->record?->user_id;
             $code = 'AssignedToMe';
         }
         $expoPushToken = ExpoPushNotification::where('user_id', $user_id)->first()?->token;
@@ -53,7 +53,8 @@ class CreateOacomplaintReports extends CreateRecord
                 'sound' => 'default',
                 'title' => 'Task Assigned',
                 'body'  => 'Task has been assigned',
-                'data'  => ['notificationType' => $code],
+                'data'  => ['notificationType' => $code,
+                        'building_id' => $this->record->building_id,],
             ];
             $this->expoNotification($message);
         }
@@ -70,7 +71,7 @@ class CreateOacomplaintReports extends CreateRecord
                 'iconColor' => 'warning',
                 'title'     => 'Task Assigned',
                 'view'      => 'notifications::notification',
-                'viewData'  => [],
+                'viewData'  => ['building_id' => $this->record->building_id,],
                 'format'    => 'filament',
                 'url'       => $code,
             ]),
