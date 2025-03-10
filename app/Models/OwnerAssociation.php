@@ -5,25 +5,26 @@ namespace App\Models;
 use Sushi\Sushi;
 use App\Models\User\User;
 use Illuminate\Support\Arr;
-use App\Models\Forms\SaleNOC;
-use App\Models\Vendor\Vendor;
-use Spatie\Sluggable\HasSlug;
-use App\Models\Accounting\Budget;
-use App\Models\Building\Building;
-use App\Models\Building\Complaint;
-use App\Models\Building\FacilityBooking;
 use App\Models\Building\Flat;
+use App\Models\Forms\SaleNOC;
+
+use App\Models\Vendor\Vendor;
 use App\Models\ApartmentOwner;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
-use App\Models\Vendor\Contract;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\SlugOptions;
-use App\Services\GenericHttpService;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Vendor\Contract;
+use App\Models\Accounting\Budget;
+use App\Models\Building\Building;
+
+use Spatie\Sluggable\SlugOptions;
+use App\Models\Building\Complaint;
+use App\Services\GenericHttpService;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Building\FacilityBooking;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OwnerAssociation extends Model
 {
@@ -74,14 +75,15 @@ class OwnerAssociation extends Model
     {
         return $this->hasMany(Budget::class);
     }
+
     public function owners()
     {
         return $this->hasMany(ApartmentOwner::class);
     }
-
-    public function buildings(){
+    public function buildings()
+    {
         return $this->belongsToMany(Building::class, 'building_owner_association')
-        ->withPivot(['from', 'to', 'active']);
+            ->withPivot(['from', 'to', 'active']);
     }
 
     public function propertyManagerFlats()
@@ -90,7 +92,8 @@ class OwnerAssociation extends Model
             ->withPivot(['active']);
     }
 
-    public function facilityBookings(){
+    public function facilityBookings()
+    {
         return $this->hasMany(FacilityBooking::class);
     }
 
@@ -148,11 +151,13 @@ class OwnerAssociation extends Model
     }
 
 
-    public function emailTemplates(){
+    public function emailTemplates()
+    {
         return $this->hasMany(EmailTemplate::class, 'owner_association_id');
     }
 
-    public function bulkEmailManagement(){
+    public function bulkEmailManagement()
+    {
         return $this->hasMany(BulkEmailManagement::class, 'owner_association_id');
     }
 }
