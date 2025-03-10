@@ -188,11 +188,7 @@ class VendorRegistrationController extends Controller
         $user = User::find($request->owner_id);
 
         // Pehle check karenge ki vendor exist karta hai ya nahi
-        $vendor = Vendor::where('id', $request->vendor_id)
-            // ->where('tl_number', $request->tl_number)
-            // ->where('landline_number', $request->landline_number)
-            // ->where('owner_id', $request->owner_id)
-            ->first();
+        $vendor = Vendor::where('id', $request->vendor_id)->first();
 
         if ($vendor) {
             // Agar vendor exist karta hai toh usko update karenge
