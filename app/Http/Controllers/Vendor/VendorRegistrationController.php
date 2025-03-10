@@ -194,7 +194,6 @@ class VendorRegistrationController extends Controller
             ->where('owner_id', $request->owner_id)
             ->first();
 
-
         if ($vendor) {
             // Agar vendor exist karta hai toh usko update karenge
             $vendor->update([
@@ -225,8 +224,12 @@ class VendorRegistrationController extends Controller
         }
         $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
 
-        $vendor->ownerAssociation()->syncWithoutDetaching([
+        $user->ownerAssociation()->syncWithoutDetaching([
             $request->owner_association_id => ['from' => now()->toDateString()]
+        ]);
+
+        $vendor->ownerAssociation()->syncWithoutDetaching([
+            $request->owner_association_id => ['from' => now()->toDateString(), 'type' => $type]
         ]);
 
         $doc = Document::create([
@@ -261,8 +264,10 @@ class VendorRegistrationController extends Controller
     {
         if ($request->has('building_id')) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
-            $vendor = Vendor::find($vendorId);
+            // $vendor = Vendor::find($vendorId);
         }
+        // Find the vendor
+        $vendor = Vendor::find($vendorId);
 
         if (!$vendor) {
             return (new CustomResponseResource([
@@ -276,26 +281,36 @@ class VendorRegistrationController extends Controller
         $existingVendorEmail = VendorManager::where(['email' => $request->email])->first();
         $existingVendorPhone = VendorManager::where(['phone' => $request->phone])->first();
         // Check if user exists in our DB
-        if ($existingVendorEmail) {
+        if ($existingVendorEmail && $existingVendorEmail->id !== ($request->manager_id ?? null)) {
             return (new CustomResponseResource([
-                // 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
-        if ($existingVendorPhone) {
+        // Agar phone duplicate hai
+        if ($existingVendorPhone && $existingVendorPhone->id !== ($request->manager_id ?? null)) {
             return (new CustomResponseResource([
-                // 'title' => 'account_present',
                 'message' => 'Your phone is already registered in our application!',
                 'code' => 400,
             ]))->response()->setStatusCode(400);
         }
 
-        $manager = VendorManager::create($request->all());
+        // Check if the Vendor Manager already exists
+        $manager = VendorManager::where('vendor_id', $vendor->id)->first();
+
+        if ($manager) {
+            // Agar manager hai, to update karte hain
+            $manager->update($request->all());
+            $message = "Vendor Manager Details successfully updated!";
+        } else {
+            // Agar manager nahi hai, to naya record create karte hain
+            $manager = VendorManager::create($request->all());
+            $message = "Vendor Manager Details entered successfully!";
+        }
 
         return (new CustomResponseResource([
-            'title' => 'Vendor Manager Details entered successful!',
+            'title' => $message,
             'message' => "",
             'code' => 201,
             'status' => 'success',
