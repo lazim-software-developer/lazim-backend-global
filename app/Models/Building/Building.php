@@ -193,6 +193,18 @@ class Building extends Model
     {
         return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association');
     }
+    public function SingleownerAssociationData()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
+    public function ownerAssociationData()
+    {
+        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+    }
 
     public function ownerAssociations()
     {

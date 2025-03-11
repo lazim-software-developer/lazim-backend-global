@@ -16,18 +16,20 @@ use Spatie\Sluggable\SlugOptions;
 use App\Models\Building\Complaint;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OwnerAssociation extends Model
 {
-    use HasFactory;//, HasSlug;
+    use HasFactory,SoftDeletes;//, HasSlug;
 
     protected $connection = 'mysql';
 
     protected $fillable = [
         'name', 'phone', 'email', 'trn_number',
         'address', 'mollak_id', 'verified', 'verified_by', 'active', 'profile_photo','bank_account_number','trn_certificate',
-        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role', 'emirates_id', 'trade_license_number', 'bank_account_holder_name'
+        'trade_license','dubai_chamber_document','memorandum_of_association','slug', 'role', 'emirates_id', 'trade_license_number', 
+        'bank_account_holder_name','password'
     ];
 
     /**
