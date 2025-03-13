@@ -847,104 +847,104 @@ class BuildingResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->headerActions([
-                Action::make('import')
-                        ->visible(function () {
-                            $auth_user = auth()->user();
-                            $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+            // ->headerActions([
+            //     Action::make('import')
+            //             ->visible(function () {
+            //                 $auth_user = auth()->user();
+            //                 $role      = Role::where('id', $auth_user->role_id)->first()?->name;
 
-                            if ($role === 'Admin' || $role === 'Property Manager') {
-                                return true;
-                            }
-                        })
-                    ->label('Import Buildings')
-                    ->form([
-                        Section::make()
-                            ->schema([
-                                View::make('components.sample-file-download')
-                                    ->view('components.sample-file-download'),
-                                FileUpload::make('file')
-                                    ->label('Choose CSV File')
-                                    ->disk('local')
-                                    ->directory('temp-imports')
-                                    ->acceptedFileTypes([
-                                        'text/csv',
-                                        'text/plain',
-                                        'application/csv',
-                                    ])
-                                    ->maxSize(5120)
-                                    ->required()
-                                    ->helperText('Upload your CSV file in the correct format')
-                            ])
-                    ])
-                    ->action(function (array $data) {
-                        try {
-                            $import = new BuildingImport();
-                            Excel::import($import, $data['file']);
+            //                 if ($role === 'Admin' || $role === 'Property Manager') {
+            //                     return true;
+            //                 }
+            //             })
+            //         ->label('Import Buildings')
+            //         ->form([
+            //             Section::make()
+            //                 ->schema([
+            //                     View::make('components.sample-file-download')
+            //                         ->view('components.sample-file-download'),
+            //                     FileUpload::make('file')
+            //                         ->label('Choose CSV File')
+            //                         ->disk('local')
+            //                         ->directory('temp-imports')
+            //                         ->acceptedFileTypes([
+            //                             'text/csv',
+            //                             'text/plain',
+            //                             'application/csv',
+            //                         ])
+            //                         ->maxSize(5120)
+            //                         ->required()
+            //                         ->helperText('Upload your CSV file in the correct format')
+            //                 ])
+            //         ])
+            //         ->action(function (array $data) {
+            //             try {
+            //                 $import = new BuildingImport();
+            //                 Excel::import($import, $data['file']);
                             
-                            $result = $import->getResultSummary();
+            //                 $result = $import->getResultSummary();
                             
-                            if($result['status']===200)
-                            {
-                            // Generate detailed report
-                            $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
-                            $report .= "Successfully imported: {$result['imported']}\n";
-                            $report .= "Skipped (already exists): {$result['skip']}\n";
-                            $report .= "Errors: {$result['error']}\n\n";
+            //                 if($result['status']===200)
+            //                 {
+            //                 // Generate detailed report
+            //                 $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+            //                 $report .= "Successfully imported: {$result['imported']}\n";
+            //                 $report .= "Skipped (already exists): {$result['skip']}\n";
+            //                 $report .= "Errors: {$result['error']}\n\n";
                             
-                            // Add detailed error and skip information
-                            foreach ($result['details'] as $detail) {
-                                $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
-                                $report .= "Data: " . json_encode($detail['data']) . "\n\n";
-                            }
+            //                 // Add detailed error and skip information
+            //                 foreach ($result['details'] as $detail) {
+            //                     $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+            //                     $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+            //                 }
                             
-                            // Save report
-                            $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
-                            $reportPath = 'import-reports/' . $filename;
-                            Storage::disk('local')->put($reportPath, $report);
-                            }
-                            if($result['status']===401)
-                            {
-                                Notification::make()
-                                ->title('invalid File')
-                                ->body("{$result['error']}")
-                                ->danger()
-                                ->persistent()
-                                ->send();
-                            }else{
-                            // Show notification with results
-                            Notification::make()
-                                ->title('Import Complete')
-                                ->body(
-                                    collect([
-                                        "Successfully imported: {$result['imported']}",
-                                        "Skipped: {$result['skip']}",
-                                        "Errors: {$result['error']}"
-                                    ])->join("\n")
-                                )
-                                ->actions([
-                                    \Filament\Notifications\Actions\Action::make('download_report')
-                                    ->label('Download Report')
-                                    ->url(route('download.import.report', ['filename' => $filename]))
-                                    ->openUrlInNewTab()
-                                ])
-                                ->success()
-                                ->persistent()
-                                ->send();
-                            }
+            //                 // Save report
+            //                 $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+            //                 $reportPath = 'import-reports/' . $filename;
+            //                 Storage::disk('local')->put($reportPath, $report);
+            //                 }
+            //                 if($result['status']===401)
+            //                 {
+            //                     Notification::make()
+            //                     ->title('invalid File')
+            //                     ->body("{$result['error']}")
+            //                     ->danger()
+            //                     ->persistent()
+            //                     ->send();
+            //                 }else{
+            //                 // Show notification with results
+            //                 Notification::make()
+            //                     ->title('Import Complete')
+            //                     ->body(
+            //                         collect([
+            //                             "Successfully imported: {$result['imported']}",
+            //                             "Skipped: {$result['skip']}",
+            //                             "Errors: {$result['error']}"
+            //                         ])->join("\n")
+            //                     )
+            //                     ->actions([
+            //                         \Filament\Notifications\Actions\Action::make('download_report')
+            //                         ->label('Download Report')
+            //                         ->url(route('download.import.report', ['filename' => $filename]))
+            //                         ->openUrlInNewTab()
+            //                     ])
+            //                     ->success()
+            //                     ->persistent()
+            //                     ->send();
+            //                 }
 
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->title('Import Failed')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
+            //             } catch (\Exception $e) {
+            //                 Notification::make()
+            //                     ->title('Import Failed')
+            //                     ->body($e->getMessage())
+            //                     ->danger()
+            //                     ->send();
+            //             }
 
-                        // Clean up temporary file
-                        Storage::disk('local')->delete($data['file']);
-                    })
-            ])
+            //             // Clean up temporary file
+            //             Storage::disk('local')->delete($data['file']);
+            //         })
+            // ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ])
