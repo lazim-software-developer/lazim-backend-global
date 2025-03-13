@@ -727,6 +727,14 @@ class BuildingResource extends Resource
                     ->hidden(auth()->user()->role?->name === 'Property Manager'),
                     Action::make('delete')
                     ->button()
+                    ->visible(function () {
+                        $auth_user = auth()->user();
+                        $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+    
+                        if ($role === 'Admin' || $role === 'Property Manager') {
+                            return true;
+                        }
+                    })
                     ->action(function ($record,) {
                         if(!empty(auth()->user()?->owner_association_id)) {
                             DB::table('building_owner_association')
