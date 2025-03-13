@@ -406,6 +406,14 @@ class OwnerResource extends Resource
                 Tables\Actions\DeleteAction::make(),
                 Action::make('delete')
                 ->button()
+                ->visible(function () {
+                    $auth_user = auth()->user();
+                    $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+    
+                    if ($role === 'Admin' || $role === 'Property Manager') {
+                        return true;
+                    }
+                })
                 ->action(function ($record) {
                     $deletedRecords = FlatOwners::where('owner_id', $record->id)->get();
                     $record->deleted_at = now();
