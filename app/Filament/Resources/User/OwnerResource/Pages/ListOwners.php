@@ -51,7 +51,15 @@ class ListOwners extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->visible(function () {
+                $auth_user = auth()->user();
+                $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+                if ($role === 'Admin' || $role === 'Property Manager') {
+                    return true;
+                }
+            }),
             Action::make('Notify Owners')
                 ->button()
                 ->form([
