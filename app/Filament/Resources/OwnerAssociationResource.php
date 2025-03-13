@@ -97,8 +97,26 @@ class OwnerAssociationResource extends Resource
                                 }),
                             TextInput::make('trn_number')->label('VAT Number')
                                 ->required()
-                                ->unique(table: 'owner_associations', ignoreRecord: true)
-                                // ->disabled()
+                                ->rules([
+                                    function (?Model $record) { // ?Model ka use karke $record nullable banaya
+                                        return function (string $attribute, $value, Closure $fail) use ($record) {
+
+                                            // Jab $record null ho (create mode me validation)
+                                            if (!$record) {
+                                                // Owner association me phone number ki uniqueness check karna
+                                                if (DB::table('owner_associations')->where('trn_number', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The VAT Number is already taken by an OA.');
+                                                }
+                                                return; // Null record ke case me aage ki validation yahin ruk jaye
+                                            }
+
+                                            // Existing record ke liye validation
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('trn_number', $value)->whereNull('deleted_at')->count() > 0) {
+                                                $fail('The VAT Number is already taken by an OA.');
+                                            }
+                                        };
+                                    }
+                                ])
                                 ->placeholder('VAT Number'),
                             TextInput::make('phone')
                                 ->rules([
@@ -114,7 +132,7 @@ class OwnerAssociationResource extends Resource
                                                 }
 
                                                 // Users table me phone number ki uniqueness check karna
-                                                if (DB::table('users')->where('phone', $value)->exists()) {
+                                                if (DB::table('users')->where('phone', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
 
@@ -133,11 +151,11 @@ class OwnerAssociationResource extends Resource
                                                     ->where('role_id', $role_id?->id)
                                                     ->first()?->id;
 
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->exists()) {
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             } else {
-                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->exists()) {
+                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             }
@@ -173,7 +191,7 @@ class OwnerAssociationResource extends Resource
                                                 }
 
                                                 // Users table me email ki uniqueness check karna
-                                                if (DB::table('users')->where('email', $value)->exists()) {
+                                                if (DB::table('users')->where('email', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
 
@@ -193,12 +211,12 @@ class OwnerAssociationResource extends Resource
                                                     ->where('role_id', $role_id?->id)
                                                     ->first()?->id;
 
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->exists()) {
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             } else {
                                                 // Non-verified owner association ke liye validation
-                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->exists()) {
+                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             }
@@ -206,11 +224,20 @@ class OwnerAssociationResource extends Resource
                                     }
                                 ])
                                 ->required()
-                                // ->live()
                                 ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
+                                        return false;
+                                    }
+                                
+                                    // For edit operation, apply your existing logic
                                     return DB::table('owner_associations')
-                                        ->where('phone', $get('phone'))
+                                        ->where('email', $get('email'))
                                         ->where('verified', 1)
+                                        ->whereNull('deleted_at')
                                         ->exists();
                                 })
                                 ->placeholder('Email'),
@@ -231,12 +258,20 @@ class OwnerAssociationResource extends Resource
                                 ->label('Bank Account Number')
                                 ->numeric()
                                 ->disabled(function (callable $get) {
-                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                        return DB::table('owner_associations')
-                                            ->where('email', $get('email'))
-                                            ->where('verified', 1)
-                                            ->exists();
+                                    // Get the current user's role
+                                    $userRole = Role::where('id', auth()->user()->role_id)->first()->name;
+                                    
+                                    // If user is an admin, they should be able to edit, so return false (not disabled)
+                                    if ($userRole == 'Admin') {
+                                        return false;
                                     }
+                                    
+                                    // For non-admin users, disable the field if the record is verified
+                                    return DB::table('owner_associations')
+                                        ->where('email', $get('email'))
+                                        ->where('verified', 1)
+                                        ->whereNull('deleted_at')
+                                        ->exists();
                                 })
                                 ->placeholder('Account Number'),
                                 Hidden::make('verified_by')

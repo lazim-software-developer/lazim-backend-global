@@ -4,12 +4,13 @@ namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
 use App\Models\Floor;
 use Filament\Actions;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use App\Models\Master\Role;
 use Illuminate\Support\Str;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Filament\Resources\Pages\CreateRecord;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Filament\Resources\Building\BuildingResource;
 
 class CreateBuilding extends CreateRecord
@@ -22,7 +23,9 @@ class CreateBuilding extends CreateRecord
         }
 
         $data['show_inhouse_services'] = 0;
-        $data['managed_by']        = 'Property Manager';
+        $auth_user = auth()->user();
+        $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+        $data['managed_by']        = $role;
         return $data;
     }
     public function afterCreate()

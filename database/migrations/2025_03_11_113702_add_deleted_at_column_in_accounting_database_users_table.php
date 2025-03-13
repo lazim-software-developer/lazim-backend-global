@@ -16,9 +16,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection($this->connection)->table('users', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        if (!Schema::connection($this->connection)->hasColumn('users', 'deleted_at')) {
+            Schema::connection($this->connection)->table('users', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
     }
 
     /**
