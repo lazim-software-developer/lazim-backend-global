@@ -40,6 +40,8 @@ class SubContractorResource extends Resource
                     ->maxLength(191),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name'),
+                Select::make('building_id')
+                    ->relationship('building', 'name'),
                 Forms\Components\TextInput::make('trn_no')
                     ->required()
                     ->label('TRN number')
@@ -120,6 +122,8 @@ class SubContractorResource extends Resource
                 // Tables\Columns\TextColumn::make('additional_doc')
                 //     ->searchable(),
                 Tables\Columns\TextColumn::make('vendor.name'),
+                Tables\Columns\TextColumn::make('building.name')
+                    ->default('NA'),
                 Tables\Columns\IconColumn::make('active')
                     ->boolean(),
             ])

@@ -10,6 +10,7 @@ use App\Models\Asset;
 use App\Models\Floor;
 use App\Models\Meeting;
 use App\Models\OfferPromotion;
+use App\Models\SubContractor;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
@@ -311,6 +312,11 @@ class Building extends Model
     public function legalNotices()
     {
         return $this->hasMany(LegalNotice::class);
+    }
+
+    public function subContractors()
+    {
+        return $this->hasMany(SubContractor::class);
     }
 
     public function getLocationAttribute(): array
