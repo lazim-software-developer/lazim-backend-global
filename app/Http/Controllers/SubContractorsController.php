@@ -15,13 +15,15 @@ class SubContractorsController extends Controller
 {
     public function index(Vendor $vendor, Request $request)
     {
-        $subContractors = $vendor->subContractors();
+        $buildingIds = DB::table('building_vendor')->where('vendor_id',$vendor->id)->where('active',true)
+            ->pluck('building_id');
+        $subContractors = $vendor->subContractors()->whereIn('building_id',$buildingIds);
         return SubContractorsResource::collection($subContractors->paginate($request->paginate ?? 10));
     }
     public function store(Vendor $vendor, SubContractorsRequest $request)
     {
-        if ($request->has('global_building_id')) {
-            $oa_id = DB::table('building_owner_association')->where('building_id', $request->global_building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
         $subContract = $vendor->subContractors()->create($request->all());
@@ -46,8 +48,8 @@ class SubContractorsController extends Controller
     }
     public function edit(Vendor $vendor, SubContractor $subContract, SubContractorEditRequest $request)
     {
-        if ($request->has('global_building_id')) {
-            $oa_id = DB::table('building_owner_association')->where('building_id', $request->global_building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
         $updateData = $request->except(['additional_doc', 'trade_licence', 'contract_paper', 'agreement_letter']);
@@ -71,8 +73,8 @@ class SubContractorsController extends Controller
     }
     public function update(Vendor $vendor, SubContractor $subContract, Request $request)
     {
-        if ($request->has('global_building_id')) {
-            $oa_id = DB::table('building_owner_association')->where('building_id', $request->global_building_id)->where('active', true)->first()->owner_association_id;
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
         if (isset($request->active) && $request->active) {
