@@ -547,20 +547,6 @@ class BuildingResource extends Resource
                 //         //     ->send();
                 //         // }
                 //     }),
-                    Action::make('delete')
-                    ->button()
-                    ->action(function ($record,) {
-                        $record->delete();
-
-                        Notification::make()
-                            ->title('Building Deleted Successfully')
-                            ->success()
-                            ->send()
-                            ->duration('4000');
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Are you sure you want to delete this ?')
-                    ->modalButton('Delete'),
                 Tables\Actions\DetachAction::make()
                     ->label(function ($record) {
                         $active = DB::table('building_owner_association')
