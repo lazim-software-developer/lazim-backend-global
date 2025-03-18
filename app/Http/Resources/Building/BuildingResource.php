@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Building;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,17 +26,24 @@ class BuildingResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'oa' => $oA,
-            'property_manager' => $propertyManager,
-            'owner_association_id' => $this->owner_association_id,
+            'merchant_code' => $this->merchant_code,
+            'property_group_id' => $this->property_group_id,
             'address_line1' => $this->address_line1,
             'address_line2' => $this->address_line2,
             'area' => $this->area,
-            'description' => $this->description,
+            'city_id' => $this->city_id,
+            'lat' => $this->lat,
             'floors' => $this->floors,
+            'owner_association_id' => $this->owner_association_id,
             'allow_postupload' => $this->allow_postupload,
-            'cover_photo' => $this->cover_photo,
             'show_inhouse_services' => $this->show_inhouse_services,
+            'status' => $this->status,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'cover_photo' => !empty($this->cover_photo) ? Storage::disk('s3')->url($this->cover_photo) : null,
+            'description' => $this->description,
+            'oa' => $oA, // Assuming $oA is an object or array defined elsewhere
+            'property_manager' => $propertyManager, // Assuming passed from elsewhere
             'mollak_property_id' => $this->mollak_property_id,
             'building_type' => $this->building_type,
             'parking_count' => $this->parking_count,

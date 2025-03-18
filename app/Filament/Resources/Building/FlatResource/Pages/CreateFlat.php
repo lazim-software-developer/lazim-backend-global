@@ -8,6 +8,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateFlat extends CreateRecord
 {
+
     protected static string $resource = FlatResource::class;
 
     protected function getRedirectUrl(): string

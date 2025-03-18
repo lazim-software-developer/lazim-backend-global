@@ -47,6 +47,7 @@ use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
 use App\Models\Accounting\OAMInvoice;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -72,8 +73,13 @@ class Building extends Model
         'owner_association_id',
         'allow_postupload',
         'slug',
+        'status',
         'cover_photo',
         'show_inhouse_services',
+        'resource',
+        'created_by',
+        'updated_by',
+        'deleted_at',
         'mollak_property_id',
         'managed_by',
         'address',
@@ -97,7 +103,7 @@ class Building extends Model
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
