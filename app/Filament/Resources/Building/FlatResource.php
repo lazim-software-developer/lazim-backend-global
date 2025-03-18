@@ -377,7 +377,7 @@ class FlatResource extends Resource
         return [
             'create' => Pages\CreateFlat::route('/create'),
             'index' => Pages\ListFlats::route('/'),
-            'view' => ViewFlat::route('/{record}'),
+            // 'view' => ViewFlat::route('/{record}'),
             'edit' => Pages\EditFlat::route('/{record}/edit'),
         ];
     }
