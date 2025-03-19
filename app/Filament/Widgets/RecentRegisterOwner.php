@@ -30,6 +30,7 @@ class RecentRegisterOwner extends BaseWidget
             ->whereHas('building', function (Builder $query) {
                 $query->where('owner_association_id', auth()->user()->owner_association_id);
             })
+            ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
     }
