@@ -4,6 +4,9 @@ namespace App\Filament\Widgets;
 
 use Filament\Tables;
 use App\Models\User\User;
+use App\Models\FlatOwners;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\ApartmentOwner;
 use Filament\Facades\Filament;
 use App\Models\Building\Complaint;
@@ -25,14 +28,25 @@ class RecentRegisterOwner extends BaseWidget
 
     protected function getTableQuery(): Builder
     {
-        // Query to get the recent open complaints
-        return ApartmentOwner::query()
-            ->whereHas('building', function (Builder $query) {
-                $query->where('owner_association_id', auth()->user()->owner_association_id);
-            })
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            return ApartmentOwner::query()
             ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
+        }
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+            return ApartmentOwner::query()
+            ->where('owner_association_id', auth()->user()->owner_association_id)
+            ->whereNull('deleted_at')
+            ->latest()
+            ->limit(5);
+        }
+        // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
+        $flatsId = Flat::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
+        $flatowners = FlatOwners::whereIn('flat_id', $flatsId)->pluck('owner_id');
+        return ApartmentOwner::query()->whereIn('id', $flatowners);
+        // Query to get the recent open complaints
+        
     }
 
     protected function getTableColumns(): array
