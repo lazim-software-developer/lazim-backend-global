@@ -30,19 +30,34 @@ class RecentRegisterOwner extends BaseWidget
     {
         $buildingId = $this->filters['building'] ?? null;
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+            if ($buildingId) {
             return ApartmentOwner::query()
             ->where('building_id', $buildingId)
             ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
+            }else{
+                return ApartmentOwner::query()
+                ->whereNull('deleted_at')
+                ->latest()
+                ->limit(5);
+            }
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+            if ($buildingId) {
             return ApartmentOwner::query()
             ->where('building_id', $buildingId)
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
+            }else{
+                return ApartmentOwner::query()
+                ->where('owner_association_id', auth()->user()->owner_association_id)
+                ->whereNull('deleted_at')
+                ->latest()
+                ->limit(5); 
+            }
         }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
         if ($buildingId) {
