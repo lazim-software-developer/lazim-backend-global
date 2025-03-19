@@ -28,21 +28,33 @@ class RecentRegisterOwner extends BaseWidget
 
     protected function getTableQuery(): Builder
     {
+        $buildingId = $this->filters['building'] ?? null;
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return ApartmentOwner::query()
+            ->where('building_id', $buildingId)
             ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
         }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
             return ApartmentOwner::query()
+            ->where('building_id', $buildingId)
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->whereNull('deleted_at')
             ->latest()
             ->limit(5);
         }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
-        $flatsId = Flat::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
+        if ($buildingId) {
+            // If building ID is provided, get flats for that specific building
+            $flatsId = Flat::where('building_id', $buildingId)
+                ->where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+                ->pluck('id');
+        } else {
+            // If no building ID is provided, get all flats for the association
+            $flatsId = Flat::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)
+                ->pluck('id');
+        }
         $flatowners = FlatOwners::whereIn('flat_id', $flatsId)->pluck('owner_id');
         return ApartmentOwner::query()->whereIn('id', $flatowners);
         // Query to get the recent open complaints
