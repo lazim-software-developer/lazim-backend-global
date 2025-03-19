@@ -3,11 +3,12 @@
 namespace App\Models;
 
 
-use App\Models\FlatOwners;
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\FlatOwners;
+use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ApartmentOwner extends Model
 {
@@ -34,5 +35,9 @@ class ApartmentOwner extends Model
 
     public function users(){
         return $this->hasMany(User::class,'owner_id');
+    }
+    public function building()
+    {
+        return $this->belongsTo(Building::class);
     }
 }

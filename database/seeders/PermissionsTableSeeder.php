@@ -412,6 +412,7 @@ class PermissionsTableSeeder extends Seeder
                 'widget_ComplaintCategoriesChart',
                 'widget_WdaChart',
                 'widget_RecentOpenComplaints',
+                'widget_RecentRegisterOwner',
                 'widget_RecentPendingResidentApprovals',
                 'widget_SecuritesOverview',
                 'widget_AmenityBookingOverview',
