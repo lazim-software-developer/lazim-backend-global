@@ -132,7 +132,7 @@ class OwnerAssociationResource extends Resource
                                                 }
 
                                                 // Users table me phone number ki uniqueness check karna
-                                                if (DB::table('users')->where('phone', $value)->whereNull('deleted_at')->exists()) {
+                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
 
@@ -151,7 +151,7 @@ class OwnerAssociationResource extends Resource
                                                     ->where('role_id', $role_id?->id)
                                                     ->first()?->id;
 
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->whereNull('deleted_at')->exists()) {
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             } else {
@@ -191,7 +191,7 @@ class OwnerAssociationResource extends Resource
                                                 }
 
                                                 // Users table me email ki uniqueness check karna
-                                                if (DB::table('users')->where('email', $value)->whereNull('deleted_at')->exists()) {
+                                                if (DB::table('users')->where('email', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
 
@@ -211,7 +211,7 @@ class OwnerAssociationResource extends Resource
                                                     ->where('role_id', $role_id?->id)
                                                     ->first()?->id;
 
-                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->whereNull('deleted_at')->exists()) {
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             } else {
