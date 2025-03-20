@@ -78,6 +78,7 @@ class FlatImport implements ToCollection, WithHeadingRow
             return 'failure';
         }
 
+        $totalParkingCount = 0;
         $notImported = [];
         foreach ($rows as $row) {
             // Handle fields with or without asterisk in column names
@@ -91,7 +92,6 @@ class FlatImport implements ToCollection, WithHeadingRow
 
             $exists = Flat::where([
                 'property_number'      => $unitNumber,
-                'owner_association_id' => $this->oaId,
                 'building_id'          => $this->buildingId,
             ])->exists();
 
@@ -136,28 +136,8 @@ class FlatImport implements ToCollection, WithHeadingRow
             // Add parking count validation
             $parkingCount = $row['parking_count'] ?: null;
             if ($parkingCount !== null) {
-                // Get building's parking count
-                $building = Building::find($this->buildingId);
-
-                if (! $building || ! $building->parking_count) {
-                    $notImported[] = $unitNumber . ' (Building does not have any parking spaces allocated.)';
-                    continue;
-                }
-
-                // Calculate total parking count of existing flats excluding current flat
-                $existingParkingCount = Flat::where('building_id', $this->buildingId)
-                    ->where('property_number', '!=', $unitNumber)
-                    ->sum('parking_count');
-
                 // Add new flat's parking count
-                $totalParkingCount = $existingParkingCount + (int) $parkingCount;
-
-                // Check if total exceeds building's parking count
-                if ($totalParkingCount > $building->parking_count) {
-                    $availableSpaces = $building->parking_count - $existingParkingCount;
-                    $notImported[]   = $unitNumber . " (Cannot assign {$parkingCount} parking spaces. Only {$availableSpaces} parking spaces are available out of total {$building->parking_count} spaces)";
-                    continue;
-                }
+                $totalParkingCount = $totalParkingCount + (int) $parkingCount;
             }
 
             if (! empty($errors)) {
@@ -166,7 +146,16 @@ class FlatImport implements ToCollection, WithHeadingRow
             }
 
             if ($exists) {
-                $notImported[] = $unitNumber . ' (already exists)';
+                // Now use the flat's ID when creating the property_manager_flats record
+                $flat = Flat::where([
+                    'property_number'      => $unitNumber,
+                    'building_id'          => $this->buildingId,
+                ])->first();
+                DB::table('property_manager_flats')->insert([
+                    'owner_association_id' => $this->oaId,
+                    'flat_id'              => $flat->id,
+                    'active'               => true,
+                ]);
             } else {
                 // Store the newly created flat in a variable
                 $flat = Flat::create([
@@ -194,6 +183,9 @@ class FlatImport implements ToCollection, WithHeadingRow
                 ]);
             }
         }
+        $building = Building::where('building_id',$this->buildingId);
+        $buildingCount = $building->parking_count;
+        $building->update(['parking_count' => ($buildingCount + $totalParkingCount)]);
 
         if (! empty($notImported)) {
             Notification::make()
