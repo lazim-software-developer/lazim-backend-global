@@ -295,7 +295,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('complaints/{complaint}/resolve', [ComplaintController::class, 'resolve']);
 
     // List preventive maintenance
-    Route::get('building/{building}/preventive_maintenance',[ComplaintController::class, 'maintenanceSchedule']);
+    Route::get('building/{building}/preventive_maintenance', [ComplaintController::class, 'maintenanceSchedule']);
 });
 
 /**
@@ -336,7 +336,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::post('/family-members/{building}', [FamilyMemberController::class, 'store']);
     Route::get('/fetch-family-members/{building}/{unit?}', [FamilyMemberController::class, 'index']);
     Route::delete('/delete-family-members/{familyMember}', [FamilyMemberController::class, 'delete']);
-    Route::patch('/update-family-members/{familyMember}', [FamilyMemberController::class, 'update']);
+    Route::post('/update-family-members/{familyMember}', [FamilyMemberController::class, 'update']);
     Route::get('/show-family-members/{familyMember}', [FamilyMemberController::class, 'show']);
 });
 
@@ -405,7 +405,7 @@ Route::post('/fit-out/contractor/{fitout}', [FitOutFormsController::class, 'cont
 
 //Bills related Api's
 Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('bills')->group(function () {
-    Route::get('/flat/{flat}',[BillController::class,'index']);
+    Route::get('/flat/{flat}', [BillController::class, 'index']);
 });
 
 //RentalDetails Cheques Api's
@@ -444,6 +444,8 @@ Route::middleware([])->group(function () {
 Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
+    Route::get('/vendor-status', [VendorRegistrationController::class, 'getVendorStatus']);
+
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
     // Add a new custom service and attch to vendor
     Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
@@ -454,7 +456,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::get('/{vendor}/list-documents', [DocumentsUploadController::class, 'listDocuments']);
     Route::get('/owner-associations', [VendorRegistrationController::class, 'listOa']);
     // login option vendor
-    Route::get('/login-as',[VendorRegistrationController::class,'loginAsOptions']);
+    Route::get('/login-as', [VendorRegistrationController::class, 'loginAsOptions']);
 });
 
 // Vendor APIs after logging in
@@ -467,6 +469,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/managers-deatils/{vendor}', [VendorRegistrationController::class, 'updateManagerDetails']);
     Route::get('/{vendor}/services', [SelectServicesController::class, 'showServices']);
     Route::get('/{vendor}/show-documents', [DocumentsUploadController::class, 'showDocuments']);
+
 
     Route::post('/{vendor}/escalation-matrix', [EscalationMatrixController::class, 'store']);
     Route::patch('/escalation-matrix/{escalationmatrix}', [EscalationMatrixController::class, 'edit']);
@@ -530,53 +533,53 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
     //Items APIs
     Route::get('/{vendor}/items', [ItemsController::class, 'index']);
-    Route::post('/{item}/item_management', [ItemsController::class,'updateItems']);
-    Route::get('/{item}/view-item', [ItemsController::class,'viewItem']);
+    Route::post('/{item}/item_management', [ItemsController::class, 'updateItems']);
+    Route::get('/{item}/view-item', [ItemsController::class, 'viewItem']);
     Route::post('/{vendor}/item', [ItemsController::class, 'create']);
 
     //Sub Contractor APIs
-    Route::get('/{vendor}/sub-contractors',[SubContractorsController::class,'index']);
-    Route::post('/{vendor}/sub-contractor',[SubContractorsController::class,'store']);
-    Route::post('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'edit']);
-    Route::patch('/{vendor}/sub-contractor/{subContract}',[SubContractorsController::class,'update']);
+    Route::get('/{vendor}/sub-contractors', [SubContractorsController::class, 'index']);
+    Route::post('/{vendor}/sub-contractor', [SubContractorsController::class, 'store']);
+    Route::post('/{vendor}/sub-contractor/{subContract}', [SubContractorsController::class, 'edit']);
+    Route::patch('/{vendor}/sub-contractor/{subContract}', [SubContractorsController::class, 'update']);
 
 
     //Complaint create
-    Route::post('/{vendor}/complaint',[VendorComplaintController::class,'create']);
-    Route::get('/{vendor}/dashboard-reactive-stats',[VendorComplaintController::class,'dashboardReactive']);
-    Route::get('/{vendor}/reactive_maintenance',[VendorComplaintController::class,'reactiveMaintenance']);
+    Route::post('/{vendor}/complaint', [VendorComplaintController::class, 'create']);
+    Route::get('/{vendor}/dashboard-reactive-stats', [VendorComplaintController::class, 'dashboardReactive']);
+    Route::get('/{vendor}/reactive_maintenance', [VendorComplaintController::class, 'reactiveMaintenance']);
 
     //Preventive Maintenance
-    Route::get('/{vendor}/preventive_maintenance',[VendorComplaintController::class,'preventiveMaintenance']);
-    Route::get('/{vendor}/dashboard-preventive-stats',[VendorComplaintController::class,'dashboardPreventive']);
+    Route::get('/{vendor}/preventive_maintenance', [VendorComplaintController::class, 'preventiveMaintenance']);
+    Route::get('/{vendor}/dashboard-preventive-stats', [VendorComplaintController::class, 'dashboardPreventive']);
     //Form Requests for facility manager
-    Route::get('/{vendor}/guest-registration',[GuestController::class,'fmlist']);
-    Route::get('/{vendor}/guest-registration/{guest}',[GuestController::class,'show']);
-    Route::patch('/{vendor}/guest-registration/{guest}',[GuestController::class,'updateStatus']);
-    Route::get('/{vendor}/move-in-out',[MoveInOutController::class,'fmlist']);
-    Route::get('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'show']);
-    Route::patch('/{vendor}/move-in-out/{moveInOut}',[MoveInOutController::class,'updateStatus']);
-    Route::get('/{vendor}/fit-out',[FitOutFormsController::class,'fmlist']);
-    Route::get('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'show']);
-    Route::post('/{vendor}/fit-out/{fitOutForm}',[FitOutFormsController::class,'updateStatus']);
-    Route::get('/{vendor}/residential-form',[ResidentialFormController::class,'fmlist']);
-    Route::get('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'show']);
-    Route::patch('/{vendor}/residential-form/{residentialForm}',[ResidentialFormController::class,'updateStatus']);
-    Route::get('/{vendor}/accesscard-form',[AccessCardController::class,'fmlist']);
-    Route::get('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'show']);
-    Route::patch('/{vendor}/accesscard-form/{accessCard}',[AccessCardController::class,'updateStatus']);
-    Route::get('/{vendor}/salenoc-form',[SaleNocController::class,'fmlist']);
-    Route::get('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'show']);
-    Route::post('/{vendor}/salenoc-form/{saleNOC}',[SaleNocController::class,'updateStatus']);
-    Route::get('/{vendor}/flatvisitor-form',[FlatVisitorController::class,'index']);
-    Route::get('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'show']);
-    Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}',[FlatVisitorController::class,'updateStatus']);
+    Route::get('/{vendor}/guest-registration', [GuestController::class, 'fmlist']);
+    Route::get('/{vendor}/guest-registration/{guest}', [GuestController::class, 'show']);
+    Route::patch('/{vendor}/guest-registration/{guest}', [GuestController::class, 'updateStatus']);
+    Route::get('/{vendor}/move-in-out', [MoveInOutController::class, 'fmlist']);
+    Route::get('/{vendor}/move-in-out/{moveInOut}', [MoveInOutController::class, 'show']);
+    Route::patch('/{vendor}/move-in-out/{moveInOut}', [MoveInOutController::class, 'updateStatus']);
+    Route::get('/{vendor}/fit-out', [FitOutFormsController::class, 'fmlist']);
+    Route::get('/{vendor}/fit-out/{fitOutForm}', [FitOutFormsController::class, 'show']);
+    Route::post('/{vendor}/fit-out/{fitOutForm}', [FitOutFormsController::class, 'updateStatus']);
+    Route::get('/{vendor}/residential-form', [ResidentialFormController::class, 'fmlist']);
+    Route::get('/{vendor}/residential-form/{residentialForm}', [ResidentialFormController::class, 'show']);
+    Route::patch('/{vendor}/residential-form/{residentialForm}', [ResidentialFormController::class, 'updateStatus']);
+    Route::get('/{vendor}/accesscard-form', [AccessCardController::class, 'fmlist']);
+    Route::get('/{vendor}/accesscard-form/{accessCard}', [AccessCardController::class, 'show']);
+    Route::patch('/{vendor}/accesscard-form/{accessCard}', [AccessCardController::class, 'updateStatus']);
+    Route::get('/{vendor}/salenoc-form', [SaleNocController::class, 'fmlist']);
+    Route::get('/{vendor}/salenoc-form/{saleNOC}', [SaleNocController::class, 'show']);
+    Route::post('/{vendor}/salenoc-form/{saleNOC}', [SaleNocController::class, 'updateStatus']);
+    Route::get('/{vendor}/flatvisitor-form', [FlatVisitorController::class, 'index']);
+    Route::get('/{vendor}/flatvisitor-form/{flatVisitor}', [FlatVisitorController::class, 'show']);
+    Route::patch('/{vendor}/flatvisitor-form/{flatVisitor}', [FlatVisitorController::class, 'updateStatus']);
 
     //Compliance document
-    Route::get('/{vendor}/compliance-document',[ComplianceDocumentController::class,'list']);
-    Route::post('/{vendor}/compliance-document',[ComplianceDocumentController::class,'store']);
-    Route::post('/{vendor}/compliance-document/{complianceDocument}',[ComplianceDocumentController::class,'update']);
-    Route::get('/{vendor}/compliance-document-dashboard',[ComplianceDocumentController::class,'dashboardList']);
+    Route::get('/{vendor}/compliance-document', [ComplianceDocumentController::class, 'list']);
+    Route::post('/{vendor}/compliance-document', [ComplianceDocumentController::class, 'store']);
+    Route::post('/{vendor}/compliance-document/{complianceDocument}', [ComplianceDocumentController::class, 'update']);
+    Route::get('/{vendor}/compliance-document-dashboard', [ComplianceDocumentController::class, 'dashboardList']);
 
     // View work permits for vendor
     Route::get('/{vendor}/work-permits', [PermitWorkController::class, 'vendorWorkPermits']);
@@ -624,9 +627,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
     Route::get('/{asset}/technicians', [AssetController::class, 'listTechnicians']);
-    Route::post('/vendor/{vendor}/create',[AssetController::class, 'create']);
-    Route::get('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'showAsset']);
-    Route::post('/vendor/{vendor}/asset/{asset}',[AssetController::class, 'updateAsset']);
+    Route::post('/vendor/{vendor}/create', [AssetController::class, 'create']);
+    Route::get('/vendor/{vendor}/asset/{asset}', [AssetController::class, 'showAsset']);
+    Route::post('/vendor/{vendor}/asset/{asset}', [AssetController::class, 'updateAsset']);
 
     //PPM APIs
     Route::post('/create/ppm', [PPMController::class, 'store']);
@@ -702,7 +705,7 @@ Route::get('/app-version', [AppController::class, 'version']);
 Route::post('/web-enquiry', [EnquiryController::class, 'store']);
 
 //web quatations
-Route::post('/web-quotation',[QuotationController::class,'store']);
+Route::post('/web-quotation', [QuotationController::class, 'store']);
 
 //webhook
 // Route::post('/webhook',[MollakController::class,'webhook'])->middleware('check.MollakToken');
@@ -727,7 +730,7 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
-Route::get('buildings',[BuildingController::class, 'index']);
+Route::get('buildings', [BuildingController::class, 'index']);
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association
