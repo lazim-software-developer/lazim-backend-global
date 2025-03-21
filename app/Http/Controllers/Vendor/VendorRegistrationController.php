@@ -28,7 +28,12 @@ class VendorRegistrationController extends Controller
     public function registration(VendorRegisterRequest $request)
     {
         // Check if user exists in our DB
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+        $userData = User::where(
+            [
+                'email' => $request->get('email'),
+                'phone' => $request->get('phone')
+            ]
+        );
 
         // if user exists
         if ($userData->exists()) {
@@ -122,6 +127,8 @@ class VendorRegistrationController extends Controller
             $existingEmail = User::where(['email' => $request->email])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
 
+
+
             // Check if user exists in our DB
             if ($existingEmail) {
                 if ($existingEmail->email_verified) {
@@ -161,11 +168,13 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        if ($request->has('role') && isset($request->role) && $request->role === 'Property Manager') {
-            $role = Role::where('name', 'Facility Manager')->value('id');
-        }
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
+        if ($request->has(key: 'role') && isset($request->role) && $request->role === 'Property Manager') {
 
+            $role = Role::where('name', 'Facility Manager')
+                ->value('id');
+        }
+
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds
@@ -336,6 +345,97 @@ class VendorRegistrationController extends Controller
             'data' => $manager,
         ]))->response()->setStatusCode(201);
     }
+
+    public function getVendorStatus(Request $request)
+    {
+        // Check if user exists
+        $user = User::where('id', $request->owner_id)->first();
+
+        if (!$user) {
+            return (new CustomResponseResource([
+                'title' => 'User not found!',
+                'message' => "No user found with the provided ID.",
+                'code' => 404,
+                'status' => 'error',
+                'data' => null,
+            ]))->response()->setStatusCode(404);
+        }
+
+        // If user exists, fetch the associated vendor
+        $vendor = $user->vendors()->first();
+
+        if (!$vendor) {
+            return (new CustomResponseResource([
+                'title' => 'Redirect to Company Details',
+                'message' => "Company details missing. Redirecting to company details page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => [
+                    'user' => $user,  // Include user data in response
+                ]
+            ]))->response()->setStatusCode(200);
+        }
+
+        // Prepare response data
+        $responseData = [
+            'user' => $user,  // Directly return the user object
+            'company' => $vendor->toArray(),
+            'manager' => $vendor->managers,
+            'service' => $vendor->services->makeHidden('pivot'),
+            'documents' => $vendor->documents
+        ];
+
+        // Check if manager details are missing
+        if (!$vendor->managers()->count()) {
+            return (new CustomResponseResource([
+                'title' => 'Redirect to Manager Details',
+                'message' => "Manager details are missing. Redirecting to manager details page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // Check if services are missing
+        if (!$vendor->services()->count()) {
+            return (new CustomResponseResource([
+                'title' => 'Redirect to Services',
+                'message' => "Services not selected. Redirecting to services page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // Check if documents are uploaded
+        if (!Document::where('documentable_id', $vendor->id)
+            ->where('documentable_type', 'App\Models\Vendor')
+            ->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'Redirect to Documents',
+                'message' => "Documents not uploaded. Redirecting to documents page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // If everything is fine, return success
+        return (new CustomResponseResource([
+            'title' => 'Registration Complete',
+            'message' => "Your registration is complete.",
+            'code' => 200,
+            'status' => 'success',
+            'data' => $responseData,
+        ]))->response()->setStatusCode(200);
+    }
+
+
+
+
+
+
+
 
     public function showManagerDetails(Vendor $vendor)
     {
