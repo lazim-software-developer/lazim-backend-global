@@ -213,6 +213,7 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->placeholder('Passport'),
                     TextInput::make('emirates_id')
@@ -242,7 +243,7 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
-                        ->numeric()
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->label('Emirates ID'),
                     TextInput::make('trade_license')
@@ -272,7 +273,7 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
-                        ->numeric()
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->label('Trade License Number'),
                     Hidden::make('owner_association_id')
