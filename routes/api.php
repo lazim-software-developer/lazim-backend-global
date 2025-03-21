@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\QuotationController;
-use App\Http\Controllers\RentalDetailsController;
+use App\Jobs\SendSMSJobTest;
 use Illuminate\Http\Request;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\TagController;
@@ -11,12 +11,13 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\MollakController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\TLController;
 use App\Http\Controllers\Assets\PPMController;
+use App\Http\Controllers\PermitWorkController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\AppFeedbackController;
-use App\Http\Controllers\PermitWorkController;
 use App\Http\Controllers\FlatVisitorController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Assets\AssetController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Vendor\ItemsController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Forms\SaleNocController;
+use App\Http\Controllers\RentalDetailsController;
 use App\Http\Controllers\Vendor\TenderController;
 use App\Http\Controllers\Community\PollController;
 use App\Http\Controllers\Community\PostController;
@@ -68,7 +70,6 @@ use App\Http\Controllers\Api\OwnerAssociation\OwnerAssociationController;
 use App\Http\Controllers\Api\OwnerAssociation\NewOwnerAssociationController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
 use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
-use App\Models\Building\Building;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,26 @@ use App\Models\Building\Building;
 |
  */
 // OA Login
+Route::post('/send-sms-test', function (Request $request) {
+    $request->validate([
+        'phone' => 'required|string',
+        'message' => 'required|string',
+        'cycle_count' => 'required|integer|min:1',
+    ]);
+
+    $phones = explode(',', $request->phone);     // Split comma-separated phone numbers
+    $messages = explode(',', $request->message); // Split comma-separated messages
+
+    array_map(function ($i) use ($phones, $messages) {
+        $randomPhone = $phones[array_rand($phones)];   // Pick a random phone number
+        $randomMessage = $messages[array_rand($messages)]; // Pick a random message
+
+        SendSMSJobTest::dispatch($randomPhone, $randomMessage)
+            ->delay(now()->addSeconds(5 * $i)); // Delay each job execution
+    }, range(1, request()->cycle_count));
+
+    return response()->json(['message' => "{$request->cycle_count} SMS jobs dispatched successfully!"]);
+});
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
 // Resident registeration with email and phone
