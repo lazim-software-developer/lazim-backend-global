@@ -22,7 +22,7 @@ class FlatController extends Controller
         $this->model = new Flat;
         $this->repository = $repository;
     }
-    public function fetchFlats(Building $building)
+    public function fetchFlats(Building $building, Request $request)
     {
         $flats = $building->flats()->with('ownerAssociation')->get();
 
