@@ -56,19 +56,35 @@ class EditBuilding extends EditRecord
             while ($countfloor > 0) {
                 // Build an object with the required properties
                 $qrCodeContent = [
-                    'floors'      => $countfloor,
+                    'floors' => $countfloor,
                     'building_id' => $this->record->id,
                 ];
+                
+                $exists = Floor::where('floors', $countfloor)
+                ->where('building_id', $this->record->id)
+                ->exists();
+
+                if (!$exists) {
                 // Generate a QR code using the QrCode library
                 $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
-                Floor::create([
-                    'floors'      => $countfloor,
-                    'building_id' => $this->record->id,
-                    'qr_code'     => $qrCode,
-                ]);
+                    Floor::create([
+                        'floors' => $countfloor,
+                        'building_id' => $this->record->id,
+                        'qr_code' => $qrCode,
+                    ]);
+                }
                 $countfloor = $countfloor - 1;
             }
         }
+
+        $connection = DB::connection(env('SECOND_DB_CONNECTION'));
+        $created_by = $connection->table('users')->where('owner_association_id', $this->record->owner_association_id)->where('type', 'company')->first()?->id;
+        $connection->table('users')->updateOrInsert([
+            'building_id' => $this->record->id,
+            'owner_association_id' => $this->record->owner_association_id,
+        ],[
+            'name' => $this->record->name,
+        ]);
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

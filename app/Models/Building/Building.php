@@ -2,17 +2,14 @@
 
 namespace App\Models\Building;
 
-use App\Models\ApartmentSafety;
-use App\Models\BuildingVendor;
-use App\Models\EmergencyNumber;
 use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
 use App\Models\Meeting;
-use App\Models\OfferPromotion;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
+use App\Models\LegalNotice;
 use App\Models\Master\City;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
@@ -21,14 +18,18 @@ use App\Models\Forms\SaleNOC;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
 use App\Models\Accounting\WDA;
+use App\Models\BuildingVendor;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\Master\Service;
+use App\Models\OfferPromotion;
 use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
+use App\Models\ApartmentSafety;
 use App\Models\BuildingService;
+use App\Models\EmergencyNumber;
 use App\Models\Forms\MoveInOut;
 use App\Models\Master\Facility;
 use App\Models\Vendor\Contract;
@@ -45,15 +46,16 @@ use App\Models\Building\Complaint;
 use App\Models\Visitor\FlatVisitor;
 use App\Models\Building\BuildingPoc;
 use App\Models\Accounting\OAMInvoice;
-use App\Models\LegalNotice;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Visitor\FlatDomesticHelp;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Building extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable,SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -71,13 +73,22 @@ class Building extends Model
         'owner_association_id',
         'allow_postupload',
         'slug',
+        'status',
         'cover_photo',
         'show_inhouse_services',
+        'resource',
+        'created_by',
+        'updated_by',
+        'deleted_at',
         'mollak_property_id',
         'managed_by',
         'address',
         'building_type',
-        'parking_count'
+        'parking_count',
+        'status',
+        'created_by',
+        'updated_by',
+        'resource'
     ];
 
     protected $casts = [
@@ -92,7 +103,7 @@ class Building extends Model
     /**
      * Get the options for generating the slug.
      */
-    public function getSlugOptions() : SlugOptions
+    public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('name')
@@ -192,6 +203,18 @@ class Building extends Model
     public function ownerAssociation()
     {
         return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association');
+    }
+    public function SingleownerAssociationData()
+    {
+        return $this->belongsTo(OwnerAssociation::class);
+    }
+    public function CreatedBy()
+    {
+        return $this->belongsTo(User::class,'created_by');
+    }
+    public function ownerAssociationData()
+    {
+        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
     }
 
     public function ownerAssociations()

@@ -14,9 +14,9 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\TLController;
 use App\Http\Controllers\Assets\PPMController;
-use App\Http\Controllers\PermitWorkController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\AppFeedbackController;
+use App\Http\Controllers\PermitWorkController;
 use App\Http\Controllers\FlatVisitorController;
 use App\Http\Controllers\Forms\GuestController;
 use App\Http\Controllers\Assets\AssetController;
@@ -64,8 +64,11 @@ use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use App\Http\Controllers\Api\Tally\TallyIntigrationController;
 use App\Http\Controllers\Notifications\NotificationController;
+use App\Http\Controllers\Api\OwnerAssociation\OwnerAssociationController;
+use App\Http\Controllers\Api\OwnerAssociation\NewOwnerAssociationController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
 use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintController;
+use App\Models\Building\Building;
 
 /*
 |--------------------------------------------------------------------------
@@ -192,13 +195,19 @@ Route::middleware([])->group(function () {
     Route::get('/resident/{unitNumber}', [RegistrationController::class, 'fetchResidentDetails']);
 
     // Building API resource: Use only index method(To be changed a notmal route if we don't use other routes)
-    Route::apiResource('buildings', BuildingController::class)->only(['index']);
+    // Route::apiResource('buildings', BuildingController::class)->only(['index']);
 
     // Get all unit numbers(flats) for a given propertygroup(building)
     Route::get('/flats/{building}', [FlatController::class, 'fetchFlats']);
 
     // Resend otp
     Route::post('/resend-otp', [RegistrationController::class, 'resendOtp']);
+
+    // email otp
+    Route::post('/send-otp', [RegistrationController::class, 'emailOtp']);
+
+    //verify otp
+    Route::post('/verify-otp', [RegistrationController::class, 'verifyOtp']);
 
     // List all tags
     Route::get('/tags', [TagController::class, 'index']);
@@ -718,5 +727,26 @@ Route::post('/mollak/wrapper', [TestController::class, 'forwardRequest']);
 
 Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
-Route::get('push-notification', [NotificationController::class, 'pushNotification']);
-Route::get('push-notification-new', [NotificationController::class, 'pushNotificationNew']);
+
+
+Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
+Route::get('buildings', [BuildingController::class, 'index']);
+// Dilip Shekhawat [Created New APIs]
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+    //Owner-Association
+    Route::post('/owner-associations/{id}', [OwnerAssociationController::class, 'update']);
+    Route::apiResource('owner-associations', OwnerAssociationController::class);
+    Route::patch('owner-associations/{id}/change-status', [OwnerAssociationController::class, 'changeStatus']);
+    //New Building Module Routes
+    Route::post('/buildings/{id}', [BuildingController::class, 'update']);
+    Route::apiResource('buildings', BuildingController::class)->except(['index']);
+    Route::patch('buildings/{id}/change-status', [BuildingController::class, 'changeStatus']);
+    Route::post('buildingsimport', [BuildingController::class, 'import']);
+    Route::get('buildingsexport', [BuildingController::class, 'export']);
+    //New Flat Module Routes
+    Route::post('/flatsModule/{id}', [FlatController::class, 'update']);
+    Route::apiResource('flatsModule', FlatController::class);
+    Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
+    Route::post('flatsimport', [FlatController::class, 'import']);
+    Route::get('flatsexport', [FlatController::class, 'export']);
+});

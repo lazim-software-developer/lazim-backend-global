@@ -37,7 +37,6 @@ class ListOwners extends ListRecords
     }
     public function beforeFill(): void
     {
-        dd('sffdf');
         $Assignnflats = FlatOwners::where('owner_id',$this->record->id)->get();
         foreach($Assignnflats as $flat_value){
             $flatDetail=Flat::where('id',$flat_value->flat_id)->first();
@@ -51,7 +50,15 @@ class ListOwners extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->visible(function () {
+                $auth_user = auth()->user();
+                $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+                if ($role === 'Admin' || $role === 'Property Manager') {
+                    return true;
+                }
+            }),
             Action::make('Notify Owners')
                 ->button()
                 ->form([

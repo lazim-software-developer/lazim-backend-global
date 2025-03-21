@@ -25,12 +25,23 @@ class ListTenants extends ListRecords
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+            return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        }
         return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array
     {
         return [
-            //Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->visible(function () {
+                $auth_user = auth()->user();
+                $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+                if ($role === 'Admin' || $role === 'Property Manager') {
+                    return true;
+                }
+            }),
             Action::make('Notify Tenants')
                 ->button()
                 ->form([

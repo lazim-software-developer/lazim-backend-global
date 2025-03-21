@@ -236,6 +236,7 @@ class VendorRegistrationController extends Controller
             $request->owner_association_id => ['from' => now()->toDateString()]
         ]);
 
+
         $vendor->ownerAssociation()->syncWithoutDetaching([
             $request->owner_association_id => ['from' => now()->toDateString(), 'type' => $type]
         ]);
@@ -300,6 +301,7 @@ class VendorRegistrationController extends Controller
             'data' => $manager,
         ]))->response()->setStatusCode(201);
     }
+
 
     public function updateManagerDetails(ManagerDetailsRequest $request, Vendor $vendor)
     {

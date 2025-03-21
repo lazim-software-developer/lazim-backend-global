@@ -52,7 +52,7 @@ class OwnerResource extends Resource
                         ->required()
                         ->placeholder('Owner Number'),
                     TextInput::make('name')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['max:100', 'string'])
                         ->required()
                         ->placeholder('Name'),
                     TextInput::make('primary_owner_mobile')
@@ -279,14 +279,23 @@ class OwnerResource extends Resource
                         ->default(auth()->user()?->owner_association_id),
                     Hidden::make('resource')
                     ->default('Lazim'),
-                    Select::make('owner_status')
+                    Select::make('status')
                         ->options([
-                            'VIP' => 'VIP',
-                            'normal' => 'Normal'
+                            '1' => 'Approve',
+                            '0' => 'Reject',
+                            '2' => 'Pending'
                         ])
                         ->default(null)
                         ->required()
-                        ->label('Owner Status'),
+                        ->label('Status'),
+                    Select::make('owner_status')
+                    ->options([
+                        'VIP' => 'VIP',
+                        'normal' => 'Normal'
+                    ])
+                    ->default(null)
+                    ->required()
+                    ->label('Owner Status'),
                     Select::make('building_id')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
@@ -406,6 +415,14 @@ class OwnerResource extends Resource
                 Tables\Actions\DeleteAction::make(),
                 Action::make('delete')
                 ->button()
+                ->visible(function () {
+                    $auth_user = auth()->user();
+                    $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+    
+                    if ($role === 'Admin' || $role === 'Property Manager') {
+                        return true;
+                    }
+                })
                 ->action(function ($record) {
                     $deletedRecords = FlatOwners::where('owner_id', $record->id)->get();
                     $record->deleted_at = now();
