@@ -22,7 +22,7 @@ class SubContractorsController extends Controller
     }
     public function store(Vendor $vendor, SubContractorsRequest $request)
     {
-        if ($request->has('building_id')) {
+        if ($request->has('building_id') && isset($request->building_id)) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
@@ -48,7 +48,7 @@ class SubContractorsController extends Controller
     }
     public function edit(Vendor $vendor, SubContractor $subContract, SubContractorEditRequest $request)
     {
-        if ($request->has('building_id')) {
+        if ($request->has('building_id') && isset($request->building_id)) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
@@ -73,7 +73,7 @@ class SubContractorsController extends Controller
     }
     public function update(Vendor $vendor, SubContractor $subContract, Request $request)
     {
-        if ($request->has('building_id')) {
+        if ($request->has('building_id') && isset($request->building_id)) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
 
