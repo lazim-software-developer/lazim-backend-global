@@ -67,6 +67,7 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(OwnerAssociation::class, ownershipRelationship: 'ownerAssociation', slugAttribute: 'slug')
             ->tenantDomain('{tenant:slug}.' . env('APP_URL'))
             ->login(Login::class)
+            ->passwordReset()
             ->resources([
                 config('filament-logger.activity_resource')
             ])
@@ -98,18 +99,18 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 // if (DB::table('roles')->where('id', auth()->user()->role_id)->pluck('name')[0] != 'Admin') {
-                    $builder->groups([
-                        NavigationGroup::make('Dashboard')
-                            ->items([
-                                NavigationItem::make('Dashboard')
-                                    ->icon('heroicon-o-home')
-                                    ->activeIcon('heroicon-s-home')
-                                    ->url('/admin'),
-                            ])
-                            ->collapsed(true),
-                    ]);
+                $builder->groups([
+                    NavigationGroup::make('Dashboard')
+                        ->items([
+                            NavigationItem::make('Dashboard')
+                                ->icon('heroicon-o-home')
+                                ->activeIcon('heroicon-s-home')
+                                ->url('/admin'),
+                        ])
+                        ->collapsed(true),
+                ]);
                 // }
-                   
+
                 // }
                 $user = User::find(auth()->user()->id);
                 if (
@@ -246,8 +247,8 @@ class AdminPanelProvider extends PanelProvider
                             ])
                             ->collapsed(true),
                     ]);
-                }else{
-                    $user = User::find(auth()->user()->id) ;
+                } else {
+                    $user = User::find(auth()->user()->id);
                     $builder->groups([
                         NavigationGroup::make('Master')
                             ->items([
@@ -286,7 +287,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->hidden(function () {
                                         $userRoleId = auth()->user()->role_id;
                                         $adminRoleIds = Role::whereIn('name', ['OA', 'MD'])->pluck('id')->toArray();
-    
+
                                         return !in_array($userRoleId, $adminRoleIds);
                                     })
                                     ->url('/admin/shield/roles')
@@ -665,7 +666,7 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
 
-               if($user->can('view_any_announcement')||$user->can('view_any_post')||$user->can('view_any_poll')){
+                if ($user->can('view_any_announcement') || $user->can('view_any_post') || $user->can('view_any_poll')) {
                     $builder->groups([
                         NavigationGroup::make('Community')
                             ->items([
@@ -800,8 +801,10 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_snags') || $user->can('view_any_incident') ||
-                $user->can('view_any_patrolling')){
+                if (
+                    $user->can('view_any_snags') || $user->can('view_any_incident') ||
+                    $user->can('view_any_patrolling')
+                ) {
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
