@@ -199,37 +199,21 @@ class VendorRegistrationController extends Controller
         // Pehle check karenge ki vendor exist karta hai ya nahi
         $vendor = Vendor::where('owner_id', $request->owner_id)->first();
 
-        if ($vendor) {
-            // Agar vendor exist karta hai toh usko update karenge
-            $vendor->update([
+        $vendor = Vendor::firstOrCreate(
+            ['owner_id' => $request->owner_id],
+            [
                 'name' => optional($user)->first_name ?? $request->name,
                 'tl_number' => $request->tl_number,
                 'landline_number' => $request->landline_number,
-                'owner_id' => $request->owner_id,
                 'address_line_1' => $request->address_line_1,
                 'website' => $request->website,
                 'tl_expiry' => $request->tl_expiry,
                 'risk_policy_expiry' => $request->risk_policy_expiry,
                 'owner_association_id' => $request->owner_association_id,
-            ]);
+            ]
+        );
+        $message = "Company details successfully updated or created!";
 
-            $message = "Company details successfully updated!";
-        } else {
-            // Agar vendor exist nahi karta toh naye record create karenge
-            $vendor = Vendor::create([
-                'owner_id' => $request->owner_id,
-                'tl_number' => $request->tl_number,
-                'landline_number' => $request->landline_number,
-                'name' => optional($user)->first_name ?? $request->name,
-                'address_line_1' => $request->address_line_1,
-                'website' => $request->website,
-                'tl_expiry' => $request->tl_expiry,
-                'risk_policy_expiry' => $request->risk_policy_expiry,
-                'owner_association_id' => $request->owner_association_id,
-            ]);
-
-            $message = "Company details successfully created!";
-        }
         $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
 
         $user->ownerAssociation()->syncWithoutDetaching([
@@ -260,6 +244,9 @@ class VendorRegistrationController extends Controller
             "documentable_type" => Vendor::class,
         ]);
 
+        $vendor->risk_policy_expiry = $doc->expiry_date;
+
+        // dd($doc, $vendor->toArray());
         return (new CustomResponseResource([
             'title' => $message,
             'message' => "",
@@ -368,8 +355,8 @@ class VendorRegistrationController extends Controller
 
         if (!$vendor) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Company Details',
-                'message' => "Company details missing. Redirecting to company details page.",
+                'title' => 'redirect_company_details',
+                'message' => "You have not updated company details. You'll be redirected to company details page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => [
@@ -378,10 +365,12 @@ class VendorRegistrationController extends Controller
             ]))->response()->setStatusCode(200);
         }
 
-        // Prepare response data
+        $vendor->risk_policy_expiry = $vendor->documents->where('name', 'risk_policy')->first()?->expiry_date;
+        $vendor->makeHidden(['documents']);
+
         $responseData = [
             'user' => $user,  // Directly return the user object
-            'company' => $vendor->toArray(),
+            'company' => $vendor,
             'manager' => $vendor->managers,
             'service' => $vendor->services->makeHidden('pivot'),
             'documents' => $vendor->documents
@@ -390,8 +379,8 @@ class VendorRegistrationController extends Controller
         // Check if manager details are missing
         if (!$vendor->managers()->count()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Manager Details',
-                'message' => "Manager details are missing. Redirecting to manager details page.",
+                'title' => 'redirect_managers',
+                'message' => "You have not updated manager details. You'll be redirected to manger details page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -401,8 +390,8 @@ class VendorRegistrationController extends Controller
         // Check if services are missing
         if (!$vendor->services()->count()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Services',
-                'message' => "Services not selected. Redirecting to services page.",
+                'title' => 'redirect_services',
+                'message' => "You have not selected services. You'll be redirected to services page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -414,8 +403,8 @@ class VendorRegistrationController extends Controller
             ->where('documentable_type', 'App\Models\Vendor')
             ->exists()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Documents',
-                'message' => "Documents not uploaded. Redirecting to documents page.",
+                'title' => 'redirect_documents',
+                'message' => "You have not uploaded all documents. You'll be redirected to documents page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -431,11 +420,6 @@ class VendorRegistrationController extends Controller
             'data' => $responseData,
         ]))->response()->setStatusCode(200);
     }
-
-
-
-
-
 
 
 
