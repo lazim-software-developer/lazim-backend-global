@@ -44,7 +44,8 @@ class ListFlatTenants extends ListRecords
                 ->whereNotIn('tenant_id', function ($query) {
                     $query->select('user_id')
                         ->from('user_approvals')
-                        ->whereNotIn('status', ['approved']);
+                        ->whereNotIn('status', ['approved'])
+                        ->where('status', null);
                 });
         } elseif ($userRoleName == 'OA') {
             return parent::getTableQuery()->whereIn('building_id', $pmbuildingIds);
