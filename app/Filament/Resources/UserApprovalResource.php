@@ -104,10 +104,6 @@ class UserApprovalResource extends Resource
                         DatePicker::make('emirates_document_expiry_date')
                             ->label('Emirates ID Expiry')
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        DatePicker::make('emirates_document_expiry_date')
-                            ->label('Emirates ID Expiry')
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval')))
-                            ->minDate(Carbon::today()),
                         DatePicker::make('passport_expiry_date')
                             ->label('Passport Expiry')
                             ->minDate(Carbon::today())
