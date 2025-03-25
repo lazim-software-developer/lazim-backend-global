@@ -90,9 +90,13 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            $documents = Document::where('documentable_id', $vendor->id);
+
+            // $documents = Document::where('documentable_id', $vendor->id);
+
             //check if vendor has uploaded documnets
-            if (!$documents->exists()) {
+            // $documents->exists();
+            // if (!$vendor->documents()->exists()) {
+            if (!$vendor->documents()->count() < 5) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
@@ -199,21 +203,37 @@ class VendorRegistrationController extends Controller
         // Pehle check karenge ki vendor exist karta hai ya nahi
         $vendor = Vendor::where('owner_id', $request->owner_id)->first();
 
-        $vendor = Vendor::firstOrCreate(
-            ['owner_id' => $request->owner_id],
-            [
+        if ($vendor) {
+            // Agar vendor exist karta hai toh usko update karenge
+            $vendor->update([
                 'name' => optional($user)->first_name ?? $request->name,
                 'tl_number' => $request->tl_number,
                 'landline_number' => $request->landline_number,
+                'owner_id' => $request->owner_id,
                 'address_line_1' => $request->address_line_1,
                 'website' => $request->website,
                 'tl_expiry' => $request->tl_expiry,
                 'risk_policy_expiry' => $request->risk_policy_expiry,
                 'owner_association_id' => $request->owner_association_id,
-            ]
-        );
-        $message = "Company details successfully updated or created!";
+            ]);
 
+            $message = "Company details successfully updated!";
+        } else {
+            // Agar vendor exist nahi karta toh naye record create karenge
+            $vendor = Vendor::create([
+                'owner_id' => $request->owner_id,
+                'tl_number' => $request->tl_number,
+                'landline_number' => $request->landline_number,
+                'name' => optional($user)->first_name ?? $request->name,
+                'address_line_1' => $request->address_line_1,
+                'website' => $request->website,
+                'tl_expiry' => $request->tl_expiry,
+                'risk_policy_expiry' => $request->risk_policy_expiry,
+                'owner_association_id' => $request->owner_association_id,
+            ]);
+
+            $message = "Company details successfully created!";
+        }
         $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
 
         $user->ownerAssociation()->syncWithoutDetaching([
@@ -224,6 +244,10 @@ class VendorRegistrationController extends Controller
         $vendor->ownerAssociation()->syncWithoutDetaching([
             $request->owner_association_id => ['from' => now()->toDateString(), 'type' => $type]
         ]);
+
+
+        // Delete old documents before adding new ones
+        $vendor->documents()->delete();
 
         $doc = Document::create([
             "name" => "risk_policy",
@@ -370,7 +394,7 @@ class VendorRegistrationController extends Controller
 
         $responseData = [
             'user' => $user,  // Directly return the user object
-            'company' => $vendor,
+            'company' => $vendor->toArray(),
             'manager' => $vendor->managers,
             'service' => $vendor->services->makeHidden('pivot'),
             'documents' => $vendor->documents
