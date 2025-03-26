@@ -90,9 +90,13 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            $documents = Document::where('documentable_id', $vendor->id);
+
+            // $documents = Document::where('documentable_id', $vendor->id);
+
             //check if vendor has uploaded documnets
-            if (!$documents->exists()) {
+            // $documents->exists();
+            // if (!$vendor->documents()->exists()) {
+            if (!$vendor->documents()->count() < 5) {
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
@@ -241,6 +245,10 @@ class VendorRegistrationController extends Controller
             $request->owner_association_id => ['from' => now()->toDateString(), 'type' => $type]
         ]);
 
+
+        // Delete old documents before adding new ones
+        $vendor->documents()->delete();
+
         $doc = Document::create([
             "name" => "risk_policy",
             "document_library_id" => DocumentLibrary::where('name', 'Risk policy')->first()->id,
@@ -260,6 +268,9 @@ class VendorRegistrationController extends Controller
             "documentable_type" => Vendor::class,
         ]);
 
+        $vendor->risk_policy_expiry = $doc->expiry_date;
+
+        // dd($doc, $vendor->toArray());
         return (new CustomResponseResource([
             'title' => $message,
             'message' => "",
@@ -368,8 +379,8 @@ class VendorRegistrationController extends Controller
 
         if (!$vendor) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Company Details',
-                'message' => "Company details missing. Redirecting to company details page.",
+                'title' => 'redirect_company_details',
+                'message' => "You have not updated company details. You'll be redirected to company details page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => [
@@ -378,7 +389,9 @@ class VendorRegistrationController extends Controller
             ]))->response()->setStatusCode(200);
         }
 
-        // Prepare response data
+        $vendor->risk_policy_expiry = $vendor->documents->where('name', 'risk_policy')->first()?->expiry_date;
+        $vendor->makeHidden(['documents']);
+
         $responseData = [
             'user' => $user,  // Directly return the user object
             'company' => $vendor->toArray(),
@@ -390,8 +403,8 @@ class VendorRegistrationController extends Controller
         // Check if manager details are missing
         if (!$vendor->managers()->count()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Manager Details',
-                'message' => "Manager details are missing. Redirecting to manager details page.",
+                'title' => 'redirect_managers',
+                'message' => "You have not updated manager details. You'll be redirected to manger details page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -401,8 +414,8 @@ class VendorRegistrationController extends Controller
         // Check if services are missing
         if (!$vendor->services()->count()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Services',
-                'message' => "Services not selected. Redirecting to services page.",
+                'title' => 'redirect_services',
+                'message' => "You have not selected services. You'll be redirected to services page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -414,8 +427,8 @@ class VendorRegistrationController extends Controller
             ->where('documentable_type', 'App\Models\Vendor')
             ->exists()) {
             return (new CustomResponseResource([
-                'title' => 'Redirect to Documents',
-                'message' => "Documents not uploaded. Redirecting to documents page.",
+                'title' => 'redirect_documents',
+                'message' => "You have not uploaded all documents. You'll be redirected to documents page.",
                 'code' => 200,
                 'status' => 'error',
                 'data' => $responseData
@@ -431,11 +444,6 @@ class VendorRegistrationController extends Controller
             'data' => $responseData,
         ]))->response()->setStatusCode(200);
     }
-
-
-
-
-
 
 
 
