@@ -96,7 +96,8 @@ class VendorRegistrationController extends Controller
             //check if vendor has uploaded documnets
             // $documents->exists();
             // if (!$vendor->documents()->exists()) {
-            if (!$vendor->documents()->count() < 5) {
+            if ($vendor->documents()->count() < 5) {
+
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
