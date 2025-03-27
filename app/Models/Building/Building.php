@@ -25,7 +25,6 @@ use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
 use App\Models\Master\Service;
-use App\Models\OfferPromotion;
 use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
