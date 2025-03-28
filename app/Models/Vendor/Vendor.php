@@ -57,7 +57,7 @@ class Vendor extends Model
 
     public function ownerAssociation()
     {
-        return $this->belongsToMany(OwnerAssociation::class)->withPivot(['status','remarks']);
+        return $this->belongsToMany(OwnerAssociation::class)->withPivot(['status', 'remarks']);
     }
     public function user()
     {
@@ -99,8 +99,8 @@ class Vendor extends Model
     }
     public function buildings()
     {
-        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id','building_id')
-                ->withPivot(['contract_id', 'active','start_date','end_date','owner_association_id']);
+        return $this->belongsToMany(Building::class, 'building_vendor', 'vendor_id', 'building_id')
+            ->withPivot(['contract_id', 'active', 'start_date', 'end_date', 'owner_association_id']);
     }
     public function buildingvendor()
     {
@@ -123,19 +123,19 @@ class Vendor extends Model
 
     public function technicianVendors()
     {
-        return $this->hasMany(TechnicianVendor::class,'vendor_id')->where('active', true);
+        return $this->hasMany(TechnicianVendor::class, 'vendor_id')->where('active', true);
     }
     public function contracts()
     {
-        return $this->hasMany(Contract::class,'vendor_id');
+        return $this->hasMany(Contract::class, 'vendor_id');
     }
     public function wdas()
     {
-        return $this->hasMany(WDA::class,'vendor_id');
+        return $this->hasMany(WDA::class, 'vendor_id');
     }
     public function invoices()
     {
-        return $this->hasMany(Invoice::class,'vendor_id');
+        return $this->hasMany(Invoice::class, 'vendor_id');
     }
     public function assets()
     {
@@ -144,7 +144,7 @@ class Vendor extends Model
 
     public function OA()
     {
-        return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
+        return $this->belongsTo(OwnerAssociation::class, 'owner_association_id');
     }
 
     public function items()
