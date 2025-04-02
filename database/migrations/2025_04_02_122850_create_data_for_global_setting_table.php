@@ -16,7 +16,7 @@ return new class extends Migration
             GlobalSetting::create([
                 'id' => 1,
                 'payment_day' => 30,
-                'follow_up_date' => 38,
+                'follow_up_day' => 38,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
