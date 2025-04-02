@@ -15,8 +15,8 @@ class EditEmailReminder extends EditRecord
     public function getBreadcrumbs(): array
     {
         return [
-            '/admin/dashboard' => 'Dashboard',
-            '/admin/email-reminders' => 'Email Reminders',
+            '/app/mollak-tenants' => 'Dashboard',
+            '/app/email-reminders' => 'Email Reminders',
         ];
     }
 }
