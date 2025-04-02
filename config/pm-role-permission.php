@@ -157,6 +157,7 @@ return [
                 'widget_ComplaintCategoriesChart',
                 'widget_WdaChart',
                 'widget_RecentOpenComplaints',
+                'widget_RecentRegisterOwner',
                 'widget_RecentPendingResidentApprovals',
                 'view_shield::role',
                 'view_any_shield::role',

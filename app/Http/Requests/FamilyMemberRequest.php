@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\OwnerAssociation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class FamilyMemberRequest extends FormRequest
@@ -24,10 +25,10 @@ class FamilyMemberRequest extends FormRequest
         return [
             'first_name' => 'required|string|max:100',
             'last_name' => 'nullable|string|max:100',
-            'passport_number' => 'required',
-            'passport_expiry_date' => 'required|date_format:Y-m-d',
+            'passport_number' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required': 'nullable',
+            'passport_expiry_date' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|date_format:Y-m-d' : 'nullable|date_format:Y-m-d',
             'emirates_id' => 'required',
-            'emirates_expiry_date' => 'required|date_format:Y-m-d',
+            'emirates_expiry_date' => $this->selectType !== OwnerAssociation::OA_TYPE ? 'required|date_format:Y-m-d' : 'nullable|date_format:Y-m-d',
             'gender' => 'required|string|in:Male,Female,Others',
             'relation' => 'required|string',
             'flat_id' => 'required|exists:flats,id',
