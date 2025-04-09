@@ -36,6 +36,8 @@ class SubContractorsResource extends JsonResource
             'expired'          => Carbon::parse($this->end_date)->format('m-d-Y') <= now()->format('m-d-Y'),
             'active'           => $this->active,
             'services'         => SelectServicesResource::collection($this->services),
+            'building_id'      => $this->building_id,
+            'building_name'    => $this->building?->name,
         ];
     }
 }

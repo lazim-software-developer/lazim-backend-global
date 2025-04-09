@@ -15,7 +15,9 @@ class SubContractorsController extends Controller
 {
     public function index(Vendor $vendor, Request $request)
     {
-        $subContractors = $vendor->subContractors();
+        $buildingIds = DB::table('building_vendor')->where('vendor_id',$vendor->id)->where('active',true)
+            ->pluck('building_id');
+        $subContractors = $vendor->subContractors()->whereIn('building_id',$buildingIds);
         return SubContractorsResource::collection($subContractors->paginate($request->paginate ?? 10));
     }
     public function store(Vendor $vendor, SubContractorsRequest $request)
