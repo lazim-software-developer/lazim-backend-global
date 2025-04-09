@@ -2,20 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\App\Widgets\PreventiveReactiveMaintenance;
-use App\Filament\Pages\Auth\AppEditProfile;
-use App\Filament\Resources\ComplaintResource;
-use App\Filament\Resources\FacilitySupportComplaintResource;
-use App\Filament\Resources\SubContractorResource;
-use App\Filament\Resources\TechnicianVendorResource;
-use App\Filament\Resources\UnitListResource;
-use App\Filament\Widgets\BillsOverviewWidget;
-use App\Filament\Widgets\MoveInOutChart;
-use App\Filament\Widgets\RentalChequeStatusOverview;
-use App\Filament\Widgets\UnitContractExpiryOverview;
-use App\Filament\Widgets\UnitStatusOverview;
-use App\Models\OwnerAssociation;
 use DB;
+use Storage;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -23,18 +11,25 @@ use App\Models\User\User;
 use App\Models\Master\Role;
 use Filament\PanelProvider;
 use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Resources\DemoResource;
+use App\Filament\Widgets\MoveInOutChart;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
+use App\Filament\Pages\Auth\AppEditProfile;
 use App\Filament\Resources\VehicleResource;
 use App\Filament\Resources\IncidentResource;
+use App\Filament\Resources\UnitListResource;
+use App\Filament\Widgets\UnitStatusOverview;
+use App\Filament\Resources\ComplaintResource;
 use App\Filament\Resources\User\UserResource;
+use App\Filament\Widgets\BillsOverviewWidget;
 use App\Filament\Resources\PatrollingResource;
 use App\Filament\App\Widgets\MoveInOutSchedule;
 use App\Filament\Resources\AgingReportResource;
@@ -44,22 +39,29 @@ use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\EmailReminderResource;
+use App\Filament\Resources\SubContractorResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PropertyManagerResource;
 use App\Filament\App\Widgets\AmenityBookingOverview;
 use App\Filament\Resources\AssetMaintenanceResource;
+use App\Filament\Resources\TechnicianVendorResource;
+use App\Filament\Widgets\RentalChequeStatusOverview;
+use App\Filament\Widgets\UnitContractExpiryOverview;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Resources\EmailReminderHistoryResource;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Filament\App\Widgets\PreventiveReactiveMaintenance;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
+use App\Filament\Resources\FacilitySupportComplaintResource;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Storage;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -797,12 +799,6 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-o-users')
                                         ->activeIcon('heroicon-o-users')
                                         ->sort(2),
-                                    // NavigationItem::make('MD')
-                                    //     ->url('/app/m-d-s')
-                                    //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
-                                    //     ->icon('heroicon-o-users')
-                                    //     ->activeIcon('heroicon-o-users')
-                                    //     ->sort(3),
                                     // NavigationItem::make('Accounts Manager')
                                     //     ->url('/app/accounts-managers')
                                     //     ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['OA','MD']))
@@ -895,6 +891,17 @@ class AppPanelProvider extends PanelProvider
                                         ->icon('heroicon-s-document-text')
                                         ->activeIcon('heroicon-s-document-text')
                                         ->sort(15),
+                                ]),
+                        ]);
+                        $builder->groups([
+                            NavigationGroup::make('History')
+                                ->items([
+                                    NavigationItem::make('Email Reminder History')
+                                        ->url(EmailReminderHistoryResource::getUrl('index'))
+                                        ->hidden(!in_array(Role::where('id', auth()->user()->role_id)->first()->name, ['Admin']))
+                                        ->icon('heroicon-o-users')
+                                        ->activeIcon('heroicon-o-users')
+                                        ->sort(3),
                                 ]),
                         ]);
                     }
@@ -1450,6 +1457,17 @@ class AppPanelProvider extends PanelProvider
                                 ->items([
                                     NavigationItem::make('App Feedback')
                                         ->url(AppFeedbackResource::getUrl('index'))
+                                        ->icon('heroicon-s-pencil-square'),
+                                ]),
+                        ]);
+                    }
+
+                    if (auth()->user()->role->name == 'Admin') {
+                        $builder->groups([
+                            NavigationGroup::make('Global Setting')
+                                ->items([
+                                    NavigationItem::make('Email Reminder')
+                                        ->url(EmailReminderResource::getUrl('index'))
                                         ->icon('heroicon-s-pencil-square'),
                                 ]),
                         ]);

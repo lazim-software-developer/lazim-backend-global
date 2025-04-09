@@ -3,7 +3,7 @@ namespace App\Imports;
 
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -184,6 +184,7 @@ class FlatImport implements ToCollection, WithHeadingRow
             }
         }
         $building = Building::where('building_id',$this->buildingId);
+
         $buildingCount = $building->parking_count;
         $building->update(['parking_count' => ($buildingCount + $totalParkingCount)]);
 

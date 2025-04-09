@@ -10,11 +10,12 @@ use App\Models\Building\Flat;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
 use App\Models\OwnerAssociation;
+use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
 use Closure;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -266,6 +267,13 @@ class FacilitySupportComplaintResource extends Resource
                                         //     ->pluck('first_name', 'id')
                                         //     ->toArray();
 
+                                        if(Service::find($serviceId)->name == 'Other'){
+                                            return Vendor::where('owner_association_id',
+                                            auth()->user()?->owner_association_id)
+                                            ->where('status', 'approved')
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                        }
                                         return Vendor::where('owner_association_id',
                                             auth()->user()?->owner_association_id)
                                             ->where('status', 'approved')
@@ -297,7 +305,11 @@ class FacilitySupportComplaintResource extends Resource
                                             ->pluck('technician_vendors.technician_id')
                                             ->unique()
                                             ->toArray();
-
+                                        if(Service::find($serviceId)->name == 'Other'){
+                                            $technicianIds = TechnicianVendor::where('vendor_id', $vendorId)
+                                            ->pluck('technician_id')
+                                            ->toArray();
+                                        }
                                         return User::whereIn('id', $technicianIds)
                                             ->orderBy('first_name')
                                             ->pluck('first_name', 'id')

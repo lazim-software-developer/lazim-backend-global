@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddFlatForResidentsRequest;
+use App\Http\Requests\Auth\EmailVerificationRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\RegisterWithEmiratesOrPassportRequest;
 use App\Http\Requests\Auth\ResendOtpRequest;
@@ -11,6 +12,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\RegisterOwnersList;
 use App\Jobs\Auth\ResendOtpEmail;
 use App\Jobs\Building\AssignFlatsToTenant;
+use App\Jobs\EmailOtp;
 use App\Jobs\SendVerificationOtp;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
@@ -136,15 +138,31 @@ class RegistrationController extends Controller
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
         if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $name = $firstName . ' - ' . $flat->property_number;
             $connection->table('customers')->insert([
                 'customer_id' => $customerId,
-                'name' => $firstName,
-                'email'                => $request->email,
+                'name' => $name,
+                'email' => $request->email,
                 'contact' => $request->mobile,
                 'type' => $type,
                 'lang' => 'en',
                 'created_by' => $created_by,
                 'is_enable_login' => 0,
+                'billing_name' => $name,
+                'billing_country' => 'UAE',
+                'billing_city' => 'Dubai',
+                'billing_phone' => $request->mobile,
+                'billing_address' => $building->address_line1 . ', ' . $building->area,
+                'shipping_name' => $name,
+                'shipping_country' => 'UAE',
+                'shipping_city' => 'Dubai',
+                'shipping_phone' => $request->mobile,
+                'shipping_address' => $building->address_line1 . ', ' . $building->area,
+                'created_by_lazim' => true,
+                'flat_id' => $flat->id,
+                'building_id' => $flat->building_id,
+                'primary' => $primary ? 0 : 1,
             ]);
         }
 
@@ -161,16 +179,6 @@ class RegistrationController extends Controller
             'owner_association_id' => $building?->owner_association_id,
             'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
-
-        // $customer = $connection->table('customers')->where(['email'=> $request->email,
-        //     'contact' => $request->mobile])->first();
-        // $property = Flat::find($request->flat_id)?->property_number;
-        // $connection->table('customer_flat')->insert([
-        //     'customer_id' => $customer?->id,
-        //     'flat_id' => $request->flat_id,
-        //     'building_id' => $request->building_id,
-        //     'property_number' => $property
-        // ]);
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
@@ -192,10 +200,11 @@ class RegistrationController extends Controller
     {
         $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
+            $ownerId=$request->get('owner_id');
             $userData->where('owner_id', $request->get('owner_id'));
+        }else{
+            $ownerId=NULL;
         }
-
-
         if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
@@ -302,6 +311,7 @@ class RegistrationController extends Controller
             'phone' => $request->mobile, // Assuming phone is still provided for communication
             'role_id' => $role,
             'active' => 0,
+            'owner_id' => $ownerId,
             'owner_association_id' => $owner_association_id,
         ]);
 
@@ -321,8 +331,8 @@ class RegistrationController extends Controller
                     'is_enable_login' => 0,
                 ]);
             }
-        }
 
+        }
         // $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         // $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         // $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
@@ -504,6 +514,58 @@ class RegistrationController extends Controller
         ];
     }
 
+    public function emailOtp(ResendOtpRequest $request)
+    {
+        // Validate the type and contact_value
+        $type = $request->type;
+        $contactValue = $request->contact_value;
+
+        $otp = rand(1000, 9999);
+
+        DB::table('otp_verifications')->updateOrInsert(
+            ['type' => $type, 'contact_value' => $contactValue],
+            ['otp' => $otp]
+        );
+
+        EmailOtp::dispatch($otp, $type, $contactValue);
+
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'OTP sent successfully!',
+            'code' => 200,
+        ]))->response()->setStatusCode(200);
+    }
+
+    public function verifyOtp(EmailVerificationRequest $request)
+    {
+        $otpEntry = DB::table('otp_verifications')
+            ->where('type', $request->type)
+            ->where('contact_value', $request->contact_value)
+            ->first();
+
+        if (!$otpEntry || $otpEntry->otp !== $request->otp) {
+            return (new CustomResponseResource([
+                'title' => 'Error',
+                'message' => 'Invalid OTP. Please try again.',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
+        }
+
+        // If OTP matches, you can set the user's email as verified in the users table or any other logic you want to implement
+
+        if($request->type == 'email') {
+            User::where('email', $request->contact_value)->update(['email_verified' => true]);
+        } else {
+            User::where('phone', $request->contact_value)->update(['phone_verified' => true]);
+        }
+        // Delete the OTP entry after successful verification
+        DB::table('otp_verifications')->where('id', $otpEntry->id)->delete();
+
+        return response()->json([
+            'message' => 'Successfully verified.',
+            'status' => 'success'
+        ], 200);
+    }
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value

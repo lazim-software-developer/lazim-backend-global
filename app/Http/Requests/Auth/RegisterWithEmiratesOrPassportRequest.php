@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Validation\Rule;
 class RegisterWithEmiratesOrPassportRequest extends FormRequest
 {
     /**
@@ -25,7 +25,18 @@ class RegisterWithEmiratesOrPassportRequest extends FormRequest
             'name' => 'required|string',
             'document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'emirates_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
-            'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'passport_document' => Rule::when($this->selectType !== 'globalOa', [
+            'required',
+            'file',
+            'max:2048',
+            'mimes:pdf,jpg,jpeg,png,doc,docx'
+            ], [
+                'nullable',
+                'file',
+                'max:2048',
+                'mimes:pdf,jpg,jpeg,png,doc,docx'
+            ]),
+            // 'passport_document' => 'required|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'trade_license' => 'nullable|file|max:2048|mimes:pdf,jpg,jpeg,png,doc,docx',
             'flat_id' => 'required|exists:flats,id',
             'building_id' => 'required|exists:buildings,id',

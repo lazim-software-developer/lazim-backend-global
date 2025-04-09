@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\DB;
 
 class SelectServicesController extends Controller
 {
-public function listServices(SubCategory $subcategory)
+    public function listServices(SubCategory $subcategory)
     {
-        $services = Service::where('active', 1)->where('subcategory_id',$subcategory->id)->get();
+        $services = Service::where('active', 1)->where('subcategory_id', $subcategory->id)->get();
         return SelectServicesResource::collection($services);
     }
 
@@ -50,7 +50,7 @@ public function listServices(SubCategory $subcategory)
             'message' => "",
             'code' => 201,
             'status' => 'success',
-            'data'  => $service
+            'data' => $service
         ]))->response()->setStatusCode(201);
     }
 
@@ -62,29 +62,33 @@ public function listServices(SubCategory $subcategory)
 
         try {
             // Check if service is already tagged
-            if ($vendor->services()->where('service_id', $request->service)->exists()) {
+            $isServiceAlreadyTagged = $vendor->services()->where('service_id', $request->service)->exists();
+
+
+            if ($isServiceAlreadyTagged) {
+                // Optionally you can return a success message here if you want
                 return (new CustomResponseResource([
-                    'title'   => 'Service already exists.',
-                    'message' => 'Service already exists.',
-                    'code'    => 409,
-                    'status'  => 'error',
-                ]))->response()->setStatusCode(409);
+                    'title' => 'Service already exists.',
+                    'message' => 'Service is already tagged to this vendor.',
+                    'code' => 200, // Return a success code instead of error
+                    'status' => 'success',
+                ]))->response()->setStatusCode(200);
             }
 
             $vendor->services()->syncWithoutDetaching([$request->service]);
 
             return (new CustomResponseResource([
-                'title'   => 'Service tagged successfully.',
+                'title' => 'Service tagged successfully.',
                 'message' => 'Service tagged successfully',
-                'code'    => 201,
-                'status'  => 'success',
+                'code' => 201,
+                'status' => 'success',
             ]))->response()->setStatusCode(201);
         } catch (\Exception $e) {
             return (new CustomResponseResource([
-                'title'   => 'Error',
+                'title' => 'Error',
                 'message' => 'Failed to tag service. Please try again.',
-                'code'    => 500,
-                'status'  => 'error',
+                'code' => 500,
+                'status' => 'error',
             ]))->response()->setStatusCode(500);
         }
     }
@@ -105,7 +109,7 @@ public function listServices(SubCategory $subcategory)
         ]))->response()->setStatusCode(201);
     }
 
-    public function showServices(Request $request,Vendor $vendor)
+    public function showServices(Request $request, Vendor $vendor)
     {
         // $vendorServices = ServiceVendor::where('vendor_id',$vendor->id)->where('active', true)->when(isset($request->building_id), function ($query) use ($request) {
         //     $buildingId = $request->building_id;
@@ -126,22 +130,37 @@ public function listServices(SubCategory $subcategory)
     {
         // $categories = SubCategory::whereIn('id', [1, 5, 13, 7,41])->get();
         // return SubCategoryResource::collection($categories);
-        return ['data' => [
-            ["id"=>5,
-            "name"=>"House Keeping"],
-            ["id"=>36,
-            "name"=>"Security"],
-            ["id"=>69,
-            "name"=>"Electrical"],
-            ["id"=>69,
-            "name"=>"Plumbing"],
-            ["id"=>69,
-            "name"=>"AC"],
-            ["id"=>40,
-            "name"=>"Pest Control"],
-            ["id"=>228,
-            "name"=>"Other"]
-            ]];
-
+        return [
+            'data' => [
+                [
+                    "id" => 5,
+                    "name" => "House Keeping"
+                ],
+                [
+                    "id" => 36,
+                    "name" => "Security"
+                ],
+                [
+                    "id" => 69,
+                    "name" => "Electrical"
+                ],
+                [
+                    "id" => 69,
+                    "name" => "Plumbing"
+                ],
+                [
+                    "id" => 69,
+                    "name" => "AC"
+                ],
+                [
+                    "id" => 40,
+                    "name" => "Pest Control"
+                ],
+                [
+                    "id" => 228,
+                    "name" => "Other"
+                ]
+            ]
+        ];
     }
 }
