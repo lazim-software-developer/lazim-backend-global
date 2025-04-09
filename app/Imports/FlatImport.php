@@ -183,7 +183,8 @@ class FlatImport implements ToCollection, WithHeadingRow
                 ]);
             }
         }
-        $building = Building::find($this->buildingId);
+        $building = Building::where('building_id',$this->buildingId);
+
         $buildingCount = $building->parking_count;
         $building->update(['parking_count' => ($buildingCount + $totalParkingCount)]);
 
