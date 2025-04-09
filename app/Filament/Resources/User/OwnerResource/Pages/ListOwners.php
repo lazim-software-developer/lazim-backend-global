@@ -27,15 +27,39 @@ class ListOwners extends ListRecords
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
+            return parent::getTableQuery()->where('owner_association_id', auth()->user()?->owner_association_id);
+        }
         // $BuildingId = Building::where('owner_association_id',Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
         $flatsId = Flat::where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()?->owner_association_id)->pluck('id');
         $flatowners = FlatOwners::whereIn('flat_id', $flatsId)->pluck('owner_id');
         return parent::getTableQuery()->whereIn('id', $flatowners);
     }
+    public function beforeFill(): void
+    {
+        dd('sffdf');
+        $Assignnflats = FlatOwners::where('owner_id',$this->record->id)->get();
+        foreach($Assignnflats as $flat_value){
+            $flatDetail=Flat::where('id',$flat_value->flat_id)->first();
+            if(empty($this->record->building_id))
+            {
+                $this->record->building_id=$flatDetail->building_id;
+            }
+            $this->record->save();
+        }
+    }
     protected function getHeaderActions(): array
     {
         return [
-            //Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+            ->visible(function () {
+                $auth_user = auth()->user();
+                $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+                if ($role === 'Admin' || $role === 'Property Manager') {
+                    return true;
+                }
+            }),
             Action::make('Notify Owners')
                 ->button()
                 ->form([

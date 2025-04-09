@@ -22,8 +22,8 @@ class SelectServicesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service' => 'required',
-            'service' => 'exists:services,id'
+            'service' => ['required', 'exists:services,id']
+            // 'service' => 'exists:services,id'
         ];
     }
 }

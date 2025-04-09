@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use App\Models\Vendor\Vendor;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CompanyDetailsRequest extends FormRequest
@@ -23,14 +24,16 @@ class CompanyDetailsRequest extends FormRequest
 
     public function rules(): array
     {
+        $vendor =  Vendor::where('owner_id', $this->owner_id)->value('id');
+        $ownerId = $this->owner_id;
         return [
             'owner_id'        =>    'required|integer|exists:users,id',
             'address_line_1'  =>    'required|string',
             'address_line_2'  =>    'nullable|string',
-            'landline_number' =>    'required|string|unique:vendors,landline_number',
+            'landline_number' =>    'required|string|unique:vendors,landline_number,' . ($ownerId ? $vendor : 'Null'),
             'website'         =>    'nullable',
             'fax'             =>    'nullable|string|unique:vendors,fax',
-            'tl_number'       =>    'required|string|unique:vendors,tl_number',
+            'tl_number'       =>    'required|string|unique:vendors,tl_number,' . ($ownerId ? $vendor : 'Null'),
             'tl_expiry'       =>    'required|date',
             'owner_association_id' => 'required|integer|exists:owner_associations,id',
             'risk_policy_expiry' => 'required|date',
