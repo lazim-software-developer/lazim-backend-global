@@ -169,14 +169,14 @@ class OwnerResource extends Resource
                                     }
                                     $query->whereNull('deleted_at');
                                     if ($query->exists()) {
-                                        $fail("This emirates id is already registered with this owner association.");
+                                        $fail("This National ID is already registered with this owner association.");
                                     }
                                 };
                             }
                         ])
                         ->numeric()
                         ->required()
-                        ->label('Emirates ID'),
+                        ->label('National ID'),
                     TextInput::make('trade_license')
                         ->rules([
                             function ($record) {

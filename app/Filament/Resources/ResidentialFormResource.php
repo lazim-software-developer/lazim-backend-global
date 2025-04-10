@@ -94,7 +94,7 @@ class ResidentialFormResource extends Resource
                             return $get('trn_number') != null;
                         })->disabled(),
                     TextInput::make('emirates_id')
-                        ->label('Emirates ID')
+                        ->label('National ID')
                         ->disabled(),
                     TextInput::make('title_deed_number')
                         ->label('Title Deed number')
@@ -195,7 +195,7 @@ class ResidentialFormResource extends Resource
                         'emirates_expires_on' => 'Emirates Expires Date',
                         'passport_expires_on' => 'Passport Expires Date',
                         'title_deed_number' => 'Title Deed Number',
-                        'emirates_id' => 'Emirates Id',
+                        'emirates_id' => 'National ID',
                         'trn_number' => 'TRN Number',
                         'office_number' => 'Office Number',
                         'tenancy_contract' => 'Tenancy / Ejari',

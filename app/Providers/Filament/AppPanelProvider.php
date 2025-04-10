@@ -205,12 +205,12 @@ class AppPanelProvider extends PanelProvider
                                 ->icon('heroicon-s-user-group')
                                 ->activeIcon('heroicon-s-user-group')
                                 ->sort(14),
-                            NavigationItem::make('Documents')
-                                ->hidden(!$user->can('page_Documents'))
-                                ->url('/app/documents')
-                                ->icon('heroicon-s-document-text')
-                                ->activeIcon('heroicon-s-document-text')
-                                ->sort(15),
+                            // NavigationItem::make('Documents')
+                            //     ->hidden(!$user->can('page_Documents'))
+                            //     ->url('/app/documents')
+                            //     ->icon('heroicon-s-document-text')
+                            //     ->activeIcon('heroicon-s-document-text')
+                            //     ->sort(15),
                         ]),
                 ]);
             }
@@ -441,18 +441,18 @@ class AppPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-clipboard-document')
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
-                                NavigationItem::make('General Fund Statement Bank Book')
-                                    ->url('/app/mollak-general-fund-statement')
-                                    ->hidden(!$user->can('page_GeneralFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-check')
-                                    ->activeIcon('heroicon-m-clipboard-document-check')
-                                    ->sort(11),
-                                NavigationItem::make('Reserve Fund Statement Bank Book')
-                                    ->url('/app/mollak-reserve-fund-statement')
-                                    ->hidden(!$user->can('page_ReserveFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(12),
+                                // NavigationItem::make('General Fund Statement Bank Book')
+                                //     ->url('/app/mollak-general-fund-statement')
+                                //     ->hidden(!$user->can('page_GeneralFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-check')
+                                //     ->activeIcon('heroicon-m-clipboard-document-check')
+                                //     ->sort(11),
+                                // NavigationItem::make('Reserve Fund Statement Bank Book')
+                                //     ->url('/app/mollak-reserve-fund-statement')
+                                //     ->hidden(!$user->can('page_ReserveFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-list')
+                                //     ->activeIcon('heroicon-m-clipboard-document-list')
+                                //     ->sort(12),
 
                                 ]),
                     ]);

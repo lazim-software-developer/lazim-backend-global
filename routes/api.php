@@ -77,7 +77,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
 // Resident registeration with email and phone
 Route::post('/register', [RegistrationController::class, 'registerWithEmailPhone']);
-// Resident registeration with Passport/Emirates id
+// Resident registeration with Passport/National ID
 Route::post('/register-with-document', [RegistrationController::class, 'registerWithDocument']);
 Route::post('/documents-reupload/{resident}', [RegistrationController::class, 'reuploadDocument']);
 Route::get('/documents-status/{resident}', [RegistrationController::class, 'documentStatus']);
