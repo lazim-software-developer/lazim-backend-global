@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Master\City;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +18,7 @@ return new class extends Migration
                 $table->foreignId('state_id')->nullable()->constrained('states')->nullOnDelete();
             });
         }
+        City::truncate();        
         $file = file_get_contents(base_path('public/cities.sql'));
         DB::statement($file);
     }
