@@ -17,9 +17,12 @@ return new class extends Migration
             Schema::table('cities', function (Blueprint $table) {
                 $table->foreignId('state_id')->nullable()->constrained('states')->nullOnDelete();
             });
-        }   
+        }
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('cities')->truncate();   
         $file = file_get_contents(base_path('public/cities.sql'));
         DB::statement($file);
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     /**
