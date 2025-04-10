@@ -4,6 +4,7 @@ namespace App\Filament\Imports;
 
 use App\Models\Floor;
 use Illuminate\Support\Str;
+use App\Models\Master\State;
 use App\Models\Building\Building;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
                     continue;
                 }
 
+                $countryId=State::where('id',$city->state_id)->value('country_id');
+
                 // Create new building
                 $Building=Building::create([
                     'name'                   => $row['name'],
@@ -74,6 +77,8 @@ class BuildingImport implements ToCollection, WithHeadingRow
                     'address_line1'            => $row['address_line_1']??NULL,
                     'address_line2'        => $row['address_line_2']??NULL,
                     'area'          => $row['area'],
+                    'country_id'              => $countryId ?? null,
+                    'state_id'              => $city->state_id,
                     'city_id'              => $city->id,
                     'description'            => $row['description']??NULL,
                     'floors'           => $row['floors']??NULL,
