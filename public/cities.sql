@@ -1,4 +1,5 @@
 INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES
+(1, 'Dubai', 1),
 (2, 'Garacharma', 1),
 (3, 'Port Blair', 1),
 (4, 'Rangat', 1),
