@@ -86,7 +86,7 @@ class TenantResource extends Resource
                         ->required()
                         ->rules(['regex:/^\d{15}$/'])
                         ->validationMessages([
-                            'regex' => 'The Emirates ID must be exactly 15 numeric digits.'
+                            'regex' => 'The National ID must be exactly 15 numeric digits.'
                         ])
                         ->rules([
                             function ($record) {
@@ -114,12 +114,12 @@ class TenantResource extends Resource
                                     }
                                     $query->whereNull('deleted_at');
                                     if ($query->exists()) {
-                                        $fail("This Tenant emirates id is already registered with this building, Unit & owner association.");
+                                        $fail("This Tenant National ID is already registered with this building, Unit & owner association.");
                                     }
                                 };
                             }
                         ])
-                        ->placeholder('Emirates Id'),
+                        ->placeholder('National ID'),
                     TextInput::make('passport')
                     ->required()
                     ->rules('alpha_num')

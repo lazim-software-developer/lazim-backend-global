@@ -12,6 +12,7 @@ use App\Models\Forms\Guest;
 use App\Models\LegalNotice;
 use App\Models\Master\City;
 use App\Models\Master\Role;
+use App\Models\Master\State;
 use App\Models\MollakTenant;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
@@ -22,6 +23,7 @@ use App\Models\BuildingVendor;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
+use App\Models\Master\Country;
 use App\Models\Master\Service;
 use App\Models\OfferPromotion;
 use App\Models\OwnerCommittee;
@@ -65,6 +67,8 @@ class Building extends Model
         'address_line1',
         'address_line2',
         'area',
+        'country_id',
+        'state_id',
         'city_id',
         'lat',
         'lng',
@@ -104,6 +108,14 @@ class Building extends Model
     public function cities()
     {
         return $this->belongsTo(City::class, 'city_id');
+    }
+    public function countries()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
+    public function states()
+    {
+        return $this->belongsTo(State::class, 'state_id');
     }
 
     public function buildingPocs()
