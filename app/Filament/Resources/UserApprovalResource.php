@@ -158,7 +158,7 @@ class UserApprovalResource extends Resource
                                             ->label('Passport')
                                             ->content($ownerDetail->passport ?? 'N/A'),
                                         Placeholder::make("owner_{$index}_emirates_id")
-                                            ->label('Emirates ID')
+                                            ->label('National ID')
                                             ->content($ownerDetail->emirates_id ?? 'N/A'),
                                         Placeholder::make("owner_{$index}_trade_license")
                                             ->label('Trade License')

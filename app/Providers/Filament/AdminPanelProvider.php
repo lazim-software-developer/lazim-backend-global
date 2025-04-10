@@ -2,24 +2,24 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Components\NavigationItemExtended;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use App\Models\User\User;
 use Illuminate\View\View;
+use App\Helpers\UrlHelper;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
 use Filament\PanelProvider;
 use App\Models\OwnerAssociation;
 // use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
-use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -37,6 +37,8 @@ use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\Master\CountryResource;
+use App\Filament\Components\NavigationItemExtended;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BuildingEngineerResource;
@@ -48,11 +50,10 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+// use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
-// use Filament\Pages\Dashboard;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Helpers\UrlHelper;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -235,12 +236,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-user-group')
                                     ->activeIcon('heroicon-s-user-group')
                                     ->sort(14),
-                                NavigationItem::make('Documents')
-                                    ->hidden(!$user->can('page_Documents'))
-                                    ->url('/admin/documents')
-                                    ->icon('heroicon-s-document-text')
-                                    ->activeIcon('heroicon-s-document-text')
-                                    ->sort(15),
+                                // NavigationItem::make('Documents')
+                                //     ->hidden(!$user->can('page_Documents'))
+                                //     ->url('/admin/documents')
+                                //     ->icon('heroicon-s-document-text')
+                                //     ->activeIcon('heroicon-s-document-text')
+                                //     ->sort(15),
                             ])
                             ->collapsed(true),
                     ]);
@@ -325,6 +326,29 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
+
+
+                // $builder->groups([
+                //     NavigationGroup::make('Location Management')
+                //         ->items([
+                //             NavigationItem::make('Country')
+                //                 ->url(CountryResource::getUrl('index'))
+                //                 ->icon('heroicon-o-map-pin')
+                //                 ->activeIcon('heroicon-o-map-pin')
+                //                 ->sort(1),
+                //             NavigationItem::make('State')
+                //                 ->url('/admin/posts')
+                //                 ->icon('heroicon-o-map-pin')
+                //                 ->activeIcon('heroicon-o-map-pin')
+                //                 ->sort(2),
+                //             NavigationItem::make('City')
+                //                 ->url('/admin/polls')
+                //                 ->icon('heroicon-o-map-pin')
+                //                 ->activeIcon('heroicon-o-map-pin')
+                //                 ->sort(3),
+                //         ])
+                //         ->collapsed(true),
+                // ]);
 
                 if (
                     $user->can('view_any_vendor::vendor') ||
@@ -476,18 +500,18 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-clipboard-document')
                                     ->activeIcon('heroicon-s-clipboard-document')
                                     ->sort(10),
-                                NavigationItem::make('General Fund Statement Bank Book')
-                                    ->url('/admin/mollak-general-fund-statement')
-                                    ->hidden(!$user->can('page_GeneralFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-check')
-                                    ->activeIcon('heroicon-m-clipboard-document-check')
-                                    ->sort(11),
-                                NavigationItem::make('Reserve Fund Statement Bank Book')
-                                    ->url('/admin/mollak-reserve-fund-statement')
-                                    ->hidden(!$user->can('page_ReserveFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(12),
+                                // NavigationItem::make('General Fund Statement Bank Book')
+                                //     ->url('/admin/mollak-general-fund-statement')
+                                //     ->hidden(!$user->can('page_GeneralFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-check')
+                                //     ->activeIcon('heroicon-m-clipboard-document-check')
+                                //     ->sort(11),
+                                // NavigationItem::make('Reserve Fund Statement Bank Book')
+                                //     ->url('/admin/mollak-reserve-fund-statement')
+                                //     ->hidden(!$user->can('page_ReserveFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-list')
+                                //     ->activeIcon('heroicon-m-clipboard-document-list')
+                                //     ->sort(12),
 
                             ])
                             ->collapsed(true),

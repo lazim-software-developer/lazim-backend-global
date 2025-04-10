@@ -9,6 +9,8 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\City;
 use App\Models\Master\Role;
+use App\Models\Master\State;
+use App\Models\Master\Country;
 use Illuminate\Validation\Rule;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
@@ -171,18 +173,52 @@ class BuildingResource extends Resource
                         ->placeholder('Floors')
                         ->label('Floor'),
 
-                    Select::make('city_id')
-                        ->label('City') // Add or change the label
-                        ->native(false)
-                        ->required()
-                        ->rules([
-                            'required'
-                        ])
-                        ->options(function (callable $get) {
+                        Select::make('country_id')
+                            ->label('Country')
+                            ->native(false)
+                            ->required()
+                            ->rules(['required'])
+                            ->options(function () {
+                                return Country::pluck('name', 'id');
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                // When country changes, clear both state and city
+                                $set('state_id', null);
+                                $set('city_id', null);
+                            })
+                            ->searchable(),
 
-                            return City::pluck('name', 'id');
-                        })
-                        ->searchable(),
+                        Select::make('state_id')
+                            ->label('State')
+                            ->native(false)
+                            ->required()
+                            ->rules(['required'])
+                            ->options(function (callable $get) {
+                                if ($get('country_id')) {
+                                    return State::where('country_id', $get('country_id'))->pluck('name', 'id');
+                                }
+                                return [];
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                // When state changes, only clear city
+                                $set('city_id', null);
+                            })
+                            ->searchable(),
+
+                        Select::make('city_id')
+                            ->label('City')
+                            ->native(false)
+                            ->required()
+                            ->rules(['required'])
+                            ->options(function (callable $get) {
+                                if ($get('state_id')) {
+                                    return City::where('state_id', $get('state_id'))->pluck('name', 'id');
+                                }
+                                return [];
+                            })
+                            ->searchable(),
 
                     Toggle::make('allow_postupload')
                         ->columnStart([
