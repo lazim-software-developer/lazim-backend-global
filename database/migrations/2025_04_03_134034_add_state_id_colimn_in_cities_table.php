@@ -17,8 +17,7 @@ return new class extends Migration
             Schema::table('cities', function (Blueprint $table) {
                 $table->foreignId('state_id')->nullable()->constrained('states')->nullOnDelete();
             });
-        }
-        City::truncate();        
+        }   
         $file = file_get_contents(base_path('public/cities.sql'));
         DB::statement($file);
     }
