@@ -98,8 +98,15 @@ class AuthController extends Controller
                                 ->where(['tokenable_type' => 'user', 'tokenable_id' => $user->id])->delete();
                         }
                         $token = $user->createToken($user->role->name)->plainTextToken;
+                        $refreshToken = Str::random(40);
+                        DB::table('refresh_tokens')->insert([
+                            'user_id' => $user->id,
+                            'token' => hash('sha256', $refreshToken),
+                            'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
+                        ]);
+
                         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
-                        return response(['token' => $token, 'user' => $user], 200);
+                        return response(['token' => $token, 'refresh_token' => $refreshToken, 'user' => $user], 200);
                     }
                 } else {
                     return response()->json([
@@ -152,17 +159,17 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if (!$user->phone_verified) {
-            return (new CustomResponseResource([
-                'title' => 'Phone Verification Required',
-                'message' => 'Phone number is not verified.',
-                'code' => 403,
-                'data' => $user
-            ]))->response()->setStatusCode(403);
-        }
+        // if (!$user->phone_verified) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'Phone Verification Required',
+        //         'message' => 'Phone number is not verified.',
+        //         'code' => 403,
+        //         'data' => $user
+        //     ]))->response()->setStatusCode(403);
+        // }
 
         $flatExists = FlatTenant::where('tenant_id', $user->id)->where('active', true)->exists();
-        if(!$user->active && !$flatExists){
+        if (!$user->active && !$flatExists) {
             return (new CustomResponseResource([
                 'title' => 'Access Forbidden',
                 'message' => 'Account under review. Please wait.',
@@ -171,7 +178,7 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if(!$user->active){
+        if (!$user->active) {
             return (new CustomResponseResource([
                 'title' => 'Account Status',
                 'message' => 'Access denied. Please contact the admin team.',
@@ -199,6 +206,8 @@ class AuthController extends Controller
             'token' => hash('sha256', $refreshToken),
             'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
         ]);
+
+        $user->selectType = OwnerAssociation::find($user->owner_association_id)->resource == "Default"  ? 'globalOa' : 'OA';
 
         return response()->json([
             'token' => $token,
@@ -301,14 +310,14 @@ class AuthController extends Controller
             ]))->response()->setStatusCode(403);
         }
 
-        if (!$user->phone_verified) {
-            return (new CustomResponseResource([
-                'title' => 'Phone Verification Required',
-                'message' => 'Phone number is not verified.',
-                'code' => 403,
-                'data' => $user
-            ]))->response()->setStatusCode(403);
-        }
+        // if (!$user->phone_verified) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'Phone Verification Required',
+        //         'message' => 'Phone number is not verified.',
+        //         'code' => 403,
+        //         'data' => $user
+        //     ]))->response()->setStatusCode(403);
+        // }
 
         // Check if the gatekeeper is having active account inuildingPOC table
         $building = BuildingPoc::where([
@@ -362,7 +371,7 @@ class AuthController extends Controller
         }
         $user = User::where('email', $request->email)->first();
         // cehck if user is vendor
-        if (!in_array($user->role->name, ['Vendor','Facility Manager'])) {
+        if (!in_array($user->role->name, ['Vendor', 'Facility Manager'])) {
             return (new CustomResponseResource([
                 'title' => 'Unauthorized!',
                 'message' => 'You are not authorized to login!',
@@ -411,7 +420,7 @@ class AuthController extends Controller
 
         $oneActive = DB::table('owner_association_vendor')
             ->where('vendor_id', $user->vendors->first()->id)
-            ->where(['active'=> true, 'status'=> 'approved'])
+            ->where(['active' => true, 'status' => 'approved'])
             ->exists();
 
         if ($user && $user->vendors->first()->status == 'rejected' && !$oneActive) {
@@ -446,10 +455,10 @@ class AuthController extends Controller
         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
 
         $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
-        $oaIds  = DB::table('owner_association_vendor')->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])->pluck('owner_association_id');
+        $oaIds  = DB::table('owner_association_vendor')->where(['vendor_id' => $vendor, 'active' => true, 'status' => 'approved'])->pluck('owner_association_id');
         $registeredWith = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
 
-        $user->setAttribute('registered_with',$registeredWith);
+        $user->setAttribute('registered_with', $registeredWith);
 
         return response()->json([
             'token' => $token,

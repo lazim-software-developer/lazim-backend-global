@@ -37,7 +37,6 @@ class ListOwners extends ListRecords
     }
     public function beforeFill(): void
     {
-        dd('sffdf');
         $Assignnflats = FlatOwners::where('owner_id',$this->record->id)->get();
         foreach($Assignnflats as $flat_value){
             $flatDetail=Flat::where('id',$flat_value->flat_id)->first();
