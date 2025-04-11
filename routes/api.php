@@ -466,7 +466,6 @@ Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
     Route::get('/vendor-status', [VendorRegistrationController::class, 'getVendorStatus']);
-
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
     // Add a new custom service and attch to vendor
     Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
