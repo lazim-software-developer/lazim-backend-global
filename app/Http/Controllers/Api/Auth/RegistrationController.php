@@ -319,19 +319,32 @@ class RegistrationController extends Controller
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
         if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-            if ($customerId) {
-                $connection->table('customers')->insert([
-                    'customer_id' => $customerId,
-                    'name' => $request->name,
-                    'email'  => $request->email,
-                    'contact' => $request->mobile,
-                    'type' => $type,
-                    'lang' => 'en',
-                    'created_by' => $created_by,
-                    'is_enable_login' => 0,
-                ]);
-            }
-
+            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $name = $request->name . ' - ' . $flat->property_number;
+            $connection->table('customers')->insert([
+                'customer_id' => $customerId,
+                'name' => $name,
+                'email'  => $request->email,
+                'contact' => $request->mobile,
+                'type' => $type,
+                'lang' => 'en',
+                'created_by' => $created_by,
+                'is_enable_login' => 0,
+                'billing_name' => $name,
+                'billing_country' => 'UAE',
+                'billing_city' => 'Dubai',
+                'billing_phone' => $request->mobile,
+                'billing_address' => $building->address_line1 . ', ' . $building->area,
+                'shipping_name' => $name,
+                'shipping_country' => 'UAE',
+                'shipping_city' => 'Dubai',
+                'shipping_phone' => $request->mobile,
+                'shipping_address' => $building->address_line1 . ', ' . $building->area,
+                'created_by_lazim' => true,
+                'flat_id' => $flat->id,
+                'building_id' => $flat->building_id,
+                'primary' => $primary ? 0 : 1,
+            ]);
         }
         // $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         // $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
