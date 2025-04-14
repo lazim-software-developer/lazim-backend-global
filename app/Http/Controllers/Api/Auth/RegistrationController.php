@@ -135,9 +135,8 @@ class RegistrationController extends Controller
             'owner_id' => $request->owner_id ?: null,
         ]);
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-
-        if($created_by){
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
             $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
             $name = $firstName . ' - ' . $flat->property_number;
@@ -185,13 +184,13 @@ class RegistrationController extends Controller
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
 
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-        if($customerId){
+        if ($customerId) {
             AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
         }
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
-            'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
+            'message' => "We've sent verification code to your email Id. Please verify to continue using the application",
             'code' => 201,
             'status' => 'success'
         ]))->response()->setStatusCode(201);
@@ -216,14 +215,14 @@ class RegistrationController extends Controller
         }
 
         // If email is verified,
-        if ($userData->exists() && ($userData->first()->phone_verified == 0)) {
-            return (new CustomResponseResource([
-                'title' => 'account_present',
-                'message' => "Your account is not verified. You'll be redirected to account verification page",
-                'code' => 403,
-                'type' => 'phone'
-            ]))->response()->setStatusCode(403);
-        }
+        // if ($userData->exists() && ($userData->first()->phone_verified == 0)) {
+        //     return (new CustomResponseResource([
+        //         'title' => 'account_present',
+        //         'message' => "Your account is not verified. You'll be redirected to account verification page",
+        //         'code' => 403,
+        //         'type' => 'phone'
+        //     ]))->response()->setStatusCode(403);
+        // }
 
         // Check if user exists in our DB
         if (User::where(['email' => $request->email, 'email_verified' => 1, 'phone_verified' => 1])->exists()) {
@@ -249,10 +248,10 @@ class RegistrationController extends Controller
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
         // Check if the given flat_id is already allotted to someone with active true
-        if($type === 'Tenant'){
+        if ($type === 'Tenant') {
             $flatOwner = DB::table('flat_tenants')
-            ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type])
-            ->exists();
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type])
+                ->exists();
 
             if ($flatOwner) {
                 return (new CustomResponseResource([
@@ -263,10 +262,10 @@ class RegistrationController extends Controller
             }
 
             $ownerResiding = DB::table('flat_tenants')
-            ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
-            ->exists();
+                ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Owner', 'residing_in_same_flat' => true])
+                ->exists();
 
-            if($ownerResiding && $request->has('role') && $request->role == 'Property Manager'){
+            if ($ownerResiding && $request->has('role') && $request->role == 'Property Manager') {
                 return (new CustomResponseResource([
                     'title' => 'flat_error',
                     'message' => 'Flat is already allocated to one owner residing in same flat!',
@@ -274,7 +273,7 @@ class RegistrationController extends Controller
                 ]))->response()->setStatusCode(400);
             }
         }
-        if($type === 'Owner' && $request->has('residing') && $request->residing){
+        if ($type === 'Owner' && $request->has('residing') && $request->residing) {
             // $flatOwner = DB::table('flat_tenants')
             //     ->where(['flat_id' => $flat->id, 'active' => 1, 'role' => $type, 'residing_in_same_flat' => true])
             //     ->exists();
@@ -317,8 +316,8 @@ class RegistrationController extends Controller
         ]);
 
         $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        if($created_by){
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
+        if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
             $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
             $name = $request->name . ' - ' . $flat->property_number;
@@ -353,24 +352,24 @@ class RegistrationController extends Controller
         // $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
         if ($request->hasFile('emirates_document')) {
             $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
-            }else{
-                $imagePath=null;
-            }
-            if ($request->hasFile('emirates_document')) {
+        } else {
+            $imagePath = null;
+        }
+        if ($request->hasFile('emirates_document')) {
             $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
-            }else{
-                $emirates=null;
-            }
-            if ($request->hasFile('passport_document')) {
+        } else {
+            $emirates = null;
+        }
+        if ($request->hasFile('passport_document')) {
             $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
-            }else{
-                $passport=null;
-            }
-            if ($request->hasFile('trade_license')) {
+        } else {
+            $passport = null;
+        }
+        if ($request->hasFile('trade_license')) {
             $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
-            }else{
-                $tradeLicense=null;
-            }
+        } else {
+            $tradeLicense = null;
+        }
 
         $oam_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first();
         $oam = OwnerAssociation::find($oam_id?->owner_association_id ?: auth()->user()->ownerAssociation->id);
@@ -413,10 +412,12 @@ class RegistrationController extends Controller
             'residing_in_same_flat' => $request->has('residing') ? $request->residing : 0,
         ]);
 
-        $customer = $connection->table('customers')->where(['email'=> $request->email,
-            'contact' => $request->mobile])->first();
+        $customer = $connection->table('customers')->where([
+            'email' => $request->email,
+            'contact' => $request->mobile
+        ])->first();
         $property = Flat::find($request->flat_id)?->property_number;
-        if($customer && $property){
+        if ($customer && $property) {
             $connection->table('customer_flat')->insert([
                 'customer_id' => $customer?->id,
                 'flat_id' => $request->flat_id,
@@ -430,18 +431,19 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
-            'message' => "We've sent verification code to your email Id and phone. Please verify to continue using the application",
+            'message' => "We've sent verification code to your email Id. Please verify to continue using the application",
             'code' => 201,
             'status' => 'verificationPending'
         ]))->response()->setStatusCode(201);
     }
 
-    public function reuploadDocument(Request $request,UserApproval $resident){
-        if($request->has('building_id')){
+    public function reuploadDocument(Request $request, UserApproval $resident)
+    {
+        if ($request->has('building_id')) {
             DB::table('building_owner_association')
                 ->where(['building_id' => $request->building_id, 'active' => true])->first()->owner_association_id;
         }
-        if($resident->status == null){
+        if ($resident->status == null) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Your last changes is not yet approved!',
@@ -667,7 +669,7 @@ class RegistrationController extends Controller
 
         return RegisterOwnersList::collection($owners);
     }
-     public function addFlat(AddFlatForResidentsRequest $request)
+    public function addFlat(AddFlatForResidentsRequest $request)
     {
         if ($request->has('global_building_id')) {
             DB::table('building_owner_association')
@@ -680,7 +682,7 @@ class RegistrationController extends Controller
         $flat = Flat::find($request->flat_id);
 
         // check if the flat is already registered to the same user
-        $flatTenant = FlatTenant::where(['flat_id'=> $request->flat_id,'tenant_id'=> $userData->id,'active'=>true])->first();
+        $flatTenant = FlatTenant::where(['flat_id' => $request->flat_id, 'tenant_id' => $userData->id, 'active' => true])->first();
         if ($flatTenant) {
             return (new CustomResponseResource([
                 'title' => 'Registration error',
@@ -689,9 +691,9 @@ class RegistrationController extends Controller
             ]))->response()->setStatusCode(400);
         }
 
-        if($request->type == 'Tenant'){
+        if ($request->type == 'Tenant') {
             // Check if the given flat_id is already allotted to someone with active true
-            $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1, 'role'=> 'Tenant'])->exists();
+            $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant'])->exists();
             if ($flatOwner) {
                 return (new CustomResponseResource([
                     'title' => 'Registration error',
