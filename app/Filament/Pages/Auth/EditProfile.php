@@ -107,12 +107,15 @@ class EditProfile extends BaseEditProfile
                     // 'profile_photo'   => $data['profile_photo'],
                 ]);
             } else {
-                $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
-                $ownerassociation->Update([
-                    'name'    => $data['first_name'],
-                    'phone'   => '971' . $data['phone'],
-                    // 'profile_photo'   => $data['profile_photo'],
-                ]);
+                $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
+                if (in_array($roleName, ['OA'])) {
+                    $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
+                    $ownerassociation->Update([
+                        'name'    => $data['first_name'],
+                        'phone'   => '971' . $data['phone'],
+                        // 'profile_photo'   => $data['profile_photo'],
+                    ]);
+                }
                 $user = User::find(auth()->user()->id);
                 if ($data['password'] != null) {
                     $user->Update([
