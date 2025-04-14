@@ -128,7 +128,12 @@ class EditProfile extends BaseEditProfile
                     // 'profile_photo'   => $data['profile_photo'],
                 ]);
             }
-            redirect('/');
+            $requestedUrl = request()->url();
+            if (strpos($requestedUrl, 'admin') !== false) {
+                redirect('/app');
+            } else {
+                redirect('/admin');
+            }
         } catch (Halt $exception) {
             return;
         }
