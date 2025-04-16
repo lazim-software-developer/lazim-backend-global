@@ -46,15 +46,6 @@ class SendVerificationOtp implements ShouldQueue
             'phoneOtp' => $phoneOtp ?? '',
         ];
 
-        if(env('APP_ENV') == 'production'){
-            $response = Http::withOptions(['verify' => false])->withHeaders([
-                'content-type' => 'application/json',
-            ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $this->user->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
-    
-            Log::info('RESPONSEEE:-' . $response);
-    
-        }
-
         $beautymail = app()->make(Beautymail::class);
         $beautymail->send('emails.verification', ['user' => $this->user, 'data' => $data], function($message) {
             $message
