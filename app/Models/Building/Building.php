@@ -6,7 +6,6 @@ use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
 use App\Models\Meeting;
-use App\Models\OfferPromotion;
 use App\Models\SubContractor;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;

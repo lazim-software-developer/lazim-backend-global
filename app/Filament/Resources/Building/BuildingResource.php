@@ -497,13 +497,44 @@ class BuildingResource extends Resource
                             $pmRole = OwnerAssociation::where('id', $pmId)->first()->role == 'Property Manager';
 
                             if ($pmRole) {
+                                // $pmFlats = DB::table('property_manager_flats')
+                                //     ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                //     ->whereIn('flat_id', function ($query) use ($record) {
+                                //         $query->select('id')
+                                //             ->from('flats')
+                                //             ->where('building_id', $record->id);
+                                //     })
+                                //     ->where('active', 0);
+                                $buildingFlats = DB::table('flats')
+                                    ->where('building_id', $record->id)
+                                    ->pluck('id');
+
+                                // Get existing PM flats
+                                $existingPmFlats = DB::table('property_manager_flats')
+                                    ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                    ->whereIn('flat_id', $buildingFlats)
+                                    ->pluck('flat_id');
+
+                                // Create PM flats for any missing ones
+                                $missingFlats = $buildingFlats->diff($existingPmFlats);
+                                if ($missingFlats->isNotEmpty()) {
+                                    $insertData = $missingFlats->map(function ($flatId) {
+                                        return [
+                                            'owner_association_id' => auth()->user()?->owner_association_id,
+                                            'flat_id' => $flatId,
+                                            'active' => 1,
+                                            'created_at' => now(),
+                                            'updated_at' => now(),
+                                        ];
+                                    })->all();
+
+                                    DB::table('property_manager_flats')->insert($insertData);
+                                }
+
+                                // Activate existing inactive PM flats
                                 $pmFlats = DB::table('property_manager_flats')
                                     ->where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->whereIn('flat_id', function ($query) use ($record) {
-                                        $query->select('id')
-                                            ->from('flats')
-                                            ->where('building_id', $record->id);
-                                    })
+                                    ->whereIn('flat_id', $buildingFlats)
                                     ->where('active', 0);
 
                                 $pmFlats->update(['active' => 1]);
@@ -580,6 +611,7 @@ class BuildingResource extends Resource
 
                         // Make related flat tenants inactive
                         $flatResidents = DB::table('flat_tenants')
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
                             ->whereIn('flat_id', $pmFlats->pluck('flat_id'));
                         if ($flatResidents->exists()) {
                             $tenantIds = $flatResidents->pluck('tenant_id');

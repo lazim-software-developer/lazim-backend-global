@@ -279,13 +279,35 @@ class BuildingRelationManager extends RelationManager
                         }
 
                         // Activate property manager flats
+                        // Get all flats for the building
+                        $buildingFlats = DB::table('flats')
+                            ->where('building_id', $buildingId)
+                            ->pluck('id');
+
+                        // Get existing PM flats
+                        $existingPmFlats = DB::table('property_manager_flats')
+                            ->where('owner_association_id', $this->ownerRecord->id)
+                            ->whereIn('flat_id', $buildingFlats)
+                            ->pluck('flat_id');
+
+                        // Create PM flats for any missing ones
+                        $missingFlats = $buildingFlats->diff($existingPmFlats);
+                        if ($missingFlats->isNotEmpty()) {
+                            $insertData = $missingFlats->map(function ($flatId) {
+                                return [
+                                    'owner_association_id' => $this->ownerRecord->id,
+                                    'flat_id' => $flatId,
+                                    'active' => 1,
+                                ];
+                            })->all();
+
+                            DB::table('property_manager_flats')->insert($insertData);
+                        }
+
+                        // Activate existing inactive PM flats
                         $pmFlats = DB::table('property_manager_flats')
                             ->where('owner_association_id', $this->ownerRecord->id)
-                            ->whereIn('flat_id', function ($query) use ($buildingId) {
-                                $query->select('id')
-                                    ->from('flats')
-                                    ->where('building_id', $buildingId);
-                            })
+                            ->whereIn('flat_id', $buildingFlats)
                             ->where('active', 0);
 
                         // Make related flat tenants active
@@ -395,6 +417,7 @@ class BuildingRelationManager extends RelationManager
 
                         // Make related flat tenants inactive
                         $flatResidents = DB::table('flat_tenants')
+                            ->where('owner_association_id', $this->ownerRecord->id)
                             ->whereIn('flat_id', $pmFlats->pluck('flat_id'));
 
                         if ($flatResidents->exists()) {
