@@ -98,8 +98,15 @@ class AuthController extends Controller
                                 ->where(['tokenable_type' => 'user', 'tokenable_id' => $user->id])->delete();
                         }
                         $token = $user->createToken($user->role->name)->plainTextToken;
+                        $refreshToken = Str::random(40);
+                        DB::table('refresh_tokens')->insert([
+                            'user_id' => $user->id,
+                            'token' => hash('sha256', $refreshToken),
+                            'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
+                        ]);
+
                         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
-                        return response(['token' => $token, 'user' => $user], 200);
+                        return response(['token' => $token, 'refresh_token' => $refreshToken, 'user' => $user], 200);
                     }
                 } else {
                     return response()->json([
@@ -199,6 +206,8 @@ class AuthController extends Controller
             'token' => hash('sha256', $refreshToken),
             'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
         ]);
+
+        $user->selectType = OwnerAssociation::find($user->owner_association_id)->resource == "Default"  ? 'globalOa' : 'OA';
 
         return response()->json([
             'token' => $token,

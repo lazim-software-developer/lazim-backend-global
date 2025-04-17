@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Models\OwnerAssociation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -31,6 +32,8 @@ class ProfileResource extends JsonResource
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at,
             'remember_token'=>$this->remember_token,
+            'selectType'=> OwnerAssociation::find($this->owner_association_id)->resource == "Default"  ? 'globalOa' : 'OA',
+
         ];
     }
 }

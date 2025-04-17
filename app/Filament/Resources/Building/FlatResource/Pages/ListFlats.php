@@ -28,7 +28,7 @@ class ListFlats extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
+            Actions\CreateAction::make(),
             Action::make('feature')
                 ->label('Upload Units') // Set a label for your action
                 ->visible(in_array(auth()->user()->role->name, ['Admin', 'Property Manager']))
@@ -99,11 +99,9 @@ class ListFlats extends ListRecords
                 ->label('Download sample file'),
         ];
     }
+
     protected function getTableQuery(): Builder
     {
-        // $building = Building::all()
-        //     ->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
-
         $pmFlats = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()?->owner_association_id)
             ->where('active', true)
@@ -115,9 +113,9 @@ class ListFlats extends ListRecords
             ->where('active', true)
             ->pluck('building_id');
 
-            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
-            }
+        }
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager') {
             return parent::getTableQuery()->whereIn('id', $pmFlats);
         } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {

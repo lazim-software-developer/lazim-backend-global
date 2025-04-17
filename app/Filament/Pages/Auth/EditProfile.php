@@ -36,7 +36,7 @@ class EditProfile extends BaseEditProfile
                     ->unique(
                         'users',
                         'email',
-                        fn (?Model $record) => $record
+                        fn(?Model $record) => $record
                     )
                     ->email()
                     ->placeholder('Email'),
@@ -46,12 +46,12 @@ class EditProfile extends BaseEditProfile
                 ->placeholder('XXXXXXXXX')
                     ->rules([function (Model $record) {
                         return function (string $attribute, $value, Closure $fail) use ($record) {
-                            if (DB::table('users')->whereNot('id', $record->id)->where('phone', '971'.$value)->count() > 0) {
+                            if (DB::table('users')->whereNot('id', $record->id)->where('phone', '971' . $value)->count() > 0) {
                                 $fail('The phone is already taken by a User.');
                             }
                         };
                     },])
-                    ->formatStateUsing(fn (?string $state): string => substr($state, 3))
+                    ->formatStateUsing(fn(?string $state): string => substr($state, 3))
                     ->required()
                     ->prefix('971')
                     ->placeholder('Phone'),
@@ -98,36 +98,45 @@ class EditProfile extends BaseEditProfile
             $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
             if (in_array($roleName, ['Admin', 'Building Engineer', 'Accounts Manager', 'MD', 'Complaint Officer', 'Legal Officer'])) {
                 $user = User::find(auth()->user()->id);
-                if($data['password']!=null){
+                if ($data['password'] != null) {
                     $user->Update([
                         'password'   => password_hash($data['password'], PASSWORD_DEFAULT),
                     ]);
                 }
                 $user->Update([
                     'first_name'    => $data['first_name'],
-                    'phone'   => '971'.$data['phone'],
+                    'phone'   => '971' . $data['phone'],
                     // 'profile_photo'   => $data['profile_photo'],
                 ]);
             } else {
-                $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
-                $ownerassociation->Update([
-                    'name'    => $data['first_name'],
-                    'phone'   => '971'.$data['phone'],
-                    // 'profile_photo'   => $data['profile_photo'],
-                ]);
+                $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
+                if (in_array($roleName, ['OA'])) {
+                    $ownerassociation = OwnerAssociation::find(auth()->user()?->owner_association_id);
+                    $ownerassociation->Update([
+                        'name'    => $data['first_name'],
+                        'phone'   => '971' . $data['phone'],
+                        // 'profile_photo'   => $data['profile_photo'],
+                    ]);
+                }
                 $user = User::find(auth()->user()->id);
-                if($data['password']!=null){
+                if ($data['password'] != null) {
                     $user->Update([
                         'password'   => password_hash($data['password'], PASSWORD_DEFAULT),
                     ]);
                 }
                 $user->Update([
                     'first_name'    => $data['first_name'],
-                    'phone'   => '971'.$data['phone'],
+                    'phone'   => '971' . $data['phone'],
                     // 'profile_photo'   => $data['profile_photo'],
                 ]);
             }
-            redirect('/');
+            
+            $requestedUrl = request()->url();
+            if (strpos($requestedUrl, 'admin') !== false) {
+                redirect('/app');
+            } else {
+                redirect('/admin');
+            }
         } catch (Halt $exception) {
             return;
         }
