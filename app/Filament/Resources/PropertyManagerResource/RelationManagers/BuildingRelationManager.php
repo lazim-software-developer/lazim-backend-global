@@ -298,8 +298,6 @@ class BuildingRelationManager extends RelationManager
                                     'owner_association_id' => $this->ownerRecord->id,
                                     'flat_id' => $flatId,
                                     'active' => 1,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
                                 ];
                             })->all();
 
