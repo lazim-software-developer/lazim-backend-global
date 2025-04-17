@@ -36,17 +36,20 @@ class UserResource extends Resource
                 ->schema([
                     TextInput::make('first_name')
                         ->rules(['max:50', 'string'])
-                        ->required()->disabledOn('edit')
+                        ->required()
+                        ->disabled(fn() => ! auth()->user()->can('update_user::user'))
                         ->placeholder('First Name'),
 
                     TextInput::make('last_name')
                         ->rules(['max:50', 'string'])
-                        ->nullable()->disabledOn('edit')
+                        ->nullable()
+                        ->disabled(fn() => ! auth()->user()->can('update_user::user'))
                         ->placeholder('Last Name'),
 
                     TextInput::make('email')
                         ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
-                        ->required()->disabledOn('edit')
+                        ->required()
+                        ->disabledOn('edit')
                         ->unique(
                             'users',
                             'email',
@@ -58,7 +61,7 @@ class UserResource extends Resource
                     TextInput::make('phone')
                         ->length(9)
                     // ->required()
-                        ->disabledOn('edit')
+                    ->disabled(fn() => ! auth()->user()->can('update_user::user'))
                         ->prefix('971')
                         ->unique(
                             'users',
@@ -78,7 +81,7 @@ class UserResource extends Resource
                     //     ->placeholder('Lazim Id'),
                     Select::make('roles')
                         ->relationship('roles', 'name')
-                        ->disabledOn('edit')
+                        ->disabled(fn() => ! auth()->user()->can('update_user::user'))
                     // ->multiple()
                         ->options(function () {
                             if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {

@@ -28,7 +28,12 @@ class VendorRegistrationController extends Controller
     public function registration(VendorRegisterRequest $request)
     {
         // Check if user exists in our DB
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+        $userData = User::where(
+            [
+                'email' => $request->get('email'),
+                'phone' => $request->get('phone')
+            ]
+        );
 
         // if user exists
         if ($userData->exists()) {
@@ -85,9 +90,14 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            $documents = Document::where('documentable_id', $vendor->id);
+
+            // $documents = Document::where('documentable_id', $vendor->id);
+
             //check if vendor has uploaded documnets
-            if (!$documents->exists()) {
+            // $documents->exists();
+            // if (!$vendor->documents()->exists()) {
+            if ($vendor->documents()->count() < 5) {
+
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
@@ -96,32 +106,33 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            if($vendor){
+            if ($vendor) {
                 $isAttached = $vendor->ownerAssociation()->wherePivot('owner_association_id', $request->owner_association_id)->exists();
-                $ownerAssociation = OwnerAssociation::where('id',$request->owner_association_id)->first();
+                $ownerAssociation = OwnerAssociation::where('id', $request->owner_association_id)->first();
                 if ($isAttached) {
                     return (new CustomResponseResource([
                         'title' => 'vendor_already_exists',
-                        'message' => "This vendor is already registered with this ".$ownerAssociation?->role ?? 'Association'.'.',
+                        'message' => "This vendor is already registered with this " . $ownerAssociation?->role ?? 'Association' . '.',
                         'code' => 403, // Conflict status code
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
                 }
                 $type = $userData->first()?->role->name;
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false,'type' => $request->role]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(), 'active' => false, 'type' => $request->role]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
-                    'message' => "You have successfully registered with the new ".$ownerAssociation?->role ?? 'Association'.". They will get back to you soon!",
+                    'message' => "You have successfully registered with the new " . $ownerAssociation?->role ?? 'Association' . ". They will get back to you soon!",
                     'code' => 200,
                     'status' => 'success',
                     'data' => $vendor,
                 ]))->response()->setStatusCode(200);
             }
-
         } else {
             $existingEmail = User::where(['email' => $request->email])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
+
+
 
             // Check if user exists in our DB
             if ($existingEmail) {
@@ -162,11 +173,13 @@ class VendorRegistrationController extends Controller
         }
 
         $role = Role::where('name', 'Vendor')->value('id');
-        if($request->has('role') && isset($request->role) && $request->role === 'Property Manager'){
-            $role = Role::where('name','Facility Manager')->value('id');
-        }
-        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
+        if ($request->has(key: 'role') && isset($request->role) && $request->role === 'Property Manager') {
 
+            $role = Role::where('name', 'Facility Manager')
+                ->value('id');
+        }
+
+        $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds
@@ -186,16 +199,56 @@ class VendorRegistrationController extends Controller
         if ($request->has('building_id')) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
-
-        $request->merge([
-            'name' => User::find($request->owner_id)->first_name,
-        ]);
         $user = User::find($request->owner_id);
-        $vendor = Vendor::create($request->all());
-        $type = OwnerAssociation::where('id',$request->owner_association_id)->first()?->role;
 
-        $user->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString()]);
-        $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'type'=> $type]);
+        // Pehle check karenge ki vendor exist karta hai ya nahi
+        $vendor = Vendor::where('owner_id', $request->owner_id)->first();
+
+        if ($vendor) {
+            // Agar vendor exist karta hai toh usko update karenge
+            $vendor->update([
+                'name' => optional($user)->first_name ?? $request->name,
+                'tl_number' => $request->tl_number,
+                'landline_number' => $request->landline_number,
+                'owner_id' => $request->owner_id,
+                'address_line_1' => $request->address_line_1,
+                'website' => $request->website,
+                'tl_expiry' => $request->tl_expiry,
+                'risk_policy_expiry' => $request->risk_policy_expiry,
+                'owner_association_id' => $request->owner_association_id,
+            ]);
+
+            $message = "Company details successfully updated!";
+        } else {
+            // Agar vendor exist nahi karta toh naye record create karenge
+            $vendor = Vendor::create([
+                'owner_id' => $request->owner_id,
+                'tl_number' => $request->tl_number,
+                'landline_number' => $request->landline_number,
+                'name' => optional($user)->first_name ?? $request->name,
+                'address_line_1' => $request->address_line_1,
+                'website' => $request->website,
+                'tl_expiry' => $request->tl_expiry,
+                'risk_policy_expiry' => $request->risk_policy_expiry,
+                'owner_association_id' => $request->owner_association_id,
+            ]);
+
+            $message = "Company details successfully created!";
+        }
+        $type = OwnerAssociation::where('id', $request->owner_association_id)->first()?->role;
+
+        $user->ownerAssociation()->syncWithoutDetaching([
+            $request->owner_association_id => ['from' => now()->toDateString()]
+        ]);
+
+
+        $vendor->ownerAssociation()->syncWithoutDetaching([
+            $request->owner_association_id => ['from' => now()->toDateString(), 'type' => $type]
+        ]);
+
+
+        // Delete old documents before adding new ones
+        $vendor->documents()->delete();
 
         $doc = Document::create([
             "name" => "risk_policy",
@@ -216,8 +269,11 @@ class VendorRegistrationController extends Controller
             "documentable_type" => Vendor::class,
         ]);
 
+        $vendor->risk_policy_expiry = $doc->expiry_date;
+
+        // dd($doc, $vendor->toArray());
         return (new CustomResponseResource([
-            'title' => 'Company Details entered successful!',
+            'title' => $message,
             'message' => "",
             'code' => 201,
             'status' => 'success',
@@ -225,43 +281,39 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function managerDetails(ManagerDetailsRequest $request, Vendor $vendor)
+    public function managerDetails(ManagerDetailsRequest $request, $vendorId)
     {
         if ($request->has('building_id')) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+            // $vendor = Vendor::find($vendorId);
+        }
+        // Find the vendor
+        $vendor = Vendor::find($vendorId);
+
+        if (!$vendor) {
+            return (new CustomResponseResource([
+                'message' => 'Invalid vendor ID provided.',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
         }
 
         $request->merge(['vendor_id' => $vendor->id]);
 
-        $existingVendorEmail = VendorManager::where(['email' => $request->email])->first();
-        $existingVendorPhone = VendorManager::where(['phone' => $request->phone])->first();
-        // Check if user exists in our DB
-        if ($existingVendorEmail) {
-            return (new CustomResponseResource([
-                // 'title' => 'account_present',
-                'message' => 'Your email is already registered in our application!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
-        }
+        // Pehle se existing manager ko delete karna
+        VendorManager::where('vendor_id', $vendor->id)->delete();
 
-        if ($existingVendorPhone) {
-            return (new CustomResponseResource([
-                // 'title' => 'account_present',
-                'message' => 'Your phone is already registered in our application!',
-                'code' => 400,
-            ]))->response()->setStatusCode(400);
-        }
-
+        // Naya vendor manager create karna
         $manager = VendorManager::create($request->all());
 
         return (new CustomResponseResource([
-            'title' => 'Vendor Manager Details entered successful!',
+            'title' => "Vendor Manager Details entered successfully!",
             'message' => "",
             'code' => 201,
             'status' => 'success',
             'data' => $manager,
         ]))->response()->setStatusCode(201);
     }
+
 
     public function updateManagerDetails(ManagerDetailsRequest $request, Vendor $vendor)
     {
@@ -293,10 +345,9 @@ class VendorRegistrationController extends Controller
                 'code' => 400
             ]))->response()->setStatusCode(400);
         }
-        if($managerId){
+        if ($managerId) {
             $manager = VendorManager::find($managerId)->update($request->all());
-        }
-        else{
+        } else {
             $manager = VendorManager::create($request->all());
         }
 
@@ -308,6 +359,94 @@ class VendorRegistrationController extends Controller
             'data' => $manager,
         ]))->response()->setStatusCode(201);
     }
+
+    public function getVendorStatus(Request $request)
+    {
+        // Check if user exists
+        $user = User::where('id', $request->owner_id)->first();
+
+        if (!$user) {
+            return (new CustomResponseResource([
+                'title' => 'User not found!',
+                'message' => "No user found with the provided ID.",
+                'code' => 404,
+                'status' => 'error',
+                'data' => null,
+            ]))->response()->setStatusCode(404);
+        }
+
+        // If user exists, fetch the associated vendor
+        $vendor = $user->vendors()->first();
+
+        if (!$vendor) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_company_details',
+                'message' => "You have not updated company details. You'll be redirected to company details page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => [
+                    'user' => $user,  // Include user data in response
+                ]
+            ]))->response()->setStatusCode(200);
+        }
+
+        $vendor->risk_policy_expiry = $vendor->documents->where('name', 'risk_policy')->first()?->expiry_date;
+        $vendor->makeHidden(['documents']);
+
+        $responseData = [
+            'user' => $user,  // Directly return the user object
+            'company' => $vendor->toArray(),
+            'manager' => $vendor->managers,
+            'service' => $vendor->services->makeHidden('pivot'),
+            'documents' => $vendor->documents
+        ];
+
+        // Check if manager details are missing
+        if (!$vendor->managers()->count()) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_managers',
+                'message' => "You have not updated manager details. You'll be redirected to manger details page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // Check if services are missing
+        if (!$vendor->services()->count()) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_services',
+                'message' => "You have not selected services. You'll be redirected to services page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // Check if documents are uploaded
+        if (!Document::where('documentable_id', $vendor->id)
+            ->where('documentable_type', 'App\Models\Vendor')
+            ->exists()) {
+            return (new CustomResponseResource([
+                'title' => 'redirect_documents',
+                'message' => "You have not uploaded all documents. You'll be redirected to documents page.",
+                'code' => 200,
+                'status' => 'error',
+                'data' => $responseData
+            ]))->response()->setStatusCode(200);
+        }
+
+        // If everything is fine, return success
+        return (new CustomResponseResource([
+            'title' => 'Registration Complete',
+            'message' => "Your registration is complete.",
+            'code' => 200,
+            'status' => 'success',
+            'data' => $responseData,
+        ]))->response()->setStatusCode(200);
+    }
+
+
 
     public function showManagerDetails(Vendor $vendor)
     {
@@ -322,13 +461,12 @@ class VendorRegistrationController extends Controller
         return new VendorResource(auth()->user()->vendors()->first());
     }
 
-    public function editVendorDetails(EditVendorRequest $request,Vendor $vendor)
+    public function editVendorDetails(EditVendorRequest $request, Vendor $vendor)
     {
         if ($request->has('building_id')) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
         }
-
-        if(isset($request->name)){
+        if (isset($request->name)) {
             $request->merge([
                 'first_name' => $request->name
             ]);
@@ -348,7 +486,7 @@ class VendorRegistrationController extends Controller
         $request->validate([
             'role' => 'required|in:OA,Property Manager',
         ]);
-        $OwnerAssociations = OwnerAssociation::where('active', true)->where('role',$request->role)->get();
+        $OwnerAssociations = OwnerAssociation::where('active', true)->where('role', $request->role)->get();
 
         return ListOAResource::collection($OwnerAssociations);
     }
@@ -358,21 +496,21 @@ class VendorRegistrationController extends Controller
             'email' => 'required',
         ]);
 
-        $user = User::where('email',$request->email)->first()?->id;
-        $vendor = Vendor::where('owner_id',$user)->first()?->id;
+        $user = User::where('email', $request->email)->first()?->id;
+        $vendor = Vendor::where('owner_id', $user)->first()?->id;
         $oaIds = DB::table('owner_association_vendor')->where('vendor_id', $vendor)->pluck('owner_association_id');
-        return OwnerAssociation::whereIn('id', $oaIds)->pluck('role','role')->unique();
+        return OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
     }
     public function registeredWith(Request $request)
     {
         $user = auth()->user();
         $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
-        $oaIds  = DB::table('owner_association_vendor')
-            ->where(['vendor_id' => $vendor,'active' => true,'status'=>'approved'])
+        $oaIds = DB::table('owner_association_vendor')
+            ->where(['vendor_id' => $vendor, 'active' => true, 'status' => 'approved'])
             ->pluck('owner_association_id');
         $reUploadDocuments = DB::table('owner_association_vendor')
-                ->where(['vendor_id' => $vendor,'status' => 'rejected'])
-                ->exists();
+            ->where(['vendor_id' => $vendor, 'status' => 'rejected'])
+            ->exists();
         return [
             'registered_with' => OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique(),
             're_upload_documents' => $reUploadDocuments ? true : false,

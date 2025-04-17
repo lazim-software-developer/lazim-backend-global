@@ -1,56 +1,62 @@
 <?php
 namespace App\Filament\Resources\Building;
 
-use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
-use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
+use Closure;
+use Carbon\Carbon;
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\City;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use App\Models\Vendor\Vendor;
+use App\Models\OwnerAssociation;
+use Filament\Resources\Resource;
+use App\Imports\OAM\BudgetImport;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\View;
+use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
+use App\Models\Building\BuildingPoc;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Unique;
+use App\Filament\Imports\BuildingImport;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use pxlrbt\FilamentExcel\Columns\Column;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\MarkdownEditor;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
+use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
-use App\Imports\OAM\BudgetImport;
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Flat;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use App\Models\User\User;
-use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
-use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
-use Cheesegrits\FilamentGoogleMaps\Fields\Map;
-use Closure;
-use DB;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rules\Unique;
-use Maatwebsite\Excel\Facades\Excel;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
 
 class BuildingResource extends Resource
 {
@@ -104,18 +110,29 @@ class BuildingResource extends Resource
                         ->placeholder('Address Line2'),
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
-
+                    Hidden::make('created_by')
+                    ->default(auth()->user()?->id),
+                    Hidden::make('updated_by')
+                    ->default(auth()->user()?->id),
+                    Hidden::make('resource')
+                    ->default('Lazim'),
                     TextInput::make('area')
                         ->rules(['max:100'])
                         ->required()
                         ->placeholder('Area'),
 
-                    // Select::make('city_id')
-                    //     ->rules(['exists:cities,id'])
-                    //     ->preload()
-                    //     ->relationship('cities', 'name')
-                    //     ->searchable()
-                    //     ->placeholder('NA'),
+                    Select::make('city_id')
+                        ->label('City') // Add or change the label
+                        ->native(false)
+                        ->required()
+                        ->rules([
+                            'required'
+                        ])
+                        ->options(function (callable $get) {
+
+                            return City::pluck('name', 'id');
+                        })
+                        ->searchable(),
                     MarkdownEditor::make('description')
                         ->columnSpanFull()
                         ->toolbarButtons([
@@ -186,8 +203,12 @@ class BuildingResource extends Resource
                         ->label('Allow post-upload'),
                     Toggle::make('show_inhouse_services')
                         ->rules(['boolean'])
-                        ->label('Show Personal services')
-                        ->hiddenOn('create'),
+                        ->label('Show Personal services'),
+                    Toggle::make('status')
+                        ->rules(['boolean'])
+                        ->default(true) // Sets the default value to true (active)
+                        ->label('Status'),
+                        // ->hiddenOn('create'),
 
                     // TextInput::make('lat')
                     //     ->rules(['numeric'])
@@ -704,13 +725,226 @@ class BuildingResource extends Resource
                         // }
                     })
                     ->hidden(auth()->user()->role?->name === 'Property Manager'),
+                    Action::make('delete')
+                    ->button()
+                    ->visible(function () {
+                        $auth_user = auth()->user();
+                        $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+    
+                        if ($role === 'Admin' || $role === 'Property Manager') {
+                            return true;
+                        }
+                    })
+                    ->action(function ($record,) {
+                        if(!empty(auth()->user()?->owner_association_id)) {
+                            DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->delete(); 
+                        }else{
+                            DB::table('building_owner_association')
+                            ->where('building_id', $record->id)
+                            ->delete(); 
+                        }
+                        if(!empty(auth()->user()?->owner_association_id)) {
+                            DB::table('floors')
+                            ->where('building_id', $record->id)
+                            ->where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->delete(); 
+                        }else{
+                            DB::table('floors')
+                            ->where('building_id', $record->id)
+                            ->delete(); 
+                        }
+                        // Then, soft delete the corresponding user in the secondary database
+                        $secondaryConnection = DB::connection(env('SECOND_DB_CONNECTION'));
+                        $secondaryConnection->table('users')
+                        ->where('building_id', $record->id)
+                        ->update(['deleted_at' => now()]);
+                        $record->delete();
+                        Notification::make()
+                            ->title('Building Deleted Successfully')
+                            ->success()
+                            ->send()
+                            ->duration('4000');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to delete this ?')
+                    ->modalButton('Delete'),
             ])
             ->bulkActions([
-                ExportBulkAction::make(),
+                ExportBulkAction::make()
+                ->exports([
+                    ExcelExport::make()
+                        ->withColumns([
+                            Column::make('created_by')
+                            ->heading('Created By')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
+                            ), 
+                            // Custom column using relationship
+                            Column::make('owner_association_id')
+                            ->heading('Owner Association Name')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->ownerAssociationData->name ?? 'N/A'
+                            ), 
+                            Column::make('name')
+                                ->heading('Building Name'),
+                            Column::make('building_type')
+                                ->heading('Building Type'),
+                            Column::make('floors')
+                                ->heading('Floors'),
+                            Column::make('property_group_id')
+                                ->heading('Property Group ID')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->property_group_id ?? 'N/A'
+                                ),
+                            Column::make('address_line1')
+                                ->heading('Address Line 1')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->address_line1 ?? 'N/A'
+                                ),
+                            Column::make('address_line2')
+                            ->heading('Address Line 2')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->address_line2 ?? 'N/A'
+                            ),
+                            Column::make('area')
+                                ->heading('Area')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->area ?? 'N/A'
+                                ),
+                            Column::make('city_id')
+                            ->heading('City')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->cities->name ?? 'N/A'
+                            ),    
+                            // Formatted date with custom accessor
+                            Column::make('created_at')
+                                ->heading('Created Date')
+                                ->formatStateUsing(fn ($state) => 
+                                    $state ? $state->format('d/m/Y') : ''
+                                ),
+                                Column::make('status')
+                                ->heading('Status')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->status == 1
+                                        ? 'Active' 
+                                        : 'Inactive'
+                                ),
+                                
+                            // Created by user info
+                            // Column::make('created_by_name')
+                            //     ->heading('Created By')
+                            //     ->formatStateUsing(fn ($record) => 
+                            //         $record->createdBy->name ?? 'System'
+                            //     ),
+                        ])
+                        ->withFilename(date('Y-m-d') . '-buildings-report')
+                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                ]),
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            // ->headerActions([
+            //     Action::make('import')
+            //             ->visible(function () {
+            //                 $auth_user = auth()->user();
+            //                 $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+            //                 if ($role === 'Admin' || $role === 'Property Manager') {
+            //                     return true;
+            //                 }
+            //             })
+            //         ->label('Import Buildings')
+            //         ->form([
+            //             Section::make()
+            //                 ->schema([
+            //                     View::make('components.sample-file-download')
+            //                         ->view('components.sample-file-download'),
+            //                     FileUpload::make('file')
+            //                         ->label('Choose CSV File')
+            //                         ->disk('local')
+            //                         ->directory('temp-imports')
+            //                         ->acceptedFileTypes([
+            //                             'text/csv',
+            //                             'text/plain',
+            //                             'application/csv',
+            //                         ])
+            //                         ->maxSize(5120)
+            //                         ->required()
+            //                         ->helperText('Upload your CSV file in the correct format')
+            //                 ])
+            //         ])
+            //         ->action(function (array $data) {
+            //             try {
+            //                 $import = new BuildingImport();
+            //                 Excel::import($import, $data['file']);
+                            
+            //                 $result = $import->getResultSummary();
+                            
+            //                 if($result['status']===200)
+            //                 {
+            //                 // Generate detailed report
+            //                 $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+            //                 $report .= "Successfully imported: {$result['imported']}\n";
+            //                 $report .= "Skipped (already exists): {$result['skip']}\n";
+            //                 $report .= "Errors: {$result['error']}\n\n";
+                            
+            //                 // Add detailed error and skip information
+            //                 foreach ($result['details'] as $detail) {
+            //                     $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+            //                     $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+            //                 }
+                            
+            //                 // Save report
+            //                 $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+            //                 $reportPath = 'import-reports/' . $filename;
+            //                 Storage::disk('local')->put($reportPath, $report);
+            //                 }
+            //                 if($result['status']===401)
+            //                 {
+            //                     Notification::make()
+            //                     ->title('invalid File')
+            //                     ->body("{$result['error']}")
+            //                     ->danger()
+            //                     ->persistent()
+            //                     ->send();
+            //                 }else{
+            //                 // Show notification with results
+            //                 Notification::make()
+            //                     ->title('Import Complete')
+            //                     ->body(
+            //                         collect([
+            //                             "Successfully imported: {$result['imported']}",
+            //                             "Skipped: {$result['skip']}",
+            //                             "Errors: {$result['error']}"
+            //                         ])->join("\n")
+            //                     )
+            //                     ->actions([
+            //                         \Filament\Notifications\Actions\Action::make('download_report')
+            //                         ->label('Download Report')
+            //                         ->url(route('download.import.report', ['filename' => $filename]))
+            //                         ->openUrlInNewTab()
+            //                     ])
+            //                     ->success()
+            //                     ->persistent()
+            //                     ->send();
+            //                 }
+
+            //             } catch (\Exception $e) {
+            //                 Notification::make()
+            //                     ->title('Import Failed')
+            //                     ->body($e->getMessage())
+            //                     ->danger()
+            //                     ->send();
+            //             }
+
+            //             // Clean up temporary file
+            //             Storage::disk('local')->delete($data['file']);
+            //         })
+            // ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ])

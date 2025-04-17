@@ -1,25 +1,41 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OwnerAssociationResource\Pages;
-use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
+use Closure;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\OwnerAssociation;
-use App\Models\User\User;
-use Closure;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\DeleteAction;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
+use App\Services\GenericHttpService;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Toggle;
+use App\Services\SessionCryptoService;
+use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use pxlrbt\FilamentExcel\Columns\Column;
+use Filament\Forms\Components\FileUpload;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rules\Password;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\OwnerAssociationResource\Pages;
+use App\Filament\Resources\OwnerAssociationResource\RelationManagers\AccountcredentialsRelationManager;
 
 class OwnerAssociationResource extends Resource
 {
@@ -27,7 +43,6 @@ class OwnerAssociationResource extends Resource
     protected static ?string $modelLabel            = 'Owner Association';
     protected static ?string $navigationIcon        = 'heroicon-o-rectangle-stack';
     protected static bool $shouldRegisterNavigation = true;
-
     protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
@@ -45,7 +60,8 @@ class OwnerAssociationResource extends Resource
                                 ->rules(['regex:/^[a-zA-Z0-9\s]*$/'])
                                 ->required()
                                 ->disabled(function (callable $get) {
-                                    return DB::table('owner_associations')
+                                    return Role::where('id', auth()->user()->role_id)
+                                        ->first()->name != 'Admin' && DB::table('owner_associations')
                                         ->where('email', $get('email'))
                                         ->where('verified', 1)
                                         ->exists();
@@ -59,139 +75,221 @@ class OwnerAssociationResource extends Resource
                                     'string',
                                     'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
                                     'min:4',
-                                    'max:30',
+                                    'max:30'
                                 ])
                                 ->validationMessages([
-                                    'regex' => 'Slug format is Invalid.
-                                     It can only accept Lowercase letters, Numbers and hyphen',
+                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
                                 ])
                                 ->unique('owner_associations', 'slug', ignoreRecord: true)
-                                ->disabled(function () {
-                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
                                         return false;
-                                    } else {
-                                        return true;
                                     }
+                                
+                                    // For edit operation, apply your existing logic
+                                    return DB::table('owner_associations')
+                                        ->where('slug', $get('slug'))
+                                        ->exists();
                                 }),
-                            TextInput::make('mollak_id')->label('OA Number')
+                            TextInput::make('trn_number')->label('VAT Number')
                                 ->required()
-                                ->disabled()
-                                ->placeholder('OA Number'),
-                            TextInput::make('trn_number')->label('TRN Number')
-                                ->required()
-                                ->disabled()
-                                ->placeholder('TRN Number'),
-                            TextInput::make('phone')
-                            ->length(9)
-                            ->prefix('971')
-                            ->placeholder('XXXXXXXXX')
                                 ->rules([
-                                    function (Model $record) {
+                                    function (?Model $record) { // ?Model ka use karke $record nullable banaya
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
-                                            if (DB::table('owner_associations')
-                                                ->whereNot('id', $record->id)
-                                                ->where('phone', $value)->count() > 0) {
+
+                                            // Jab $record null ho (create mode me validation)
+                                            if (!$record) {
+                                                // Owner association me phone number ki uniqueness check karna
+                                                if (DB::table('owner_associations')->where('trn_number', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The VAT Number is already taken by an OA.');
+                                                }
+                                                return; // Null record ke case me aage ki validation yahin ruk jaye
+                                            }
+
+                                            // Existing record ke liye validation
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('trn_number', $value)->whereNull('deleted_at')->count() > 0) {
+                                                $fail('The VAT Number is already taken by an OA.');
+                                            }
+                                        };
+                                    }
+                                ])
+                                ->placeholder('VAT Number'),
+                            TextInput::make('phone')
+                                ->rules([
+                                    'regex:/^\+?[1-9]\d{1,14}$/',
+                                    function (?Model $record) { // ?Model ka use karke $record nullable banaya
+                                        return function (string $attribute, $value, Closure $fail) use ($record) {
+
+                                            // Jab $record null ho (create mode me validation)
+                                            if (!$record) {
+                                                // Owner association me phone number ki uniqueness check karna
+                                                if (DB::table('owner_associations')->where('phone', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The phone is already taken by an OA.');
+                                                }
+
+                                                // Users table me phone number ki uniqueness check karna
+                                                if (DB::table('users')->where('phone', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The phone is already taken by a user.');
+                                                }
+
+                                                return; // Null record ke case me aage ki validation yahin ruk jaye
+                                            }
+
+                                            // Existing record ke liye validation
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('phone', $value)->whereNull('deleted_at')->count() > 0) {
                                                 $fail('The phone is already taken by an OA.');
                                             }
-                                            if (DB::table('owner_associations')
-                                                ->where('id', $record->id)
-                                                ->where('verified', 1)->count() > 0) {
-                                                $role_id = Role::where('owner_association_id', $record->id)
-                                                    ->where('name', 'OA')->first();
+
+                                            if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
+                                                $role_id = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
+
                                                 $getuserecord = User::where('owner_association_id', $record->id)
-                                                    ->where('role_id', $role_id?->id)->first()?->id;
-                                                if (DB::table('users')
-                                                    ->whereNot('id', $getuserecord)
-                                                    ->where('phone', $value)->exists()) {
+                                                    ->where('role_id', $role_id?->id)
+                                                    ->first()?->id;
+
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('phone', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             } else {
-                                                if (DB::table('users')->where('phone', $value)->exists()) {
+                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The phone is already taken by a user.');
                                                 }
                                             }
                                         };
-                                    },
+                                    }
                                 ])
                                 ->required()
-                                ->live()
+                                // ->live()
                                 ->disabled(function (callable $get) {
-                                    return DB::table('owner_associations')
+                                    return Role::where('id', auth()->user()->role_id)
+                                        ->first()->name != 'Admin' && DB::table('owner_associations')
                                         ->where('email', $get('email'))
                                         ->where('verified', 1)
                                         ->exists();
-                                }),
+                                })
+                                ->placeholder('Contact Number'),
                             TextInput::make('address')
                                 ->required()
-                                ->disabled(function (callable $get) {
-                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                        return DB::table('owner_associations')
-                                            ->where('email', $get('email'))
-                                            ->where('verified', 1)
-                                            ->exists();
-                                    }
-                                })
                                 ->placeholder('Address'),
                             TextInput::make('email')
                                 ->rules([
-                                    'min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                                    function (Model $record) {
+                                    'min:6',
+                                    'max:30',
+                                    'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                                    function (?Model $record) { // ?Model ka matlab $record nullable ho sakta hai
                                         return function (string $attribute, $value, Closure $fail) use ($record) {
-                                            if (DB::table('owner_associations')
-                                                ->whereNot('id', $record->id)
-                                                ->where('email', $value)->count() > 0) {
+
+                                            // Create mode ke liye validation (jab $record null ho)
+                                            if (!$record) {
+                                                // Owner association me email ki uniqueness check karna
+                                                if (DB::table('owner_associations')->where('email', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The email is already taken by an OA.');
+                                                }
+
+                                                // Users table me email ki uniqueness check karna
+                                                if (DB::table('users')->where('email', $value)->whereNull('deleted_at')->exists()) {
+                                                    $fail('The email is already taken by a USER.');
+                                                }
+
+                                                return; // Create mode ke liye validation yahin ruk jaye
+                                            }
+
+                                            // Update mode ke liye validation (jab $record null nahi hai)
+                                            if (DB::table('owner_associations')->whereNot('id', $record->id)->where('email', $value)->whereNull('deleted_at')->count() > 0) {
                                                 $fail('The email is already taken by an OA.');
                                             }
-                                            if (DB::table('owner_associations')
-                                                ->where('id', $record->id)
-                                                ->where('verified', 1)->count() > 0) {
-                                                $role_id = Role::where('owner_association_id', $record->id)
-                                                    ->where('name', 'OA')->first();
+
+                                            // Verified owner association ke liye validation
+                                            if (DB::table('owner_associations')->where('id', $record->id)->where('verified', 1)->count() > 0) {
+                                                $role_id = Role::where('owner_association_id', $record->id)->where('name', 'OA')->first();
+
                                                 $getuserecord = User::where('owner_association_id', $record->id)
-                                                    ->where('role_id', $role_id?->id)->first()?->id;
-                                                if (DB::table('users')
-                                                    ->whereNot('id', $getuserecord)
-                                                    ->where('email', $value)->exists()) {
+                                                    ->where('role_id', $role_id?->id)
+                                                    ->first()?->id;
+
+                                                if (DB::table('users')->whereNot('id', $getuserecord)->where('email', $value)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             } else {
-                                                if (DB::table('users')->where('email', $value)->exists()) {
+                                                // Non-verified owner association ke liye validation
+                                                if (DB::table('users')->where('phone', $value)->where('owner_association_id', '!=', $record->id)->whereNull('deleted_at')->exists()) {
                                                     $fail('The email is already taken by a USER.');
                                                 }
                                             }
                                         };
-                                    },
+                                    }
                                 ])
                                 ->required()
-                                ->live()
                                 ->disabled(function (callable $get) {
+                                    // Get the current operation (create or edit)
+                                    $isCreate = !$get('id'); // if id exists, it's edit operation
+                                
+                                    // If it's create operation, return false (not disabled)
+                                    if ($isCreate) {
+                                        return false;
+                                    }
+                                
+                                    // For edit operation, apply your existing logic
                                     return DB::table('owner_associations')
-                                        ->where('phone', $get('phone'))
+                                        ->where('email', $get('email'))
                                         ->where('verified', 1)
+                                        ->whereNull('deleted_at')
                                         ->exists();
                                 })
                                 ->placeholder('Email'),
+                                TextInput::make('password')
+                                ->password()
+                                ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                                ->dehydrated(fn ($state) => filled($state))
+                                ->required(fn (string $operation): bool => $operation === 'create')
+                                ->rule(Password::min(8)
+                                    ->letters()
+                                    ->mixedCase()
+                                    ->numbers()
+                                    ->symbols()
+                                    ->uncompromised()
+                                )
+                                ->visible(fn (string $operation): bool => $operation === 'create'),
                             TextInput::make('bank_account_number')
                                 ->label('Bank Account Number')
                                 ->numeric()
                                 ->disabled(function (callable $get) {
-                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                        return DB::table('owner_associations')
-                                            ->where('email', $get('email'))
-                                            ->where('verified', 1)
-                                            ->exists();
+                                    // Get the current user's role
+                                    $userRole = Role::where('id', auth()->user()->role_id)->first()->name;
+                                    
+                                    // If user is an admin, they should be able to edit, so return false (not disabled)
+                                    if ($userRole == 'Admin') {
+                                        return false;
                                     }
+                                    
+                                    // For non-admin users, disable the field if the record is verified
+                                    return DB::table('owner_associations')
+                                        ->where('email', $get('email'))
+                                        ->where('verified', 1)
+                                        ->whereNull('deleted_at')
+                                        ->exists();
                                 })
                                 ->placeholder('Account Number'),
+                                Hidden::make('verified_by')
+                                ->default(auth()->user()?->id),
+                                Hidden::make('created_by')
+                                ->default(auth()->user()?->id),
+                                Hidden::make('updated_by')
+                                ->default(auth()->user()?->id),
+                                Hidden::make('resource')
+                                ->default('Lazim'),
                             Toggle::make('verified')
                                 ->rules(['boolean'])
-                                ->hidden(function ($record) {
-                                    return $record->verified;
-                                }),
+                                ->default(true)
+                                ->hidden()
+                                ->dehydrated(true),
                             Toggle::make('active')
-                                ->label('Active')
-                                ->rules(['boolean'])
-                                ->hidden(Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'),
+                                ->label('Status')
+                                ->rules(['boolean']),
                         ]),
                     ]),
 
@@ -200,10 +298,12 @@ class OwnerAssociationResource extends Resource
                     ->schema([
                         FileUpload::make('trn_certificate')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/trn_certificate')
+                            ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
-                            ->label('TRN Certificate')
+                            ->label('VAT Certificate')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -214,10 +314,12 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('trade_license')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/trade_license')
+                            ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
                             ->label('Trade License')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -228,10 +330,12 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('dubai_chamber_document')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/chamber_document')
+                            ->previewable(true)
                             ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->maxSize(2048)
-                            ->label('Dubai Chamber Document')
+                            ->label('Permit')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -242,10 +346,12 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('memorandum_of_association')
                             ->disk('s3')
-                            ->directory('dev')
-                            ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
+                            ->directory('owner_associations/memorandum_of_association')
+                            ->previewable(true)
                             ->maxSize(2048)
+                            ->rules('file|mimes:jpeg,jpg,png,pdf|max:2048')
                             ->label('Memorandum of Association')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -256,13 +362,13 @@ class OwnerAssociationResource extends Resource
                             }),
                         FileUpload::make('profile_photo')
                             ->disk('s3')
-                            ->directory('dev')
+                            ->directory('owner_associations/logo')
                             ->previewable(true)
                             ->image()
                             ->maxSize(2048)
-                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
+                            ->rules('mimes:jpeg,jpg,png|max:2048')
                             ->label('Logo')
+                            ->required()
                             ->disabled(function (callable $get) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return DB::table('owner_associations')
@@ -273,19 +379,19 @@ class OwnerAssociationResource extends Resource
                             }),
                     ]),
             ]);
-
     }
 
     public static function table(Table $table): Table
     {
+
         return $table
             ->poll('60s')
+            // ->query(OwnerAssociation::query())
             ->columns([
-                Tables\Columns\TextColumn::make('mollak_id')
-                    ->label('Mollak ID')
-                    ->searchable()
-                    ->default('NA')
-                    ->limit(50),
+                // Tables\Columns\ImageColumn::make('profile_photo')->width(50)->height(50)
+                //     ->searchable()
+                //     ->default('NA')
+                //     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->default('NA')
@@ -303,11 +409,17 @@ class OwnerAssociationResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
-                    ->label('TRN Number')
+                    ->label('VAT Certificate')
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
+                    ->default('NA')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('bank_account_number')
+                    ->default('NA')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('resource')
                     ->default('NA')
                     ->searchable(),
             ])
@@ -315,19 +427,99 @@ class OwnerAssociationResource extends Resource
             ->filters([
                 //
             ])
+            // ->data(function () {
+            //     return static::fetchApiData();
+            // })
             ->actions([
                 Tables\Actions\EditAction::make(),
-                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->visible(fn () => auth()->user()->hasRole('Admin')),
+                Action::make('delete')
+                    ->button()
+                    ->visible(fn () => auth()->user()->hasRole('Admin'))
+                    ->action(function ($record,) {
+                        // First, soft delete the user in the primary database
+                    User::where('email', $record->email)
+                    ->where('owner_association_id', $record->id)
+                    ->update(['deleted_at' => now()]);
+
+                    // Then, soft delete the corresponding user in the secondary database
+                    $secondaryConnection = DB::connection(env('SECOND_DB_CONNECTION'));
+                    $secondaryConnection->table('users')
+                    ->where('email', $record->email)
+                    ->where('owner_association_id', $record->id)
+                    ->update(['deleted_at' => now()]);
+
+                    // Finally, delete the original record
+                    $record->delete();
+                        Notification::make()
+                            ->title('Owner Association Deleted Successfully')
+                            ->success()
+                            ->send()
+                            ->duration('4000');
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure you want to delete this ?')
+                    ->modalButton('Delete'),
             ])
+
             ->bulkActions([
+                ExportBulkAction::make()
+                ->exports([
+                    ExcelExport::make()
+                        ->withColumns([
+                            Column::make('created_by')
+                            ->heading('Created By')
+                            ->formatStateUsing(fn ($record) => 
+                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
+                            ), 
+                            Column::make('name')
+                                ->heading('Name'),
+                            Column::make('phone')
+                                ->heading('Phone Number'),
+                            Column::make('email')
+                                ->heading('Email'),
+                            Column::make('trn_number')
+                                ->heading('TRN Number'),
+                            Column::make('address')
+                            ->heading('Address'),
+                            Column::make('bank_account_number')
+                                ->heading('Bank Account Number'),      
+                            // Formatted date with custom accessor
+                            Column::make('created_at')
+                                ->heading('Created Date')
+                                ->formatStateUsing(fn ($state) => 
+                                    $state ? $state->format('d/m/Y') : ''
+                                ),
+                                Column::make('active')
+                                ->heading('Status')
+                                ->formatStateUsing(fn ($record) => 
+                                    $record->active == 1
+                                        ? 'Active' 
+                                        : 'Inactive'
+                                ),
+                                
+                            // Created by user info
+                            // Column::make('created_by_name')
+                            //     ->heading('Created By')
+                            //     ->formatStateUsing(fn ($record) => 
+                            //         $record->createdBy->name ?? 'System'
+                            //     ),
+                        ])
+                        ->withFilename(date('Y-m-d') . '-owner-association-report')
+                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                ]),
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('Admin')),
                 ]),
             ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);
     }
+
 
     public static function getRelations(): array
     {
@@ -344,4 +536,5 @@ class OwnerAssociationResource extends Resource
             'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
+    
 }

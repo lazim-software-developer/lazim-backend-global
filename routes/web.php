@@ -1,20 +1,22 @@
 <?php
 
-use App\Filament\Pages\BudgetListing;
-use App\Filament\Pages\OAM\CreateTender;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\GeneralFundController;
-use App\Http\Controllers\Master\PDFController;
-use App\Http\Controllers\OwnerAssociationInvoice;
-use App\Http\Controllers\OwnerAssociationReceipts;
-use App\Http\Controllers\ReserveFundController;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\TrialBalanceController;
-use App\Http\Controllers\Vendor\DelinquentController;
-use App\Http\Controllers\Vendor\MasterController;
 use App\Livewire\VendorRegistration;
+use App\Filament\Pages\BudgetListing;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Filament\Pages\OAM\CreateTender;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\FlatImportController;
+use App\Http\Controllers\Master\PDFController;
+use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\ReserveFundController;
+use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\OwnerAssociationInvoice;
+use App\Http\Controllers\Vendor\MasterController;
+use App\Http\Controllers\BuildingImportController;
+use App\Http\Controllers\OwnerAssociationReceipts;
+use App\Http\Controllers\Vendor\DelinquentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +79,14 @@ Route::post('/get-trial-balance', [TrialBalanceController::class, 'getTrialBalan
 Route::get('/invoice', [OwnerAssociationInvoice::class, 'invoice'])->name('invoice');
 
 Route::get('/receipt', [OwnerAssociationReceipts::class, 'receipt'])->name('receipt');
+
+Route::get('/download/sample-building-file', [BuildingImportController::class, 'downloadSampleFile'])
+    ->name('download.sample-building-file');
+Route::get('/download/import-report/{filename}', [BuildingImportController::class, 'downloadReport'])
+    ->name('download.import.report')
+    ->where('filename', '.*');
+Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
+    ->name('download.sample-flat-file');
 
 // Route::get('/test',[PDFController::class,'qrCode']);
 Route::get('/qr_code', function () {

@@ -51,6 +51,7 @@ class Flat extends Model
         'etisalat/du_number',
         'btu/ac_number',
         'lpg_number',
+        'resource',
     ];
 
     protected $searchableFields = ['*'];
