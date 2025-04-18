@@ -68,24 +68,37 @@ class FacilityServiceBookingObserver
                         return $notifyTo->can($requiredPermissions);
                     });
                     $serviceName = Service::where('id', $facilityBooking->bookable_id)->first();
-                    Notification::make()
-                    ->success()
-                    ->title("Personal Service Booking")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('A new '. $serviceName->name.' booking by '.auth()->user()->first_name)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(function() use ($oa,$facilityBooking){
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    return ServiceBookingResource::getUrl('edit', [$slug,$facilityBooking?->id]);
-                                }
-                                return url('/app/building/service-bookings/' . $facilityBooking?->id.'/edit');
-                            }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                    $existingNotification = DB::table('notifications_sents')->where(['type' => 'service', 'user_id' => auth()->user()->id, 'building_id' => $facilityBooking?->building_id, 'owner_association_id' => $oa->id, 'service_id' => $serviceName->id, 'facility_booking_id' => $facilityBooking?->id])->first();
+                    if(!$existingNotification){
+                        DB::table('notifications_sents')->insert([
+                            'type' => 'service',
+                            'user_id' => auth()->user()->id,
+                            'building_id' => $facilityBooking?->building_id,
+                            'owner_association_id' => $oa->id,
+                            'service_id' => $serviceName->id,
+                            'facility_booking_id' => $facilityBooking?->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        Notification::make()
+                        ->success()
+                        ->title("Personal Service Booking for Building :".$facilityBooking->building->name)
+                        ->icon('heroicon-o-document-text')
+                        ->iconColor('warning')
+                        ->body('A new '. $serviceName->name.' booking by '.auth()->user()->first_name)
+                        ->actions([
+                            Action::make('view')
+                                ->button()
+                                ->url(function() use ($oa,$facilityBooking){
+                                    $slug = $oa?->slug;
+                                    if($slug){
+                                        return ServiceBookingResource::getUrl('edit', [$slug,$facilityBooking?->id]);
+                                    }
+                                    return url('/app/building/service-bookings/' . $facilityBooking?->id.'/edit');
+                                }),
+                        ])
+                        ->sendToDatabase($notifyTo);
+                    }
                 }
             }
         }
