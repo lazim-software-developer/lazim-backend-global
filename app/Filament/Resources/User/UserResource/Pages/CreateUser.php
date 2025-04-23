@@ -129,7 +129,7 @@ class CreateUser extends CreateRecord
 
              $authUserRole = auth()->user()->role->name;
             $pm_oa = auth()->user()?->first_name;
-            $pm_logo = auth()->user()?->ownerAssociation?->first()->profile_photo;
+            $pm_logo = auth()->user()?->ownerAssociation?->first()?->profile_photo;
 
             if ($authUserRole === 'Property Manager') {
                 // If Property Manager is creating users, use CreateUserJob
