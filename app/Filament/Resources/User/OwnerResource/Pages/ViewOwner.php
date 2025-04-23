@@ -14,13 +14,12 @@ class ViewOwner extends ViewRecord
 
     public function beforeFill(): void
     {
-        $Assignnflats = FlatOwners::where('owner_id',$this->record->id)->get();
-        foreach($Assignnflats as $flat_value){
-            $flatDetail=Flat::where('id',$flat_value->flat_id)->first();
+        $Assignnflats = FlatOwners::where('owner_id', $this->record->id)->get();
+        foreach ($Assignnflats as $flat_value) {
+            $flatDetail = Flat::where('id', $flat_value->flat_id)->first();
         }
-        if(empty($this->record->building_id))
-        {
-            $this->record->building_id=$flatDetail->building_id;
+        if (empty($this->record->building_id)) {
+            $this->record->building_id = $flatDetail->building_id;
         }
         $this->record->save();
     }
