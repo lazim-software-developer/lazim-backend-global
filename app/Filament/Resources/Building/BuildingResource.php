@@ -109,7 +109,20 @@ class BuildingResource extends Resource
                         ->nullable()
                         ->placeholder('Address Line2'),
                     Hidden::make('owner_association_id')
-                        ->default(auth()->user()?->owner_association_id ?? 1),
+                        ->default(auth()->user()?->owner_association_id),
+                    Select::make('owner_association_id')
+                        ->label('Owner Association')
+                        ->preload()
+                        ->searchable()
+                        ->visible(auth()->user()?->owner_association_id === null)
+                        ->required()
+                        ->options(function () {
+                            if(auth()->user()?->role?->name === 'Property Manager'){
+                                return OwnerAssociation::where('role', auth()->user()?->role?->name)->pluck('name', 'id');
+                            }
+                            return OwnerAssociation::pluck('name', 'id');
+                        })
+                        ->placeholder('Select an Owner Association'),
                     Hidden::make('created_by')
                     ->default(auth()->user()?->id),
                     Hidden::make('updated_by')
