@@ -98,6 +98,7 @@ class CreatePropertyManager extends CreateRecord
             // ['name' => 'MD', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             // ['name' => 'Complaint Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             // ['name' => 'Legal Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            
             ['name' => 'Facility Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             ['name' => 'Property Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
 
