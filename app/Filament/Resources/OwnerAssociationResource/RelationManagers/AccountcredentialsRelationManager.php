@@ -135,12 +135,11 @@ class AccountcredentialsRelationManager extends RelationManager
             ->headerActions([
 
                 Action::make('sendTestEmail')
-                    ->visible(function(){
+                    ->visible(function () {
                         $roleName = Role::where('id', auth()->user()->role_id)->first()->name;
                         $credentialsExist = AccountCredentials::where('oa_id', auth()->user()->owner_association_id)->exists();
-                        
+
                         return $roleName !== 'Admin' && $credentialsExist;
-                        
                     })
                     ->label('Test Mail')
                     ->form([
@@ -157,12 +156,12 @@ class AccountcredentialsRelationManager extends RelationManager
 
                         $credentials = AccountCredentials::where('oa_id', $tenant)->first();
                         $mailCredentials = [
-                            'mail_host' => $credentials->host ,
-                            'mail_port' => $credentials->port ,
-                            'mail_username' => $credentials->username ,
-                            'mail_password' => $credentials->password ,
-                            'mail_encryption' => $credentials->encryption ,
-                            'mail_from_address' => $credentials->email ,
+                            'mail_host' => $credentials->host,
+                            'mail_port' => $credentials->port,
+                            'mail_username' => $credentials->username,
+                            'mail_password' => $credentials->password,
+                            'mail_encryption' => $credentials->encryption,
+                            'mail_from_address' => $credentials->email,
                         ];
 
                         $OaName = Filament::getTenant()?->name ?? 'Admin';

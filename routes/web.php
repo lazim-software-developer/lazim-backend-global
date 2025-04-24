@@ -29,9 +29,13 @@ use App\Http\Controllers\Vendor\DelinquentController;
 |
  */
 
+Livewire::setUpdateRoute(function ($handle) {
+    return Route::post('GIT/lazim-backend/public/livewire/update', $handle);
+});
 Route::get('/', function () {
     return redirect('/app/login');
 });
+// Route::get('/admin/custom-page', CustomPage::class)->name('filament.pages.custom-page');
 // Route::get('/app', function () {
 //     return redirect('/app/login');
 // });

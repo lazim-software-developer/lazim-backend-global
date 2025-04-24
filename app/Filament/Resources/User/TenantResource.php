@@ -197,6 +197,7 @@ class TenantResource extends Resource
                     TextInput::make('email')
                         ->rules(['min:6', 'max:30', 'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'])
                         ->required()
+                        ->placeholder('Email')
                         ->label('Email')
                         ->rules([
                             function ($record) {
@@ -208,6 +209,7 @@ class TenantResource extends Resource
                                     $ownerAssociationId = auth()->user()->owner_association_id;
                                     $buildingId = $record['building_id'] ?? null;
                                     $flatId = $record['flat_id'] ?? null;
+                                    dd($buildingId);
                                     $query = MollakTenant::where('email', $value)
                                         ->where('owner_association_id', $ownerAssociationId);
                                     

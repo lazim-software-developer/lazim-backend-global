@@ -36,24 +36,36 @@ class SaleNOCObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                ->success()
-                ->title("New Sale Noc Submission")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New form submission by '.auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($saleNOC,$oa){
-                            $slug = $oa?->slug;
-                            if($slug){
-                                return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
-                            }
-                            return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+                $existingNotification = DB::table('notifications_sents')->where(['type' => 'sales', 'user_id' => auth()->user()->id, 'building_id' => $saleNOC->building_id, 'owner_association_id' => $oa->id, 'sales_noc_id' => $saleNOC->id])->first();
+                if(!$existingNotification){
+                    DB::table('notifications_sents')->insert([
+                        'type' => 'sales',
+                        'user_id' => auth()->user()->id,
+                        'building_id' => $saleNOC->building_id,
+                        'owner_association_id' => $oa->id,
+                        'sales_noc_id' => $saleNOC->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    Notification::make()
+                    ->success()
+                    ->title("New Sale Noc Submission for Building :". $saleNOC->building->name)
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('New form submission by '.auth()->user()->first_name)
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(function() use ($saleNOC,$oa){
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                                }
+                                return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
+                            }),
+                    ])
+                    ->sendToDatabase($notifyTo);
+                }
             }
         }
     }

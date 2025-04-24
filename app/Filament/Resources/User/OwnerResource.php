@@ -52,7 +52,7 @@ class OwnerResource extends Resource
                         ->required()
                         ->placeholder('Owner Number'),
                     TextInput::make('name')
-                        ->rules(['max:50', 'string'])
+                        ->rules(['max:100', 'string'])
                         ->required()
                         ->placeholder('Name'),
                     TextInput::make('primary_owner_mobile')
@@ -213,6 +213,7 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->placeholder('Passport'),
                     TextInput::make('emirates_id')
@@ -242,7 +243,7 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
-                        ->numeric()
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->label('Emirates ID'),
                     TextInput::make('trade_license')
@@ -272,21 +273,30 @@ class OwnerResource extends Resource
                                 };
                             }
                         ])
-                        ->numeric()
+                        ->regex('/^[a-zA-Z0-9]+$/')
                         ->required()
                         ->label('Trade License Number'),
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
                     Hidden::make('resource')
                     ->default('Lazim'),
-                    Select::make('owner_status')
+                    Select::make('status')
                         ->options([
-                            'VIP' => 'VIP',
-                            'normal' => 'Normal'
+                            '1' => 'Approve',
+                            '0' => 'Reject',
+                            '2' => 'Pending'
                         ])
                         ->default(null)
                         ->required()
-                        ->label('Owner Status'),
+                        ->label('Status'),
+                    Select::make('owner_status')
+                    ->options([
+                        'VIP' => 'VIP',
+                        'normal' => 'Normal'
+                    ])
+                    ->default(null)
+                    ->required()
+                    ->label('Owner Status'),
                     Select::make('building_id')
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {

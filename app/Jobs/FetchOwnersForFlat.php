@@ -43,18 +43,32 @@ class FetchOwnersForFlat implements ShouldQueue
                 foreach ($property['owners'] as $ownerData) {
                     $phone = $this->cleanPhoneNumber($ownerData['mobile']);
 
-                    $owner = ApartmentOwner::firstOrCreate([
-                        'owner_number' => $ownerData['ownerNumber'],
-                        'email' => $ownerData['email'],
-                        'mobile' => $phone,
-                        'owner_association_id' => $this->flat->owner_association_id,
-                    ], [
-                        'name' => $ownerData['name']['englishName'],
-                        'passport' => $ownerData['passport'],
-                        'emirates_id' => $ownerData['emiratesId'],
-                        'trade_license' => $ownerData['tradeLicence'],
-                    ]);
+                    $ownerExists = ApartmentOwner::where('owner_number', $ownerData['ownerNumber'])
+                    ->where('email', $ownerData['email'])
+                    ->where('mobile', $phone)
+                    ->where('owner_association_id', $this->flat->owner_association_id)
+                    ->first();
 
+                    if (!$ownerExists) {
+                        $owner = ApartmentOwner::firstOrCreate([
+                            'owner_number' => $ownerData['ownerNumber'],
+                            'email' => $ownerData['email'],
+                            'mobile' => $phone,
+                            'owner_association_id' => $this->flat->owner_association_id,
+                        ], [
+                            'primary_owner_mobile' => $phone,
+                            'primary_owner_email' => $ownerData['email'],
+                            'name' => $ownerData['name']['englishName'],
+                            'passport' => $ownerData['passport'],
+                            'emirates_id' => $ownerData['emiratesId'],
+                            'trade_license' => $ownerData['tradeLicence'],
+                        ]);
+                    }else{
+                        $ownerExists->update([
+                            'primary_owner_mobile' => $phone,
+                            'primary_owner_email' => $ownerData['email'],
+                        ]);
+                    }
 
                     $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
