@@ -67,7 +67,7 @@ class CreateBuilding extends CreateRecord
 
     public function LazimAccountDatabase($data)
     {
-        $connection = DB::connection('lazim_accounts');
+        $connection = DB::connection(env('SECOND_DB_CONNECTION'));
         $created_by = $connection->table('users')->where('owner_association_id', $data->owner_association_id)->where('type', 'company')->first()?->id;
         $connection->table('users')->updateOrInsert([
             'building_id' => $data->id,
