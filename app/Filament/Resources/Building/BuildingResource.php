@@ -109,7 +109,7 @@ class BuildingResource extends Resource
                         ->nullable()
                         ->placeholder('Address Line2'),
                     Hidden::make('owner_association_id')
-                        ->default(auth()->user()?->owner_association_id),
+                        ->default(auth()->user()?->owner_association_id ?? 1),
                     Hidden::make('created_by')
                     ->default(auth()->user()?->id),
                     Hidden::make('updated_by')
@@ -762,7 +762,7 @@ class BuildingResource extends Resource
                     ->visible(function () {
                         $auth_user = auth()->user();
                         $role      = Role::where('id', $auth_user->role_id)->first()?->name;
-    
+
                         if ($role === 'Admin' || $role === 'Property Manager') {
                             return true;
                         }
@@ -772,21 +772,21 @@ class BuildingResource extends Resource
                             DB::table('building_owner_association')
                             ->where('building_id', $record->id)
                             ->where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->delete(); 
+                            ->delete();
                         }else{
                             DB::table('building_owner_association')
                             ->where('building_id', $record->id)
-                            ->delete(); 
+                            ->delete();
                         }
                         if(!empty(auth()->user()?->owner_association_id)) {
                             DB::table('floors')
                             ->where('building_id', $record->id)
                             ->where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->delete(); 
+                            ->delete();
                         }else{
                             DB::table('floors')
                             ->where('building_id', $record->id)
-                            ->delete(); 
+                            ->delete();
                         }
                         // Then, soft delete the corresponding user in the secondary database
                         $secondaryConnection = DB::connection(env('SECOND_DB_CONNECTION'));
@@ -811,15 +811,15 @@ class BuildingResource extends Resource
                         ->withColumns([
                             Column::make('created_by')
                             ->heading('Created By')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            ), 
+                            ),
                             // Custom column using relationship
                             Column::make('owner_association_id')
                             ->heading('Owner Association Name')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->ownerAssociationData->name ?? 'N/A'
-                            ), 
+                            ),
                             Column::make('name')
                                 ->heading('Building Name'),
                             Column::make('building_type')
@@ -828,47 +828,47 @@ class BuildingResource extends Resource
                                 ->heading('Floors'),
                             Column::make('property_group_id')
                                 ->heading('Property Group ID')
-                                ->formatStateUsing(fn ($record) => 
+                                ->formatStateUsing(fn ($record) =>
                                     $record->property_group_id ?? 'N/A'
                                 ),
                             Column::make('address_line1')
                                 ->heading('Address Line 1')
-                                ->formatStateUsing(fn ($record) => 
+                                ->formatStateUsing(fn ($record) =>
                                     $record->address_line1 ?? 'N/A'
                                 ),
                             Column::make('address_line2')
                             ->heading('Address Line 2')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->address_line2 ?? 'N/A'
                             ),
                             Column::make('area')
                                 ->heading('Area')
-                                ->formatStateUsing(fn ($record) => 
+                                ->formatStateUsing(fn ($record) =>
                                     $record->area ?? 'N/A'
                                 ),
                             Column::make('city_id')
                             ->heading('City')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->cities->name ?? 'N/A'
-                            ),    
+                            ),
                             // Formatted date with custom accessor
                             Column::make('created_at')
                                 ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) => 
+                                ->formatStateUsing(fn ($state) =>
                                     $state ? $state->format('d/m/Y') : ''
                                 ),
                                 Column::make('status')
                                 ->heading('Status')
-                                ->formatStateUsing(fn ($record) => 
+                                ->formatStateUsing(fn ($record) =>
                                     $record->status == 1
-                                        ? 'Active' 
+                                        ? 'Active'
                                         : 'Inactive'
                                 ),
-                                
+
                             // Created by user info
                             // Column::make('created_by_name')
                             //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) => 
+                            //     ->formatStateUsing(fn ($record) =>
                             //         $record->createdBy->name ?? 'System'
                             //     ),
                         ])
@@ -913,9 +913,9 @@ class BuildingResource extends Resource
             //             try {
             //                 $import = new BuildingImport();
             //                 Excel::import($import, $data['file']);
-                            
+
             //                 $result = $import->getResultSummary();
-                            
+
             //                 if($result['status']===200)
             //                 {
             //                 // Generate detailed report
@@ -923,13 +923,13 @@ class BuildingResource extends Resource
             //                 $report .= "Successfully imported: {$result['imported']}\n";
             //                 $report .= "Skipped (already exists): {$result['skip']}\n";
             //                 $report .= "Errors: {$result['error']}\n\n";
-                            
+
             //                 // Add detailed error and skip information
             //                 foreach ($result['details'] as $detail) {
             //                     $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
             //                     $report .= "Data: " . json_encode($detail['data']) . "\n\n";
             //                 }
-                            
+
             //                 // Save report
             //                 $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
             //                 $reportPath = 'import-reports/' . $filename;
