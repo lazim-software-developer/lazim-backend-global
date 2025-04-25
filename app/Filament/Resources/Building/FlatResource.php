@@ -82,6 +82,18 @@ class FlatResource extends Resource
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
+                            ->required()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildings = DB::table('building_owner_association')
+                                        ->where('owner_association_id', auth()->user()->owner_association_id)
+                                        ->where('active', true)
+                                        ->pluck('building_id');
+                                    return Building::whereIn('id', $buildings)->pluck('name', 'id');
+                                }
+                            })
                             ->reactive()
                             ->preload()
                             ->searchable()
@@ -251,11 +263,11 @@ class FlatResource extends Resource
                             DB::table('property_manager_flats')
                             ->where('flat_id', $record->id)
                             ->where('owner_association_id', $record->owner_association_id)
-                            ->delete(); 
+                            ->delete();
                         }else{
                             DB::table('property_manager_flats')
                             ->where('flat_id', $record->id)
-                            ->delete(); 
+                            ->delete();
                         }
                         $record->delete();
 
@@ -276,20 +288,20 @@ class FlatResource extends Resource
                         ->withColumns([
                             // Column::make('created_by')
                             // ->heading('Created By')
-                            // ->formatStateUsing(fn ($record) => 
+                            // ->formatStateUsing(fn ($record) =>
                             //     $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            // ), 
+                            // ),
                             // Custom column using relationship
                             Column::make('owner_association_id')
                             ->heading('Owner Association Name')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->ownerAssociation->name ?? 'N/A'
-                            ), 
+                            ),
                             Column::make('building_id')
                             ->heading('Building Name')
-                            ->formatStateUsing(fn ($record) => 
+                            ->formatStateUsing(fn ($record) =>
                                 $record->building->name ?? 'N/A'
-                            ), 
+                            ),
                             Column::make('floor')
                                 ->heading('Floor'),
                             Column::make('property_number')
@@ -311,37 +323,37 @@ class FlatResource extends Resource
                             Column::make('parking_count')
                             ->heading('Parking Count'),
                             Column::make('plot_number')
-                            ->heading('Plot Number'), 
+                            ->heading('Plot Number'),
                             Column::make('dewa_number')
-                            ->heading('DEWA Number'), 
+                            ->heading('DEWA Number'),
                             Column::make('makhani_number')
                             ->heading('Makhani Number'),
                             Column::make('etisalat/du_number')
                             ->heading('Etisalat/DU Number'),
                             Column::make('btu/ac_number')
-                            ->heading('BTU/AC Number'), 
+                            ->heading('BTU/AC Number'),
                             Column::make('lpg_number')
-                            ->heading('LPG Number'), 
+                            ->heading('LPG Number'),
                             Column::make('resource')
-                            ->heading('Resource'),               
+                            ->heading('Resource'),
                             // Formatted date with custom accessor
                             Column::make('created_at')
                                 ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) => 
+                                ->formatStateUsing(fn ($state) =>
                                     $state ? $state->format('d/m/Y') : ''
                                 ),
                                 // Column::make('status')
                                 // ->heading('Status')
-                                // ->formatStateUsing(fn ($record) => 
+                                // ->formatStateUsing(fn ($record) =>
                                 //     $record->status == 1
-                                //         ? 'Active' 
+                                //         ? 'Active'
                                 //         : 'Inactive'
                                 // ),
-                                
+
                             // Created by user info
                             // Column::make('created_by_name')
                             //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) => 
+                            //     ->formatStateUsing(fn ($record) =>
                             //         $record->createdBy->name ?? 'System'
                             //     ),
                         ])
