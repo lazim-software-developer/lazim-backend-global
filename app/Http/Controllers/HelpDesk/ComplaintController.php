@@ -378,6 +378,15 @@ class ComplaintController extends Controller
                 }])
                 ->orderBy('assignees_count', 'asc')
                 ->get();
+            $selectedTechnician = $assignees->first();
+
+            if ($selectedTechnician) {
+                $complaint->technician_id = $selectedTechnician->id;
+                $complaint->vendor_id     = $vendorId;
+                $complaint->save();
+            } else {
+                Log::info("No technicians to add", []);
+            }
         }
         return (new CustomResponseResource([
             'title'   => 'Success',
