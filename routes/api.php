@@ -365,7 +365,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 /**
  * Payment APIs for Owners
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('payments')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('payments')->group(function () {
     Route::get('/{flat}/service-charges', [PaymentController::class, 'fetchServiceCharges']);
 
     // Access PDF link for serviceCharge
@@ -396,7 +396,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 /**
  * Forms related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('forms')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('forms')->group(function () {
     Route::post('/move-in-out', [MoveInOutController::class, 'store']);
     Route::post('/guest-registration', [GuestController::class, 'store']);
     Route::post('/sale-noc', [SaleNocController::class, 'store']);
@@ -425,7 +425,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::post('/fit-out/contractor/{fitout}', [FitOutFormsController::class, 'contractorRequest']);
 
 //Bills related Api's
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('bills')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('bills')->group(function () {
     Route::get('/flat/{flat}', [BillController::class, 'index']);
 });
 
@@ -445,12 +445,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 // API  to fetch Security for a building
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('building')->group(function () {
     Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
 });
 
 // App suggestion and feedback
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
