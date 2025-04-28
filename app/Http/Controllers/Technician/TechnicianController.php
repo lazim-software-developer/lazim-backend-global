@@ -149,9 +149,9 @@ class TechnicianController extends Controller
         }
         $technician->active = $request->active;
         $technician->save();
-        if(!$request->active){
-            DB::connection('mysql')->table('service_technician_vendor')->where('technician_vendor_id',$technician->id)->update(['active'=>false]);
-        }
+        // if(!$request->active){
+            DB::connection(env('DB_CONNECTION','mysql'))->table('service_technician_vendor')->where('technician_vendor_id',$technician->id)->update(['active'=>$request->active]);
+        // }
         $user = User::find($technician?->technician_id)->update([
             'active' => $request->active
         ]);
