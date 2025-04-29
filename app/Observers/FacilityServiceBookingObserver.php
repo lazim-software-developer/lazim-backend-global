@@ -68,15 +68,17 @@ class FacilityServiceBookingObserver
                         return $notifyTo->can($requiredPermissions);
                     });
                     $serviceName = Service::where('id', $facilityBooking->bookable_id)->first();
-                    $existingNotification = DB::table('notifications_sents')->where(['type' => 'service', 'user_id' => auth()->user()->id, 'building_id' => $facilityBooking?->building_id, 'owner_association_id' => $oa->id, 'service_id' => $serviceName->id, 'facility_booking_id' => $facilityBooking?->id])->first();
+                    $existingNotification = DB::table('personal_service_notifications')->where(['type' => 'service', 'user_id' => auth()->user()->id, 'building_id' => $facilityBooking?->building_id, 'owner_association_id' => $oa->id, 'service_id' => $serviceName->id, 'facility_booking_id' => $facilityBooking?->id])->first();
                     if(!$existingNotification){
-                        DB::table('notifications_sents')->insert([
+                        DB::table('personal_service_notifications')->insert([
                             'type' => 'service',
                             'user_id' => auth()->user()->id,
                             'building_id' => $facilityBooking?->building_id,
                             'owner_association_id' => $oa->id,
                             'service_id' => $serviceName->id,
                             'facility_booking_id' => $facilityBooking?->id,
+                            'title' => "Personal Service Booking for Building :".$facilityBooking->building->name,
+                            'notification_message' => 'A new '. $serviceName->name.' booking by '.auth()->user()->first_name,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
