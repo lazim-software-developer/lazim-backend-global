@@ -36,17 +36,6 @@ class SaleNOCObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                $existingNotification = DB::table('notifications_sents')->where(['type' => 'sales', 'user_id' => auth()->user()->id, 'building_id' => $saleNOC->building_id, 'owner_association_id' => $oa->id, 'sales_noc_id' => $saleNOC->id])->first();
-                if(!$existingNotification){
-                    DB::table('notifications_sents')->insert([
-                        'type' => 'sales',
-                        'user_id' => auth()->user()->id,
-                        'building_id' => $saleNOC->building_id,
-                        'owner_association_id' => $oa->id,
-                        'sales_noc_id' => $saleNOC->id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
                     Notification::make()
                     ->success()
                     ->title("New Sale Noc Submission for Building :". $saleNOC->building->name)
@@ -65,7 +54,6 @@ class SaleNOCObserver
                             }),
                     ])
                     ->sendToDatabase($notifyTo);
-                }
             }
         }
     }
