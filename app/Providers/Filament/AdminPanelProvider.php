@@ -2,24 +2,24 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Components\NavigationItemExtended;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use App\Models\User\User;
 use Illuminate\View\View;
+use App\Helpers\UrlHelper;
 use App\Models\AgingReport;
 use App\Models\Master\Role;
 use Filament\PanelProvider;
 use App\Models\OwnerAssociation;
 // use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
-use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\DemoResource;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
@@ -37,24 +37,27 @@ use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Components\NavigationItemExtended;
 use App\Filament\Resources\DelinquentOwnerResource;
+use App\Filament\Resources\PersonalServiceResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BuildingEngineerResource;
 use App\Filament\Resources\ComplaintOfficerResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
+use App\Filament\Resources\NotifictionResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
+// use Filament\Pages\Dashboard;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
-// use Filament\Pages\Dashboard;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
-use App\Helpers\UrlHelper;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Resources\PersonalServiceNotifictionResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -564,6 +567,17 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
+                $builder->groups([
+                    NavigationGroup::make('Notifications')
+                        ->items([
+                            NavigationItem::make('Notification')
+                                ->url(NotifictionResource::getUrl('index'))
+                                ->icon('heroicon-o-bell')
+                                ->activeIcon('heroicon-o-bell')
+                                ->sort(1),
+                        ])
+                        ->collapsed(true),
+                ]);
                 if ($user->can('view_any_ledgers') || $user->can('view_any_vendor::ledgers') || $user->can('view_any_cooling::account')) {
                     $builder->groups([
                         NavigationGroup::make('Reports')

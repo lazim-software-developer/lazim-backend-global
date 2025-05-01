@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Resources\CustomResponseResource;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use Spatie\Pdf\Pdf as SpatiePdf;
-use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Stripe\PaymentIntent;
+use Spatie\Pdf\Pdf as SpatiePdf;
+use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\CustomResponseResource;
 
 function optimizeAndUpload($image, $path, $width = 474, $height = 622)
 {
@@ -108,4 +109,38 @@ function generateAlphanumericOTP($length = 6) {
         $otp .= $characters[random_int(0, $charactersLength - 1)];
     }
     return $otp;
+}
+function NotificationTable($data){
+    DB::table('notifications')->insert([
+        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+        'type' => 'Filament\Notifications\DatabaseNotification',
+        'notifiable_type' => $data['notifiable_type'] ?? null,
+        'notifiable_id' =>$data['notifiable_id'] ?? null,
+        'data' => json_encode([
+            'actions' => [
+                [
+                    "name" => "view",
+                    "iconPosition" => "before",
+                    "label" => "View",
+                    "size" => "sm",
+                    "url" => $data['url'] ?? null,
+                    "view" => "filament-actions::button-action",
+                ],
+            ],
+            'body' => $data['body'] ?? null,
+            'duration' => 'persistent',
+            'icon' => 'heroicon-o-document-text',
+            'iconColor' => 'warning',
+            'title' => $data['title'] ?? null,
+            'view' => 'notifications::notification',
+            'viewData' => [
+                'building_id' => $data['building_id'] ?? null,
+            ],
+            'format' => 'filament',
+            'url' => $data['url'] ?? null,
+        ]),
+        'created_at' => now()->format('Y-m-d H:i:s'),
+        'updated_at' => now()->format('Y-m-d H:i:s'),
+        'custom_json_data' => $data['custom_json_data'] ?? null,
+    ]);
 }

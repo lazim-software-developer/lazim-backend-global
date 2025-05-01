@@ -29,24 +29,47 @@ class WDAObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                    ->success()
-                    ->title("New WDA Form")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('New WDA form submitted by  ' . auth()->user()->first_name)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(function() use ($oam_id,$WDA){
-                                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                                if($slug){
-                                    return WDAResource::getUrl('edit', [$slug,$WDA->id]);
-                                }
-                                return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
-                            }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->wda_id', $WDA->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $data['url']=WDAResource::getUrl('edit', [$slug,$WDA->id]);
+                            $data['title']="New WDA Form for Building: " . Building::where('id', $WDA?->building_id)->value('name');
+                            $data['body']='New WDA form submitted by  ' . auth()->user()->first_name;
+                            $data['building_id']=$WDA->building_id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $WDA->building_id,
+                                'wda_id' => $WDA->id,
+                                'user_id' => auth()->user()->id,
+                                'owner_association_id' => $oam_id,
+                                'type' => 'WDA',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
+                        }
+                    }
+                }
+                // Notification::make()
+                //     ->success()
+                //     ->title("New WDA Form for Building: " . Building::where('id', $WDA?->building_id)->value('name'))
+                //     ->icon('heroicon-o-document-text')
+                //     ->iconColor('warning')
+                //     ->body('New WDA form submitted by  ' . auth()->user()->first_name)
+                //     ->actions([
+                //         Action::make('view')
+                //             ->button()
+                //             ->url(function() use ($oam_id,$WDA){
+                //                 $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                //                 if($slug){
+                //                     return WDAResource::getUrl('edit', [$slug,$WDA->id]);
+                //                 }
+                //                 return url('/app/w-d-a-s/' . $WDA?->id.'/edit');
+                //             }),
+                //     ])
+                //     ->sendToDatabase($notifyTo);
             }
     }
 
