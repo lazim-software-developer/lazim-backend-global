@@ -5,11 +5,11 @@ namespace App\Filament\Resources\NotificationSentResource\Pages;
 use Filament\Actions;
 use App\Models\NotificationHistory;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\Resources\SaleNocNotifictionResource;
+use App\Filament\Resources\NotifictionResource;
 
 class ViewNotificationSent extends ViewRecord
 {
-    protected static string $resource = SaleNocNotifictionResource::class;
+    protected static string $resource = NotifictionResource::class;
 
     protected function getHeaderActions(): array
     {

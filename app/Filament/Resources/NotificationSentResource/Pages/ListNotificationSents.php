@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\NotificationSentResource\Pages;
 
-use App\Filament\Resources\SaleNocNotifictionResource;
+use App\Filament\Resources\NotifictionResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListNotificationSents extends ListRecords
 {
-    protected static string $resource = SaleNocNotifictionResource::class;
+    protected static string $resource = NotifictionResource::class;
 
     protected function getTableQuery(): Builder
     {

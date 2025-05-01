@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\SaleNocNotificationHistory;
 use App\Filament\Resources\NotificationSentResource\Pages;
 
-class SaleNocNotifictionResource extends Resource
+class NotifictionResource extends Resource
 {
     protected static ?string $model = Notification::class;
     protected static ?string $modelLabel      = 'Notifications';
@@ -85,9 +85,11 @@ class SaleNocNotifictionResource extends Resource
                 // Add building filter here
                 Tables\Filters\SelectFilter::make('building_id')
                     ->label('Filter by Building')
-                    ->options(function() {
-                        return Building::pluck('name', 'id')->toArray();
-                    })
+                    ->options(
+                        Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
@@ -103,6 +105,16 @@ class SaleNocNotifictionResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['value'], fn (Builder $query, $priority): Builder => $query->where('custom_json_data->priority', $priority));
+                    }),
+                    Tables\Filters\SelectFilter::make('type')
+                    ->label('Filter by Type')
+                    ->options([
+                        'Complaint' => 'Complaint',
+                        'SaleNoc' => 'SaleNoc',
+                        'ServiceBooking' => 'Service Booking',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when($data['value'], fn (Builder $query, $type): Builder => $query->where('custom_json_data->type', $type));
                     })
             ])
             ->actions([
