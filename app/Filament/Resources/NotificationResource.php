@@ -23,9 +23,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\SaleNocNotificationHistory;
-use App\Filament\Resources\NotificationSentResource\Pages;
+use App\Filament\Resources\NotificationResource\Pages;
 
-class NotifictionResource extends Resource
+class NotificationResource extends Resource
 {
     protected static ?string $model = Notification::class;
     protected static ?string $modelLabel      = 'Notifications';
