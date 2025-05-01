@@ -24,8 +24,7 @@ class ListOwnerAssociationReceipts extends ListRecords
             ->label('Generate Receipt')
             ->url(function () {
                 if (in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])
-                || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                    ->pluck('role')[0] == 'Property Manager') {
+                ) {
                     return '/app/generate-receipt';
                 }
                 else {
@@ -38,8 +37,9 @@ class ListOwnerAssociationReceipts extends ListRecords
    protected function getTableQuery(): Builder
     {
         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
-        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-            ->pluck('role')[0] == 'Property Manager') {
+        // || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+        //     ->pluck('role')[0] == 'Property Manager'
+            ) {
             $flatIds = DB::table('property_manager_flats')
             ->where('owner_association_id', auth()->user()->owner_association_id)
             ->where('active', true)

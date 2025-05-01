@@ -143,6 +143,9 @@ class ItemResource extends Resource
                         ->relationship('vendors', 'name')
                         ->options(function () {
                             $oaId = auth()->user()?->owner_association_id;
+                            if(auth()->user()?->role->name == 'Admin'){
+                                return Vendor::pluck('name', 'id');
+                            }
                             return Vendor::whereHas('ownerAssociation', function ($query) {
                                 if(auth()->user()->role->name == 'Property Manager'
                                 || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
