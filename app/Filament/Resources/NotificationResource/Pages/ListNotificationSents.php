@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\NotificationSentResource\Pages;
+namespace App\Filament\Resources\NotificationResource\Pages;
 
-use App\Filament\Resources\NotifictionResource;
+use App\Filament\Resources\NotificationResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListNotificationSents extends ListRecords
 {
-    protected static string $resource = NotifictionResource::class;
+    protected static string $resource = NotificationResource::class;
 
     protected function getTableQuery(): Builder
     {

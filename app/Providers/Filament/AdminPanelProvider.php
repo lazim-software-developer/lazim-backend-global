@@ -46,7 +46,7 @@ use App\Filament\Resources\ComplaintOfficerResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
-use App\Filament\Resources\NotifictionResource;
+use App\Filament\Resources\NotificationResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -571,7 +571,7 @@ class AdminPanelProvider extends PanelProvider
                     NavigationGroup::make('Notifications')
                         ->items([
                             NavigationItem::make('Notification')
-                                ->url(NotifictionResource::getUrl('index'))
+                                ->url(NotificationResource::getUrl('index'))
                                 ->icon('heroicon-o-bell')
                                 ->activeIcon('heroicon-o-bell')
                                 ->sort(1),
