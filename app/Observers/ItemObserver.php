@@ -39,24 +39,47 @@ class ItemObserver
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
-            Notification::make()
-            ->success()
-            ->title('Item Updated')
-            ->body('New Item Update Received')
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->actions([
-                Action::make('View')
-                ->button()
-                ->url(function() use ($item,$oa_id){
-                    $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                    if($slug){
-                        return ItemResource::getUrl('view', [$slug,$item->id]);
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->item_id', $item->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                        $data['url']=ItemResource::getUrl('view', [$slug,$item->id]);
+                        $data['title']="Item Updated for Building:".$item->building->name;
+                        $data['body']='New Item Update Received';
+                        $data['building_id']=$item->building_id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $item->building_id,
+                            'item_id' => $item->id,
+                            'user_id' => auth()->user()->id,
+                            'owner_association_id' => $oa_id,
+                            'type' => 'Item',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
                     }
-                    return url('/app/items/' . $item->id);
-                }),
-            ])
-            ->sendToDatabase($notifyTo);
+                }
+            }
+            // Notification::make()
+            // ->success()
+            // ->title('Item Updated')
+            // ->body('New Item Update Received')
+            // ->icon('heroicon-o-document-text')
+            // ->iconColor('warning')
+            // ->actions([
+            //     Action::make('View')
+            //     ->button()
+            //     ->url(function() use ($item,$oa_id){
+            //         $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+            //         if($slug){
+            //             return ItemResource::getUrl('view', [$slug,$item->id]);
+            //         }
+            //         return url('/app/items/' . $item->id);
+            //     }),
+            // ])
+            // ->sendToDatabase($notifyTo);
         }
     }
 

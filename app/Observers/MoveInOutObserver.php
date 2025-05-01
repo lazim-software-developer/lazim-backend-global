@@ -42,24 +42,46 @@ class MoveInOutObserver
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Notification::make()
-                    ->success()
-                    ->title("New Move in Submission")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('New form submission by '.auth()->user()->first_name)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(function() use ($moveInOut,$oa){
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    return MoveInFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
-                                }
-                                return url('/app/move-in-forms-documents/' . $moveInOut?->id.'/edit');
-                            }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->move_in_id', $moveInOut->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $data['url']=MoveInFormsDocumentResource::getUrl('edit', [$oa?->slug,$moveInOut?->id]);
+                                $data['title']="New Move in Submission for Building:".$moveInOut->building->name;
+                                $data['body']='New form submission by '.auth()->user()->first_name;
+                                $data['building_id']=$moveInOut->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $moveInOut->building_id,
+                                    'move_in_id' => $moveInOut->id,
+                                    'user_id' => auth()->user()->id,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Move in',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    // ->success()
+                    // ->title("New Move in Submission")
+                    // ->icon('heroicon-o-document-text')
+                    // ->iconColor('warning')
+                    // ->body('New form submission by '.auth()->user()->first_name)
+                    // ->actions([
+                    //     Action::make('view')
+                    //         ->button()
+                    //         ->url(function() use ($moveInOut,$oa){
+                    //             $slug = $oa?->slug;
+                    //             if($slug){
+                    //                 return MoveInFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                    //             }
+                    //             return url('/app/move-in-forms-documents/' . $moveInOut?->id.'/edit');
+                    //         }),
+                    // ])
+                    // ->sendToDatabase($notifyTo);
                 }
             }
             else{
@@ -68,24 +90,46 @@ class MoveInOutObserver
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Notification::make()
-                    ->success()
-                    ->title("New Move out Submission")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('New form submission by '.auth()->user()->first_name)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(function() use ($moveInOut,$oa){
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
-                                }
-                                return url('/app/move-out-forms-documents/' . $moveInOut?->id.'/edit');
-                            }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->move_out_id', $moveInOut->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $data['url']=MoveOutFormsDocumentResource::getUrl('edit', [$oa?->slug,$moveInOut?->id]);
+                                $data['title']="New Move out Submission for Building:".$moveInOut->building->name;
+                                $data['body']='New form submission by '.auth()->user()->first_name;
+                                $data['building_id']=$moveInOut->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $moveInOut->building_id,
+                                    'move_out_id' => $moveInOut->id,
+                                    'user_id' => auth()->user()->id,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Move out',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    // ->success()
+                    // ->title("New Move out Submission")
+                    // ->icon('heroicon-o-document-text')
+                    // ->iconColor('warning')
+                    // ->body('New form submission by '.auth()->user()->first_name)
+                    // ->actions([
+                    //     Action::make('view')
+                    //         ->button()
+                    //         ->url(function() use ($moveInOut,$oa){
+                    //             $slug = $oa?->slug;
+                    //             if($slug){
+                    //                 return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                    //             }
+                    //             return url('/app/move-out-forms-documents/' . $moveInOut?->id.'/edit');
+                    //         }),
+                    // ])
+                    // ->sendToDatabase($notifyTo);
                 }
             }
         }

@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Notification;
 use App\Models\Forms\SaleNOC;
+use Pages\ViewNotificationSent;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\NotificationSents;

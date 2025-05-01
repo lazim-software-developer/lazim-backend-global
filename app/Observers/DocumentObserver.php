@@ -40,24 +40,46 @@ class DocumentObserver
                             ->filter(function ($notifyTo) use ($requiredPermissions) {
                                 return $notifyTo->can($requiredPermissions);
                             });
-                            Notification::make()
-                                ->success()
-                                ->title($document->name . " Received")
-                                ->icon('heroicon-o-document-text')
-                                ->iconColor('warning')
-                                ->body('A new document received from  '.auth()->user()->first_name)
-                                ->actions([
-                                    Action::make('view')
-                                        ->button()
-                                        ->url(function() use ($oa,$document){
-                                            $slug = $oa?->slug;
-                                            if($slug){
-                                                return TenantDocumentResource::getUrl('edit', [$slug,$document?->id]);
-                                            }
-                                            return url('/app/tenant-documents/' . $document?->id.'/edit');
-                                        }),
-                                ])
-                                ->sendToDatabase($notifyTo);
+                            if($notifyTo->count() > 0){
+                                foreach($notifyTo as $user){
+                                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->document_id', $document->id)->exists()){
+                                        $data=[];
+                                        $data['notifiable_type']='App\Models\User\User';
+                                        $data['notifiable_id']=$user->id;
+                                        $data['url']=TenantDocumentResource::getUrl('edit', [$oa->slug, $document->id]);
+                                        $data['title']=$document->name." Received for Building:".$document->building->name;
+                                        $data['body']='A new document received from  '.auth()->user()->first_name;
+                                        $data['building_id']=$document->building_id;
+                                        $data['custom_json_data']=json_encode([
+                                            'building_id' => $document->building_id,
+                                            'document_id' => $document->id,
+                                            'user_id' => auth()->user()->id,
+                                            'owner_association_id' => $oa->id,
+                                            'type' => 'Document',
+                                            'priority' => 'Medium',
+                                        ]);
+                                        NotificationTable($data);
+                                    }
+                                }
+                            }
+                            // Notification::make()
+                            //     ->success()
+                            //     ->title($document->name . " Received")
+                            //     ->icon('heroicon-o-document-text')
+                            //     ->iconColor('warning')
+                            //     ->body('A new document received from  '.auth()->user()->first_name)
+                            //     ->actions([
+                            //         Action::make('view')
+                            //             ->button()
+                            //             ->url(function() use ($oa,$document){
+                            //                 $slug = $oa?->slug;
+                            //                 if($slug){
+                            //                     return TenantDocumentResource::getUrl('edit', [$slug,$document?->id]);
+                            //                 }
+                            //                 return url('/app/tenant-documents/' . $document?->id.'/edit');
+                            //             }),
+                            //     ])
+                            //     ->sendToDatabase($notifyTo);
                         }
                     }
                 }
