@@ -34,6 +34,7 @@ use App\Filament\Resources\LegalNoticeResource;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Resources\FamilyMemberResource;
 use App\Filament\Resources\LegalOfficerResource;
+use App\Filament\Resources\NotificationResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
@@ -43,14 +44,14 @@ use App\Filament\Resources\PersonalServiceResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BuildingEngineerResource;
 use App\Filament\Resources\ComplaintOfficerResource;
+use App\Filament\Resources\NotificationListResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
-use App\Filament\Resources\NotificationResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
 // use Filament\Pages\Dashboard;
+use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
@@ -571,7 +572,7 @@ class AdminPanelProvider extends PanelProvider
                     NavigationGroup::make('Notifications')
                         ->items([
                             NavigationItem::make('Notification')
-                                ->url(NotificationResource::getUrl('index'))
+                                ->url(NotificationListResource::getUrl('index'))
                                 ->icon('heroicon-o-bell')
                                 ->activeIcon('heroicon-o-bell')
                                 ->sort(1),

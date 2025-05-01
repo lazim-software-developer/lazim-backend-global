@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\NotificationResource\Pages;
+namespace App\Filament\Resources\NotificationListResource\Pages;
 
 use Filament\Actions;
 use App\Models\NotificationHistory;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\Resources\NotificationResource;
+use App\Filament\Resources\NotificationListResource;
 
 class ViewNotificationSent extends ViewRecord
 {
-    protected static string $resource = NotificationResource::class;
+    protected static string $resource = NotificationListResource::class;
 
     protected function getHeaderActions(): array
     {
