@@ -30,29 +30,57 @@ class AnnouncementObserver
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Notification::make()
-                        ->success()
-                        ->title("Notice Created")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('warning')
-                        ->body('New Notice has been created.')
-                        ->actions([
-                            Action::make('view')
-                                ->button()
-                                ->url(function() use ($post){
-                                    $slug = OwnerAssociation::where('id',$post->owner_association_id)->first()?->slug;
-                                    if($slug){
-                                        return AnnouncementResource::getUrl('edit', [$slug,$post?->id]);
-                                    }
-                                    return url('/app/announcements/' . $post?->id.'/edit');
-                                }),
-                        ])
-                        ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $post->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $slug = OwnerAssociation::where('id',$post->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    $data['url']=AnnouncementResource::getUrl('edit', [$slug, $post?->id]);
+                                }else{
+                                    $data['url']=url('/app/announcements/' . $post?->id.'/edit');
+                                }
+                                $data['title']='Notice Created';
+                                $data['body']='New Notice has been created by ' . auth()->user()->first_name;
+                                $data['building_id']=$post->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $post->building_id,
+                                    'post_id' => $post->id,
+                                    'user_id' => auth()->user()->id,
+                                    'owner_association_id' => $post->owner_association_id,
+                                    'type' => 'Announcement',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    //     ->success()
+                    //     ->title("Notice Created")
+                    //     ->icon('heroicon-o-document-text')
+                    //     ->iconColor('warning')
+                    //     ->body('New Notice has been created.')
+                    //     ->actions([
+                    //         Action::make('view')
+                    //             ->button()
+                    //             ->url(function() use ($post){
+                    //                 $slug = OwnerAssociation::where('id',$post->owner_association_id)->first()?->slug;
+                    //                 if($slug){
+                    //                     return AnnouncementResource::getUrl('edit', [$slug,$post?->id]);
+                    //                 }
+                    //                 return url('/app/announcements/' . $post?->id.'/edit');
+                    //             }),
+                    //     ])
+                    //     ->sendToDatabase($notifyTo);
                 } else {
                     $requiredPermissions = ['view_any_post'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
+
                     Notification::make()
                         ->success()
                         ->title("Post created")
