@@ -31,8 +31,8 @@ class RegistrationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request)
     {
-
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('mobile')]);
+        $email = trim(strtolower($request->get('email')));
+        $userData = User::where(['email' => $email, 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner') {
             $userData->where('owner_id', $request->get('owner_id'));
         }
@@ -57,7 +57,7 @@ class RegistrationController extends Controller
         }
 
         // Check if user exists in our DB
-        if (User::where(['email' => $request->email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1, 'owner_id' => $request->owner_id])->exists()) {
+        if (User::where(['email' => $email, 'phone' => $request->mobile, 'email_verified' => 1, 'phone_verified' => 1, 'owner_id' => $request->owner_id])->exists()) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => 'Your email is already registered in our application. Please try login instead!',
@@ -95,7 +95,7 @@ class RegistrationController extends Controller
         if ($type === 'Owner') {
             $queryModel = $flat->owners()->where('apartment_owners.id', $request->owner_id);
         } else {
-            $queryModel = MollakTenant::where(['email' => $request->email, 'mobile' => $request->mobile, 'building_id' => $request->building_id, 'flat_id' => $request->flat_id]);
+            $queryModel = MollakTenant::where(['email' => $email, 'mobile' => $request->mobile, 'building_id' => $request->building_id, 'flat_id' => $request->flat_id]);
         }
 
         if (!$queryModel->exists()) {
@@ -126,7 +126,7 @@ class RegistrationController extends Controller
         $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
         $building = Building::where('id', $request->building_id)->first();
         $user = User::create([
-            'email' => $request->email,
+            'email' => $email,
             'first_name' => $firstName,
             'phone' => $request->mobile,
             'role_id' => $role,
@@ -143,7 +143,7 @@ class RegistrationController extends Controller
             $connection->table('customers')->insert([
                 'customer_id' => $customerId,
                 'name' => $name,
-                'email' => $request->email,
+                'email' => $email,
                 'contact' => $request->mobile,
                 'type' => $type,
                 'lang' => 'en',
@@ -185,7 +185,7 @@ class RegistrationController extends Controller
 
         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
         if ($customerId) {
-            AssignFlatsToTenant::dispatch($request->email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
+            AssignFlatsToTenant::dispatch($email, $request->mobile, $request->owner_id, $customerId, $type)->delay(now()->addSeconds(5));
         }
 
         return (new CustomResponseResource([
@@ -198,6 +198,7 @@ class RegistrationController extends Controller
 
     public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request)
     {
+        $request->merge(['email' => trim(strtolower($request->email))]);
         $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
             $ownerId=$request->get('owner_id');
