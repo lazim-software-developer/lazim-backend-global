@@ -2,13 +2,14 @@
 
 namespace App\Observers;
 
-use App\Filament\Resources\Vendor\VendorResource;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
-use Filament\Notifications\Actions\Action;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Filament\Resources\Vendor\VendorResource;
 
 class VendorObserver
 {
