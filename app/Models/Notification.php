@@ -23,7 +23,6 @@ class Notification extends Model
 
     public function ownerAssociation()
     {
-        // Assuming the ID is stored in custom_json_data->owner_association_id
         return $this->belongsTo(
             OwnerAssociation::class, 
             'custom_json_data->owner_association_id', 

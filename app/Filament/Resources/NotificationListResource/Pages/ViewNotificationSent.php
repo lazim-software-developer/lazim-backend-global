@@ -18,7 +18,7 @@ class ViewNotificationSent extends ViewRecord
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->label('View Source')
                 ->color('primary')
-                ->url(fn () => $this->getRecord()->data['url']) // Use the URL from the record
+                ->url(fn () => $this->getRecord()->data['actions'][0]['url']) // Use the URL from the record
                 ->openUrlInNewTab(), // Open the URL in a new tab
         ];
     }
