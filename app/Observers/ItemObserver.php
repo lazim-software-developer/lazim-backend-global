@@ -53,7 +53,7 @@ class ItemObserver
                         $data['custom_json_data']=json_encode([
                             'building_id' => $item->building_id,
                             'item_id' => $item->id,
-                            'user_id' => auth()->user()->id,
+                            'user_id' => auth()->user()->id ?? null,
                             'owner_association_id' => $oa_id,
                             'type' => 'Item',
                             'priority' => 'Medium',

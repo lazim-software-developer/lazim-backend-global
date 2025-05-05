@@ -52,7 +52,7 @@ class AccessCardObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $accessCard->building_id,
                                 'post_id' => $accessCard->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $accessCard->owner_association_id,
                                 'type' => 'Access Card',
                                 'priority' => 'Medium',

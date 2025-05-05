@@ -51,7 +51,7 @@ class UserApprovalObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $userApproval->flat?->building?->id,
                                 'user_approval_id' => $userApproval->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oa->id,
                                 'type' => 'UserApproval',
                                 'priority' => 'Medium',

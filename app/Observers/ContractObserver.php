@@ -46,7 +46,7 @@ class ContractObserver
                         $data['custom_json_data']=json_encode([
                             'building_id' => $contract->building_id,
                             'contract_id' => $contract->id,
-                            'user_id' => auth()->user()->id,
+                            'user_id' => auth()->user()->id ?? null,
                             'owner_association_id' => $oam_id,
                             'type' => 'Contract',
                             'priority' => 'Medium',

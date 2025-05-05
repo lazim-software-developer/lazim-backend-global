@@ -55,7 +55,7 @@ class FacilityServiceBookingObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $facilityBooking->building_id,
                                     'service_booking_id' => $facilityBooking->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'ServiceBooking',
                                     'priority' => 'Medium',
@@ -104,7 +104,7 @@ class FacilityServiceBookingObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $facilityBooking->building_id,
                                     'service_booking_id' => $facilityBooking->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'ServiceBooking',
                                     'priority' => 'Medium',

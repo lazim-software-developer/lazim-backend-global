@@ -48,7 +48,7 @@ class GuestObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $guest->flatVisitor->building_id,
                                 'guest_id' => $guest->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oa->id,
                                 'type' => 'Guest',
                                 'priority' => 'Medium',

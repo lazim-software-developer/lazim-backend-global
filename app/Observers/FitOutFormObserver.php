@@ -52,7 +52,7 @@ class FitOutFormObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $fitOutForm->building_id,
                                 'fit_out_form_id' => $fitOutForm->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oa_id,
                                 'type' => 'FitOutForm',
                                 'priority' => 'Medium',

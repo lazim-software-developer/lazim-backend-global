@@ -42,7 +42,7 @@ class PatrollingObserver
                         $data['custom_json_data']=json_encode([
                             'building_id' => $patrolling->building_id,
                             'patrolling_id' => $patrolling->id,
-                            'user_id' => auth()->user()->id,
+                            'user_id' => auth()->user()->id ?? null,
                             'owner_association_id' => $oa_id,
                             'type' => 'Patrolling',
                             'priority' => 'Medium',

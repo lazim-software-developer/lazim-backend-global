@@ -46,7 +46,7 @@ class ProposalObserver
                         $data['custom_json_data']=json_encode([
                             'building_id' => $proposal->tender?->building?->id,
                             'proposal_id' => $proposal->id,
-                            'user_id' => auth()->user()->id,
+                            'user_id' => auth()->user()->id ?? null,
                             'owner_association_id' => $oam_id,
                             'type' => 'Proposal',
                             'priority' => 'Medium',

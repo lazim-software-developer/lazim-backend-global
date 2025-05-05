@@ -38,7 +38,7 @@ class VendorObserver
                     $data['custom_json_data']=json_encode([
                         'building_id' => $vendor->building_id ?? null,
                         'vendor_id' => $vendor->id,
-                        'user_id' => auth()->user()->id,
+                        'user_id' => auth()->user()->id ?? null,
                         'owner_association_id' => $vendor->owner_association_id,
                         'type' => 'Vendor',
                         'priority' => 'Medium',

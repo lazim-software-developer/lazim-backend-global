@@ -186,7 +186,7 @@ class ComplaintController extends Controller
                         $data['custom_json_data']=json_encode([
                             'building_id' => $complaint->building_id,
                             'complaint_id' => $complaint->id,
-                            'user_id' => auth()->user()->id,
+                            'user_id' => auth()->user()->id ?? null,
                             'owner_association_id' => $complaint->owner_association_id,
                             'type' => 'Incident',
                             'priority' => 'Medium',
