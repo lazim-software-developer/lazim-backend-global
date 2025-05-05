@@ -67,11 +67,11 @@ class NotificationListResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building_id')
-                    ->formatStateUsing(fn($state): string => Building::where('id', $state)->value('name'))
+                    ->formatStateUsing(fn(?string $state): string => Building::where('id', $state)->value('name') ?? 'NA')
                     // ->searchable()
                     ->label('Building'),
                 TextColumn::make('user_id')
-                    ->formatStateUsing(fn($state): string => User::where('id', $state)->value('first_name'))
+                    ->formatStateUsing(fn(?string $state): string => User::where('id', $state)->value('first_name') ?? 'NA')
                     // ->searchable()
                     ->label('User'),
                 TextColumn::make('title')

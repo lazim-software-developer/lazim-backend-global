@@ -45,13 +45,13 @@ class UserApprovalObserver
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
                             $data['url']=UserApprovalResource::getUrl('edit', [$slug,$userApproval->id]);
-                            $data['title']="New Resident Approval for Building".$userApproval->flat?->building?->name;
+                            $data['title']="New Resident Approval for Building ".$userApproval->flat?->building?->name;
                             $data['body']='New Resident Approval is Received';
                             $data['building_id']=$userApproval->flat?->building?->id;
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $userApproval->flat?->building?->id,
                                 'user_approval_id' => $userApproval->id,
-                                'user_id' => auth()->user()->id ?? null,
+                                'user_id' => $userApproval->user_id ?? null,
                                 'owner_association_id' => $oa->id,
                                 'type' => 'UserApproval',
                                 'priority' => 'Medium',
