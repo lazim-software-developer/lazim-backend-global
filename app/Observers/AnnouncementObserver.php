@@ -2,15 +2,16 @@
 
 namespace App\Observers;
 
-use App\Filament\Resources\AnnouncementResource;
-use App\Filament\Resources\PostResource;
-use App\Models\Community\Post;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use App\Traits\UtilsTrait;
-use Filament\Notifications\Actions\Action;
+use App\Models\Master\Role;
+use App\Models\Community\Post;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\PostResource;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Filament\Resources\AnnouncementResource;
 
 class AnnouncementObserver
 {
