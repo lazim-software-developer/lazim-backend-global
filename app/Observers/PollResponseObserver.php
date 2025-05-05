@@ -40,7 +40,7 @@ class PollResponseObserver
                     $data['custom_json_data']=json_encode([
                         'building_id' => $building_id,
                         'poll_id' => $pollResponse->poll->id,
-                        'user_id' => auth()->user()->id,
+                        'user_id' => auth()->user()->id ?? null,
                         'owner_association_id' => $oam_id->owner_association_id,
                         'type' => 'Poll',
                         'priority' => 'Medium',

@@ -49,7 +49,7 @@ class AnnouncementObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $post->building_id,
                                     'post_id' => $post->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $post->owner_association_id,
                                     'type' => 'Announcement',
                                     'priority' => 'Medium',

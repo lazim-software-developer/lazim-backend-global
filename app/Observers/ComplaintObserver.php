@@ -65,7 +65,7 @@ class ComplaintObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'Complaint',
                                     'priority' => 'Medium',
@@ -110,7 +110,7 @@ class ComplaintObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'Complaint',
                                     'priority' => 'Medium',
@@ -155,7 +155,7 @@ class ComplaintObserver
                                         $data['custom_json_data']=json_encode([
                                             'building_id' => $complaint->building_id,
                                             'complaint_id' => $complaint->id,
-                                            'user_id' => auth()->user()->id,
+                                            'user_id' => auth()->user()->id ?? null,
                                             'owner_association_id' => $oa->id,
                                             'type' => 'Complaint',
                                             'priority' => 'Medium',
@@ -200,7 +200,7 @@ class ComplaintObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'Complaint',
                                     'priority' => 'Medium',
@@ -247,7 +247,7 @@ class ComplaintObserver
                                     $data['custom_json_data']=json_encode([
                                         'building_id' => $complaint->building_id,
                                         'complaint_id' => $complaint->id,
-                                        'user_id' => auth()->user()->id,
+                                        'user_id' => auth()->user()->id ?? null,
                                         'owner_association_id' => $oa->id,
                                         'type' => 'Complaint',
                                         'priority' => 'Medium',
@@ -418,7 +418,7 @@ class ComplaintObserver
                                         $data['custom_json_data']=json_encode([
                                             'building_id' => $complaint->building_id,
                                             'complaint_id' => $complaint->id,
-                                            'user_id' => auth()->user()->id,
+                                            'user_id' => auth()->user()->id ?? null,
                                             'owner_association_id' => $oa->id,
                                             'type' => 'Complaint',
                                             'priority' => 'Medium',
@@ -463,7 +463,7 @@ class ComplaintObserver
                                     $data['custom_json_data']=json_encode([
                                         'building_id' => $complaint->building_id,
                                         'complaint_id' => $complaint->id,
-                                        'user_id' => auth()->user()->id,
+                                        'user_id' => auth()->user()->id ?? null,
                                         'owner_association_id' => $oam_id,
                                         'type' => 'Complaint Report',
                                         'priority' => 'Medium',

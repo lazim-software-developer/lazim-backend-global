@@ -41,7 +41,7 @@ class InvoiceObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $invoice->building_id,
                                 'invoice_id' => $invoice->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oam_id,
                                 'type' => 'Invoice',
                                 'priority' => 'Medium',

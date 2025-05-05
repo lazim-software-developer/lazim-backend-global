@@ -43,7 +43,7 @@ class WDAObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $WDA->building_id,
                                 'wda_id' => $WDA->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oam_id,
                                 'type' => 'WDA',
                                 'priority' => 'Medium',

@@ -55,7 +55,7 @@ class MoveInOutObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $moveInOut->building_id,
                                     'move_in_id' => $moveInOut->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'Move in',
                                     'priority' => 'Medium',
@@ -103,7 +103,7 @@ class MoveInOutObserver
                                 $data['custom_json_data']=json_encode([
                                     'building_id' => $moveInOut->building_id,
                                     'move_out_id' => $moveInOut->id,
-                                    'user_id' => auth()->user()->id,
+                                    'user_id' => auth()->user()->id ?? null,
                                     'owner_association_id' => $oa->id,
                                     'type' => 'Move out',
                                     'priority' => 'Medium',

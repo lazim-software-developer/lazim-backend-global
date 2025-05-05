@@ -39,7 +39,7 @@ class PostLikeObserver
                     $data['custom_json_data']=json_encode([
                         'building_id' => null,
                         'post_id' => $post->id,
-                        'user_id' => auth()->user()->id,
+                        'user_id' => auth()->user()->id ?? null,
                         'owner_association_id' => $oam_id,
                         'type' => 'Post',
                         'priority' => 'Medium',

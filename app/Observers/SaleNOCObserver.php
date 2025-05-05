@@ -49,7 +49,7 @@ class SaleNOCObserver
                             $data['custom_json_data']=json_encode([
                                 'building_id' => $saleNOC->building_id,
                                 'sale_noc_id' => $saleNOC->id,
-                                'user_id' => auth()->user()->id,
+                                'user_id' => auth()->user()->id ?? null,
                                 'owner_association_id' => $oa->id,
                                 'type' => 'SaleNoc',
                                 'priority' => 'High',
