@@ -111,6 +111,15 @@ function generateAlphanumericOTP($length = 6) {
     return $otp;
 }
 function NotificationTable($data){
+    $notificationTypeId = DB::table('notification_types')->where('name', json_decode($data['custom_json_data'], true)['type'] ?? null)->value('id');
+    if (!$notificationTypeId) {
+        $notificationTypeId = DB::table('notification_types')->insertGetId([
+            'name' => json_decode($data['custom_json_data'], true)['type'] ?? null,
+            'created_at' => now()->format('Y-m-d H:i:s'),
+            'updated_at' => now()->format('Y-m-d H:i:s'),
+        ]);
+    }
+    
     DB::table('notifications')->insert([
         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
         'type' => 'Filament\Notifications\DatabaseNotification',
