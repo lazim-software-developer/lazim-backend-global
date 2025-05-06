@@ -47,12 +47,18 @@ class ViewNotificationSent extends ViewRecord
     {
         $record = $this->getRecord();
         $record->update(['read_at' => now()]);
-        NotificationHistory::create([
-            'notification_id' => $record->id,
-            'user_id' => auth()->user()->id,
-            'read_by' => auth()->user()->id,
-            'action' => 'read',
-            'read_at' => now()
-        ]);
+        $lastRecord = NotificationHistory::where('notification_id', $record->id)
+            ->where('read_by', auth()->user()->id)
+            ->latest()
+            ->first();
+        if (!$lastRecord || $lastRecord->action === 'unread' || is_null($lastRecord->action)) {
+            NotificationHistory::create([
+                'notification_id' => $record->id,
+                'user_id' => auth()->user()->id,
+                'read_by' => auth()->user()->id,
+                'action' => 'read',
+                'read_at' => now()
+            ]);
+        }
     }
 }

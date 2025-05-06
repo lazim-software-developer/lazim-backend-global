@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\NotificationSents;
 use Filament\Widgets\TableWidget;
+use Illuminate\Support\Facades\DB;
 use App\Models\NotificationHistory;
 use App\Models\SaleNocNotification;
 use Filament\Forms\Components\Select;
@@ -97,6 +98,19 @@ class NotificationListResource extends Resource
                             fn (Builder $query, $buildingId): Builder => $query->where('custom_json_data->building_id', $buildingId)
                         );
                     }),
+                    Tables\Filters\SelectFilter::make('user_id')
+                    ->label('Filter by User')
+                    ->options(
+                        User::where('owner_association_id', auth()->user()?->owner_association_id)
+                            ->pluck('first_name', 'id')
+                            ->toArray()
+                    )
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $userId): Builder => $query->where('custom_json_data->user_id', $userId)
+                        );
+                    }),
                     Tables\Filters\SelectFilter::make('priority')
                     ->label('Filter by Priority')
                     ->options([
@@ -109,13 +123,9 @@ class NotificationListResource extends Resource
                     }),
                     Tables\Filters\SelectFilter::make('type')
                     ->label('Filter by Type')
-                    ->options([
-                        'Complaint' => 'Complaint',
-                        'SaleNoc' => 'SaleNoc',
-                        'ServiceBooking' => 'Service Booking',
-                    ])
+                    ->options(DB::table('notification_types')->whereNotNull('name')->pluck('name', 'name')->toArray())
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->when($data['value'], fn (Builder $query, $type): Builder => $query->where('custom_json_data->type', $type));
+                        return $query->when($data['value'], fn (Builder $query, $typeId): Builder => $query->where('custom_json_data->type', $typeId));
                     })
             ])
             ->actions([
