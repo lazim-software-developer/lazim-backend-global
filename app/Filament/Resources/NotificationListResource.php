@@ -87,6 +87,7 @@ class NotificationListResource extends Resource
                 // Add building filter here
                 Tables\Filters\SelectFilter::make('building_id')
                     ->label('Filter by Building')
+                    ->searchable()
                     ->options(
                         Building::where('owner_association_id', auth()->user()?->owner_association_id)
                             ->pluck('name', 'id')
@@ -100,6 +101,7 @@ class NotificationListResource extends Resource
                     }),
                     Tables\Filters\SelectFilter::make('user_id')
                     ->label('Filter by User')
+                    ->searchable()
                     ->options(
                         User::where('owner_association_id', auth()->user()?->owner_association_id)
                             ->pluck('first_name', 'id')
@@ -123,6 +125,7 @@ class NotificationListResource extends Resource
                     }),
                     Tables\Filters\SelectFilter::make('type')
                     ->label('Filter by Type')
+                    ->searchable()
                     ->options(DB::table('notification_types')->whereNotNull('name')->pluck('name', 'name')->toArray())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['value'], fn (Builder $query, $typeId): Builder => $query->where('custom_json_data->type', $typeId));
