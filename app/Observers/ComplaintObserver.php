@@ -52,93 +52,181 @@ class ComplaintObserver
                             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                                 return $notifyTo->can($requiredPermissions);
                             });
-                    Notification::make()
-                        ->success()
-                        ->title("Happiness center Complaint Received")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('warning')
-                        ->body('Complaint has been created by' . auth()->user()->first_name)
-                        ->actions([
-                            Action::make('view')
-                                ->button()
-                                ->url(function() use ($complaint,$oa){
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        return ComplaintscomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
-                                    }
-                                    return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                }),
-                        ])
-                        ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $data['url']=ComplaintscomplaintResource::getUrl('edit', [$oa?->slug,$complaint?->id]);
+                                $data['title']="Happiness center Complaint Received for Building :".$complaint->building->name;
+                                $data['body']='Complaint has been created by ' . auth()->user()->first_name;
+                                $data['building_id']=$complaint->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    //     ->success()
+                    //     ->title("Happiness center Complaint Received")
+                    //     ->icon('heroicon-o-document-text')
+                    //     ->iconColor('warning')
+                    //     ->body('Complaint has been created by ' . auth()->user()->first_name)
+                    //     ->actions([
+                    //         Action::make('view')
+                    //             ->button()
+                    //             ->url(function() use ($complaint,$oa){
+                    //                 $slug = $oa?->slug;
+                    //                 if($slug){
+                    //                     return ComplaintscomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                    //                 }
+                    //                 return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+                    //             }),
+                    //     ])
+                    //     ->sendToDatabase($notifyTo);
                 } elseif ($complaint->complaint_type == 'enquiries') {
                     $requiredPermissions = ['view_any_complaintsenquiry'];
                             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                                 return $notifyTo->can($requiredPermissions);
                             });
-                    Notification::make()
-                        ->success()
-                        ->title("New Enquiry Received")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('warning')
-                        ->body('A enquiry has been received raised by ' . auth()->user()->first_name)
-                        ->actions([
-                            Action::make('view')
-                                ->button()
-                                ->url(function() use ($complaint,$oa){
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        return ComplaintsenquiryResource::getUrl('edit', [$slug,$complaint?->id]);
-                                    }
-                                    return url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
-                                }),
-                        ])
-                        ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $data['url']=ComplaintsenquiryResource::getUrl('edit', [$oa?->slug,$complaint?->id]);
+                                $data['title']="New Enquiry Received for Building :".$complaint->building->name;
+                                $data['body']='A enquiry has been received raised by ' . auth()->user()->first_name;
+                                $data['building_id']=$complaint->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    //     ->success()
+                    //     ->title("New Enquiry Received")
+                    //     ->icon('heroicon-o-document-text')
+                    //     ->iconColor('warning')
+                    //     ->body('A enquiry has been received raised by ' . auth()->user()->first_name)
+                    //     ->actions([
+                    //         Action::make('view')
+                    //             ->button()
+                    //             ->url(function() use ($complaint,$oa){
+                    //                 $slug = $oa?->slug;
+                    //                 if($slug){
+                    //                     return ComplaintsenquiryResource::getUrl('edit', [$slug,$complaint?->id]);
+                    //                 }
+                    //                 return url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
+                    //             }),
+                    //     ])
+                    //     ->sendToDatabase($notifyTo);
                 } elseif ($complaint->complaint_type == 'suggestions') {
                     $requiredPermissions = ['view_any_complaintssuggession'];
                             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                                 return $notifyTo->can($requiredPermissions);
                             });
-                    Notification::make()
-                        ->success()
-                        ->title("New Suggestion Received")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('warning')
-                        ->body('A suggestion made by ' . auth()->user()->first_name)
-                        ->actions([
-                            Action::make('view')
-                                ->button()
-                                ->url(function() use ($complaint,$oa){
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        return ComplaintssuggessionResource::getUrl('edit', [$slug,$complaint?->id]);
+                            if($notifyTo->count() > 0){
+                                foreach($notifyTo as $user){
+                                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                        $data=[];
+                                        $data['notifiable_type']='App\Models\User\User';
+                                        $data['notifiable_id']=$user->id;
+                                        $data['url']=ComplaintssuggessionResource::getUrl('edit', [$oa?->slug,$complaint?->id]);
+                                        $data['title']="New Suggestion Received for Building :".$complaint->building->name;
+                                        $data['body']='A suggestion made by ' . auth()->user()->first_name;
+                                        $data['building_id']=$complaint->building_id;
+                                        $data['custom_json_data']=json_encode([
+                                            'building_id' => $complaint->building_id,
+                                            'complaint_id' => $complaint->id,
+                                            'user_id' => auth()->user()->id ?? null,
+                                            'owner_association_id' => $oa->id,
+                                            'type' => 'Complaint',
+                                            'priority' => 'Medium',
+                                        ]);
+                                        NotificationTable($data);
                                     }
-                                    return url('/app/complaintssuggessions/' . $complaint?->id.'/edit');
-                                }),
-                        ])
-                        ->sendToDatabase($notifyTo);
+                                }
+                            }
+                    // Notification::make()
+                    //     ->success()
+                    //     ->title("New Suggestion Received")
+                    //     ->icon('heroicon-o-document-text')
+                    //     ->iconColor('warning')
+                    //     ->body('A suggestion made by ' . auth()->user()->first_name)
+                    //     ->actions([
+                    //         Action::make('view')
+                    //             ->button()
+                    //             ->url(function() use ($complaint,$oa){
+                    //                 $slug = $oa?->slug;
+                    //                 if($slug){
+                    //                     return ComplaintssuggessionResource::getUrl('edit', [$slug,$complaint?->id]);
+                    //                 }
+                    //                 return url('/app/complaintssuggessions/' . $complaint?->id.'/edit');
+                    //             }),
+                    //     ])
+                    //     ->sendToDatabase($notifyTo);
                 } elseif($complaint->complaint_type == 'snag'){
                     $requiredPermissions = ['view_any_snags'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    Notification::make()
-                    ->success()
-                    ->title('New Snag')
-                    ->body('New Snag Created')
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->actions([
-                        Action::make('View')
-                        ->button()
-                        ->url(function() use ($complaint,$oa){
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    return SnagsResource::getUrl('edit', [$slug,$complaint?->id]);
-                                }
-                                return url('/app/snags/' . $complaint?->id.'/edit');
-                        }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                    if($notifyTo->count() > 0){
+                        foreach($notifyTo as $user){
+                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$user->id;
+                                $data['url']=SnagsResource::getUrl('edit', [$oa?->slug,$complaint?->id]);
+                                $data['title']="New Snag for Building :".$complaint->building->name;
+                                $data['body']='New Snag Created by ' . auth()->user()->first_name;
+                                $data['building_id']=$complaint->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                    // Notification::make()
+                    // ->success()
+                    // ->title('New Snag')
+                    // ->body('New Snag Created')
+                    // ->icon('heroicon-o-document-text')
+                    // ->iconColor('warning')
+                    // ->actions([
+                    //     Action::make('View')
+                    //     ->button()
+                    //     ->url(function() use ($complaint,$oa){
+                    //             $slug = $oa?->slug;
+                    //             if($slug){
+                    //                 return SnagsResource::getUrl('edit', [$slug,$complaint?->id]);
+                    //             }
+                    //             return url('/app/snags/' . $complaint?->id.'/edit');
+                    //     }),
+                    // ])
+                    // ->sendToDatabase($notifyTo);
                 }
                 else {
                     $requiredPermissions = ['view_any_helpdeskcomplaint'];
@@ -146,24 +234,46 @@ class ComplaintObserver
                                 return $notifyTo->can($requiredPermissions);
                             });
                     if(OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug){
-                        Notification::make()
-                            ->success()
-                            ->title("New ticket received")
-                            ->icon('heroicon-o-document-text')
-                            ->iconColor('warning')
-                            ->body('A new ticket is raised by ' . auth()->user()->first_name)
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(function() use ($complaint,$oa){
-                                        $slug = $oa?->slug;
-                                        if($slug){
-                                            return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
-                                        }
-                                        return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                    }),
-                            ])
-                            ->sendToDatabase($notifyTo);
+                        if($notifyTo->count() > 0){
+                            foreach($notifyTo as $user){
+                                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                    $data=[];
+                                    $data['notifiable_type']='App\Models\User\User';
+                                    $data['notifiable_id']=$user->id;
+                                    $data['url']=HelpdeskcomplaintResource::getUrl('edit', [$oa?->slug,$complaint?->id]);
+                                    $data['title']="New ticket received for Building :".$complaint->building->name;
+                                    $data['body']='A new ticket is raised by ' . auth()->user()->first_name;
+                                    $data['building_id']=$complaint->building_id;
+                                    $data['custom_json_data']=json_encode([
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'owner_association_id' => $oa->id,
+                                        'type' => 'Complaint',
+                                        'priority' => 'Medium',
+                                    ]);
+                                    NotificationTable($data);
+                                }
+                            }
+                        }
+                        // Notification::make()
+                        //     ->success()
+                        //     ->title("New ticket received")
+                        //     ->icon('heroicon-o-document-text')
+                        //     ->iconColor('warning')
+                        //     ->body('A new ticket is raised by ' . auth()->user()->first_name)
+                        //     ->actions([
+                        //         Action::make('view')
+                        //             ->button()
+                        //             ->url(function() use ($complaint,$oa){
+                        //                 $slug = $oa?->slug;
+                        //                 if($slug){
+                        //                     return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                        //                 }
+                        //                 return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+                        //             }),
+                        //     ])
+                        //     ->sendToDatabase($notifyTo);
                     }
                 }
             }
@@ -295,47 +405,91 @@ class ComplaintObserver
                             $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                                 return $notifyTo->can($requiredPermissions);
                             });
-                        Notification::make()
-                            ->success()
-                            ->title("Facility Support Issue Resolution")
-                            ->icon('heroicon-o-document-text')
-                            ->iconColor('warning')
-                            ->body('Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(function() use ($complaint,$oa){
-                                        $slug = $oa?->slug;
-                                        if($slug){
-                                            return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
-                                        }
-                                        return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                    }),
-                            ])
-                            ->sendToDatabase($notifyTo);
+                            if($notifyTo->count() > 0){
+                                foreach($notifyTo as $user){
+                                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                        $data=[];
+                                        $data['notifiable_type']='App\Models\User\User';
+                                        $data['notifiable_id']=$user->id;
+                                        $data['url']=HelpdeskcomplaintResource::getUrl('edit', [$oa?->slug, $complaint?->id]);
+                                        $data['title']='Facility Support Issue Resolution for Building:'. $complaint->building->name;
+                                        $data['body']='Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
+                                        $data['building_id']=$complaint->building_id;
+                                        $data['custom_json_data']=json_encode([
+                                            'building_id' => $complaint->building_id,
+                                            'complaint_id' => $complaint->id,
+                                            'user_id' => auth()->user()->id ?? null,
+                                            'owner_association_id' => $oa->id,
+                                            'type' => 'Complaint',
+                                            'priority' => 'Medium',
+                                        ]);
+                                        NotificationTable($data);
+                                    }
+                                }
+                            }
+                        // Notification::make()
+                        //     ->success()
+                        //     ->title("Facility Support Issue Resolution")
+                        //     ->icon('heroicon-o-document-text')
+                        //     ->iconColor('warning')
+                        //     ->body('Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                        //     ->actions([
+                        //         Action::make('view')
+                        //             ->button()
+                        //             ->url(function() use ($complaint,$oa){
+                        //                 $slug = $oa?->slug;
+                        //                 if($slug){
+                        //                     return HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
+                        //                 }
+                        //                 return url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+                        //             }),
+                        //     ])
+                        //     ->sendToDatabase($notifyTo);
                     } elseif ($complaint->complaint_type == 'oa_complaint_report'){
                         $requiredPermissions = ['view_any_oacomplaint::reports'];
                         $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                             return $notifyTo->can($requiredPermissions);
                         });
-                        Notification::make()
-                            ->success()
-                            ->title("Complaints Resolved")
-                            ->icon('heroicon-o-document-text')
-                            ->iconColor('warning')
-                            ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(function() use ($complaint,$oa){
-                                        $slug = $oa?->slug;
-                                        if($slug){
-                                            return OacomplaintReportsResource::getUrl('edit', [$slug,$complaint?->id]);
-                                        }
-                                        return url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
-                                    }),
-                            ])
-                            ->sendToDatabase($notifyTo);
+                        if($notifyTo->count() > 0){
+                            foreach($notifyTo as $user){
+                                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
+                                    $data=[];
+                                    $data['notifiable_type']='App\Models\User\User';
+                                    $data['notifiable_id']=$user->id;
+                                    $data['url']=OacomplaintReportsResource::getUrl('edit', [$oa?->slug, $complaint?->id]);
+                                    $data['title']='Complaints Resolved for Building:'. $complaint->building->name;
+                                    $data['body']='Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
+                                    $data['building_id']=$complaint->building_id;
+                                    $data['custom_json_data']=json_encode([
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'owner_association_id' => $oam_id,
+                                        'type' => 'Complaint Report',
+                                        'priority' => 'Medium',
+                                    ]);
+                                    NotificationTable($data);
+                                }
+                            }
+                        }
+                        // Notification::make()
+                        //     ->success()
+                        //     ->title("Complaints Resolved")
+                        //     ->icon('heroicon-o-document-text')
+                        //     ->iconColor('warning')
+                        //     ->body('Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                        //     ->actions([
+                        //         Action::make('view')
+                        //             ->button()
+                        //             ->url(function() use ($complaint,$oa){
+                        //                 $slug = $oa?->slug;
+                        //                 if($slug){
+                        //                     return OacomplaintReportsResource::getUrl('edit', [$slug,$complaint?->id]);
+                        //                 }
+                        //                 return url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
+                        //             }),
+                        //     ])
+                        //     ->sendToDatabase($notifyTo);
                     }
                     else {
                         // $requiredPermissions = ['view_any_helpdeskcomplaint'];

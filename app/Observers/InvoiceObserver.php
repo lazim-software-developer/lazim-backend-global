@@ -27,24 +27,47 @@ class InvoiceObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                    ->success()
-                    ->title("New Invoice")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('New Invoice submitted by  ' . auth()->user()->first_name)
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(function() use ($oam_id,$invoice){
-                                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                                if($slug){
-                                    return InvoiceResource::getUrl('edit', [$slug,$invoice?->id]);
-                                }
-                                return url('/app/invoices/' . $invoice?->id.'/edit');
-                            }),
-                    ])
-                    ->sendToDatabase($notifyTo);
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->invoice_id', $invoice->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                            $data['url']=InvoiceResource::getUrl('view', [$slug,$invoice->id]);
+                            $data['title']="New Invoice for Building:".$invoice->building->name;
+                            $data['body']='New Invoice submitted by  ' . auth()->user()->first_name;
+                            $data['building_id']=$invoice->building_id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $invoice->building_id,
+                                'invoice_id' => $invoice->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'owner_association_id' => $oam_id,
+                                'type' => 'Invoice',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
+                        }
+                    }
+                }
+                // Notification::make()
+                //     ->success()
+                //     ->title("New Invoice")
+                //     ->icon('heroicon-o-document-text')
+                //     ->iconColor('warning')
+                //     ->body('New Invoice submitted by  ' . auth()->user()->first_name)
+                //     ->actions([
+                //         Action::make('view')
+                //             ->button()
+                //             ->url(function() use ($oam_id,$invoice){
+                //                 $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                //                 if($slug){
+                //                     return InvoiceResource::getUrl('edit', [$slug,$invoice?->id]);
+                //                 }
+                //                 return url('/app/invoices/' . $invoice?->id.'/edit');
+                //             }),
+                //     ])
+                //     ->sendToDatabase($notifyTo);
             }
     }
 
