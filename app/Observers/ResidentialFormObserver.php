@@ -36,24 +36,47 @@ class ResidentialFormObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                ->success()
-                ->title("New Residential Form Submission")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New form submission by'.auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($residentialForm,$oa){
-                            $slug = $oa?->slug;
-                            if($slug){
-                                return ResidentialFormResource::getUrl('edit', [$slug,$residentialForm?->id]);
-                            }
-                            return url('/app/residential-forms/' . $residentialForm?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->residential_form_id', $residentialForm->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $data['url']=ResidentialFormResource::getUrl('edit', [$oa?->slug,$residentialForm->id]);
+                            $data['title']="New Residential Form Submission for Building".$residentialForm->flat?->building?->name;
+                            $data['body']='New form submission by'.auth()->user()->first_name;
+                            $data['building_id']=$residentialForm->flat?->building?->id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $residentialForm->flat?->building?->id,
+                                'residential_form_id' => $residentialForm->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'owner_association_id' => $oa->id,
+                                'type' => 'ResidentialForm',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
+                        }
+                    }
+                }
+
+                // Notification::make()
+                // ->success()
+                // ->title("New Residential Form Submission")
+                // ->icon('heroicon-o-document-text')
+                // ->iconColor('warning')
+                // ->body('New form submission by'.auth()->user()->first_name)
+                // ->actions([
+                //     Action::make('view')
+                //         ->button()
+                //         ->url(function() use ($residentialForm,$oa){
+                //             $slug = $oa?->slug;
+                //             if($slug){
+                //                 return ResidentialFormResource::getUrl('edit', [$slug,$residentialForm?->id]);
+                //             }
+                //             return url('/app/residential-forms/' . $residentialForm?->id.'/edit');
+                //         }),
+                // ])
+                // ->sendToDatabase($notifyTo);
             }
         }
     }

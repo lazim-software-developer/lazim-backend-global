@@ -50,7 +50,7 @@ class PropertyManagerBuildingsImport implements ToCollection, WithHeadingRow
         // Update expected headings with asterisk (*) for required fields
         $expectedHeadings = [
             'name*',
-            'building_type',
+            'building_type*',
             'property_group_id*',
             'address_line1*',
             'area',

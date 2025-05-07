@@ -168,24 +168,51 @@ class ComplaintController extends Controller
                       ->where('owner_association_id', $oa_id);
             })
             ->get();
-            Notification::make()
-                ->success()
-                ->title("New Incident")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New Incident created!')
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($oa_id,$complaint){
-                            $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                            if($slug){
-                                return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
-                            }
-                            return url('/app/incidents/' . $complaint?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint?->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                        if($slug){
+                            $data['url']=IncidentResource::getUrl('edit', [$slug, $complaint?->id]);
+                        }else{
+                            $data['url']=url('/app/incidents/' . $complaint?->id.'/edit');
+                        }
+                        $data['title']='New Incident';
+                        $data['body']='New Incident created by ' . auth()->user()->first_name;
+                        $data['building_id']=$complaint->building_id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'owner_association_id' => $complaint->owner_association_id,
+                            'type' => 'Incident',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
+                    }
+                }
+            }
+                // Notification::make()
+                //     ->success()
+                //     ->title("New Incident")
+                //     ->icon('heroicon-o-document-text')
+                //     ->iconColor('warning')
+                // ->body('New Incident created!')
+                // ->actions([
+                //     Action::make('view')
+                //         ->button()
+                //         ->url(function() use ($oa_id,$complaint){
+                //             $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                //             if($slug){
+                //                 return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
+                //             }
+                //             return url('/app/incidents/' . $complaint?->id.'/edit');
+                //         }),
+                // ])
+                // ->sendToDatabase($notifyTo);
         }
 
         return (new CustomResponseResource([
@@ -378,6 +405,15 @@ class ComplaintController extends Controller
                 }])
                 ->orderBy('assignees_count', 'asc')
                 ->get();
+            $selectedTechnician = $assignees->first();
+
+            if ($selectedTechnician) {
+                $complaint->technician_id = $selectedTechnician->id;
+                $complaint->vendor_id     = $vendorId;
+                $complaint->save();
+            } else {
+                Log::info("No technicians to add", []);
+            }
         }
         return (new CustomResponseResource([
             'title'   => 'Success',

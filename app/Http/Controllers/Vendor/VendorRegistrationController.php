@@ -30,7 +30,7 @@ class VendorRegistrationController extends Controller
         // Check if user exists in our DB
         $userData = User::where(
             [
-                'email' => $request->get('email'),
+                'email' => trim(strtolower($request->get('email'))),
                 'phone' => $request->get('phone')
             ]
         );
@@ -129,7 +129,7 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(200);
             }
         } else {
-            $existingEmail = User::where(['email' => $request->email])->first();
+            $existingEmail = User::where(['email' => trim(strtolower($request->email))])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
 
 
@@ -180,6 +180,7 @@ class VendorRegistrationController extends Controller
         }
 
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
+        $request->merge(['email' => trim(strtolower($request->email))]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds

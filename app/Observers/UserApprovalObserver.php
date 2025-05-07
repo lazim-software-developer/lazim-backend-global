@@ -36,24 +36,48 @@ class UserApprovalObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });//MAKE AUTH USER ID IN USER WHERENOT-----------
-                Notification::make()
-                ->success()
-                ->title('New Resident Approval')
-                ->body('New Resident Approval is Received')
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->actions([
-                    Action::make('View')
-                    ->button()
-                    ->url(function() use ($userApproval,$oa){
-                        $slug = $oa?->slug;
-                        if($slug){
-                            return UserApprovalResource::getUrl('edit', [$slug,$userApproval?->id]);
+
+                $slug = $oa?->slug;
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->user_approval_id', $userApproval->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $data['url']=UserApprovalResource::getUrl('edit', [$slug,$userApproval->id]);
+                            $data['title']="New Resident Approval for Building ".$userApproval->flat?->building?->name;
+                            $data['body']='New Resident Approval is Received';
+                            $data['building_id']=$userApproval->flat?->building?->id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $userApproval->flat?->building?->id,
+                                'user_approval_id' => $userApproval->id,
+                                'user_id' => $userApproval->user_id ?? null,
+                                'owner_association_id' => $oa->id,
+                                'type' => 'UserApproval',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
                         }
-                        return url('/app/user-approvals/' . $userApproval?->id.'/edit');
-                    }),
-                ])
-                ->sendToDatabase($notifyTo);
+                    }
+                }
+                // Notification::make()
+                // ->success()
+                // ->title('New Resident Approval')
+                // ->body('New Resident Approval is Received')
+                // ->icon('heroicon-o-document-text')
+                // ->iconColor('warning')
+                // ->actions([
+                //     Action::make('View')
+                //     ->button()
+                //     ->url(function() use ($userApproval,$oa){
+                //         $slug = $oa?->slug;
+                //         if($slug){
+                //             return UserApprovalResource::getUrl('edit', [$slug,$userApproval?->id]);
+                //         }
+                //         return url('/app/user-approvals/' . $userApproval?->id.'/edit');
+                //     }),
+                // ])
+                // ->sendToDatabase($notifyTo);
             }
         }
     }

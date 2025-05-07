@@ -25,24 +25,47 @@ class PostLikeObserver
             return $notifyTo->can($requiredPermissions);
         });
         $oam_id = $post->user?->owner_association_id;
-        Notification::make()
-            ->success()
-            ->title("Likes")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body(auth()->user()->first_name . ' liked the post!')
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($oam_id,$post){
-                        $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                        if($slug){
-                            return PostResource::getUrl('edit', [$slug,$post?->id]);
-                        }
-                        return url('/app/posts/' . $post?->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
+        $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+        if($notifyTo->count() > 0){
+            foreach($notifyTo as $user){
+                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $post->id)->exists()){
+                    $data=[];
+                    $data['notifiable_type']='App\Models\User\User';
+                    $data['notifiable_id']=$user->id;
+                    $data['url']=PostResource::getUrl('edit', [$slug,$post->id]);
+                    $data['title']="Likes";
+                    $data['body']=auth()->user()->first_name . ' liked the post!';
+                    $data['building_id']=null;
+                    $data['custom_json_data']=json_encode([
+                        'building_id' => null,
+                        'post_id' => $post->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'owner_association_id' => $oam_id,
+                        'type' => 'Post',
+                        'priority' => 'Medium',
+                    ]);
+                    NotificationTable($data);
+                }
+            }
+        }
+        // Notification::make()
+        //     ->success()
+        //     ->title("Likes")
+        //     ->icon('heroicon-o-document-text')
+        //     ->iconColor('warning')
+        //     ->body(auth()->user()->first_name . ' liked the post!')
+        //     ->actions([
+        //         Action::make('view')
+        //             ->button()
+        //             ->url(function() use ($oam_id,$post){
+        //                 $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+        //                 if($slug){
+        //                     return PostResource::getUrl('edit', [$slug,$post?->id]);
+        //                 }
+        //                 return url('/app/posts/' . $post?->id.'/edit');
+        //             }),
+        //     ])
+        //     ->sendToDatabase($notifyTo);
     }
 
     /**

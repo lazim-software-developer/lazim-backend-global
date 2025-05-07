@@ -32,24 +32,47 @@ class ProposalObserver
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
-            Notification::make()
-                ->success()
-                ->title("New Proposal")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New proposal by ' . auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($oam_id,$proposal){
-                            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                            if($slug){
-                                return ProposalResource::getUrl('edit', [$slug,$proposal?->id]);
-                            }
-                            return url('/app/proposals/' . $proposal?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->proposal_id', $proposal->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        $data['url']=ProposalResource::getUrl('edit', [$slug,$proposal->id]);
+                        $data['title']="New Proposal for Building".$proposal->tender?->building?->name;
+                        $data['body']='New proposal by '.auth()->user()->first_name;
+                        $data['building_id']=$proposal->tender?->building?->id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $proposal->tender?->building?->id,
+                            'proposal_id' => $proposal->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'owner_association_id' => $oam_id,
+                            'type' => 'Proposal',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
+                    }
+                }
+            }
+            // Notification::make()
+            //     ->success()
+            //     ->title("New Proposal")
+            //     ->icon('heroicon-o-document-text')
+            //     ->iconColor('warning')
+            //     ->body('New proposal by ' . auth()->user()->first_name)
+            //     ->actions([
+            //         Action::make('view')
+            //             ->button()
+            //             ->url(function() use ($oam_id,$proposal){
+            //                 $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+            //                 if($slug){
+            //                     return ProposalResource::getUrl('edit', [$slug,$proposal?->id]);
+            //                 }
+            //                 return url('/app/proposals/' . $proposal?->id.'/edit');
+            //             }),
+            //     ])
+            //     ->sendToDatabase($notifyTo);
         }
     }
 

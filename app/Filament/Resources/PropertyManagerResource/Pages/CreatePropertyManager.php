@@ -1,24 +1,21 @@
 <?php
-
 namespace App\Filament\Resources\PropertyManagerResource\Pages;
 
 use App\Filament\Resources\PropertyManagerResource;
 use App\Jobs\PropertyManagerAccountCreationJob;
 use App\Models\Master\Role;
 use App\Models\User\User;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
-use Filament\Notifications\Notification;
 
 class CreatePropertyManager extends CreateRecord
 {
     protected static string $resource = PropertyManagerResource::class;
+    protected $plainPassword;
 
     protected function getRedirectUrl(): string
     {
@@ -31,6 +28,8 @@ class CreatePropertyManager extends CreateRecord
         $data['verified']    = 1;
         $data['role']        = 'Property Manager';
         $data['active']      = true;
+        $this->plainPassword = Str::random(12);
+        $data['password']    = Hash::make($this->plainPassword);
 
         return $data;
     }
@@ -99,6 +98,7 @@ class CreatePropertyManager extends CreateRecord
             // ['name' => 'MD', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             // ['name' => 'Complaint Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             // ['name' => 'Legal Officer', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
+            
             ['name' => 'Facility Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
             ['name' => 'Property Manager', 'owner_association_id' => $pmId, 'guard_name' => 'web'],
 
@@ -107,9 +107,7 @@ class CreatePropertyManager extends CreateRecord
         DB::table('roles')->insert($roles);
 
         $emailexists = User::where(['email' => $this->record->email, 'phone' => $this->record->phone])->exists();
-        if (!$emailexists) {
-            $password = Str::random(12);
-
+        if (! $emailexists) {
             $user = User::firstorcreate(
                 [
                     'email' => $this->record->email,
@@ -121,7 +119,7 @@ class CreatePropertyManager extends CreateRecord
                     'role_id'              => Role::where('name', 'Property Manager')
                         ->where('owner_association_id', $pmId)->value('id'),
                     'active'               => $this->record->active,
-                    'password'             => Hash::make($password),
+                    'password'             => $this->record->password,
                     'owner_association_id' => $this->record->id,
                     'email_verified'       => 1,
                     'phone_verified'       => 1,
@@ -140,21 +138,17 @@ class CreatePropertyManager extends CreateRecord
 
             $permissionsConfig = config('pm-role-permission');
 
-            // Log::info('pm_id', [$this->record->id]);
-
             foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
                 $role = Role::where('name', $roleName)
                     ->where('owner_association_id', $this->record->id)->first();
-                // Log::info('Role' . $role);
 
                 if (isset($roleConfig['permissions'])) {
                     $role->syncPermissions($roleConfig['permissions']);
                 }
             }
-
         }
 
-        PropertyManagerAccountCreationJob::dispatch($user, $password);
+        PropertyManagerAccountCreationJob::dispatch($user, $this->plainPassword);
 
         $facilityManagerRole = Role::where('name', 'Facility Manager')
             ->where('owner_association_id', $pmId)
@@ -172,6 +166,5 @@ class CreatePropertyManager extends CreateRecord
             $allPermissions = Permission::all();
             $technicianRole->syncPermissions($allPermissions);
         }
-
     }
 }

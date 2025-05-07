@@ -28,25 +28,48 @@ class PatrollingObserver
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });//MAKE AUTH USER ID IN USER WHERENOT-----------
-            Notification::make()
-            ->success()
-            ->title('New Patrolling')
-            ->body('New Patrolling Details is Received')
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->actions([
-                Action::make('View')
-                ->button()
-                ->url(function() use ($patrolling,$oa_id){
-                    $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                    if($slug){
-                        return PatrollingResource::getUrl('index', [$slug]);
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->patrolling_id', $patrolling->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                        $data['url']=PatrollingResource::getUrl('index', [$slug]);
+                        $data['title']="New Patrolling";
+                        $data['body']='New patrolling details is received';
+                        $data['building_id']=$patrolling->building_id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $patrolling->building_id,
+                            'patrolling_id' => $patrolling->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'owner_association_id' => $oa_id,
+                            'type' => 'Patrolling',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
                     }
-                    return url('/app/patrollings');
-                }),
+                }
+            }
+            // Notification::make()
+            // ->success()
+            // ->title('New Patrolling')
+            // ->body('New Patrolling Details is Received')
+            // ->icon('heroicon-o-document-text')
+            // ->iconColor('warning')
+            // ->actions([
+            //     Action::make('View')
+            //     ->button()
+            //     ->url(function() use ($patrolling,$oa_id){
+            //         $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+            //         if($slug){
+            //             return PatrollingResource::getUrl('index', [$slug]);
+            //         }
+            //         return url('/app/patrollings');
+            //     }),
 
-            ])
-            ->sendToDatabase($notifyTo);
+            // ])
+            // ->sendToDatabase($notifyTo);
         }
     }
 
