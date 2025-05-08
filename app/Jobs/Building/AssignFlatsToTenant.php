@@ -37,6 +37,11 @@ class AssignFlatsToTenant implements ShouldQueue
             return;
         }
 
+        if (!$user) {
+            // No user found with the given email, mobile and owner_id
+            return;
+        }
+
         // Fetch all flats that match the owner's email
         $flats = DB::table('flat_owner')->where('owner_id', $owner->id)
             ->join('flats', 'flats.id', 'flat_owner.flat_id')

@@ -113,10 +113,12 @@ class FetchOwnersForFlat implements ShouldQueue
 
                     // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
-                    $this->flat->owners()->syncWithoutDetaching($owner->id);
-
-                    // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-                    AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $owner->id, $customerId, 'Owner')->delay(now()->addSeconds(5));
+                    $owner=$owner->id ?? $ownerExists->id;
+                    if (!empty($owner)) {
+                        $this->flat->owners()->syncWithoutDetaching($owner);
+                        // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
+                        AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $owner, $customerId, 'Owner')->delay(now()->addSeconds(5));
+                    }
                 }
             }
         }
