@@ -2,6 +2,8 @@
 
 use App\Jobs\SendSMSJobTest;
 use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use App\Jobs\FetchOwnersForFlat;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppController;
@@ -81,6 +83,12 @@ use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintCo
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
+Route::post('/fetch-flat-from-mollak', function(Request $request) {
+    $flat = Flat::where('id', $request->flat_id)->first();
+    FetchOwnersForFlat::dispatch($flat);
+})->name('mollak.fetch-flat-owners');
+
+
 // OA Login
 Route::post('/send-sms-test', function (Request $request) {
     $request->validate([
