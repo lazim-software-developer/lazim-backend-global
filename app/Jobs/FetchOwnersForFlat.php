@@ -36,9 +36,12 @@ class FetchOwnersForFlat implements ShouldQueue
         Log::info('Property Group Id',[$this->flat->building->property_group_id]);
         Log::info('Mollak Property Id',[$this->flat->mollak_property_id]);
         $ownerData = $response->json();
+        if (!isset($ownerData['data']['properties']) || !array_key_exists('properties', $ownerData['data']['response'])) {
+            return;
+        }
 
-        if ($ownerData['response'] != null) {
-            foreach ($ownerData['response']['properties'] as $property) {
+        if ($ownerData['data']['response'] != null) {
+            foreach ($ownerData['data']['response']['properties'] as $property) {
                 // Update property_type for a flat
                 $this->flat->update(['property_type' => $property['propertyType']]);
 
