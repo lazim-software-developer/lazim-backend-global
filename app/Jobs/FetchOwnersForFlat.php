@@ -32,7 +32,9 @@ class FetchOwnersForFlat implements ShouldQueue
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $this->flat->building->property_group_id . "/" . $this->flat->mollak_property_id);
-
+        Log::info('ownerData',[$response]);
+        Log::info('Property Group Id',[$this->flat->building->property_group_id]);
+        Log::info('Mollak Property Id',[$this->flat->mollak_property_id]);
         $ownerData = $response->json();
 
         if ($ownerData['response'] != null) {
