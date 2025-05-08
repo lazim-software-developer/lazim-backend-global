@@ -16,9 +16,13 @@ class OAMInvoicePolicy
      * @param  \App\Models\User\User  $user
      * @return bool
      */
+    // public function viewAny(User $user): bool
+    // {
+    //     return $user->can('view_any_o::a::m::invoice');
+    // }
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_o::a::m::invoice');
+        return  $user->can('view_any_ledgers') || $user->can('view_any_o::a::m::invoice');
     }
 
     /**
