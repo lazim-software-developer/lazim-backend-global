@@ -11,6 +11,7 @@ use App\Models\ApartmentOwner;
 use App\Jobs\AccountCreationJob;
 use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Jobs\WelcomeNotificationJob;
 use Illuminate\Support\Facades\Http;
 use Filament\Resources\Pages\ListRecords;
