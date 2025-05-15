@@ -5,22 +5,27 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
+use App\Models\FlatOwners;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Building\Flat;
+use App\Models\ApartmentOwner;
 use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Tabs;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Placeholder;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use App\Filament\Resources\Building\FlatResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -136,6 +141,72 @@ class FlatResource extends Resource
                             ->rule('regex:/^[0-9\-.,\/_ ]+$/'),
                         Hidden::make('resource')
                             ->default('Lazim'),
+                        Section::make('Owners Information')
+                            ->schema([
+                                Tabs::make('Owners')
+                                    ->tabs(function ($record) {
+                                        // Early return if no record
+                                        if (!$record || !$record->id) {
+                                            return [
+                                                Tabs\Tab::make('no_data')
+                                                    ->label('No Data')
+                                                    ->schema([
+                                                        Placeholder::make('no_data')
+                                                            ->content('No owner data available.')
+                                                    ])
+                                            ];
+                                        }
+                                        
+                                        // Get all flat owners associated with this flat
+                                        $flatOwners = FlatOwners::where('flat_id', $record->id)->get();
+                                        
+                                        if ($flatOwners->isEmpty()) {
+                                            return [
+                                                Tabs\Tab::make('no_owners')
+                                                    ->label('No Owners')
+                                                    ->schema([
+                                                        Placeholder::make('')
+                                                            ->content('No owners found for this flat.')
+                                                    ])
+                                            ];
+                                        }
+                                        
+                                        $tabs = [];
+                                        
+                                        // Create a tab for each owner
+                                        foreach ($flatOwners as $index => $flatOwner) {
+                                            $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
+                                            
+                                            if ($ownerDetail) {
+                                                $tabs[] = Tabs\Tab::make("owner_{$index}")
+                                                    ->label($ownerDetail->name ?? "Owner " . ($index + 1))
+                                                    ->schema([
+                                                        Placeholder::make("owner_{$index}_name")
+                                                            ->label('Name')
+                                                            ->content($ownerDetail->name ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_email")
+                                                            ->label('Email')
+                                                            ->content($ownerDetail->email ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_phone")
+                                                            ->label('Phone')
+                                                            ->content($ownerDetail->mobile ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_passport")
+                                                            ->label('Passport')
+                                                            ->content($ownerDetail->passport ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_emirates_id")
+                                                            ->label('Emirates ID')
+                                                            ->content($ownerDetail->emirates_id ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_trade_license")
+                                                            ->label('Trade License')
+                                                            ->content($ownerDetail->trade_license ?? 'N/A'),
+                                                    ])
+                                                    ->columns(2);
+                                            }
+                                        }
+                                        
+                                        return $tabs;
+                                    })
+                            ]),
                     ]),
             ]);
     }
