@@ -101,6 +101,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'invoice_period' => $data['invoicePeriod'],
                             'budget_period' => $data['budgetPeriod'],
                             'service_charge_group_id' => $data['serviceChargeGroupId'],
+                            'owner_association_id' => $flat->owner_association_id
                         ],
                         [
                             'invoice_date' => $property['invoiceDate'],
@@ -118,8 +119,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'amount_paid' => 0,
                             'updated_by' => User::first()->id,
                             'type' => 'service_charge',
-                            'payment_url' => $property['paymentUrl'],
-                            'owner_association_id' => $flat->owner_association_id
+                            'payment_url' => $property['paymentUrl']
                         ]
                     );
                     // $connection = DB::connection('lazim_accounts');
