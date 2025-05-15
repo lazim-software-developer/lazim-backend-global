@@ -32,6 +32,7 @@ class OAMReceipts extends Model
         'to_date',
         'building_id',
         'flat_id',
+        'owner_association_id'
     ];
 
     public function ownerAssociation()
