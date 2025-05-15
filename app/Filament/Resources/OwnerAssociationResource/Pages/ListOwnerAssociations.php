@@ -121,7 +121,7 @@ class ListOwnerAssociations extends ListRecords
                                 ],
                                 [
                                     'first_name'           => $company['name']['englishName'],
-                                    'profile_photo'        => $company['logo'],
+                                    'profile_photo'        => $company['logo'] ?? null,
                                     'role_id'              => Role::where('name', 'OA')->value('id'),
                                     'active'               => 1,
                                     'password' => $password,
