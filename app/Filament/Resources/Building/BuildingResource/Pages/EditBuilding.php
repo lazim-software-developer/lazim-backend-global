@@ -27,6 +27,7 @@ class EditBuilding extends EditRecord
                 $lastSync = DB::table('mollak_api_call_histories')
                     ->where('module', 'Unit')
                     ->where('job_name', 'FetchFlatsAndOwnersForBuilding')
+                    ->where('record_id', $this->record->id)
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('created_at', 'DESC')
                     ->first();
@@ -41,7 +42,7 @@ class EditBuilding extends EditRecord
             })
             ->extraAttributes(function () {
                 // Get the last sync time from database
-                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Unit')->where('job_name', 'FetchFlatsAndOwnersForBuilding')->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
+                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Unit')->where('job_name', 'FetchFlatsAndOwnersForBuilding')->where('record_id', $this->record->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
                 
                 // Default value if no sync history exists
                 $lastSyncDisplay = 'Never synced';
@@ -91,6 +92,7 @@ class EditBuilding extends EditRecord
                         'api_url'     => '/sync/propertygroups/' . $building->property_group_id . '/units',
                         'module'      => 'Unit',
                         'job_name'    => 'FetchFlatsAndOwnersForBuilding',
+                        'record_id'   => $building->id,
                         'user_id'     => auth()->user()->id,
                         'created_at'  => now(),
                         'updated_at'  => now(),
