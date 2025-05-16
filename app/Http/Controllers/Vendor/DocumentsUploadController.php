@@ -105,11 +105,13 @@ class DocumentsUploadController extends Controller
             ]);
         }
 
-        $document->update([
-            'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
-            'expiry_date' => $request->risk_policy_expiry,
-            'status' => 'pending'
-        ]);
+        if ($request->hasFile('risk_policy_document')) {
+            $document->update([
+                'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
+                'expiry_date' => $request->risk_policy_expiry,
+                'status' => 'pending'
+            ]);
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
