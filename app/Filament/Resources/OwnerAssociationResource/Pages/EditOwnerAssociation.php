@@ -105,7 +105,7 @@ class EditOwnerAssociation extends EditRecord
                     'updated_at'  => now(),
                 ]);
                 Notification::make()
-                    ->title('Building Successfully Synced From Mollak')
+                    ->title('Fetching buildings from Mollak is in progress. Once synced, it will be visible in the list')
                     ->success()
                     ->send();
                 }else{

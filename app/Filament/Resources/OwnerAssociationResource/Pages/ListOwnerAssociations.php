@@ -196,7 +196,7 @@ class ListOwnerAssociations extends ListRecords
                         'updated_at'  => now(),
                     ]);
                     Notification::make()
-                        ->title('Owner Successfully Synced From Mollak')
+                        ->title('Fetching owner associations from Mollak is in progress. Once synced, it will be visible in the list')
                         ->success()
                         ->send();
                 }),
