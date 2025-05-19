@@ -80,7 +80,7 @@ class EditBuilding extends EditRecord
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
 
-                    if ($role === 'Admin' || $role === 'Property Manager' || $role === 'OA') {
+                    if ($role === 'Admin' || $role === 'OA') {
                         return true;
                     }
                 })
@@ -98,7 +98,7 @@ class EditBuilding extends EditRecord
                         'updated_at'  => now(),
                     ]);
                     Notification::make()
-                        ->title('Unit Successfully Synced From Mollak')
+                        ->title('Fetching buildings from Mollak is in progress. Once synced, it will be visible in the list')
                         ->success()
                         ->send();
                     }else{
