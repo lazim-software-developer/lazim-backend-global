@@ -2,37 +2,38 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
-use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
-use App\Models\Building\Complaint;
-use App\Models\Master\Role;
-use App\Models\TechnicianVendor;
-use App\Models\User\User;
-use App\Models\Vendor\ServiceVendor;
-use App\Models\Vendor\Vendor;
 use Closure;
+use Carbon\Carbon;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Illuminate\Support\Str;
+use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
+use App\Models\TechnicianVendor;
+use Filament\Resources\Resource;
+use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use App\Models\Vendor\ServiceVendor;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -221,12 +222,12 @@ class HelpdeskcomplaintResource extends Resource
                                     ->live(),
                                 Textarea::make('remarks')
                                     ->rules(['max:250'])
-                                // ->visible(function (callable $get) {
-                                //     if ($get('status') == 'closed') {
-                                //         return true;
-                                //     }
-                                //     return false;
-                                // })
+                                    // ->visible(function (callable $get) {
+                                    //     if ($get('status') == 'closed') {
+                                    //         return true;
+                                    //     }
+                                    //     return false;
+                                    // })
                                     ->disabled(function (Complaint $record) {
                                         return $record->status != 'open';
                                     })
@@ -239,11 +240,52 @@ class HelpdeskcomplaintResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
-        // ->poll('60s')
+            // ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            // ->poll('60s')
             ->columns([
                 // ViewColumn::make('name')->view('tables.columns.combined-column')
                 //     ->toggleable(),
+                TextColumn::make('open_time')
+                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->complaint}")
+                    ->toggleable()
+                    ->sortable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Open At'),
+                TextColumn::make('due_date')
+                    ->toggleable()
+                    ->sortable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Due Date')
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$state || $state === 'NA') {
+                            return 'NA';
+                        }
+
+                        $dueDate = Carbon::parse($state);
+                        $today = Carbon::today();
+
+                        // Status check: if status is 'close', just show 'Closed' or actual date
+                        if (strtolower($record->status) === 'close') {
+                            return 'Closed'; // or: return $dueDate->format('d M Y');
+                        }
+
+                        if ($dueDate->isToday()) {
+                            return 'Due today';
+                        }
+
+                        if ($dueDate->isFuture()) {
+                            $daysLeft = $dueDate->diffInDays($today);
+                            return $daysLeft === 1 ? '1 day left' : "$daysLeft days left";
+                        }
+
+                        // If overdue and not closed
+                        $daysOver = $today->diffInDays($dueDate);
+                        return $daysOver === 1 ? '1 day over' : "$daysOver days over";
+                    }),
                 TextColumn::make('ticket_number')
                     ->toggleable()
                     ->default('NA')
@@ -252,6 +294,7 @@ class HelpdeskcomplaintResource extends Resource
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('type')
@@ -259,16 +302,17 @@ class HelpdeskcomplaintResource extends Resource
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('category')
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('complaint')
-                    ->toggleable()
-                    ->limit(20)
-                    ->searchable(),
+                // TextColumn::make('complaint')
+                //     ->toggleable()
+                //     ->limit(20)
+                //     ->searchable(),
                 TextColumn::make('status')
                     ->toggleable()
                     ->searchable()
