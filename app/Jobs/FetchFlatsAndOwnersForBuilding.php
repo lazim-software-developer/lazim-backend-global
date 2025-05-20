@@ -18,10 +18,12 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $building;
+    protected $source;
 
-    public function __construct($building)
+    public function __construct($building,$source)
     {
         $this->building = $building;
+        $this->source = $source;
     }
 
     public function handle()
@@ -33,8 +35,6 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
             ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $this->building->property_group_id . "/units");
 
             $data = $response->json();
-
-
 
             if ($data['response'] != null) {
                 foreach ($data['response']['units'] as $property) {
@@ -74,7 +74,9 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                     // ]);
 
                     // Dispatch job to fetch owners for the flat
-                    FetchOwnersForFlat::dispatch($flat);
+                    if($this->source == 'Mollak'){
+                        FetchOwnersForFlat::dispatch($flat);
+                    }
                 }
             }
         } catch (\Exception $e) {

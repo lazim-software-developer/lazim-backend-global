@@ -96,7 +96,7 @@ class SyncOwnerAssociations extends Command
             //     'model_id' => $accountUser?->id,
             // ]);
 
-            FetchBuildingsJob::dispatch($ownerAssociation);
+            FetchBuildingsJob::dispatch($ownerAssociation,'Mollak');
         }
     }
 }
