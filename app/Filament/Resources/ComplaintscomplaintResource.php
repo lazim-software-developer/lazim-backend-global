@@ -10,6 +10,7 @@ use App\Models\TechnicianVendor;
 use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
 use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -140,8 +141,8 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
-                        TextInput::make('category')
-                            ->disabled(),
+                        TextInput::make('category'),
+                        // ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
@@ -208,13 +209,53 @@ class ComplaintscomplaintResource extends Resource
                     ])
                     ->columns(2),
             ]);
-
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('open_time')
+                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->complaint}")
+                    ->toggleable()
+                    ->sortable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Open At'),
+                TextColumn::make('due_date')
+                    ->toggleable()
+                    ->sortable()
+                    ->default('NA')
+                    ->limit(20)
+                    ->searchable()
+                    ->label('Due Date')
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$state || $state === 'NA') {
+                            return 'NA';
+                        }
+
+                        $dueDate = Carbon::parse($state);
+                        $today = Carbon::today();
+
+                        // Status check: if status is 'close', just show 'Closed' or actual date
+                        if (strtolower($record->status) === 'close') {
+                            return 'Closed'; // or: return $dueDate->format('d M Y');
+                        }
+
+                        if ($dueDate->isToday()) {
+                            return 'Due today';
+                        }
+
+                        if ($dueDate->isFuture()) {
+                            $daysLeft = $dueDate->diffInDays($today);
+                            return $daysLeft === 1 ? '1 day left' : "$daysLeft days left";
+                        }
+
+                        // If overdue and not closed
+                        $daysOver = $today->diffInDays($dueDate);
+                        return $daysOver === 1 ? '1 day over' : "$daysOver days over";
+                    }),
                 TextColumn::make('ticket_number')
                     ->toggleable()
                     ->default('NA')
@@ -222,6 +263,7 @@ class ComplaintscomplaintResource extends Resource
                     ->searchable()
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -231,15 +273,16 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('complaint')
-                    ->toggleable()
-                    ->default('NA')
-                    ->limit(20)
-                    ->searchable()
-                    ->label('Complaint'),
+                // TextColumn::make('complaint')
+                //     ->toggleable()
+                //     ->default('NA')
+                //     ->limit(20)
+                //     ->searchable()
+                //     ->label('Complaint'),
                 // TextColumn::make('complaint_details')
                 //     ->toggleable()
                 //     ->default('NA')
@@ -268,7 +311,8 @@ class ComplaintscomplaintResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ])])
+                ])
+            ])
 
             ->actions([]);
     }
