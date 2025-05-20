@@ -141,8 +141,8 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
-                        TextInput::make('category')
-                            ->disabled(),
+                        TextInput::make('category'),
+                        // ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
