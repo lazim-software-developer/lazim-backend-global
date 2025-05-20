@@ -1,11 +1,17 @@
 <?php
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
-use App\Filament\Resources\Building\BuildingResource;
-use App\Models\Floor;
 use DB;
+use Carbon\Carbon;
+use App\Models\Floor;
+use App\Models\Master\Role;
+use Filament\Actions\Action;
+use App\Models\Building\Building;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Jobs\FetchFlatsAndOwnersForBuilding;
+use App\Filament\Resources\Building\BuildingResource;
 
 class EditBuilding extends EditRecord
 {
@@ -14,10 +20,94 @@ class EditBuilding extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\DeleteAction::make(),
-            // Action::make('Inhouse services')
-            //     ->label('Inhouse services')
-            //     ->url(BuildingResource::getUrl('services'))
+            Action::make('Sync Unit from Mollak')
+            ->icon('heroicon-o-information-circle')
+            ->disabled(function (): bool {
+                // Get the latest record for this user
+                $lastSync = DB::table('mollak_api_call_histories')
+                    ->where('module', 'Unit')
+                    ->where('job_name', 'FetchFlatsAndOwnersForBuilding')
+                    ->where('record_id', $this->record->id)
+                    ->where('user_id', auth()->user()->id)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+                
+                // If no record exists, enable the button (return false for disabled)
+                if (!$lastSync) {
+                    return false;
+                }
+                
+                // If record exists, check if it's less than 30 minutes old
+                return now()->diffInMinutes(Carbon::parse($lastSync->created_at)) < 30;
+            })
+            ->extraAttributes(function () {
+                // Get the last sync time from database
+                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Unit')->where('job_name', 'FetchFlatsAndOwnersForBuilding')->where('record_id', $this->record->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
+                
+                // Default value if no sync history exists
+                $lastSyncDisplay = 'Never synced';
+                $lastSyncTime = now()->format('Y-m-d H:i:s');
+                
+                if ($lastSync) {
+                    $lastSyncTime = $lastSync->created_at;
+                    
+                    // Format the display text based on time difference
+                    $diffInMinutes = now()->diffInMinutes($lastSyncTime);
+                    if ($diffInMinutes < 60) {
+                        $lastSyncDisplay = $diffInMinutes . ' minutes ago';
+                    } else {
+                        $diffInHours = now()->diffInHours($lastSyncTime);
+                        if ($diffInHours < 24) {
+                            $lastSyncDisplay = $diffInHours . ' hours ago';
+                        } else {
+                            $lastSyncDisplay = Carbon::parse($lastSyncTime)->format('Y-m-d H:i:s');
+                        }
+                    }
+                }
+                
+                return [
+                    'title' => 'Last Sync: ' . $lastSyncDisplay,
+                    'class' => 'relative',
+                    'x-data' => '{
+                        lastSync: "' . $lastSyncDisplay . '",
+                        init() {
+                            $el.innerHTML = "Sync Unit from Mollak<div class=\'text-xs mt-1 opacity-75\'>Last Sync: " + this.lastSync + "</div>";
+                        }
+                    }'
+                ];
+            })
+                ->visible(function () {
+                    $auth_user = auth()->user();
+                    $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+
+                    if ($role === 'Admin' || $role === 'OA') {
+                        return true;
+                    }
+                })
+                ->action(function () {
+                    $building = Building::where('id', $this->record->id)->first();
+                    if (!empty($building->property_group_id)) {
+                    FetchFlatsAndOwnersForBuilding::dispatch($building, 'Manual');
+                    DB::table('mollak_api_call_histories')->insert([
+                        'api_url'     => '/sync/propertygroups/' . $building->property_group_id . '/units',
+                        'module'      => 'Unit',
+                        'job_name'    => 'FetchFlatsAndOwnersForBuilding',
+                        'record_id'   => $building->id,
+                        'user_id'     => auth()->user()->id,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]);
+                    Notification::make()
+                        ->title('Fetching buildings from Mollak is in progress. Once synced, it will be visible in the list')
+                        ->success()
+                        ->send();
+                    }else{
+                        Notification::make()
+                        ->title('This Building is not found in Mollak')
+                        ->warning()
+                        ->send();
+                    }
+                })
         ];
     }
     public function beforeSave(){

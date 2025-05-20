@@ -31,7 +31,9 @@ class RegistrationController extends Controller
 {
     public function registerWithEmailPhone(RegisterRequest $request)
     {
-        $email = trim(strtolower($request->get('email')));
+        $request->merge(['email' => trim(strtolower($request->email))]);
+        $request->merge(['mobile' => str_replace(' ', '', trim($request->mobile))]);
+        $email = $request->get('email');
         $userData = User::where(['email' => $email, 'phone' => $request->get('mobile')]);
         if ($request->type == 'Owner') {
             $userData->where('owner_id', $request->get('owner_id'));
@@ -199,6 +201,7 @@ class RegistrationController extends Controller
     public function registerWithDocument(RegisterWithEmiratesOrPassportRequest $request)
     {
         $request->merge(['email' => trim(strtolower($request->email))]);
+        $request->merge(['mobile' => str_replace(' ', '', trim($request->mobile))]);
         $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
             $ownerId=$request->get('owner_id');
