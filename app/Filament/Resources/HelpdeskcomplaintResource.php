@@ -11,6 +11,7 @@ use Filament\Tables\Table;
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
 use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
 use Filament\Facades\Filament;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
@@ -31,6 +32,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\Vendor\SelectServicesController;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
@@ -104,7 +106,7 @@ class HelpdeskcomplaintResource extends Resource
                                 if ($record->vendor_id == null) {
                                     return false;
                                 }
-                                return true;
+                                // return true; //TODO verify when we can disable this field
                             })
                             ->live()
                             ->searchable()
@@ -146,7 +148,7 @@ class HelpdeskcomplaintResource extends Resource
                             })
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->minDate(now()->format('Y-m-d'))
+                            // ->minDate(now()->format('Y-m-d'))
                             ->rules(['date'])
                             ->disabled(function (Complaint $record) {
                                 return $record->status != 'open';
@@ -173,10 +175,36 @@ class HelpdeskcomplaintResource extends Resource
                         Select::make('service_id')
                             ->relationship('service', 'name')
                             ->preload()
-                            ->disabled()
+                            // ->disabled()
                             ->searchable()
                             ->label('Service'),
-                        TextInput::make('category')->disabled(),
+                        // TextInput::make('category')->disabled(),
+                        Select::make('category') // Matches the database column storing the Service name
+                            ->required()
+                            ->options(function () {
+                                return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray();
+                            })
+                            // ->searchable()
+                            ->preload()
+                            ->placeholder('Service')
+                            ->afterStateHydrated(function (Select $component, $state) {
+                                // If the state (category) is a string (Service name), find the corresponding Service ID
+                                if ($state) {
+                                    $service = Service::where('name', $state)->first();
+                                    if ($service) {
+                                        $component->state($service->id); // Set the state to the Service ID
+                                    }
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // Optional: If you want to save the Service name back to the database
+                                $service = Service::find($state);
+                                if ($service) {
+                                    $set('category', $service->name); // Save the name to the category field
+                                }
+                            }),
+
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
                         Textarea::make('complaint')
