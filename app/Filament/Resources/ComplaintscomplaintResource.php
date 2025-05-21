@@ -85,10 +85,17 @@ class ComplaintscomplaintResource extends Resource
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
+                                // if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                //     return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
+                                //         $query->where('owner_association_id', Filament::getTenant()->id);
+                                //     })->pluck('name', 'id');
+                                // }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                    return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
+                                    $mainQuery = Vendor::whereHas('ownerAssociation', function ($query) {
                                         $query->where('owner_association_id', Filament::getTenant()->id);
-                                    })->pluck('name', 'id');
+                                    });
+                                    $mainQuery =  ($record->category !== 'Other') ? $mainQuery->whereIn('id', $serviceVendor) : $mainQuery;
+                                    return $mainQuery->pluck('name', 'id');
                                 }
                                 return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');
                             })
@@ -160,7 +167,7 @@ class ComplaintscomplaintResource extends Resource
                             ->options(function () {
                                 return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray();
                             })
-                            ->searchable()
+                            // ->searchable()
                             ->preload()
                             ->placeholder('Service')
                             ->afterStateHydrated(function (Select $component, $state) {
