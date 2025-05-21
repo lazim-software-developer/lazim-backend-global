@@ -2,39 +2,41 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\Pages;
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
-use App\Models\Building\Complaint;
-use App\Models\Master\Role;
-use App\Models\TechnicianVendor;
-use App\Models\User\User;
-use App\Models\Vendor\ServiceVendor;
-use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
 use Closure;
+use Carbon\Carbon;
+use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Illuminate\Support\Str;
+use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
 use Filament\Facades\Filament;
+use App\Models\TechnicianVendor;
+use Filament\Resources\Resource;
+use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use App\Models\Vendor\ServiceVendor;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Vendor\SelectServicesController;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\ComplaintscomplaintResource\Pages;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -94,7 +96,7 @@ class ComplaintscomplaintResource extends Resource
                                 if ($record->vendor_id == null) {
                                     return false;
                                 }
-                                return true;
+                                // return true; //TODO verify when we can disable this field
                             })
                             ->live()
                             ->searchable()
@@ -141,7 +143,44 @@ class ComplaintscomplaintResource extends Resource
                             })
                             ->rules(['date'])
                             ->placeholder('Due Date'),
-                        TextInput::make('category'),
+
+                        // TextInput::make('category'),
+
+                        // Select::make('category')
+                        //     ->required()
+                        //     ->options(function (Complaint $record) {
+                        //         return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id');
+                        //     })
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->placeholder('Service'),
+
+                        Select::make('category') // Matches the database column storing the Service name
+                            ->required()
+                            ->options(function () {
+                                return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Service')
+                            ->afterStateHydrated(function (Select $component, $state) {
+                                // If the state (category) is a string (Service name), find the corresponding Service ID
+                                if ($state) {
+                                    $service = Service::where('name', $state)->first();
+                                    if ($service) {
+                                        $component->state($service->id); // Set the state to the Service ID
+                                    }
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // Optional: If you want to save the Service name back to the database
+                                $service = Service::find($state);
+                                if ($service) {
+                                    $set('category', $service->name); // Save the name to the category field
+                                }
+                            }),
+
                         // ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
