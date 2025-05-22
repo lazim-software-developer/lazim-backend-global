@@ -86,7 +86,7 @@ class ComplaintscomplaintResource extends Resource
                             ->preload()
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
-                                Log::info('Line no 88 ->' . Filament::getTenant()->id);
+
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
                                 // if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                                 //     return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
