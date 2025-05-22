@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -34,6 +35,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\Vendor\SelectServicesController;
+use PhpParser\Node\Stmt\Label;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
@@ -84,6 +86,7 @@ class ComplaintscomplaintResource extends Resource
                             ->preload()
                             ->required()
                             ->options(function (Complaint $record, Get $get) {
+
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
                                 // if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
                                 //     return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
@@ -91,8 +94,9 @@ class ComplaintscomplaintResource extends Resource
                                 //     })->pluck('name', 'id');
                                 // }
                                 if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                    $mainQuery = Vendor::whereHas('ownerAssociation', function ($query) {
-                                        $query->where('owner_association_id', Filament::getTenant()->id);
+                                    $mainQuery = Vendor::whereHas('ownerAssociation', function ($query) use ($record) {
+
+                                        $query->where('owner_association_id', $record->owner_association_id);
                                     });
                                     $mainQuery =  ($record->category !== 'Other') ? $mainQuery->whereIn('id', $serviceVendor) : $mainQuery;
                                     return $mainQuery->pluck('name', 'id');
@@ -161,33 +165,36 @@ class ComplaintscomplaintResource extends Resource
                         //     ->searchable()
                         //     ->preload()
                         //     ->placeholder('Service'),
-
-                        Select::make('category') // Matches the database column storing the Service name
+                        // Select::make('service_id')
+                        //     ->relationship('service', 'name')
+                        //     ->preload()
+                        //     // ->disabled()
+                        //     ->searchable()
+                        //     ->label('Service'),
+                        Select::make('category')
                             ->required()
-                            ->options(function () {
-                                return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray();
-                            })
-                            // ->searchable()
+                            ->options(fn() => Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray())
                             ->preload()
-                            ->placeholder('Service')
+                            ->placeholder('Select a service')
                             ->afterStateHydrated(function (Select $component, $state) {
-                                // If the state (category) is a string (Service name), find the corresponding Service ID
-                                if ($state) {
+                                if ($state && is_string($state)) {
                                     $service = Service::where('name', $state)->first();
                                     if ($service) {
-                                        $component->state($service->id); // Set the state to the Service ID
+                                        $component->state($service->id);
                                     }
                                 }
                             })
-                            ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                // Optional: If you want to save the Service name back to the database
-                                $service = Service::find($state);
-                                if ($service) {
-                                    $set('category', $service->name); // Save the name to the category field
+                                if ($state && is_numeric($state)) {
+                                    $service = Service::find($state);
+                                    if ($service) {
+
+                                        $set('category', $service->name);
+                                    }
                                 }
                             }),
-
+                        // Map ID => Name for dropdown options
+                        // ->reactive(),
                         // ->disabled(),
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
@@ -314,6 +321,7 @@ class ComplaintscomplaintResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number'),
+                TextColumn::make('category'),
                 TextColumn::make('type')
                     ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
                     ->default('NA'),

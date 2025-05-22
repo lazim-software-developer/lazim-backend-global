@@ -186,31 +186,29 @@ class HelpdeskcomplaintResource extends Resource
                             ->searchable()
                             ->label('Service'),
                         // TextInput::make('category')->disabled(),
-                        Select::make('category') // Matches the database column storing the Service name
+                        Select::make('category')
                             ->required()
-                            ->options(function () {
-                                return Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray();
-                            })
-                            // ->searchable()
+                            ->options(fn() => Service::whereIn('id', [5, 36, 69, 40, 228])->pluck('name', 'id')->toArray())
                             ->preload()
-                            ->placeholder('Service')
+                            ->placeholder('Select a service')
                             ->afterStateHydrated(function (Select $component, $state) {
-                                // If the state (category) is a string (Service name), find the corresponding Service ID
-                                if ($state) {
+                                if ($state && is_string($state)) {
                                     $service = Service::where('name', $state)->first();
                                     if ($service) {
-                                        $component->state($service->id); // Set the state to the Service ID
+                                        $component->state($service->id);
                                     }
                                 }
                             })
-                            ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                // Optional: If you want to save the Service name back to the database
-                                $service = Service::find($state);
-                                if ($service) {
-                                    $set('category', $service->name); // Save the name to the category field
+                                if ($state && is_numeric($state)) {
+                                    $service = Service::find($state);
+                                    if ($service) {
+
+                                        $set('category', $service->name);
+                                    }
                                 }
                             }),
+
 
                         TextInput::make('open_time')->disabled(),
                         TextInput::make('close_time')->disabled()->default('NA'),
