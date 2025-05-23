@@ -11,7 +11,7 @@ class DelinquentOwner extends Model
     use HasFactory;
 
     protected $connection = 'mysql';
-    
+
     protected $table = 'delinquent_owners';
 
     protected $fillable = [
@@ -26,7 +26,8 @@ class DelinquentOwner extends Model
         'quarter_3_balance',
         'quarter_4_balance',
         'invoice_pdf_link',
-        'year'
+        'year',
+        'owner_association_id',
     ];
 
 
@@ -34,11 +35,13 @@ class DelinquentOwner extends Model
     {
         return $this->belongsTo(OwnerAssociation::class);
     }
-    public function flat(){
+    public function flat()
+    {
         return $this->belongsTo(Flat::class);
     }
 
-    public function owner(){
+    public function owner()
+    {
         return $this->belongsTo(ApartmentOwner::class);
     }
 }
