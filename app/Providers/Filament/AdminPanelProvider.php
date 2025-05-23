@@ -379,12 +379,12 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('User management')
                             ->items([
-                                NavigationItem::make('All Users')
-                                    ->url(AllUsersResource::getUrl('index'))
-                                    ->visible($user->can('view_any_user::user'))
-                                    ->icon('heroicon-m-building-office-2')
-                                    ->activeIcon('heroicon-m-building-office-2')
-                                    ->sort(1),
+                                // NavigationItem::make('All Users')
+                                //     ->url(AllUsersResource::getUrl('index'))
+                                //     ->visible($user->can('view_any_user::user'))
+                                //     ->icon('heroicon-m-building-office-2')
+                                //     ->activeIcon('heroicon-m-building-office-2')
+                                //     ->sort(1),
                                 NavigationItem::make('Owners')
                                     ->url('/admin/user/owners')
                                     ->visible($user->can('view_any_user::owner'))
