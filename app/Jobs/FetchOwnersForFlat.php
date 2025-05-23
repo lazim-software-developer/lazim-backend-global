@@ -42,34 +42,19 @@ class FetchOwnersForFlat implements ShouldQueue
 
                 foreach ($property['owners'] as $ownerData) {
                     $phone = $this->cleanPhoneNumber($ownerData['mobile']);
-
-                    $ownerExists = ApartmentOwner::where('owner_number', $ownerData['ownerNumber'])
-                    ->where('email', $ownerData['email'])
-                    ->where('mobile', $phone)
-                    ->where('owner_association_id', $this->flat->owner_association_id)
-                    ->first();
-
-                    if (!$ownerExists) {
-                        $owner = ApartmentOwner::firstOrCreate([
+                        $owner = ApartmentOwner::updateOrCreate([
                             'owner_number' => $ownerData['ownerNumber'],
                             'email' => $ownerData['email'],
                             'mobile' => $phone,
                             'owner_association_id' => $this->flat->owner_association_id,
                         ], [
-                            'primary_owner_mobile' => $phone,
-                            'primary_owner_email' => $ownerData['email'],
                             'name' => $ownerData['name']['englishName'],
                             'passport' => $ownerData['passport'],
                             'emirates_id' => $ownerData['emiratesId'],
                             'trade_license' => $ownerData['tradeLicence'],
-                        ]);
-                    }else{
-                        $ownerExists->update([
                             'primary_owner_mobile' => $phone,
                             'primary_owner_email' => $ownerData['email'],
                         ]);
-                    }
-
                     $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
@@ -113,11 +98,11 @@ class FetchOwnersForFlat implements ShouldQueue
 
                     // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
-                    $owner=$owner->id ?? $ownerExists->id;
+                    $ownerId=$owner->id;
                     if (!empty($owner)) {
-                        $this->flat->owners()->syncWithoutDetaching($owner);
+                        $this->flat->owners()->syncWithoutDetaching($ownerId);
                         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
-                        AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $owner, $customerId, 'Owner')->delay(now()->addSeconds(5));
+                        AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $ownerId, $customerId, 'Owner')->delay(now()->addSeconds(5));
                     }
                 }
             }

@@ -20,13 +20,15 @@ class FetchBuildingsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $ownerAssociation;
+    protected $source;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($ownerAssociation)
+    public function __construct($ownerAssociation, $source)
     {
         $this->ownerAssociation = $ownerAssociation;
+        $this->source = $source;
     }
 
     /**
@@ -82,8 +84,9 @@ class FetchBuildingsJob implements ShouldQueue
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
-
-                FetchFlatsAndOwnersForBuilding::dispatch($building);
+                if($this->source == 'Mollak'){
+                    FetchFlatsAndOwnersForBuilding::dispatch($building,'Mollak');
+                }
             }
         }
     }
