@@ -14,30 +14,49 @@ use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ThrottlesApiCalls;
+
 
 class FetchOwnersForFlat implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ThrottlesApiCalls;
 
     protected $flat;
+
+    public $tries = 3; // Retry 3 times on failure
+    public $backoff = [60, 120, 180]; // Wait 60s, 120s, 180s before retries
 
     public function __construct(Flat $flat)
     {
         $this->flat = $flat;
     }
 
+
     public function handle()
+    {
+        // Try to throttle
+        if (! $this->throttleApiCall('external-api-global', 2)) {
+            // Too soon, retry after delay
+            $this->release(2);
+            return;
+        }
+
+        // Call external API here
+        $this->callExternalApi($this->flat);
+    }
+
+    protected function callExternalApi($flat)
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $this->flat->building->property_group_id . "/" . $this->flat->mollak_property_id);
+        ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $flat->building->property_group_id . "/" . $flat->mollak_property_id);
 
         $ownerData = $response->json();
         if ($ownerData['response'] != null) {
             foreach ($ownerData['response']['properties'] as $property) {
                 // Update property_type for a flat
-                $this->flat->update(['property_type' => $property['propertyType']]);
+                $flat->update(['property_type' => $property['propertyType']]);
 
                 foreach ($property['owners'] as $ownerData) {
                     // Delete record based on owner number
@@ -80,7 +99,7 @@ class FetchOwnersForFlat implements ShouldQueue
                     $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
                     $customer = $connection->table('customers')->where('created_by', $buildingUser?->id)->orderByDesc('customer_id')->first();
                     $customerId = $customer ? $customer->customer_id + 1 : 1;
-                    $name = $ownerData['name']['englishName'] . ' - ' . $this->flat->property_number;
+                    $name = $ownerData['name']['englishName'] . ' - ' . $flat->property_number;
 
                     $connection->table('customers')->updateOrInsert(
                         [
@@ -108,8 +127,8 @@ class FetchOwnersForFlat implements ShouldQueue
                             'shipping_phone' => $phone,
                             'shipping_address' => $building->address_line1 . ', ' . $building->area,
                             'created_by_lazim' => true,
-                            'flat_id' => $this->flat->id,
-                            'building_id' => $this->flat->building_id,
+                            'flat_id' => $flat->id,
+                            'building_id' => $flat->building_id,
                             'updated_at' => now(), // Ensure the updated_at timestamp is updated
                             'created_at' => now(), // Only relevant for insert
                         ]
@@ -117,7 +136,7 @@ class FetchOwnersForFlat implements ShouldQueue
 
                     // Log::info('owner',[$owner]);
                     // Attach the owner to the flat
-                    $ownerId=$owner->id;
+                    $ownerId = $owner->id;
                     if (!empty($owner)) {
                         $this->flat->owners()->sync($ownerId);
                         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
@@ -127,7 +146,6 @@ class FetchOwnersForFlat implements ShouldQueue
             }
         }
     }
-
     function cleanPhoneNumber($phoneNumber)
     {
         // Remove -, +, and | characters
@@ -137,5 +155,10 @@ class FetchOwnersForFlat implements ShouldQueue
         $cleaned = ltrim($cleaned, '0');
 
         return $cleaned;
+    }
+
+    public function backoff()
+    {
+        return [1, 3, 5, 10, 30]; // Retry delays in seconds
     }
 }
