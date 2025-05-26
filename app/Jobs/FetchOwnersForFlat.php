@@ -53,39 +53,58 @@ class FetchOwnersForFlat implements ShouldQueue
         ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $flat->building->property_group_id . "/" . $flat->mollak_property_id);
 
         $ownerData = $response->json();
-
         if ($ownerData['response'] != null) {
             foreach ($ownerData['response']['properties'] as $property) {
                 // Update property_type for a flat
                 $flat->update(['property_type' => $property['propertyType']]);
 
                 foreach ($property['owners'] as $ownerData) {
+                    // Delete record based on owner number
+                    ApartmentOwner::where('owner_number', $ownerData['ownerNumber'])->delete();
                     $phone = $this->cleanPhoneNumber($ownerData['mobile']);
-                    $owner = ApartmentOwner::updateOrCreate([
-                        'owner_number' => $ownerData['ownerNumber'],
-                        'email' => $ownerData['email'],
-                        'mobile' => $phone,
-                        'owner_association_id' => $flat->owner_association_id,
-                    ], [
-                        'name' => $ownerData['name']['englishName'],
-                        'passport' => $ownerData['passport'],
-                        'emirates_id' => $ownerData['emiratesId'],
-                        'trade_license' => $ownerData['tradeLicence'],
-                        'primary_owner_mobile' => $phone,
-                        'primary_owner_email' => $ownerData['email'],
-                    ]);
-                    $building = Building::find($flat->building_id);
+                        $owner = ApartmentOwner::withTrashed()->updateOrCreate([
+                            'owner_number' => $ownerData['ownerNumber'],
+                            'email' => $ownerData['email'],
+                            'mobile' => $phone,
+                            'owner_association_id' => $this->flat->owner_association_id,
+                        ], [
+                            'name' => $ownerData['name']['englishName'],
+                            'passport' => $ownerData['passport'],
+                            'emirates_id' => $ownerData['emiratesId'],
+                            'trade_license' => $ownerData['tradeLicence'],
+                            'primary_owner_mobile' => $phone,
+                            'primary_owner_email' => $ownerData['email'],
+                            'deleted_at' => null,
+                        ]);
+
+                    // Insert into mollak_unit_owner_histories
+                    $apartmentOwner = ApartmentOwner::withTrashed()->where('owner_number', $ownerData['ownerNumber'])->get();
+                    if($apartmentOwner->count() > 0){
+                        foreach ($apartmentOwner as $owner) {
+                            DB::table('mollak_unit_owner_histories')->insert([
+                                'flat_id' => $this->flat->id,
+                                'owner_number' => $owner->owner_number,
+                                'email' => $owner->email,
+                                'mobile' => $owner->mobile,
+                                'owner_association_id' => $this->flat->owner_association_id,
+                                'status' => $owner->deleted_at ? 'Detached' : 'Attached',
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                    $building = Building::find($this->flat->building_id);
                     $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $this->flat->owner_association_id)->where('type', 'company')->first()?->id;
                     $buildingUser = $connection->table('users')->where(['type' => 'building', 'building_id' => $building->id])->first();
-                    $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
+                    $customer = $connection->table('customers')->where('created_by', $buildingUser?->id)->orderByDesc('customer_id')->first();
                     $customerId = $customer ? $customer->customer_id + 1 : 1;
                     $name = $ownerData['name']['englishName'] . ' - ' . $flat->property_number;
 
                     $connection->table('customers')->updateOrInsert(
                         [
-                            'created_by' => $buildingUser->id,
-                            'building_id' => $flat->building_id,
+                            'created_by' => $buildingUser?->id,
+                            'building_id' => $this->flat->building_id,
                             'email' => $ownerData['email'],
                             'contact' => $phone,
                         ],
@@ -119,7 +138,7 @@ class FetchOwnersForFlat implements ShouldQueue
                     // Attach the owner to the flat
                     $ownerId = $owner->id;
                     if (!empty($owner)) {
-                        $flat->owners()->syncWithoutDetaching($ownerId);
+                        $this->flat->owners()->sync($ownerId);
                         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
                         AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $ownerId, $customerId, 'Owner')->delay(now()->addSeconds(5));
                     }

@@ -157,6 +157,7 @@ class FlatResource extends Resource
                                             ];
                                         }
                                         
+                                        
                                         // Get all flat owners associated with this flat
                                         $flatOwners = FlatOwners::where('flat_id', $record->id)->get();
                                         
