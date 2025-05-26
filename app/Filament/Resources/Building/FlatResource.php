@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Building;
 
 use Filament\Tables;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -30,6 +32,8 @@ use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use App\Filament\Resources\Building\FlatResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\FlatResource\RelationManagers\DocumentsRelationManager;
+use App\Filament\Resources\Building\FlatResource\RelationManagers\OAMInvoicesRelationManager;
+use App\Filament\Resources\Building\FlatResource\RelationManagers\OAMReceiptsRelationManager;
 
 class FlatResource extends Resource
 {
@@ -59,7 +63,7 @@ class FlatResource extends Resource
                             // ->relationship('ownerAssociation', 'name')
                             ->required()
                             ->options(function () {
-                                if(auth()->user()?->role?->name === 'Property Manager'){
+                                if (auth()->user()?->role?->name === 'Property Manager') {
                                     return OwnerAssociation::where('role', auth()->user()?->role?->name)->pluck('name', 'id');
                                 }
                                 return OwnerAssociation::pluck('name', 'id');
@@ -156,11 +160,10 @@ class FlatResource extends Resource
                                                     ])
                                             ];
                                         }
-                                        
-                                        
+
                                         // Get all flat owners associated with this flat
                                         $flatOwners = FlatOwners::where('flat_id', $record->id)->get();
-                                        
+
                                         if ($flatOwners->isEmpty()) {
                                             return [
                                                 Tabs\Tab::make('no_owners')
@@ -171,13 +174,13 @@ class FlatResource extends Resource
                                                     ])
                                             ];
                                         }
-                                        
+
                                         $tabs = [];
-                                        
+
                                         // Create a tab for each owner
                                         foreach ($flatOwners as $index => $flatOwner) {
                                             $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
-                                            
+
                                             if ($ownerDetail) {
                                                 $tabs[] = Tabs\Tab::make("owner_{$index}")
                                                     ->label($ownerDetail->name ?? "Owner " . ($index + 1))
@@ -204,7 +207,7 @@ class FlatResource extends Resource
                                                     ->columns(2);
                                             }
                                         }
-                                        
+
                                         return $tabs;
                                     })
                             ]),
@@ -272,7 +275,9 @@ class FlatResource extends Resource
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('tenants.role')
+                    ->tooltip(fn(Model $record): string => "By {$record->tenants()->pluck('role')}")
                     ->label('Occupied By')
+                    ->limit(20)
                     ->default('NA'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -281,15 +286,16 @@ class FlatResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
-                        || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                                ->pluck('role')[0] == 'Property Manager') {
+                        } elseif (
+                            Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                            || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
+                                ->pluck('role')[0] == 'Property Manager'
+                        ) {
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
                                 ->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
-
                         } else {
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
@@ -331,15 +337,15 @@ class FlatResource extends Resource
                         }
                     })
                     ->action(function ($record,) {
-                        if(!empty($record->owner_association_id)) {
+                        if (!empty($record->owner_association_id)) {
                             DB::table('property_manager_flats')
-                            ->where('flat_id', $record->id)
-                            ->where('owner_association_id', $record->owner_association_id)
-                            ->delete();
-                        }else{
+                                ->where('flat_id', $record->id)
+                                ->where('owner_association_id', $record->owner_association_id)
+                                ->delete();
+                        } else {
                             DB::table('property_manager_flats')
-                            ->where('flat_id', $record->id)
-                            ->delete();
+                                ->where('flat_id', $record->id)
+                                ->delete();
                         }
                         $record->delete();
 
@@ -355,65 +361,68 @@ class FlatResource extends Resource
             ])
             ->bulkActions([
                 ExportBulkAction::make()
-                ->exports([
-                    ExcelExport::make()
-                        ->withColumns([
-                            // Column::make('created_by')
-                            // ->heading('Created By')
-                            // ->formatStateUsing(fn ($record) =>
-                            //     $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            // ),
-                            // Custom column using relationship
-                            Column::make('owner_association_id')
-                            ->heading('Owner Association Name')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->ownerAssociation->name ?? 'N/A'
-                            ),
-                            Column::make('building_id')
-                            ->heading('Building Name')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->building->name ?? 'N/A'
-                            ),
-                            Column::make('floor')
-                                ->heading('Floor'),
-                            Column::make('property_number')
-                                ->heading('Property Number'),
-                            Column::make('property_type')
-                                ->heading('Property Type'),
-                            Column::make('suit_area')
-                                ->heading('Suit Area'),
-                            Column::make('actual_area')
-                            ->heading('Actual Area'),
-                            Column::make('actual_area')
-                                ->heading('Actual Area'),
-                            Column::make('balcony_area')
-                            ->heading('Balcony Area'),
-                            Column::make('applicable_area')
-                            ->heading('Applicable Area'),
-                            Column::make('virtual_account_number')
-                            ->heading('Virtual Account Number'),
-                            Column::make('parking_count')
-                            ->heading('Parking Count'),
-                            Column::make('plot_number')
-                            ->heading('Plot Number'),
-                            Column::make('dewa_number')
-                            ->heading('DEWA Number'),
-                            Column::make('makhani_number')
-                            ->heading('Makhani Number'),
-                            Column::make('etisalat/du_number')
-                            ->heading('Etisalat/DU Number'),
-                            Column::make('btu/ac_number')
-                            ->heading('BTU/AC Number'),
-                            Column::make('lpg_number')
-                            ->heading('LPG Number'),
-                            Column::make('resource')
-                            ->heading('Resource'),
-                            // Formatted date with custom accessor
-                            Column::make('created_at')
-                                ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) =>
-                                    $state ? $state->format('d/m/Y') : ''
-                                ),
+                    ->exports([
+                        ExcelExport::make()
+                            ->withColumns([
+                                // Column::make('created_by')
+                                // ->heading('Created By')
+                                // ->formatStateUsing(fn ($record) =>
+                                //     $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
+                                // ),
+                                // Custom column using relationship
+                                Column::make('owner_association_id')
+                                    ->heading('Owner Association Name')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->ownerAssociation->name ?? 'N/A'
+                                    ),
+                                Column::make('building_id')
+                                    ->heading('Building Name')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->building->name ?? 'N/A'
+                                    ),
+                                Column::make('floor')
+                                    ->heading('Floor'),
+                                Column::make('property_number')
+                                    ->heading('Property Number'),
+                                Column::make('property_type')
+                                    ->heading('Property Type'),
+                                Column::make('suit_area')
+                                    ->heading('Suit Area'),
+                                Column::make('actual_area')
+                                    ->heading('Actual Area'),
+                                Column::make('actual_area')
+                                    ->heading('Actual Area'),
+                                Column::make('balcony_area')
+                                    ->heading('Balcony Area'),
+                                Column::make('applicable_area')
+                                    ->heading('Applicable Area'),
+                                Column::make('virtual_account_number')
+                                    ->heading('Virtual Account Number'),
+                                Column::make('parking_count')
+                                    ->heading('Parking Count'),
+                                Column::make('plot_number')
+                                    ->heading('Plot Number'),
+                                Column::make('dewa_number')
+                                    ->heading('DEWA Number'),
+                                Column::make('makhani_number')
+                                    ->heading('Makhani Number'),
+                                Column::make('etisalat/du_number')
+                                    ->heading('Etisalat/DU Number'),
+                                Column::make('btu/ac_number')
+                                    ->heading('BTU/AC Number'),
+                                Column::make('lpg_number')
+                                    ->heading('LPG Number'),
+                                Column::make('resource')
+                                    ->heading('Resource'),
+                                // Formatted date with custom accessor
+                                Column::make('created_at')
+                                    ->heading('Created Date')
+                                    ->formatStateUsing(
+                                        fn($state) =>
+                                        $state ? $state->format('d/m/Y') : ''
+                                    ),
                                 // Column::make('status')
                                 // ->heading('Status')
                                 // ->formatStateUsing(fn ($record) =>
@@ -422,16 +431,16 @@ class FlatResource extends Resource
                                 //         : 'Inactive'
                                 // ),
 
-                            // Created by user info
-                            // Column::make('created_by_name')
-                            //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) =>
-                            //         $record->createdBy->name ?? 'System'
-                            //     ),
-                        ])
-                        ->withFilename(date('Y-m-d') . '-flat-report')
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                ]),
+                                // Created by user info
+                                // Column::make('created_by_name')
+                                //     ->heading('Created By')
+                                //     ->formatStateUsing(fn ($record) =>
+                                //         $record->createdBy->name ?? 'System'
+                                //     ),
+                            ])
+                            ->withFilename(date('Y-m-d') . '-flat-report')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                    ]),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
@@ -453,7 +462,10 @@ class FlatResource extends Resource
                 DocumentsRelationManager::class,
             ];
         }
-        return [];
+        return [
+            OAMInvoicesRelationManager::class,
+            OAMReceiptsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
