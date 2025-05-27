@@ -90,9 +90,9 @@ class SnagsResource extends Resource
                                             ->live(),
                                         Select::make('service_id')
                                             ->relationship('service', 'name')
-                                            ->preload()
-                                            // ->disabledOn('edit')
+                                            ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} ({$record->code})")
                                             ->searchable()
+                                            ->preload()
                                             ->label('Service'),
                                         Select::make('user_id')
                                             ->label('Gatekeeper')
