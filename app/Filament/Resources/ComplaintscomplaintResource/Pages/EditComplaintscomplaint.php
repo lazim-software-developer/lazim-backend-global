@@ -195,7 +195,7 @@ class EditComplaintscomplaint extends EditRecord
                     $data['url'] = 'InAppNotficationScreen';
                     $data['title'] = ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status';
                     $data['body'] = 'A ' . ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->first_name;
-                    $data['building_id'] = $this->record->flatVisitor->building_id;
+                    $data['building_id'] = $this->record?->building_id;
                     $data['flat_id'] = $this->record->flatVisitor->flat_id;
                     $data['custom_json_data'] = json_encode([
                         'building_id' => $this->record->building_id,
