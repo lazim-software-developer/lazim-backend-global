@@ -1,5 +1,6 @@
 <?php
 
+use Livewire\Livewire;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use Illuminate\Support\Facades\Route;
