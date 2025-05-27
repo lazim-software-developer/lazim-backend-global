@@ -39,6 +39,7 @@ use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Components\NavigationItemExtended;
+use App\Filament\Resources\AllUsersResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PersonalServiceResource;
 use App\Filament\Resources\AssetMaintenanceResource;
@@ -374,28 +375,34 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
                 // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
-                if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle')) {
+                if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle') || $user->can('view_any_user::user')) {
                     $builder->groups([
                         NavigationGroup::make('User management')
                             ->items([
+                                // NavigationItem::make('All Users')
+                                //     ->url(AllUsersResource::getUrl('index'))
+                                //     ->visible($user->can('view_any_user::user'))
+                                //     ->icon('heroicon-m-building-office-2')
+                                //     ->activeIcon('heroicon-m-building-office-2')
+                                //     ->sort(1),
                                 NavigationItem::make('Owners')
                                     ->url('/admin/user/owners')
                                     ->visible($user->can('view_any_user::owner'))
                                     ->icon('heroicon-o-user')
                                     ->activeIcon('heroicon-o-user')
-                                    ->sort(1),
+                                    ->sort(2),
                                 NavigationItem::make('Tenants')
                                     ->url('/admin/user/tenants')
                                     ->visible($user->can('view_any_user::tenant'))
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
-                                    ->sort(2),
+                                    ->sort(3),
                                 NavigationItem::make('Vehicles')
                                     ->url(VehicleResource::getUrl('index'))
                                     ->visible($user->can('view_any_vehicle'))
                                     ->icon('heroicon-m-building-office-2')
                                     ->activeIcon('heroicon-m-building-office-2')
-                                    ->sort(3),
+                                    ->sort(4),
                             ])
                             ->collapsed(true),
                     ]);

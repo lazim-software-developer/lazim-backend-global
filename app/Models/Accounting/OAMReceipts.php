@@ -15,11 +15,11 @@ class OAMReceipts extends Model
 
     protected $table = 'oam_receipts';
 
-    // Fillable fields 
+    // Fillable fields
     protected $fillable = [
         'receipt_number',
         'receipt_date',
-        'receipt_period', 
+        'receipt_period',
         'record_source',
         'receipt_amount',
         'receipt_created_date',

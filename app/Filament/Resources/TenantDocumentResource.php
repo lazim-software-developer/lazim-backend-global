@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TenantDocumentResource\Pages;
@@ -78,8 +79,8 @@ class TenantDocumentResource extends Resource
                     DatePicker::make('expiry_date')
                         ->rules(['date'])
                         ->required()
-                        ->disabled()
-                        ->readonly()
+                        // ->disabled()
+                        // ->readonly()
                         ->placeholder('Expiry date'),
                     Select::make('status')
                         ->required()
@@ -87,9 +88,9 @@ class TenantDocumentResource extends Resource
                             'approved' => 'Approved',
                             'rejected' => 'Rejected',
                         ])
-                    // ->disabled(function (Document $record) {
-                    //     return $record->status != 'submitted';
-                    // })
+                        // ->disabled(function (Document $record) {
+                        //     return $record->status != 'submitted';
+                        // })
                         ->searchable()
                         ->live(),
                     Textarea::make('remarks')
@@ -123,7 +124,8 @@ class TenantDocumentResource extends Resource
     {
         return $table
             ->poll('60s')
-            ->modifyQueryUsing(fn(Builder $query) => $query
+            ->modifyQueryUsing(
+                fn(Builder $query) => $query
                     ->where('documentable_type', 'App\Models\User\User')
                     ->where('name', '!=', 'Makani number')
                     ->withoutGlobalScopes()
@@ -187,9 +189,11 @@ class TenantDocumentResource extends Resource
 
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
+                        } elseif (
+                            Role::where('id', auth()->user()->role_id)->first()->name == 'Property Manager'
                             || OwnerAssociation::where('id', auth()->user()?->owner_association_id)
-                                ->pluck('role')[0] == 'Property Manager') {
+                                ->pluck('role')[0] == 'Property Manager'
+                        ) {
                             return User::whereIn('role_id', $roleId)
                                 ->whereIn('id', $flatTenants)
                                 ->pluck('first_name', 'id');
@@ -204,19 +208,19 @@ class TenantDocumentResource extends Resource
                     ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
-                        } elseif (Role::where('id', auth()->user()->role_id)
-                                ->first()->name == 'Property Manager') {
+                        } elseif (
+                            Role::where('id', auth()->user()->role_id)
+                            ->first()->name == 'Property Manager'
+                        ) {
                             $buildings = DB::table('building_owner_association')
                                 ->where('owner_association_id', auth()->user()->owner_association_id)
                                 ->where('active', true)
                                 ->pluck('building_id');
                             return Building::whereIn('id', $buildings)->pluck('name', 'id');
-
                         } else {
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                 ->pluck('name', 'id');
                         }
-
                     })
                     ->searchable()
                     ->preload()
