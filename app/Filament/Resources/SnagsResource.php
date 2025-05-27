@@ -91,7 +91,7 @@ class SnagsResource extends Resource
                                         Select::make('service_id')
                                             ->relationship('service', 'name')
                                             ->preload()
-                                            ->disabledOn('edit')
+                                            // ->disabledOn('edit')
                                             ->searchable()
                                             ->label('Service'),
                                         Select::make('user_id')
@@ -200,7 +200,7 @@ class SnagsResource extends Resource
                                             ->rules(['date'])
                                             ->placeholder('Due Date'),
                                         Select::make('category')->required()
-                                            ->disabledOn('edit')
+                                            // ->disabledOn('edit')
                                             ->options(function () {
                                                 return DB::table('services')->pluck('name', 'name')->toArray();
                                             })
