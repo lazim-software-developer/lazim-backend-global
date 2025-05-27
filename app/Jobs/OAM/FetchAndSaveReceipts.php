@@ -43,12 +43,11 @@ class FetchAndSaveReceipts implements ShouldQueue
             // Get the end of the current week (Sunday)
             $endOfWeek = (clone $now)->modify('sunday this week')->format('d-M-Y');
 
-            if($this->receiptId){
-                $url = env("MOLLAK_API_URL") . '/sync/receipts/' .$propertyGroupId."/".$mollakPropertyId."/".$receiptId."/id";
+            if ($this->receiptId) {
+                $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . "/" . $mollakPropertyId . "/" . $receiptId . "/id";
 
                 Log::info('RECEIPTID', [$url]);
-            }
-            else{
+            } else {
                 $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $startOfWeek . '/' . $endOfWeek;
                 // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
             }
@@ -74,7 +73,7 @@ class FetchAndSaveReceipts implements ShouldQueue
                             'receipt_date' => $receipt['receiptDate'],
                             'building_id' => $buildingId,
                             'flat_id' => $flat?->id,
-                            'owner_association_id' => $flat?->owner_association_id,
+                            'owner_association_id' => $flat?->owner_association_id
                         ],
                         [
                             'transaction_reference' => $receipt['transactionReference'],
@@ -162,7 +161,8 @@ class FetchAndSaveReceipts implements ShouldQueue
         // Format dates
         $fromDate = DateTime::createFromFormat('d-M-Y', $startMonthDay . '-' . $currentYear)->format('Y-m-d');
         $toDate = DateTime::createFromFormat('d-M-Y', $endMonthDay . '-' . $currentYear)->format('Y-m-d');
-        $receiptPeriod = $fromDate . ' To ' . $toDate;
+        // $receiptPeriod = str_replace('-', ' ', $startMonthDay) . ' To ' . str_replace('-', ' ', $endMonthDay) . '-' . $currentYear;
+        $receiptPeriod = $startMonthDay . '-' . $currentYear . ' To ' . $endMonthDay . '-' . $currentYear;
 
         // return [
         //     'from_date' => '2024-01-01',

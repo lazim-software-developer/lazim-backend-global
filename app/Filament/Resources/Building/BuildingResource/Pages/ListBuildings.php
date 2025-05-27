@@ -2,21 +2,25 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\Pages;
 
-use App\Filament\Resources\Building\BuildingResource;
-use App\Imports\PropertyManagerBuildingsImport;
-use App\Models\Master\Role;
+use Carbon\Carbon;
 use Filament\Actions;
+use App\Models\Master\Role;
 use Filament\Actions\Action;
-use Filament\Forms\Components\FileUpload;
-use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Pages\ListRecords\Tab;
-use Illuminate\Database\Eloquent\Builder;
+use App\Jobs\FetchBuildingsJob;
+use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
-use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use Filament\Notifications\Notification;
 use pxlrbt\FilamentExcel\Columns\Column;
+use Filament\Forms\Components\FileUpload;
+use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Pages\ListRecords\Tab;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use App\Imports\PropertyManagerBuildingsImport;
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use App\Filament\Resources\Building\BuildingResource;
 
 class ListBuildings extends ListRecords
 {
@@ -61,6 +65,93 @@ class ListBuildings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('Sync Buildings from Mollak')
+            ->label('Sync Buildings from Mollak')
+            ->icon('heroicon-o-information-circle')
+            ->disabled(function (): bool {
+                // Get the latest record for this user
+                $lastSync = DB::table('mollak_api_call_histories')
+                    ->where('module', 'Building')
+                    ->where('job_name', 'FetchBuildingsJob')
+                    ->where('user_id', auth()->user()->id)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+                
+                // If no record exists, enable the button (return false for disabled)
+                if (!$lastSync) {
+                    return false;
+                }
+                
+                // If record exists, check if it's less than 30 minutes old
+                return now()->diffInMinutes(Carbon::parse($lastSync->created_at)) < 30;
+            })
+            ->extraAttributes(function () {
+                // Get the last sync time from database
+                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Building')->where('job_name', 'FetchBuildingsJob')->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
+                
+                // Default value if no sync history exists
+                $lastSyncDisplay = 'Never synced';
+                $lastSyncTime = now()->format('Y-m-d H:i:s');
+                
+                if ($lastSync) {
+                    $lastSyncTime = $lastSync->created_at;
+                    
+                    // Format the display text based on time difference
+                    $diffInMinutes = now()->diffInMinutes($lastSyncTime);
+                    if ($diffInMinutes < 60) {
+                        $lastSyncDisplay = $diffInMinutes . ' minutes ago';
+                    } else {
+                        $diffInHours = now()->diffInHours($lastSyncTime);
+                        if ($diffInHours < 24) {
+                            $lastSyncDisplay = $diffInHours . ' hours ago';
+                        } else {
+                            $lastSyncDisplay = Carbon::parse($lastSyncTime)->format('Y-m-d H:i:s');
+                        }
+                    }
+                }
+                
+                return [
+                    'title' => 'Last Sync: ' . $lastSyncDisplay,
+                    'class' => 'relative',
+                    'x-data' => '{
+                        lastSync: "' . $lastSyncDisplay . '",
+                        init() {
+                            $el.innerHTML = "Sync Buildings from Mollak<div class=\'text-xs mt-1 opacity-75\'>Last Sync: " + this.lastSync + "</div>";
+                        }
+                    }'
+                ];
+            })
+            ->visible(function () {
+                $auth_user = auth()->user();
+                $role      = Role::where('id', $auth_user->role_id)->first()?->name;
+        
+                if ($role === 'Admin' || $role === 'OA') {
+                    return true;
+                }
+            })
+            ->action(function () {
+                $ownerAssociation = OwnerAssociation::where('id', auth()->user()?->owner_association_id)->first();
+                if (!empty($ownerAssociation->mollak_id)) {
+                FetchBuildingsJob::dispatch($ownerAssociation, 'Manual');
+                DB::table('mollak_api_call_histories')->insert([
+                    'api_url'     => '/sync/managementcompany/' . $ownerAssociation->mollak_id . '/propertygroups',
+                    'module'      => 'Building',
+                    'job_name'    => 'FetchBuildingsJob',
+                    'user_id'     => auth()->user()->id,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+                Notification::make()
+                    ->title('Fetching buildings from Mollak is in progress. Once synced, it will be visible in the list')
+                    ->success()
+                    ->send();
+                }else{
+                    Notification::make()
+                    ->title('This Owner Association is not found in Mollak')
+                    ->warning()
+                    ->send();
+                }
+            }),
             Actions\CreateAction::make()
                 ->label('New Building')
                 ->visible(function () {

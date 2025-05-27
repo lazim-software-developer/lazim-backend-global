@@ -41,7 +41,7 @@ class OAMInvoice extends Model
         'invoice_amount',
         'amount_paid',
         'payment_url',
-        'owner_association_id',
+        'owner_association_id'
     ];
 
     // Save data to invoice audit table before updating the entry

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\GatekeeperLoginPestTest" file="tests\Feature\GatekeeperLoginPestTest.php" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="1.777814">
+    <testcase name="fails login when email is null" file="tests\Feature\GatekeeperLoginPestTest.php::fails login when email is null" class="Tests\Feature\GatekeeperLoginPestTest" classname="Tests.Feature.GatekeeperLoginPestTest" assertions="0" time="1.777814">
+      <error type="Illuminate\Validation\ValidationException">fails login when email is nullIlluminate\Validation\ValidationException: Email is required.&#13;
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\FormRequest.php:168
+at vendor\laravel\framework\src\Illuminate\Validation\ValidatesWhenResolvedTrait.php:32
+at vendor\laravel\framework\src\Illuminate\Foundation\Providers\FormRequestServiceProvider.php:30
+at vendor\laravel\framework\src\Illuminate\Container\Container.php:1302
+at vendor\laravel\framework\src\Illuminate\Container\Container.php:1266
+at vendor\laravel\framework\src\Illuminate\Container\Container.php:1252
+at vendor\laravel\framework\src\Illuminate\Container\Container.php:813
+at vendor\laravel\framework\src\Illuminate\Foundation\Application.php:986
+at vendor\laravel\framework\src\Illuminate\Container\Container.php:731
+at vendor\laravel\framework\src\Illuminate\Foundation\Application.php:971
+at vendor\laravel\framework\src\Illuminate\Routing\ResolvesRouteDependencies.php:85
+at vendor\laravel\framework\src\Illuminate\Routing\ResolvesRouteDependencies.php:50
+at vendor\laravel\framework\src\Illuminate\Routing\ResolvesRouteDependencies.php:29
+at vendor\laravel\framework\src\Illuminate\Routing\ControllerDispatcher.php:59
+at vendor\laravel\framework\src\Illuminate\Routing\ControllerDispatcher.php:40
+at vendor\laravel\framework\src\Illuminate\Routing\Route.php:259
+at vendor\laravel\framework\src\Illuminate\Routing\Route.php:205
+at vendor\laravel\framework\src\Illuminate\Routing\Router.php:806
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:144
+at app\Http\Middleware\Custom\CheckUserActive.php:48
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:50
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Routing\Middleware\ThrottleRequests.php:159
+at vendor\laravel\framework\src\Illuminate\Routing\Middleware\ThrottleRequests.php:125
+at vendor\laravel\framework\src\Illuminate\Routing\Middleware\ThrottleRequests.php:87
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:119
+at vendor\laravel\framework\src\Illuminate\Routing\Router.php:805
+at vendor\laravel\framework\src\Illuminate\Routing\Router.php:784
+at vendor\laravel\framework\src\Illuminate\Routing\Router.php:748
+at vendor\laravel\framework\src\Illuminate\Routing\Router.php:737
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:144
+at vendor\livewire\livewire\src\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware.php:19
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:40
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ValidatePostSize.php:27
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:99
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:62
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:39
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:183
+at vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:119
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
+at vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
+at vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php:585
+at vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php:551
+at vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php:389
+at tests\Feature\GatekeeperLoginPestTest.php:40
+at vendor\laravel\framework\src\Illuminate\Foundation\Testing\TestCase.php:61</error>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -119,7 +119,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'amount_paid' => 0,
                             'updated_by' => User::first()->id,
                             'type' => 'service_charge',
-                            'payment_url' => $property['paymentUrl'],
+                            'payment_url' => $property['paymentUrl']
                         ]
                     );
                     // $connection = DB::connection('lazim_accounts');
