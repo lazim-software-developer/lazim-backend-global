@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\User;
 
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Media;
+use App\Models\Order;
+use Stripe\PaymentIntent;
+use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceChargeResource;
+use Illuminate\Support\Facades\Http;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
-use App\Models\Building\Flat;
-use App\Models\Order;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Resources\ServiceChargeResource;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Stripe\PaymentIntent;
-use Stripe\Stripe;
 
 class PaymentController extends Controller
 {
@@ -105,10 +106,23 @@ class PaymentController extends Controller
     {
         $pdfLink = $invoice->invoice_detail_link;
 
-        return $response = Http::withoutVerifying()->withHeaders([
+        $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
             'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
         ])->get($pdfLink);
+
+        if ($response->successful()) {
+            // Save the PDF to the public disk
+            $filePath = optimizeDocumentAndUpload($response->body(), 'dev');
+            // Optionally, save the file path to the database
+            $invoice->update(['pdf_path' => $filePath]);
+
+            // Return the file path or URL
+            return [
+                'file_path' => $invoice->invoice_number,
+                'url' => $filePath,
+            ];
+        }
     }
 
     public function createPaymentIntent()
