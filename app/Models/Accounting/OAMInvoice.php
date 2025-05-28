@@ -32,6 +32,7 @@ class OAMInvoice extends Model
         'invoice_due_date',
         'invoice_pdf_link',
         'invoice_detail_link',
+        'pdf_path',
         'updated_by',
         'type',
         'invoice_quarter',
