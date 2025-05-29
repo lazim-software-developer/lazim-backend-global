@@ -316,6 +316,7 @@ class ComplaintscomplaintResource extends Resource
                         'success' => 'open',
                         'danger'  => 'closed',
                         'primary' => fn($state) => $state === null || $state === 'in-progress',
+
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state))
                     ->default('--'),
