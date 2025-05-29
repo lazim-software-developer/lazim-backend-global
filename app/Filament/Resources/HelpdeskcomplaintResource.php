@@ -321,10 +321,11 @@ class HelpdeskcomplaintResource extends Resource
                     }),
                 TextColumn::make('status')
                     ->searchable()
+                    ->badge()
                     ->colors([
                         'success' => 'open',
-                        'danger'  => 'close',
-                        'warning' => fn($state) => $state === null || $state === 'in-progress',
+                        'danger'  => 'closed',
+                        'primary' => fn($state) => $state === null || $state === 'in-progress',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state))
                     ->default('--'),
