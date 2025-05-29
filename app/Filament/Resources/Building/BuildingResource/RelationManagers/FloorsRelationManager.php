@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use ZipArchive;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Floor;
@@ -11,7 +12,9 @@ use App\Models\Building\Building;
 use App\Forms\Components\FloorQrCode;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -103,6 +106,79 @@ class FloorsRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('generate_all_qr_codes')
+                            ->label('Download All QR Codes')
+                            ->action(function ($records) {
+                                try {
+                                    $floors = $records->count() ? $records : null;
+
+                                    if (!isset($floors) && empty($floors)) {
+                                        Notification::make()
+                                            ->title('Error')
+                                            ->body('No buildings found to generate QR codes.')
+                                            ->danger()
+                                            ->send();
+                                        return;
+                                    }
+
+                                    // Create a temporary file for the ZIP
+                                    $buildingName = $floors->count() ? $floors->first()->building->name : 'all_buildings';
+                                    $zipFileName = $buildingName.'_qr_codes_' . time() . '.zip';
+                                    $zipFilePath = storage_path('app/temp/' . $zipFileName);
+                                    $zip = new ZipArchive();
+
+                                    // Ensure the temp directory exists
+                                    Storage::makeDirectory('temp');
+
+                                    if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+                                        throw new \Exception('Failed to create ZIP file.');
+                                    }
+
+                                    // Generate QR code for each building
+                                    foreach ($floors as $floor) {
+                                        $qrCodeContent = [
+                                            'floors' => $floor->floors,
+                                            'building_id' => $floor->building_id,
+                                            'building_name' => $buildingName,
+                                        ];
+                                        $qrCode = QrCode::format('png')
+                                            ->size(500)
+                                            ->errorCorrection('H')
+                                            ->margin(4)
+                                            ->generate(json_encode($qrCodeContent));
+
+                                        // Add QR code to ZIP
+                                        $qrFileName = 'floor_' . $floor->floors . '.png';
+                                        $zip->addFromString($qrFileName, $qrCode);
+
+                                    }
+
+                                    $zip->close();
+
+                                    // Stream the ZIP file for download
+                                    $response = response()->download($zipFilePath, $buildingName.'_qr_codes.zip', [
+                                        'Content-Type' => 'application/zip',
+                                    ]);
+
+                                    // Delete the temporary file after download
+                                    register_shutdown_function(function () use ($zipFilePath) {
+                                        if (file_exists($zipFilePath)) {
+                                            unlink($zipFilePath);
+                                        }
+                                    });
+
+                                    return $response;
+                                } catch (\Exception $e) {
+                                    Notification::make()
+                                        ->title('Error')
+                                        ->body('Failed to generate QR codes: ' . $e->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                            })
+                            ->icon('heroicon-o-qr-code')
+                            ->requiresConfirmation()
+                            ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->emptyStateActions([
