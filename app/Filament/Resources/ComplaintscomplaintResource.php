@@ -309,7 +309,7 @@ class ComplaintscomplaintResource extends Resource
                         $daysOver = $today->diffInDays($dueDate);
                         return $daysOver === 1 ? '1 day over' : "$daysOver days over";
                     }),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->searchable()
                     ->colors([
                         'success' => 'open',
