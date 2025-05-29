@@ -309,6 +309,15 @@ class ComplaintscomplaintResource extends Resource
                         $daysOver = $today->diffInDays($dueDate);
                         return $daysOver === 1 ? '1 day over' : "$daysOver days over";
                     }),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->colors([
+                        'success' => 'open',
+                        'danger'  => 'close',
+                        'warning' => fn($state) => $state === null || $state === 'in-progress',
+                    ])
+                    ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state))
+                    ->default('--'),
                 TextColumn::make('ticket_number')
                     ->toggleable()
                     ->default('NA')
@@ -343,10 +352,6 @@ class ComplaintscomplaintResource extends Resource
                 //     ->limit(20)
                 //     ->searchable()
                 //     ->label('Complaint Details'),
-                TextColumn::make('status')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
 
             ])
             ->defaultSort('created_at', 'desc')
@@ -360,6 +365,13 @@ class ComplaintscomplaintResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload(),
+                SelectFilter::make('status')
+                    ->options([
+                        'open'        => 'Open',
+                        'in-progress' => 'In-Progress',
+                        'closed'      => 'Closed',
+                    ]),
+
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
