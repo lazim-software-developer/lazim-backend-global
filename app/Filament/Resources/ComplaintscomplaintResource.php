@@ -360,6 +360,12 @@ class ComplaintscomplaintResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload(),
+                SelectFilter::make('status')
+                    ->options([
+                        'open'        => 'Open',
+                        'closed'      => 'Closed',
+                    ]),
+
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
