@@ -313,7 +313,7 @@ class ComplaintscomplaintResource extends Resource
                     ->searchable()
                     ->colors([
                         'success' => 'open',
-                        'danger'  => 'close',
+                        'danger'  => 'closed',
                         'warning' => fn($state) => $state === null || $state === 'in-progress',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state))
