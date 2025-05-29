@@ -319,6 +319,15 @@ class HelpdeskcomplaintResource extends Resource
                         $daysOver = $today->diffInDays($dueDate);
                         return $daysOver === 1 ? '1 day over' : "$daysOver days over";
                     }),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->colors([
+                        'success' => 'open',
+                        'danger'  => 'close',
+                        'warning' => fn($state) => $state === null || $state === 'in-progress',
+                    ])
+                    ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state))
+                    ->default('--'),
                 TextColumn::make('ticket_number')
                     ->toggleable()
                     ->default('NA')
@@ -346,10 +355,6 @@ class HelpdeskcomplaintResource extends Resource
                 //     ->toggleable()
                 //     ->limit(20)
                 //     ->searchable(),
-                TextColumn::make('status')
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
 
             ])
             ->defaultSort('created_at', 'desc')
