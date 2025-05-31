@@ -2,31 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintsenquiryResource\Pages;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Log;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -162,17 +163,17 @@ class ComplaintsenquiryResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                   ->color(fn(string $state): string => match ($state) {
+                        'open'        => 'success',
+                        'in-progress' => 'primary',
+                        'closed'      => 'danger',
+                    })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'open'       => 'Open',
                         'in-progress'=> 'In-Progress',
                         'closed'     => 'Closed',
 
                     })
-                    ->color(fn(string $state): string => match ($state) {
-                        'success' => 'open',
-                        'danger'  => 'closed',
-                        'primary' => fn($state) => $state === null || $state === 'in-progress',
-                   })
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
