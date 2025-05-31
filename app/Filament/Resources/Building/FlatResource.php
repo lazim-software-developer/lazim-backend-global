@@ -29,6 +29,7 @@ use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Placeholder;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use App\Filament\Resources\User\OwnerResource;
 use App\Filament\Resources\Building\FlatResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\FlatResource\RelationManagers\DocumentsRelationManager;
@@ -203,6 +204,13 @@ class FlatResource extends Resource
                                                         Placeholder::make("owner_{$index}_trade_license")
                                                             ->label('Trade License')
                                                             ->content($ownerDetail->trade_license ?? 'N/A'),
+                                                        Placeholder::make("owner_{$index}_view_link")
+                                                        ->label('View Details')
+                                                        ->content(function () use ($ownerDetail) {
+                                                            return new \Illuminate\Support\HtmlString(
+                                                                '<a href="' . OwnerResource::getUrl('view', ['record' => $ownerDetail->id]) . '" target="_blank" class="filament-button filament-button-size-sm">View in New Tab</a>'
+                                                            );
+                                                        }),
                                                     ])
                                                     ->columns(2);
                                             }
