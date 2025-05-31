@@ -2,23 +2,29 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Accounting\WDA;
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
+use App\Models\User\User;
 use App\Models\FlatOwners;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
-use App\Models\User\User;
 use App\Models\UserApproval;
+use App\Models\Building\Flat;
 use App\Models\Vendor\Vendor;
+use App\Models\Accounting\WDA;
 use Filament\Facades\Filament;
+use Illuminate\Support\Carbon;
+use App\Models\Building\Building;
+use App\Models\Building\FlatTenant;
+use App\Models\Building\BuildingPoc;
+use Illuminate\Support\Facades\View;
+use App\Filament\Resources\WDAResource;
+use App\Filament\Resources\User\OwnerResource;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Filament\Resources\User\TenantResource;
+use App\Filament\Resources\UserApprovalResource;
+use App\Filament\Resources\Vendor\VendorResource;
+use App\Filament\Resources\Building\BuildingResource;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\View;
 
 class StatsOverview extends BaseWidget
 {
@@ -109,6 +115,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Buildings', $buildings)
                 ->description('Buildings')
                 ->icon('heroicon-s-building-office-2')
+                ->url(BuildingResource::getUrl('index'))
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']);
@@ -118,6 +125,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Owners', $ownerCount)
                 ->description('Owners')
                 ->icon('heroicon-o-user-group')
+                ->url(OwnerResource::getUrl('index'))
                 ->color('green')
                 ->chart([10, 30, 50, 70, 90])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E6F4EA, #A7F3D0); color: #10B981;']);
@@ -127,6 +135,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Tenants', $tenantCount)
                 ->description('Tenants')
                 ->icon('heroicon-o-users')
+                ->url(TenantResource::getUrl('index'))
                 ->color('orange')
                 ->chart([15, 25, 35, 45, 55])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #FFF7E0, #FED7AA); color: #F97316;']);
@@ -136,6 +145,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('WDA', $wdaCount)
                 ->description('Pending WDA')
                 ->icon('heroicon-o-chart-bar-square')
+                ->url(WDAResource::getUrl('index'))
                 ->color('purple')
                 ->chart([15, 25, 35, 45, 55])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD); color: #8B5CF6;']);
@@ -145,6 +155,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Vendors', $vendorsCount)
                 ->description('Vendors')
                 ->icon('heroicon-o-briefcase')
+                ->url(VendorResource::getUrl('index'))
                 ->color('emerald-200')
                 ->chart([10, 20, 30, 40, 50])
                 ->extraAttributes(['style' => 'background-color: #E6F4EA; color: #006400;']);
@@ -172,6 +183,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Resident Approvals', $pendingUserApprovalCount)
                 ->description('Pending Resident Approvals')
                 ->icon('heroicon-o-user')
+                ->url(UserApprovalResource::getUrl('index'))
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
                 ->extraAttributes(['style' => 'background-color: #FFF7E0; color: #FFAA00;']);
