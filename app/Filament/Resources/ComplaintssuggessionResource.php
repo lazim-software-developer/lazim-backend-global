@@ -162,10 +162,10 @@ class ComplaintssuggessionResource extends Resource
 
                     })
                     ->color(fn(string $state): string => match ($state) {
-                        'success' => 'open',
-                        'danger'  => 'closed',
-                        'primary' => fn($state) => $state === null || $state === 'in-progress',
-                   })
+                        'open'        => 'success',
+                        'in-progress' => 'primary',
+                        'closed'      => 'danger',
+                    })
                     ->toggleable()
                     ->searchable()
                     ->limit(50),
