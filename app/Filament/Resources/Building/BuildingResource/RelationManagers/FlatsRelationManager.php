@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class FlatsRelationManager extends RelationManager
 {
@@ -53,23 +54,12 @@ class FlatsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
-            ->columns([
+        return $table->columns([
                 TextColumn::make('property_number')
                     ->default('NA')
                     ->searchable()
                     ->label('Unit Number'),
-                TextColumn::make('building.name')
-                    ->limit(50),
                 TextColumn::make('suit_area')
-                    ->default('NA')
-                    ->searchable()
-                    ->limit(50),
-                TextColumn::make('actual_area')
-                    ->default('NA')
-                    ->searchable()
-                    ->limit(50),
-                TextColumn::make('balcony_area')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -83,10 +73,6 @@ class FlatsRelationManager extends RelationManager
                     ->hidden(in_array(auth()->user()->role->name, ['Property Manager', 'Admin']))
                     ->limit(50),
                 TextColumn::make('parking_count')
-                    ->default('NA')
-                    ->searchable()
-                    ->limit(50),
-                TextColumn::make('plot_number')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -174,6 +160,16 @@ class FlatsRelationManager extends RelationManager
                 // ->fillForm(fn (Flat $record): array => [
                 //     'property_number' => $record->property_number,
                 // ]),
+                Action::make('custom_edit')
+                    ->label('Open')
+                    ->url(function ($record) {
+                        if (class_exists(\App\Filament\Resources\Building\FlatResource::class)) {
+                            return \App\Filament\Resources\Building\FlatResource::getUrl('edit', ['record' => $record->id]);
+                        }
+                        return route('filament.pages.view-floor', ['floorId' => $record->id]);
+                    })
+                    ->openUrlInNewTab()
+                    ->icon('heroicon-o-pencil'),
             ]);
     }
 }

@@ -150,13 +150,30 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Ticket number'),
+                TextColumn::make('flat.property_number')
+                    ->label('Unit')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('flat.property_number')
-                    ->label('Unit')
-                    ->default('NA')
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'open'       => 'Open',
+                        'in-progress'=> 'In-Progress',
+                        'closed'     => 'Closed',
+
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'success' => 'open',
+                        'danger'  => 'closed',
+                        'primary' => fn($state) => $state === null || $state === 'in-progress',
+                   })
+                    ->toggleable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
@@ -176,24 +193,6 @@ class ComplaintsenquiryResource extends Resource
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry details'),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'open'                                       => 'Open',
-                        'in-progress'                                => 'In-Progress',
-                        'closed'                                     => 'Closed',
-
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'open'                            => 'primary',
-                        'in-progress'                     => 'success',
-                        'closed'                          => 'gray',
-                    })
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -218,6 +217,12 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload(),
+                SelectFilter::make('status')
+                    ->options([
+                        'open'        => 'Open',
+                        'in-progress' => 'In-Progress',
+                        'closed'      => 'Closed',
+                    ]),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
