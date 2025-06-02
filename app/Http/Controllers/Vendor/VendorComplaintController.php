@@ -147,6 +147,14 @@ class VendorComplaintController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $isActiveSecurity?->user_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'TaskAssigned',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'Task has been assigned',
@@ -211,6 +219,14 @@ class VendorComplaintController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $residentId,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'type' => 'PreventiveMaintenance',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => 'A preventive maintenance has been scheduled for your building',

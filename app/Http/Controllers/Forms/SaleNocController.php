@@ -232,6 +232,14 @@ class SaleNocController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $saleNOC->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $saleNOC->building_id ?? null,
+                    'flat_id' => $saleNOC->flat_id ?? null,
+                    'user_id' => $saleNOC->user_id ?? null,
+                    'type' => 'SaleNOCForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your sales noc form has been approved.',
@@ -268,6 +276,14 @@ class SaleNocController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $saleNOC->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $saleNOC->building_id ?? null,
+                    'flat_id' => $saleNOC->flat_id ?? null,
+                    'user_id' => $saleNOC->user_id ?? null,
+                    'type' => 'SaleNOCForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your sales noc form has been rejected.',

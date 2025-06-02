@@ -456,6 +456,14 @@ class AccessCardController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $accessCard->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $accessCard->building->owner_association_id ?? 1,
+                    'building_id' => $accessCard->building_id ?? null,
+                    'flat_id' => $accessCard->flat_id ?? null,
+                    'user_id' => $accessCard->user_id ?? null,
+                    'type' => 'AccessCardForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your access card form has been approved. ',
@@ -513,6 +521,14 @@ class AccessCardController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $accessCard->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $accessCard->building->owner_association_id ?? 1,
+                    'building_id' => $accessCard->building_id ?? null,
+                    'flat_id' => $accessCard->flat_id ?? null,
+                    'user_id' => $accessCard->user_id ?? null,
+                    'type' => 'AccessCardForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your access card form has been rejected.',
