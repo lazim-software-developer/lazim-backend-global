@@ -64,6 +64,13 @@ class PollNotifications extends Command
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $user,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $buildings->first()->owner_association_id ?? 1,
+                                'building_id' => $buildings,
+                                'user_id' => $user,
+                                'type' => 'Poll',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'New Poll launched',

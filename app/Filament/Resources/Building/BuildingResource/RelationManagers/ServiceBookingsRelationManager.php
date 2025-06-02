@@ -229,6 +229,14 @@ class ServiceBookingsRelationManager extends RelationManager
                                         'type'            => 'Filament\Notifications\DatabaseNotification',
                                         'notifiable_type' => 'App\Models\User\User',
                                         'notifiable_id'   => $user->user_id,
+                                        'custom_json_data' => json_encode([
+                                            'owner_association_id' => $user->building->owner_association_id ?? 1,
+                                            'building_id' => $user->building_id ?? null,
+                                            'flat_id' => $user->flat_id ?? null,
+                                            'user_id' => $user->user_id ?? null,
+                                            'type' => 'ServiceBooking',
+                                            'priority' => 'Medium',
+                                        ]),
                                         'data'            => json_encode([
                                             'actions'   => [],
                                             'body'      => 'Your personal service booking request for ' . $serviceName->name . ' is approved',
@@ -269,6 +277,14 @@ class ServiceBookingsRelationManager extends RelationManager
                                         'type'            => 'Filament\Notifications\DatabaseNotification',
                                         'notifiable_type' => 'App\Models\User\User',
                                         'notifiable_id'   => $user->user_id,
+                                        'custom_json_data' => json_encode([
+                                            'owner_association_id' => $user->building->owner_association_id ?? 1,
+                                            'building_id' => $user->building_id ?? null,
+                                            'flat_id' => $user->flat_id ?? null,
+                                            'user_id' => $user->user_id ?? null,
+                                            'type' => 'ServiceBooking',
+                                            'priority' => 'Medium',
+                                        ]),
                                         'data'            => json_encode([
                                             'actions'   => [],
                                             'body'      => 'Your personal service booking request for ' . $serviceName->name . ' is rejected',

@@ -68,6 +68,14 @@ class FlatVisitorController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $security,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $flatVisitor->building->owner_association_id ?? 1,
+                            'building_id' => $flatVisitor->building_id ?? null,
+                            'flat_id' => $flatVisitor->flat_id ?? null,
+                            'user_id' => $flatVisitor->user_id ?? null,
+                            'type' => 'VisitorForm',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
