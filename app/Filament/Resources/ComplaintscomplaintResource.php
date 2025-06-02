@@ -340,7 +340,31 @@ class ComplaintscomplaintResource extends Resource
                     ->sortable()
                     ->default('NA')
                     ->searchable()
+                    ->tooltip(fn(Model $record): string => $record->user?->first_name ?? 'No name available')
                     ->limit(50),
+                TextColumn::make('complaint_type')
+                    ->label('Complaint Type')
+                    ->formatStateUsing(function($state, $record) {
+
+                        switch ($state) {
+                            case 'help_desk':
+                                return 'Issues';
+                            case 'oa_complaint_report':
+                                return 'OA Complaint';
+                            case 'preventive_maintenance':
+                                return 'Preventive Maintenance';
+                            case 'tenant_complaint':
+                                return 'Happiness Center';
+                            case 'snag':
+                                return 'Security Snag';
+                            default:
+                                return 'NA';
+                        }
+                    })
+                    ->default('NA')
+                    ->toggleable()
+                    ->default('NA')
+                    ->limit(20),
                 // TextColumn::make('complaint')
                 //     ->toggleable()
                 //     ->default('NA')
@@ -371,6 +395,15 @@ class ComplaintscomplaintResource extends Resource
                         'open'        => 'Open',
                         'in-progress' => 'In-Progress',
                         'closed'      => 'Closed',
+                    ]),
+                SelectFilter::make('complaint_type')
+                    ->multiple()
+                    ->options([
+                        'help_desk'             => 'Issues',
+                        'oa_complaint_report'   => 'OA Complaint',
+                        'preventive_maintenance' => 'Preventive Maintenance',
+                        'tenant_complaint'      => 'Happiness Center',
+                        'snag'                  => 'Security Snag',
                     ]),
 
             ])
