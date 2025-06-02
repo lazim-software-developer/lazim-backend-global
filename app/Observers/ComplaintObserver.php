@@ -287,6 +287,14 @@ class ComplaintObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor->owner_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Complaint',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Complaint has been created by ' . auth()->user()->first_name,
@@ -309,6 +317,14 @@ class ComplaintObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor->owner_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Complaint',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Complaint has been created by ' . auth()->user()->first_name,
@@ -357,6 +373,14 @@ class ComplaintObserver
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $complaint->technician_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Complaint',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => $complaint->complaint_type == 'preventive_maintenance' ? 'Preventive Maintenance Schedule has been assigned' : 'Task has been assigned',
@@ -541,6 +565,14 @@ class ComplaintObserver
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
                                 'notifiable_id' => $complaint->technician_id,
+                                'custom_json_data' => json_encode([
+                                    'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]),
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'A new ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' assigned to you.',
@@ -581,6 +613,14 @@ class ComplaintObserver
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
                                 'notifiable_id' => $oldValues['technician_id'],
+                                'custom_json_data' => json_encode([
+                                    'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]),
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'You have been relived from the ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' by the vendor.',
@@ -621,6 +661,14 @@ class ComplaintObserver
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
                                 'notifiable_id' => $newValues['technician_id'],
+                                'custom_json_data' => json_encode([
+                                    'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]),
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'A new ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' assigned to you.',
@@ -649,6 +697,14 @@ class ComplaintObserver
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
                                 'notifiable_id' => $vendor->owner_id,
+                                'custom_json_data' => json_encode([
+                                    'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]),
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'A new technician ' . $technician->first_name . ' is assigned to you.',
@@ -701,6 +757,14 @@ class ComplaintObserver
                                     'type' => 'Filament\Notifications\DatabaseNotification',
                                     'notifiable_type' => 'App\Models\User\User',
                                     'notifiable_id' => $complaint->technician_id,
+                                    'custom_json_data' => json_encode([
+                                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'type' => 'Complaint',
+                                        'priority' => 'Medium',
+                                    ]),
                                     'data' => json_encode([
                                         'actions' => [],
                                         'body' => 'A ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name,
@@ -739,6 +803,14 @@ class ComplaintObserver
                                     'type' => 'Filament\Notifications\DatabaseNotification',
                                     'notifiable_type' => 'App\Models\User\User',
                                     'notifiable_id' => $complaint->technician_id,
+                                    'custom_json_data' => json_encode([
+                                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'type' => 'Complaint',
+                                        'priority' => 'Medium',
+                                    ]),
                                     'data' => json_encode([
                                         'actions' => [],
                                         'body' => 'A ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
@@ -784,6 +856,14 @@ class ComplaintObserver
                                     'type'            => 'Filament\Notifications\DatabaseNotification',
                                     'notifiable_type' => 'App\Models\User\User',
                                     'notifiable_id'   => $residentId,
+                                    'custom_json_data' => json_encode([
+                                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'type' => 'Complaint',
+                                        'priority' => 'Medium',
+                                    ]),
                                     'data'            => json_encode([
                                         'actions'   => [],
                                         'body'      => 'A ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been completed by a ' . $user->role->name . ' ' . auth()->user()->first_name,
@@ -834,6 +914,14 @@ class ComplaintObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $complaint->technician_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'Complaint',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'Due date for ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint') . ' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
@@ -861,6 +949,14 @@ class ComplaintObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $vendor->owner_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'Complaint',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'Due date for ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
@@ -909,6 +1005,14 @@ class ComplaintObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $complaint->technician_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'Complaint',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'Priority for ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Schedule' : 'complaint') . ' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
@@ -936,6 +1040,14 @@ class ComplaintObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $vendor->owner_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'PreventiveMaintenance',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'Priority for ' . ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been changed by ' . $user->role->name . '. Check the application for the infomation.',
@@ -974,6 +1086,14 @@ class ComplaintObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $vendor->owner_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'Complaint',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'A complaint has been resolved by a ' . auth()->user()->first_name,
@@ -1005,6 +1125,14 @@ class ComplaintObserver
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $vendor->owner_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $complaint->building->owner_association_id,
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'type' => 'PreventiveMaintenance',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'A new technician ' . $technician->first_name . ' is assigned to you.',

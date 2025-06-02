@@ -108,6 +108,14 @@ class ResidentialFormController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $residentialForm->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $residentialForm->building_id ?? null,
+                    'flat_id' => $residentialForm->flat_id ?? null,
+                    'user_id' => $residentialForm->user_id ?? null,
+                    'type' => 'ResidentialForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your residential form has been approved.',
@@ -144,6 +152,14 @@ class ResidentialFormController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $residentialForm->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $residentialForm->building_id ?? null,
+                    'flat_id' => $residentialForm->flat_id ?? null,
+                    'user_id' => $residentialForm->user_id ?? null,
+                    'type' => 'ResidentialForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your residential form has been rejected.',

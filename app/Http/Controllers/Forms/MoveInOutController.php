@@ -222,6 +222,14 @@ class MoveInOutController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $moveInOut->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $moveInOut->building_id ?? null,
+                    'flat_id' => $moveInOut->flat_id ?? null,
+                    'user_id' => $moveInOut->user_id ?? null,
+                    'type' => 'MoveInOutForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your move-in form has been approved.',
@@ -258,6 +266,14 @@ class MoveInOutController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $oa_id,
+                        'building_id' => $moveInOut->building_id ?? null,
+                        'flat_id' => $moveInOut->flat_id ?? null,
+                        'user_id' => $moveInOut->user_id ?? null,
+                        'type' => 'MoveInOutForm',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'New move-in form received.',
@@ -296,6 +312,14 @@ class MoveInOutController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $moveInOut->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $oa_id,
+                    'building_id' => $moveInOut->building_id ?? null,
+                    'flat_id' => $moveInOut->flat_id ?? null,
+                    'user_id' => $moveInOut->user_id ?? null,
+                    'type' => 'MoveInOutForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your move-in form has been rejected.',
