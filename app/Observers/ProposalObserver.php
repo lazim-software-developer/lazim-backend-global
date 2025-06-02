@@ -90,6 +90,14 @@ class ProposalObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor->owner_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $proposal->tender?->building?->owner_association_id,
+                        'building_id' => $proposal->tender?->building?->id,
+                        'proposal_id' => $proposal->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Proposal',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Your Proposal has been approved.',
@@ -112,6 +120,14 @@ class ProposalObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor->owner_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $proposal->tender?->building?->owner_association_id,
+                        'building_id' => $proposal->tender?->building?->id,
+                        'proposal_id' => $proposal->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Proposal',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'New contract is created.',
@@ -134,6 +150,14 @@ class ProposalObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor->owner_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $proposal->tender?->building?->owner_association_id,
+                        'building_id' => $proposal->tender?->building?->id,
+                        'proposal_id' => $proposal->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Proposal',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Your Proposal has been rejected.',

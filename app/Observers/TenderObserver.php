@@ -29,6 +29,14 @@ class TenderObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $vendor,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $tender->building->owner_association_id,
+                        'building_id' => $tender->building_id,
+                        'tender_id' => $tender->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Tender',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'New tender has been created by ' . auth()->user()->first_name,
