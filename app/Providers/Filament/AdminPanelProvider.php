@@ -809,20 +809,20 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_helpdeskcomplaint')) {
-                    $builder->groups([
-                        NavigationGroup::make('Facility Support')
-                            ->items([
-                                NavigationItem::make('Issues')
-                                    ->url('/admin/helpdeskcomplaints')
-                                    ->hidden(!$user->can('view_any_helpdeskcomplaint'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(1),
-                            ])
-                            ->collapsed(true),
-                    ]);
-                }
+                // if ($user->can('view_any_helpdeskcomplaint')) {
+                //     $builder->groups([
+                //         NavigationGroup::make('Facility Support') # as per the kunal sir requirement we have merged the helpdesk and complaints and snags together
+                //             ->items([
+                //                 NavigationItem::make('Issues')
+                //                     ->url('/admin/helpdeskcomplaints')
+                //                     ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                //                     ->icon('heroicon-m-clipboard-document-list')
+                //                     ->activeIcon('heroicon-m-clipboard-document-list')
+                //                     ->sort(1),
+                //             ])
+                //             ->collapsed(true),
+                //     ]);
+                // }
                 if (
                     $user->can('view_any_snags') || $user->can('view_any_incident') ||
                     $user->can('view_any_patrolling')
@@ -830,12 +830,12 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
-                                NavigationItem::make('Snags')
-                                    ->url('/admin/snags')
-                                    ->hidden(!$user->can('view_any_snags'))
-                                    ->icon('heroicon-s-swatch')
-                                    ->activeIcon('heroicon-s-swatch')
-                                    ->sort(1),
+                                // NavigationItem::make('Snags')
+                                //     ->url('/admin/snags')
+                                //     ->hidden(!$user->can('view_any_snags'))
+                                //     ->icon('heroicon-s-swatch')
+                                //     ->activeIcon('heroicon-s-swatch')
+                                //     ->sort(1),
                                 NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))
