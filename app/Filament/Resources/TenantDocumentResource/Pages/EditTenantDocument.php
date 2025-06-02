@@ -63,6 +63,14 @@ class EditTenantDocument extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->documentable_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $this->record->building->owner_association_id ?? 1,
+                            'building_id' => $this->record->building_id ?? null,
+                            'flat_id' => $this->record->flat_id ?? null,
+                            'user_id' => $this->record->user_id ?? null,
+                            'type' => 'Proposal',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
@@ -102,6 +110,14 @@ class EditTenantDocument extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->documentable_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $this->record->building->owner_association_id ?? 1,
+                            'building_id' => $this->record->building_id ?? null,
+                            'flat_id' => $this->record->flat_id ?? null,
+                            'user_id' => $this->record->user_id ?? null,
+                            'type' => 'Proposal',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,

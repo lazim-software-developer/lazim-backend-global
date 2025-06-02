@@ -343,6 +343,14 @@ class GuestController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $user->tenant_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $user->owner_association_id ?? 1,
+                            'building_id' => $user->building_id ?? null,
+                            'flat_id' => $user->flat_id ?? null,
+                            'user_id' => $user->tenant_id ?? null,
+                            'type' => 'VisitorAllowReject',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => "You have a visitor as $request->type \n name: $request->name",
@@ -406,6 +414,14 @@ class GuestController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $security,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $flatTenant->owner_association_id ?? 1,
+                            'building_id' => $flatTenant->building_id ?? null,
+                            'flat_id' => $flatTenant->flat_id ?? null,
+                            'user_id' => $security ?? null,
+                            'type' => 'VisitorAllowReject',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => "Allow Visitors of flat $unit ",
@@ -443,6 +459,14 @@ class GuestController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $security,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $flatTenant->owner_association_id ?? 1,
+                            'building_id' => $flatTenant->building_id ?? null,
+                            'flat_id' => $flatTenant->flat_id ?? null,
+                            'user_id' => $security ?? null,
+                            'type' => 'VisitorAllowReject',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => "Don't allow Visitors of flat $unit ",
@@ -516,6 +540,14 @@ class GuestController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $guest->flatVisitor->initiated_by,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $oa_id,
+                            'building_id' => $guest->flatVisitor->building_id ?? null,
+                            'flat_id' => $guest->flatVisitor->flat_id ?? null,
+                            'user_id' => $guest->flatVisitor->initiated_by ?? null,
+                            'type' => 'HolidayHomesGuestRegistrationForm',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => 'Your holiday homes guest registration form has been approved.',
@@ -551,6 +583,14 @@ class GuestController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $guest->flatVisitor->initiated_by,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $oa_id,
+                            'building_id' => $guest->flatVisitor->building_id ?? null,
+                            'flat_id' => $guest->flatVisitor->flat_id ?? null,
+                            'user_id' => $guest->flatVisitor->initiated_by ?? null,
+                            'type' => 'HolidayHomesGuestRegistrationForm',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => 'Your holiday homes guest registration form has been rejected.',

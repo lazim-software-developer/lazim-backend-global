@@ -34,6 +34,14 @@ class TechnicianAssetsObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $technicianAssets->technician_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $technicianAssets->building->owner_association_id,
+                        'building_id' => $technicianAssets->building_id,
+                        'technician_assets_id' => $technicianAssets->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'TechnicianAssets',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'A new Asset '.$assetName->name.' has been added to you. ',

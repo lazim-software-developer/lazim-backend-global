@@ -62,6 +62,14 @@ class CommentObserver
                                 'type' => 'Filament\Notifications\DatabaseNotification',
                                 'notifiable_type' => 'App\Models\User\User',
                                 'notifiable_id' => $complaint->technician_id,
+                                'custom_json_data' => json_encode([
+                                    'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'type' => 'Comment',
+                                    'priority' => 'Medium',
+                                ]),
                                 'data' => json_encode([
                                     'actions' => [],
                                     'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
@@ -122,6 +130,14 @@ class CommentObserver
                                     'type' => 'Filament\Notifications\DatabaseNotification',
                                     'notifiable_type' => 'App\Models\User\User',
                                     'notifiable_id' => $complaint->user_id,
+                                    'custom_json_data' => json_encode([
+                                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'type' => 'Comment',
+                                        'priority' => 'Medium',
+                                    ]),
                                     'data' => json_encode([
                                         'actions' => [],
                                         'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
@@ -191,6 +207,14 @@ class CommentObserver
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $complaint->user_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                                'building_id' => $complaint->building_id,
+                                'complaint_id' => $complaint->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'type' => 'Comment',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'Comment made by '.$user->role->name.' '.$user->first_name.' on your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').'. Check the application for the infomation.',
