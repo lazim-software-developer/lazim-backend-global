@@ -114,7 +114,7 @@ class ComplaintscomplaintResource extends Resource
                             ->label('Vendor'),
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
-                            ->required()
+                            // ->required()
                             ->disabled()
                             ->relationship('flat', 'property_number')
                             ->searchable()
