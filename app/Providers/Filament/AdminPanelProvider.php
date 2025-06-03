@@ -60,6 +60,7 @@ use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use App\Filament\Resources\PersonalServiceNotifictionResource;
+use Filament\Support\Enums\MaxWidth;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -77,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 config('filament-logger.activity_resource')
             ])
             ->profile(EditProfile::class)
+            ->maxContentWidth(MaxWidth::Full) // Set to Full to allow full-width content
             ->colors([
 
                 'danger' => Color::Rose,

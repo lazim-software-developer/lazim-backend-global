@@ -269,11 +269,11 @@ class ComplaintscomplaintResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('open_time')
-                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->complaint}")
+                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->opem_time}")
                     ->toggleable()
                     ->sortable()
                     ->default('NA')
-                    ->limit(20)
+                    ->limit(10)
                     ->searchable()
                     ->label('Open At'),
                 TextColumn::make('due_date')
@@ -332,9 +332,9 @@ class ComplaintscomplaintResource extends Resource
                     ->limit(50),
                 TextColumn::make('flat.property_number'),
                 TextColumn::make('category'),
-                TextColumn::make('type')
-                    ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
-                    ->default('NA'),
+                // TextColumn::make('type')
+                //     ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
+                //     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
                     ->sortable()
