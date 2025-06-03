@@ -43,6 +43,8 @@ class EditComplaintscomplaint extends EditRecord
     {
         $data = $this->form->getState();
 
+        $this->record->closed_by = auth()->check() ? auth()->user()->id : null;
+
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
 
             Remark::create([
