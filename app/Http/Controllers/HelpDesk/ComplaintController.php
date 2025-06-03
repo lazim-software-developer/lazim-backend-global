@@ -458,7 +458,6 @@ class ComplaintController extends Controller
         }
 
         if ($complaint->user_id != auth()->user()->id) {
-
             $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->first()?->token;
             if ($expoPushToken) {
                 if ($complaint->complaint_type == 'help_desk') {
