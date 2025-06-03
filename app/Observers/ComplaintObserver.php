@@ -483,12 +483,12 @@ class ComplaintObserver
                                     $data['notifiable_id'] = $user->id;
                                     $data['url'] = OacomplaintReportsResource::getUrl('edit', [$oa?->slug, $complaint?->id]);
                                     $data['title'] = 'Complaints Resolved for Building:' . $complaint->building->name;
-                                    $data['body'] = 'Complaint has been resolved by a  ' . auth()->user()->first_name;
+                                    $data['body'] = 'Complaint has been resolved by a ' . $user->role->name . ' ' . $user->first_name;
                                     $data['building_id'] = $complaint->building_id;
                                     $data['custom_json_data'] = json_encode([
                                         'building_id' => $complaint->building_id,
                                         'complaint_id' => $complaint->id,
-                                        'user_id' => auth()->user()->id ?? null,
+                                        'user_id' => $user->id,
                                         'owner_association_id' => $oam_id,
                                         'type' => 'Complaint Report',
                                         'priority' => 'Medium',
@@ -518,24 +518,46 @@ class ComplaintObserver
                     } else {
                         // $requiredPermissions = ['view_any_helpdeskcomplaint'];
                         $notifyTo->whereIn('role_id', Role::whereIn('name', ['OA', 'Property Manager'])->pluck('id'));
-                        Notification::make()
-                            ->success()
-                            ->title(($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . " Resolved")
-                            ->icon('heroicon-o-document-text')
-                            ->iconColor('warning')
-                            ->body(($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(function () use ($complaint, $oa) {
-                                        $slug = $oa?->slug;
-                                        if ($slug) {
-                                            return ComplaintResource::getUrl('edit', [$slug, $complaint?->id]);
-                                        }
-                                        return url('/app/complaints/' . $complaint?->id . '/edit');
-                                    }),
-                            ])
-                            ->sendToDatabase($notifyTo);
+                        if ($notifyTo->count() > 0) {
+                            foreach ($notifyTo as $user) {
+                                if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                    $data = [];
+                                    $data['notifiable_type'] = 'App\Models\User\User';
+                                    $data['notifiable_id'] = $user->id;
+                                    $data['url'] = ComplaintResource::getUrl('edit', [$oa?->slug, $complaint?->id]);
+                                    $data['title'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . " Resolved";
+                                    $data['body'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
+                                    $data['building_id'] = $complaint->building_id;
+                                    $data['custom_json_data'] = json_encode([
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => $user->id,
+                                        'owner_association_id' => $oam_id,
+                                        'type' => ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint'),
+                                        'priority' => 'Medium',
+                                    ]);
+                                    NotificationTable($data);
+                                }
+                            }
+                        }
+                        // Notification::make()
+                        //     ->success()
+                        //     ->title(($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . " Resolved")
+                        //     ->icon('heroicon-o-document-text')
+                        //     ->iconColor('warning')
+                        //     ->body(($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name)
+                        //     ->actions([
+                        //         Action::make('view')
+                        //             ->button()
+                        //             ->url(function () use ($complaint, $oa) {
+                        //                 $slug = $oa?->slug;
+                        //                 if ($slug) {
+                        //                     return ComplaintResource::getUrl('edit', [$slug, $complaint?->id]);
+                        //                 }
+                        //                 return url('/app/complaints/' . $complaint?->id . '/edit');
+                        //             }),
+                        //     ])
+                        //     ->sendToDatabase($notifyTo);
                     }
                 }
             }
