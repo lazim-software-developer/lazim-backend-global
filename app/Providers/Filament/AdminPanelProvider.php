@@ -99,6 +99,8 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('40px')
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()

@@ -269,7 +269,7 @@ class ComplaintscomplaintResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('open_time')
-                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->opem_time}")
+                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->opem_time} \n Ticket Number:- {$record->ticket_number}")
                     ->toggleable()
                     ->sortable()
                     ->default('NA')
