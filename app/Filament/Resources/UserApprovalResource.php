@@ -624,22 +624,22 @@ class UserApprovalResource extends Resource
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
+                        'pending' => 'Pending', // Label for NULL
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
-                        'null' => 'No Status', // Label for NULL
                     ])
                     ->query(function (Builder $query, array $data): Builder {
+                        \Illuminate\Support\Facades\Log::info('Filter data:', $data);
                         if (!isset($data['value']) || empty($data['value'])) {
                             return $query;
                         }
 
-                        if ($data['value'] === 'null') {
+                        if ($data['value'] === 'pending') {
                             return $query->whereNull('status');
                         }
 
                         return $query->where('status', $data['value']);
                     })
-                    ->default(null), // Optional: no default filter
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
