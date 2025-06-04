@@ -269,7 +269,7 @@ class ComplaintscomplaintResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('open_time')
-                    ->tooltip(fn(Model $record): string => "Complaint:- {$record->opem_time} \n Ticket Number:- {$record->ticket_number}")
+                    ->tooltip(fn(Model $record): string => "Open At:- {$record->open_time} \n Ticket Number:- {$record->ticket_number}")
                     ->toggleable()
                     ->sortable()
                     ->default('NA')
@@ -312,6 +312,7 @@ class ComplaintscomplaintResource extends Resource
                 TextColumn::make('status')
                     ->searchable()
                     ->badge()
+                    ->sortable()
                     ->colors([
                         'success' => 'open',
                         'danger'  => 'closed',
@@ -325,13 +326,19 @@ class ComplaintscomplaintResource extends Resource
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
+                    ->sortable()
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('flat.property_number'),
+                TextColumn::make('flat.property_number')
+                    ->toggleable()
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(20)
+                    ->label('Unit Number'),
                 TextColumn::make('category'),
                 // TextColumn::make('type')
                 //     ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
