@@ -19,7 +19,6 @@ use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
-// use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -630,8 +629,6 @@ class UserApprovalResource extends Resource
                         'null' => 'No Status', // Label for NULL
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        \Illuminate\Support\Facades\Log::debug('Status Filter Query', ['data' => $data]);
-                        // Log::debug('Status Filter', ['value' => $data['value'] ?? 'none']);
                         if (!isset($data['value']) || empty($data['value'])) {
                             return $query;
                         }
