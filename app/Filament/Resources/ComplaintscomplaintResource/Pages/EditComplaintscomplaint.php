@@ -36,14 +36,14 @@ class EditComplaintscomplaint extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['type'] = Str::ucfirst($data['type']);
+        $data['closed_by'] = auth()->check() ? auth()->user()->id : null;
+
         return $data;
     }
 
     public function beforeSave()
     {
         $data = $this->form->getState();
-
-        $this->record->closed_by = auth()->check() ? auth()->user()->id : null;
 
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
 
@@ -198,7 +198,7 @@ class EditComplaintscomplaint extends EditRecord
                     $data['title'] = ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' status';
                     $data['body'] = 'A ' . ($this->record->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint') . ' has been resolved by : ' . auth()->user()->first_name;
                     $data['building_id'] = $this->record?->building_id;
-                    $data['flat_id'] = $this->record->flatVisitor->flat_id;
+                    $data['flat_id'] = $this->record->flat_id ?? null;
                     $data['custom_json_data'] = json_encode([
                         'building_id' => $this->record->building_id,
                         'complaint_id' => $this->record?->id,

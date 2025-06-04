@@ -7,8 +7,8 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
-use App\Models\FlatOwners;
 use App\Models\User\User;
+use App\Models\FlatOwners;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\RentalDetail;
@@ -19,6 +19,7 @@ use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
+// use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -27,6 +28,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserApprovalResource\Pages;
@@ -125,10 +128,10 @@ class UserApprovalResource extends Resource
                                     ])
                             ];
                         }
-                        
+
                         // Get all flat owners associated with this flat
                         $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
-                        
+
                         if ($flatOwners->isEmpty()) {
                             return [
                                 Tabs\Tab::make('no_owners')
@@ -139,13 +142,13 @@ class UserApprovalResource extends Resource
                                     ])
                             ];
                         }
-                        
+
                         $tabs = [];
-                        
+
                         // Create a tab for each owner
                         foreach ($flatOwners as $index => $flatOwner) {
                             $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
-                            
+
                             if ($ownerDetail) {
                                 $tabs[] = Tabs\Tab::make("owner_{$index}")
                                     ->label($ownerDetail->name ?? "Owner " . ($index + 1))
@@ -172,7 +175,7 @@ class UserApprovalResource extends Resource
                                     ->columns(2);
                             }
                         }
-                        
+
                         return $tabs;
                     })
             ]),
@@ -565,13 +568,30 @@ class UserApprovalResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->numeric()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('--'),
-                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('--'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('--'),
-                Tables\Columns\TextColumn::make('user.role.name')->label('Role')->default('--'),
+                    ->sortable()
+                    ->searchable()
+                    ->tooltip(fn($record) => $record->user->full_name ?? 'No Name')
+                    ->default('--')
+                    ->limit(20),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')
+                    ->default('--')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.role.name')->label('Role')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
+                    ->sortable()
                     ->colors([
                         'success' => 'approved',
                         'danger'  => 'rejected',
@@ -586,7 +606,43 @@ class UserApprovalResource extends Resource
                     ->default('--'),
             ])
             ->filters([
-                //
+                // SelectFilter::make('status')
+                //     ->options([
+                //         'approved'    => 'Approved',
+                //         'rejected'    => 'Rejected',
+                //         'pending'     => 'Pending',
+                //         'NA'          => 'Not Applicable',
+                //     ])
+                SelectFilter::make('building_id')
+                    ->relationship('flat.building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                        }
+                    })
+                    ->searchable()
+                    ->label('Building')
+                    ->preload(),
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'null' => 'No Status', // Label for NULL
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        \Illuminate\Support\Facades\Log::debug('Status Filter Query', ['data' => $data]);
+                        // Log::debug('Status Filter', ['value' => $data['value'] ?? 'none']);
+                        if (!isset($data['value']) || empty($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'null') {
+                            return $query->whereNull('status');
+                        }
+
+                        return $query->where('status', $data['value']);
+                    })
+                    ->default(null), // Optional: no default filter
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
