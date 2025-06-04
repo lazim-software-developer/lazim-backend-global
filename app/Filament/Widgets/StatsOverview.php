@@ -145,7 +145,8 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('WDA', $wdaCount)
                 ->description('Pending WDA')
                 ->icon('heroicon-o-chart-bar-square')
-                ->url(WDAResource::getUrl('index'))
+                // ->url(WDAResource::getUrl('index'))
+                ->url(WDAResource::getUrl('index', ['tableFilters' => ['status' => ['value'=>'pending']]]))
                 ->color('purple')
                 ->chart([15, 25, 35, 45, 55])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD); color: #8B5CF6;']);
@@ -183,7 +184,13 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Resident Approvals', $pendingUserApprovalCount)
                 ->description('Pending Resident Approvals')
                 ->icon('heroicon-o-user')
-                ->url(UserApprovalResource::getUrl('index'))
+                ->url(UserApprovalResource::getUrl('index',[
+                    'tableFilters' => [
+                        'status' => [
+                            'value' => 'pending'
+                        ],
+                    ],
+                    ]))
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
                 ->extraAttributes(['style' => 'background-color: #FFF7E0; color: #FFAA00;']);
