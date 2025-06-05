@@ -24,14 +24,18 @@ class VendorObserver
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
-        $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
         if($notifyTo->count() > 0){
             foreach($notifyTo as $user){
                 if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->vendor_id', $vendor->id)->exists()){
                     $data=[];
                     $data['notifiable_type']='App\Models\User\User';
                     $data['notifiable_id']=$user->id;
-                    $data['url']=VendorResource::getUrl('edit', [$slug,$vendor->id]);
+                    $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
+                    if($slug){
+                        $data['url']=VendorResource::getUrl('edit', [$slug,$vendor->id]);
+                    }else{
+                        $data['url']=url('/app/vendors/' . $vendor->id.'/edit');
+                    }
                     $data['title']="New Vendor";
                     $data['body']='New vendor created '.$vendor->name;
                     $data['building_id']=$vendor->building_id ?? null;

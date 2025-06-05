@@ -41,7 +41,12 @@ class GuestObserver
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=GuestRegistrationResource::getUrl('view', [$oa->slug,$guest->id]);
+                            $slug = $oa->slug;
+                            if($slug){
+                                $data['url']=GuestRegistrationResource::getUrl('view', [$slug,$guest->id]);
+                            }else{
+                                $data['url']=url('/app/guest-registrations/' . $guest->id.'/view');
+                            }
                             $data['title']="New Guest Registration Form Submission";
                             $data['body']='New form submission by '.auth()->user()->first_name;
                             $data['building_id']=$guest->flatVisitor->building_id;

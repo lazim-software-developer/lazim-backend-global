@@ -42,7 +42,12 @@ class ResidentialFormObserver
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=ResidentialFormResource::getUrl('edit', [$oa?->slug,$residentialForm->id]);
+                            $slug = $oa?->slug;
+                            if($slug){
+                                $data['url']=ResidentialFormResource::getUrl('edit', [$slug,$residentialForm->id]);
+                            }else{
+                                $data['url']=url('/app/residential-forms/' . $residentialForm->id.'/edit');
+                            }
                             $data['title']="New Residential Form Submission for Building".$residentialForm->flat?->building?->name;
                             $data['body']='New form submission by'.auth()->user()->first_name;
                             $data['building_id']=$residentialForm->flat?->building?->id;

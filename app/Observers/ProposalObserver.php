@@ -39,7 +39,12 @@ class ProposalObserver
                         $data=[];
                         $data['notifiable_type']='App\Models\User\User';
                         $data['notifiable_id']=$user->id;
-                        $data['url']=ProposalResource::getUrl('edit', [$slug,$proposal->id]);
+                        $slug = $oam_id?->slug;
+                        if($slug){
+                            $data['url']=ProposalResource::getUrl('edit', [$slug,$proposal->id]);
+                        }else{
+                            $data['url']=url('/app/proposals/' . $proposal->id.'/edit');
+                        }
                         $data['title']="New Proposal for Building".$proposal->tender?->building?->name;
                         $data['body']='New proposal by '.auth()->user()->first_name;
                         $data['building_id']=$proposal->tender?->building?->id;

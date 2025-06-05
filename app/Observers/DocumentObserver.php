@@ -46,7 +46,12 @@ class DocumentObserver
                                         $data=[];
                                         $data['notifiable_type']='App\Models\User\User';
                                         $data['notifiable_id']=$user->id;
-                                        $data['url']=TenantDocumentResource::getUrl('edit', [$oa->slug, $document->id]);
+                                        $slug = $oa?->slug;
+                                        if($slug){
+                                            $data['url']=TenantDocumentResource::getUrl('edit', [$slug, $document->id]);
+                                        }else{
+                                            $data['url']=url('/app/tenant-documents/' . $document?->id.'/edit');
+                                        }
                                         $data['title']=$document->name." Received for Building:".$document->building->name;
                                         $data['body']='A new document received from  '.auth()->user()->first_name;
                                         $data['building_id']=$document->building_id;
