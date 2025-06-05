@@ -34,7 +34,11 @@ class InvoiceObserver
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
                             $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                            $data['url']=InvoiceResource::getUrl('view', [$slug,$invoice->id]);
+                            if($slug){
+                                $data['url']=InvoiceResource::getUrl('view', [$slug,$invoice?->id]);
+                            }else{
+                                $data['url']=url('/app/invoices/' . $invoice?->id.'/view');
+                            }
                             $data['title']="New Invoice for Building:".$invoice->building->name;
                             $data['body']='New Invoice submitted by  ' . auth()->user()->first_name;
                             $data['building_id']=$invoice->building_id;

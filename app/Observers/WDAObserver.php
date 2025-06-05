@@ -29,14 +29,18 @@ class WDAObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
                 if($notifyTo->count() > 0){
                     foreach($notifyTo as $user){
                         if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->wda_id', $WDA->id)->exists()){
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=WDAResource::getUrl('edit', [$slug,$WDA->id]);
+                            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                            if($slug){
+                                $data['url']=WDAResource::getUrl('edit', [$slug,$WDA->id]);
+                            }else{
+                                $data['url']=url('/app/w-d-a-s/' . $WDA?->id.'/edit');
+                            }
                             $data['title']="New WDA Form for Building: " . Building::where('id', $WDA?->building_id)->value('name');
                             $data['body']='New WDA form submitted by  ' . auth()->user()->first_name;
                             $data['building_id']=$WDA->building_id;

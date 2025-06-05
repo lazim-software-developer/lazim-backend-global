@@ -48,7 +48,12 @@ class MoveInOutObserver
                                 $data=[];
                                 $data['notifiable_type']='App\Models\User\User';
                                 $data['notifiable_id']=$user->id;
-                                $data['url']=MoveInFormsDocumentResource::getUrl('edit', [$oa?->slug,$moveInOut?->id]);
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    $data['url']=MoveInFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                                }else{
+                                    $data['url']=url('/app/move-in-forms-documents/' . $moveInOut?->id.'/edit');
+                                }
                                 $data['title']="New Move in Submission for Building:".$moveInOut->building->name;
                                 $data['body']='New form submission by '.auth()->user()->first_name;
                                 $data['building_id']=$moveInOut->building_id;
@@ -96,7 +101,12 @@ class MoveInOutObserver
                                 $data=[];
                                 $data['notifiable_type']='App\Models\User\User';
                                 $data['notifiable_id']=$user->id;
-                                $data['url']=MoveOutFormsDocumentResource::getUrl('edit', [$oa?->slug,$moveInOut?->id]);
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    $data['url']=MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveInOut?->id]);
+                                }else{
+                                    $data['url']=url('/app/move-out-forms-documents/' . $moveInOut?->id.'/edit');
+                                }
                                 $data['title']="New Move out Submission for Building:".$moveInOut->building->name;
                                 $data['body']='New form submission by '.auth()->user()->first_name;
                                 $data['building_id']=$moveInOut->building_id;

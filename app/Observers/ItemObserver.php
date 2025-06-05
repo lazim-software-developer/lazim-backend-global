@@ -46,7 +46,11 @@ class ItemObserver
                         $data['notifiable_type']='App\Models\User\User';
                         $data['notifiable_id']=$user->id;
                         $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                        $data['url']=ItemResource::getUrl('view', [$slug,$item->id]);
+                        if($slug){
+                            $data['url']=ItemResource::getUrl('view', [$slug,$item->id]);
+                        }else{
+                            $data['url']=url('/app/items/' . $item->id.'/view');
+                        }
                         $data['title']="Item Updated for Building:".$item->building->name;
                         $data['body']='New Item Update Received';
                         $data['building_id']=$item->building_id;

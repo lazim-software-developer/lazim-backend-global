@@ -45,7 +45,12 @@ class FitOutFormObserver
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=FitOutFormsDocumentResource::getUrl('edit', [$ownerAssociation->slug, $fitOutForm->id]);
+                            $slug = $ownerAssociation->slug;
+                            if($slug){
+                                $data['url']=FitOutFormsDocumentResource::getUrl('edit', [$slug, $fitOutForm->id]);
+                            }else{
+                                $data['url']=url('/app/fit-out-forms-documents/' . $fitOutForm->id.'/edit');
+                            }
                             $data['title']="New Fitout Form Submission for Building:".$fitOutForm->building->name;
                             $data['body']='New form submission by '.auth()->user()->first_name;
                             $data['building_id']=$fitOutForm->building_id;

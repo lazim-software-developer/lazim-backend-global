@@ -42,7 +42,12 @@ class SaleNOCObserver
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=NocFormResource::getUrl('edit', [$oa?->slug,$saleNOC?->id]);
+                            $slug = $oa?->slug;
+                            if($slug){
+                                $data['url']=NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                            }else{
+                                $data['url']=url('/app/sale-nocs/' . $saleNOC?->id.'/edit');
+                            }
                             $data['title']="New Sale Noc Submission for Building :". $saleNOC->building->name;
                             $data['body']='New form submission by '.auth()->user()->first_name;
                             $data['building_id']=$saleNOC->building_id;

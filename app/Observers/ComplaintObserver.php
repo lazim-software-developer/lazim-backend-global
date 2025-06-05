@@ -58,7 +58,7 @@ class ComplaintObserver
                                 $data = [];
                                 $data['notifiable_type'] = 'App\Models\User\User';
                                 $data['notifiable_id'] = $user->id;
-                                $data['url'] = ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintsenquiryResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
                                 $data['title'] = "Happiness center Complaint Received for Building :" . $complaint->building->name;
                                 $data['body'] = 'Complaint has been created by ' . auth()->user()->first_name;
                                 $data['building_id'] = $complaint->building_id;
@@ -103,7 +103,7 @@ class ComplaintObserver
                                 $data = [];
                                 $data['notifiable_type'] = 'App\Models\User\User';
                                 $data['notifiable_id'] = $user->id;
-                                $data['url'] = ComplaintsenquiryResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                $data['url'] =  (isset($oa->slug) && !empty($oa->slug)) ? ComplaintsenquiryResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
                                 $data['title'] = "New Enquiry Received for Building :" . $complaint->building->name;
                                 $data['body'] = 'A enquiry has been received raised by ' . auth()->user()->first_name;
                                 $data['building_id'] = $complaint->building_id;
@@ -148,7 +148,7 @@ class ComplaintObserver
                                 $data = [];
                                 $data['notifiable_type'] = 'App\Models\User\User';
                                 $data['notifiable_id'] = $user->id;
-                                $data['url'] = ComplaintssuggessionResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintssuggessionResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaintssuggessions/' . $complaint?->id.'/edit');
                                 $data['title'] = "New Suggestion Received for Building :" . $complaint->building->name;
                                 $data['body'] = 'A suggestion made by ' . auth()->user()->first_name;
                                 $data['building_id'] = $complaint->building_id;
@@ -193,7 +193,7 @@ class ComplaintObserver
                                 $data = [];
                                 $data['notifiable_type'] = 'App\Models\User\User';
                                 $data['notifiable_id'] = $user->id;
-                                $data['url'] = ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/snags/' . $complaint?->id.'/edit');
                                 $data['title'] = "New Snag for Building :" . $complaint->building->name;
                                 $data['body'] = 'New Snag Created by ' . auth()->user()->first_name;
                                 $data['building_id'] = $complaint->building_id;
@@ -239,7 +239,7 @@ class ComplaintObserver
                                     $data = [];
                                     $data['notifiable_type'] = 'App\Models\User\User';
                                     $data['notifiable_id'] = $user->id;
-                                    $data['url'] = ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) :url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
                                     $data['title'] = "New ticket received for Building :" . $complaint->building->name;
                                     $data['body'] = 'A new ticket is raised by ' . auth()->user()->first_name;
                                     $data['building_id'] = $complaint->building_id;
@@ -436,7 +436,7 @@ class ComplaintObserver
                                     $data = [];
                                     $data['notifiable_type'] = 'App\Models\User\User';
                                     $data['notifiable_id'] = $user->id;
-                                    $data['url'] = ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
 
                                     $data['title'] = 'Facility Support Issue Resolution for Building:' . $complaint->building->name;
                                     $data['body'] = 'Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
@@ -482,7 +482,7 @@ class ComplaintObserver
                                     $data = [];
                                     $data['notifiable_type'] = 'App\Models\User\User';
                                     $data['notifiable_id'] = $user->id;
-                                    $data['url'] = OacomplaintReportsResource::getUrl('edit', [$oa?->slug, $complaint?->id]);
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? OacomplaintReportsResource::getUrl('edit', [$oa?->slug, $complaint?->id]) : url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
                                     $data['title'] = 'Complaints Resolved for Building:' . $complaint->building->name;
                                     $data['body'] = 'Complaint has been resolved by a ' . $user->role->name . ' ' . $user->first_name;
                                     $data['building_id'] = $complaint->building_id;
@@ -525,7 +525,7 @@ class ComplaintObserver
                                     $data = [];
                                     $data['notifiable_type'] = 'App\Models\User\User';
                                     $data['notifiable_id'] = $user->id;
-                                    $data['url'] = ComplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaints/' . $complaint?->id.'/edit');
                                     $data['title'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . " Resolved";
                                     $data['body'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
                                     $data['building_id'] = $complaint->building_id;

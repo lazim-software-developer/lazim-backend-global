@@ -39,7 +39,11 @@ class ContractObserver
                         $data=[];
                         $data['notifiable_type']='App\Models\User\User';
                         $data['notifiable_id']=$user->id;
-                        $data['url']=ContractResource::getUrl('edit', [$slug, $contract->id]);
+                        if($slug){
+                            $data['url']=ContractResource::getUrl('edit', [$slug, $contract->id]);
+                        }else{
+                            $data['url']=url('/app/contracts/' . $contract?->id.'/edit');
+                        }
                         $data['title']='New Contract for Building:'. $contract->building->name;
                         $data['body']='A new contract received from  '.auth()->user()->first_name;
                         $data['building_id']=$contract->building_id;
