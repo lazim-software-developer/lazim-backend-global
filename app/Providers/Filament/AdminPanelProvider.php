@@ -39,6 +39,7 @@ use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
 use App\Filament\Components\NavigationItemExtended;
+use App\Filament\Resources\AllUsersResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PersonalServiceResource;
 use App\Filament\Resources\AssetMaintenanceResource;
@@ -59,6 +60,7 @@ use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use App\Filament\Resources\PersonalServiceNotifictionResource;
+use Filament\Support\Enums\MaxWidth;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -76,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 config('filament-logger.activity_resource')
             ])
             ->profile(EditProfile::class)
+            ->maxContentWidth(MaxWidth::Full) // Set to Full to allow full-width content
             ->colors([
 
                 'danger' => Color::Rose,
@@ -96,6 +99,8 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('40px')
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
@@ -374,28 +379,34 @@ class AdminPanelProvider extends PanelProvider
                     ]);
                 }
                 // || Role::where('id', auth()->user()->role_id)->first()->name != 'Admin'
-                if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle')) {
+                if ($user->can('view_any_user::owner') || $user->can('view_any_user::tenant') || $user->can('view_any_vehicle') || $user->can('view_any_user::user')) {
                     $builder->groups([
                         NavigationGroup::make('User management')
                             ->items([
+                                // NavigationItem::make('All Users')
+                                //     ->url(AllUsersResource::getUrl('index'))
+                                //     ->visible($user->can('view_any_user::user'))
+                                //     ->icon('heroicon-m-building-office-2')
+                                //     ->activeIcon('heroicon-m-building-office-2')
+                                //     ->sort(1),
                                 NavigationItem::make('Owners')
                                     ->url('/admin/user/owners')
                                     ->visible($user->can('view_any_user::owner'))
                                     ->icon('heroicon-o-user')
                                     ->activeIcon('heroicon-o-user')
-                                    ->sort(1),
+                                    ->sort(2),
                                 NavigationItem::make('Tenants')
                                     ->url('/admin/user/tenants')
                                     ->visible($user->can('view_any_user::tenant'))
                                     ->icon('heroicon-o-users')
                                     ->activeIcon('heroicon-o-users')
-                                    ->sort(2),
+                                    ->sort(3),
                                 NavigationItem::make('Vehicles')
                                     ->url(VehicleResource::getUrl('index'))
                                     ->visible($user->can('view_any_vehicle'))
                                     ->icon('heroicon-m-building-office-2')
                                     ->activeIcon('heroicon-m-building-office-2')
-                                    ->sort(3),
+                                    ->sort(4),
                             ])
                             ->collapsed(true),
                     ]);
@@ -802,20 +813,20 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
-                if ($user->can('view_any_helpdeskcomplaint')) {
-                    $builder->groups([
-                        NavigationGroup::make('Facility Support')
-                            ->items([
-                                NavigationItem::make('Issues')
-                                    ->url('/admin/helpdeskcomplaints')
-                                    ->hidden(!$user->can('view_any_helpdeskcomplaint'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(1),
-                            ])
-                            ->collapsed(true),
-                    ]);
-                }
+                // if ($user->can('view_any_helpdeskcomplaint')) {
+                //     $builder->groups([
+                //         NavigationGroup::make('Facility Support') # as per the kunal sir requirement we have merged the helpdesk and complaints and snags together
+                //             ->items([
+                //                 NavigationItem::make('Issues')
+                //                     ->url('/admin/helpdeskcomplaints')
+                //                     ->hidden(!$user->can('view_any_helpdeskcomplaint'))
+                //                     ->icon('heroicon-m-clipboard-document-list')
+                //                     ->activeIcon('heroicon-m-clipboard-document-list')
+                //                     ->sort(1),
+                //             ])
+                //             ->collapsed(true),
+                //     ]);
+                // }
                 if (
                     $user->can('view_any_snags') || $user->can('view_any_incident') ||
                     $user->can('view_any_patrolling')
@@ -823,12 +834,12 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
-                                NavigationItem::make('Snags')
-                                    ->url('/admin/snags')
-                                    ->hidden(!$user->can('view_any_snags'))
-                                    ->icon('heroicon-s-swatch')
-                                    ->activeIcon('heroicon-s-swatch')
-                                    ->sort(1),
+                                // NavigationItem::make('Snags')
+                                //     ->url('/admin/snags')
+                                //     ->hidden(!$user->can('view_any_snags'))
+                                //     ->icon('heroicon-s-swatch')
+                                //     ->activeIcon('heroicon-s-swatch')
+                                //     ->sort(1),
                                 NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))

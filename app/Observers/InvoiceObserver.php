@@ -88,6 +88,14 @@ class InvoiceObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $invoice->created_by,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $invoice->building->owner_association_id,
+                        'building_id' => $invoice->building_id,
+                        'invoice_id' => $invoice->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Invoice',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Your invoice has been approved.',
@@ -110,6 +118,14 @@ class InvoiceObserver
                     'type' => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id' => $invoice->created_by,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $invoice->building->owner_association_id,
+                        'building_id' => $invoice->building_id,
+                        'invoice_id' => $invoice->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'Invoice',
+                        'priority' => 'Medium',
+                    ]),
                     'data' => json_encode([
                         'actions' => [],
                         'body' => 'Your invoice has been rejected.',

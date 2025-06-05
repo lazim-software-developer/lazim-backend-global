@@ -70,7 +70,7 @@ class SyncOwnerAssociations extends Command
                         'Content-Type' => 'application/json',
                     ]);
                 $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-                Log::info([$response->json()]);
+                // Log::info([$response->json()]);
             } catch (\Exception $e) {
                 Log::error('Error ' . $e->getMessage());
             }
@@ -96,7 +96,7 @@ class SyncOwnerAssociations extends Command
             //     'model_id' => $accountUser?->id,
             // ]);
 
-            FetchBuildingsJob::dispatch($ownerAssociation);
+            FetchBuildingsJob::dispatch($ownerAssociation,'Mollak');
         }
     }
 }

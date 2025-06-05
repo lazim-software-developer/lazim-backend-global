@@ -337,6 +337,14 @@ class ComplaintController extends Controller
                             'type'            => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id'   => $isActiveSecurity?->user_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $oa_id,
+                                'building_id' => $building->id ?? null,
+                                'flat_id' => $flatTenant->flat_id ?? null,
+                                'user_id' => $isActiveSecurity?->user_id ?? null,
+                                'type' => 'AssignedToMe',
+                                'priority' => 'Medium',
+                            ]),
                             'data'            => json_encode([
                                 'actions'   => [],
                                 'body'      => 'Task has been assigned',
@@ -450,7 +458,6 @@ class ComplaintController extends Controller
         }
 
         if ($complaint->user_id != auth()->user()->id) {
-
             $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->first()?->token;
             if ($expoPushToken) {
                 if ($complaint->complaint_type == 'help_desk') {
@@ -483,6 +490,14 @@ class ComplaintController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $complaint->user_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $oa_id,
+                        'building_id' => $building->id ?? null,
+                        'flat_id' => $flatTenant->flat_id ?? null,
+                        'user_id' => $complaint->user_id ?? null,
+                        'type' => 'ResolvedRequests',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
@@ -527,6 +542,14 @@ class ComplaintController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $complaint->technician_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'ResolvedRequests',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
@@ -578,6 +601,14 @@ class ComplaintController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $residentId,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'type' => 'PreventiveMaintenance',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,

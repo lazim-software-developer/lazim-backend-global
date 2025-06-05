@@ -65,7 +65,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                     continue;
                 }
 
-                
+
                     Flat::create([
                     'floor'                  => $row['floor'],
                     'building_id'            => $building->id,
@@ -188,7 +188,6 @@ class UnitImport implements ToCollection, WithHeadingRow
             'plan' => 1,
             'is_enable_login' => 1,
             'is_active' => 1,
-            'created_by' => auth()->user()?->id,
             'created_at' => now(),
             'updated_at' => now()
         ]);

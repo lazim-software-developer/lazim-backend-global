@@ -92,6 +92,14 @@ class ContractObserver
                 'type' => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id' => $vendor->owner_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $contract->building->owner_association_id,
+                    'building_id' => $contract->building_id,
+                    'contract_id' => $contract->id,
+                    'user_id' => auth()->user()->id ?? null,
+                    'type' => 'Contract',
+                    'priority' => 'Medium',
+                ]),
                 'data' => json_encode([
                     'actions' => [],
                     'body' => 'Contract document has been updated.',

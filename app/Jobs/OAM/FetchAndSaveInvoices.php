@@ -2,6 +2,7 @@
 
 namespace App\Jobs\OAM;
 
+use App\Http\Controllers\User\PaymentController;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
@@ -52,7 +53,7 @@ class FetchAndSaveInvoices implements ShouldQueue
             }
             $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
-                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+                'consumer-id' => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
 
             Log::info('RESPONSE', [$response->json()]);
@@ -62,7 +63,7 @@ class FetchAndSaveInvoices implements ShouldQueue
             // Log::info('invoice'.json_encode($invoicesData));
             foreach ($invoicesData as $data) {
                 foreach ($data['properties'] as $property) {
-                    $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
+                    $flat = Flat::where('mollak_property_id', $property['mollakPropertyId'])->first();
 
                     // Save amount data
                     $generalFundAmount = 0;
@@ -92,7 +93,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                         }
                     }
 
-                    OAMInvoice::updateOrCreate(
+
+                    $invoice = OAMInvoice::updateOrCreate(
                         [
                             'building_id' => $buildingId,
                             'flat_id' => $flat->id,
@@ -101,6 +103,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'invoice_period' => $data['invoicePeriod'],
                             'budget_period' => $data['budgetPeriod'],
                             'service_charge_group_id' => $data['serviceChargeGroupId'],
+                            'owner_association_id' => $flat->owner_association_id
                         ],
                         [
                             'invoice_date' => $property['invoiceDate'],
@@ -118,10 +121,14 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'amount_paid' => 0,
                             'updated_by' => User::first()->id,
                             'type' => 'service_charge',
-                            'payment_url' => $property['paymentUrl'],
-                            'owner_association_id' => $flat->owner_association_id
+                            'payment_url' => $property['paymentUrl']
                         ]
                     );
+                    if (isset($invoice->invoice_detail_link) && !empty($invoice->invoice_detail_link)) {
+                        $file  = new PaymentController();
+                        $file->fetchServiceChargePDF($invoice);
+                    }
+
                     // $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
                     // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;

@@ -31,7 +31,7 @@ class VendorRegistrationController extends Controller
         $userData = User::where(
             [
                 'email' => trim(strtolower($request->get('email'))),
-                'phone' => $request->get('phone')
+                'phone' => str_replace(' ', '', trim($request->mobile))
             ]
         );
 
@@ -130,7 +130,7 @@ class VendorRegistrationController extends Controller
             }
         } else {
             $existingEmail = User::where(['email' => trim(strtolower($request->email))])->first();
-            $existingPhone = User::where(['phone' => $request->phone])->first();
+            $existingPhone = User::where(['phone' => trim($request->phone)])->first();
 
 
 
@@ -181,6 +181,7 @@ class VendorRegistrationController extends Controller
 
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         $request->merge(['email' => trim(strtolower($request->email))]);
+        $request->merge(['phone' => str_replace(' ', '', trim($request->mobile))]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds

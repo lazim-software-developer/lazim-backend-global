@@ -39,6 +39,14 @@ class CreatePoll extends CreateRecord
                             'type' => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $user,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $this->record->building->owner_association_id ?? 1,
+                                'building_id' => $this->record->building_id ?? null,
+                                'flat_id' => $this->record->flat_id ?? null,
+                                'user_id' => $this->record->user_id ?? null,
+                                'type' => 'Poll',
+                                'priority' => 'Medium',
+                            ]),
                             'data' => json_encode([
                                 'actions' => [],
                                 'body' => 'New Poll created',

@@ -34,12 +34,24 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
      */
     public function handle(): void
     {
-            
+
             $receipts = OAMReceipts::where(['flat_id' => $this->invoice->flat_id,'receipt_period' => $this->invoice->invoice_period])->first();
             preg_match('/(\d{4})/', $this->invoice->invoice_quarter, $matches);
             $year = $matches[1];
             $flatId= $this->invoice->flat_id;
             $ownerId = FlatOwners::where('flat_id', $flatId)->where('active', 1)->first()?->owner_id;
+            Log::info('UpdateDelinquentOwnerInvoiceJob', [
+                'flat_id' => $flatId,
+                'owner_id' => $ownerId,
+                'year' => $year,
+                'invoice_period' => $this->invoice->invoice_period,
+                'receipt' => json_encode($receipts),
+                'receipt_period' => $receipts?->receipt_period ?? null,
+            ]);
+            if (!$ownerId) {
+                Log::warning('No active owner found for flat_id: ' . $flatId);
+                return;
+            }
             $lastReceipt = OAMReceipts::where(['flat_id' => $flatId])->where('receipt_period', 'like', '%' . $year . '%')
             ->latest('receipt_date')
             ->first(['receipt_date', 'receipt_amount']);
@@ -50,7 +62,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
             $dueAmount = $lastInvoice->due_amount;
             $oa_id = Flat::find($flatId)?->owner_association_id;
             if(!$receipts || $this->invoice->invoice_due_date < Carbon::parse($receipts?->receipt_date)->toDateString()){
-                
+
                 if($lastInvoice?->invoice_due_date && $lastReceipt?->receipt_date && Carbon::parse($lastReceipt?->receipt_date)->greaterThan(Carbon::parse($lastInvoice?->invoice_due_date)))
                     {
                         $dueAmount = $lastInvoice->due_amount - $lastReceipt?->receipt_amount;
@@ -93,7 +105,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                     ]);
             $balances = ['balance_1', 'balance_2', 'balance_3', 'balance_4', 'over_balance'];
             $multiplier = 0;
-            
+
             foreach ($balances as $balance) {
                 if ($balance == 'over_balance') {
                     // Special case for over_balance
@@ -110,7 +122,7 @@ class UpdateDelinquentOwnerInvoiceJob implements ShouldQueue
                 $aging->save();
                 $multiplier++;
             }
-                    
+
 
             if($this->invoice->invoice_due_date < Carbon::now()->toDateString()){
                 $this->invoice->processed = true;

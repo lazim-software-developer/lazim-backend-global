@@ -99,7 +99,7 @@ class SendInvoiceOverDue extends Command
                         \Log::error('Failed to send overdue receipt notification: ' . $e->getMessage());
                     }
                 }
-                \Log::info('Invoice overdue notification sent for invoice ID: ' . $invoice['invoice_number']);
+                // \Log::info('Invoice overdue notification sent for invoice ID: ' . $invoice['invoice_number']);
             }
         }
     }
