@@ -49,25 +49,20 @@ class ComplaintObserver
 
                 if ($complaint->complaint_type == 'tenant_complaint') {
                     $requiredPermissions = ['view_any_complaintscomplaint'];
-                            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                                return $notifyTo->can($requiredPermissions);
-                            });
-                    if($notifyTo->count() > 0){
-                        foreach($notifyTo as $user){
-                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                $data=[];
-                                $data['notifiable_type']='App\Models\User\User';
-                                $data['notifiable_id']=$user->id;
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    $data['url']=ComplaintscomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
-                                }else{
-                                    $data['url']=url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                }
-                                $data['title']="Happiness center Complaint Received for Building :".$complaint->building->name;
-                                $data['body']='Complaint has been created by ' . auth()->user()->first_name;
-                                $data['building_id']=$complaint->building_id;
-                                $data['custom_json_data']=json_encode([
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                    if ($notifyTo->count() > 0) {
+                        foreach ($notifyTo as $user) {
+                            if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                $data = [];
+                                $data['notifiable_type'] = 'App\Models\User\User';
+                                $data['notifiable_id'] = $user->id;
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintsenquiryResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+                                $data['title'] = "Happiness center Complaint Received for Building :" . $complaint->building->name;
+                                $data['body'] = 'Complaint has been created by ' . auth()->user()->first_name;
+                                $data['building_id'] = $complaint->building_id;
+                                $data['custom_json_data'] = json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
                                     'user_id' => auth()->user()->id ?? null,
@@ -99,25 +94,20 @@ class ComplaintObserver
                     //     ->sendToDatabase($notifyTo);
                 } elseif ($complaint->complaint_type == 'enquiries') {
                     $requiredPermissions = ['view_any_complaintsenquiry'];
-                            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                                return $notifyTo->can($requiredPermissions);
-                            });
-                    if($notifyTo->count() > 0){
-                        foreach($notifyTo as $user){
-                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                $data=[];
-                                $data['notifiable_type']='App\Models\User\User';
-                                $data['notifiable_id']=$user->id;
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    $data['url']=ComplaintsenquiryResource::getUrl('edit', [$slug,$complaint?->id]);
-                                }else{
-                                    $data['url']=url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
-                                }
-                                $data['title']="New Enquiry Received for Building :".$complaint->building->name;
-                                $data['body']='A enquiry has been received raised by ' . auth()->user()->first_name;
-                                $data['building_id']=$complaint->building_id;
-                                $data['custom_json_data']=json_encode([
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                    if ($notifyTo->count() > 0) {
+                        foreach ($notifyTo as $user) {
+                            if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                $data = [];
+                                $data['notifiable_type'] = 'App\Models\User\User';
+                                $data['notifiable_id'] = $user->id;
+                                $data['url'] =  (isset($oa->slug) && !empty($oa->slug)) ? ComplaintsenquiryResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaintsenquiries/' . $complaint?->id.'/edit');
+                                $data['title'] = "New Enquiry Received for Building :" . $complaint->building->name;
+                                $data['body'] = 'A enquiry has been received raised by ' . auth()->user()->first_name;
+                                $data['building_id'] = $complaint->building_id;
+                                $data['custom_json_data'] = json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
                                     'user_id' => auth()->user()->id ?? null,
@@ -149,37 +139,31 @@ class ComplaintObserver
                     //     ->sendToDatabase($notifyTo);
                 } elseif ($complaint->complaint_type == 'suggestions') {
                     $requiredPermissions = ['view_any_complaintssuggession'];
-                            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                                return $notifyTo->can($requiredPermissions);
-                            });
-                            if($notifyTo->count() > 0){
-                                foreach($notifyTo as $user){
-                                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                        $data=[];
-                                        $data['notifiable_type']='App\Models\User\User';
-                                        $data['notifiable_id']=$user->id;
-                                        $slug = $oa?->slug;
-                                        if($slug){
-                                            $data['url']=ComplaintssuggessionResource::getUrl('edit', [$slug,$complaint?->id]);
-                                        }else{
-                                            $data['url']=url('/app/complaintssuggestions/' . $complaint?->id.'/edit');
-                                        }
-                                        $data['title']="New Suggestion Received for Building :".$complaint->building->name;
-                                        $data['body']='A suggestion made by ' . auth()->user()->first_name;
-                                        $data['building_id']=$complaint->building_id;
-                                        $data['custom_json_data']=json_encode([
-                                            'building_id' => $complaint->building_id,
-                                            'complaint_id' => $complaint->id,
-                                            'user_id' => auth()->user()->id ?? null,
-                                            'owner_association_id' => $oa->id,
-                                            'type' => 'Complaint',
-                                            'priority' => 'Medium',
-                                        ]);
-                                        NotificationTable($data);
-                                    }
-                                }
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                    if ($notifyTo->count() > 0) {
+                        foreach ($notifyTo as $user) {
+                            if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                $data = [];
+                                $data['notifiable_type'] = 'App\Models\User\User';
+                                $data['notifiable_id'] = $user->id;
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintssuggessionResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaintssuggessions/' . $complaint?->id.'/edit');
+                                $data['title'] = "New Suggestion Received for Building :" . $complaint->building->name;
+                                $data['body'] = 'A suggestion made by ' . auth()->user()->first_name;
+                                $data['building_id'] = $complaint->building_id;
+                                $data['custom_json_data'] = json_encode([
+                                    'building_id' => $complaint->building_id,
+                                    'complaint_id' => $complaint->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'owner_association_id' => $oa->id,
+                                    'type' => 'Complaint',
+                                    'priority' => 'Medium',
+                                ]);
+                                NotificationTable($data);
                             }
                         }
+                    }
                     // Notification::make()
                     //     ->success()
                     //     ->title("New Suggestion Received")
@@ -198,27 +182,22 @@ class ComplaintObserver
                     //             }),
                     //     ])
                     //     ->sendToDatabase($notifyTo);
-                elseif ($complaint->complaint_type == 'snag') {
+                } elseif ($complaint->complaint_type == 'snag') {
                     $requiredPermissions = ['view_any_snags'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                    if($notifyTo->count() > 0){
-                        foreach($notifyTo as $user){
-                            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                $data=[];
-                                $data['notifiable_type']='App\Models\User\User';
-                                $data['notifiable_id']=$user->id;
-                                $slug = $oa?->slug;
-                                if($slug){
-                                    $data['url']=SnagsResource::getUrl('edit', [$slug,$complaint?->id]);
-                                }else{
-                                    $data['url']=url('/app/snags/' . $complaint?->id.'/edit');
-                                }
-                                $data['title']="New Snag for Building :".$complaint->building->name;
-                                $data['body']='New Snag Created by ' . auth()->user()->first_name;
-                                $data['building_id']=$complaint->building_id;
-                                $data['custom_json_data']=json_encode([
+                    if ($notifyTo->count() > 0) {
+                        foreach ($notifyTo as $user) {
+                            if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                $data = [];
+                                $data['notifiable_type'] = 'App\Models\User\User';
+                                $data['notifiable_id'] = $user->id;
+                                $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/snags/' . $complaint?->id.'/edit');
+                                $data['title'] = "New Snag for Building :" . $complaint->building->name;
+                                $data['body'] = 'New Snag Created by ' . auth()->user()->first_name;
+                                $data['building_id'] = $complaint->building_id;
+                                $data['custom_json_data'] = json_encode([
                                     'building_id' => $complaint->building_id,
                                     'complaint_id' => $complaint->id,
                                     'user_id' => auth()->user()->id ?? null,
@@ -250,26 +229,21 @@ class ComplaintObserver
                     // ->sendToDatabase($notifyTo);
                 } else {
                     $requiredPermissions = ['view_any_helpdeskcomplaint'];
-                            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                                return $notifyTo->can($requiredPermissions);
-                            });
-                    if(OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug){
-                        if($notifyTo->count() > 0){
-                            foreach($notifyTo as $user){
-                                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                    $data=[];
-                                    $data['notifiable_type']='App\Models\User\User';
-                                    $data['notifiable_id']=$user->id;
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        $data['url']=HelpdeskcomplaintResource::getUrl('edit', [$slug,$complaint?->id]);
-                                    }else{
-                                        $data['url']=url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                    }
-                                    $data['title']="New ticket received for Building :".$complaint->building->name;
-                                    $data['body']='A new ticket is raised by ' . auth()->user()->first_name;
-                                    $data['building_id']=$complaint->building_id;
-                                    $data['custom_json_data']=json_encode([
+                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                        return $notifyTo->can($requiredPermissions);
+                    });
+                    if (OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug) {
+                        if ($notifyTo->count() > 0) {
+                            foreach ($notifyTo as $user) {
+                                if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                    $data = [];
+                                    $data['notifiable_type'] = 'App\Models\User\User';
+                                    $data['notifiable_id'] = $user->id;
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) :url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+                                    $data['title'] = "New ticket received for Building :" . $complaint->building->name;
+                                    $data['body'] = 'A new ticket is raised by ' . auth()->user()->first_name;
+                                    $data['building_id'] = $complaint->building_id;
+                                    $data['custom_json_data'] = json_encode([
                                         'building_id' => $complaint->building_id,
                                         'complaint_id' => $complaint->id,
                                         'user_id' => auth()->user()->id ?? null,
@@ -453,34 +427,29 @@ class ComplaintObserver
                 if ($complaint->status == 'closed') {
                     if ($complaint->complaint_type == 'help_desk') {
                         $requiredPermissions = ['view_any_helpdeskcomplaint'];
-                            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                                return $notifyTo->can($requiredPermissions);
-                            });
-                            if($notifyTo->count() > 0){
-                                foreach($notifyTo as $user){
-                                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                        $data=[];
-                                        $data['notifiable_type']='App\Models\User\User';
-                                        $data['notifiable_id']=$user->id;
-                                        $slug = $oa?->slug;
-                                        if($slug){
-                                            $data['url']=HelpdeskcomplaintResource::getUrl('edit', [$slug, $complaint?->id]);
-                                        }else{
-                                            $data['url']=url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
-                                        }
-                                        $data['title']='Facility Support Issue Resolution for Building:'. $complaint->building->name;
-                                        $data['body']='Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
-                                        $data['building_id']=$complaint->building_id;
-                                        $data['custom_json_data']=json_encode([
-                                            'building_id' => $complaint->building_id,
-                                            'complaint_id' => $complaint->id,
-                                            'user_id' => auth()->user()->id ?? null,
-                                            'owner_association_id' => $oa->id,
-                                            'type' => 'Complaint',
-                                            'priority' => 'Medium',
-                                        ]);
-                                        NotificationTable($data);
-                                    }
+                        $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                            return $notifyTo->can($requiredPermissions);
+                        });
+                        if ($notifyTo->count() > 0) {
+                            foreach ($notifyTo as $user) {
+                                if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                    $data = [];
+                                    $data['notifiable_type'] = 'App\Models\User\User';
+                                    $data['notifiable_id'] = $user->id;
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintscomplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/facility-support-complaints/' . $complaint?->id.'/edit');
+
+                                    $data['title'] = 'Facility Support Issue Resolution for Building:' . $complaint->building->name;
+                                    $data['body'] = 'Issue has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
+                                    $data['building_id'] = $complaint->building_id;
+                                    $data['custom_json_data'] = json_encode([
+                                        'building_id' => $complaint->building_id,
+                                        'complaint_id' => $complaint->id,
+                                        'user_id' => auth()->user()->id ?? null,
+                                        'owner_association_id' => $oa->id,
+                                        'type' => 'Complaint',
+                                        'priority' => 'Medium',
+                                    ]);
+                                    NotificationTable($data);
                                 }
                             }
                         }
@@ -507,22 +476,17 @@ class ComplaintObserver
                         $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                             return $notifyTo->can($requiredPermissions);
                         });
-                        if($notifyTo->count() > 0){
-                            foreach($notifyTo as $user){
-                                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()){
-                                    $data=[];
-                                    $data['notifiable_type']='App\Models\User\User';
-                                    $data['notifiable_id']=$user->id;
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        $data['url']=OacomplaintReportsResource::getUrl('edit', [$slug, $complaint?->id]);
-                                    }else{
-                                        $data['url']=url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
-                                    }
-                                    $data['title']='Complaints Resolved for Building:'. $complaint->building->name;
-                                    $data['body']='Complaint has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
-                                    $data['building_id']=$complaint->building_id;
-                                    $data['custom_json_data']=json_encode([
+                        if ($notifyTo->count() > 0) {
+                            foreach ($notifyTo as $user) {
+                                if (!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint->id)->exists()) {
+                                    $data = [];
+                                    $data['notifiable_type'] = 'App\Models\User\User';
+                                    $data['notifiable_id'] = $user->id;
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ? OacomplaintReportsResource::getUrl('edit', [$oa?->slug, $complaint?->id]) : url('/app/oacomplaint-reports/' . $complaint?->id.'/edit');
+                                    $data['title'] = 'Complaints Resolved for Building:' . $complaint->building->name;
+                                    $data['body'] = 'Complaint has been resolved by a ' . $user->role->name . ' ' . $user->first_name;
+                                    $data['building_id'] = $complaint->building_id;
+                                    $data['custom_json_data'] = json_encode([
                                         'building_id' => $complaint->building_id,
                                         'complaint_id' => $complaint->id,
                                         'user_id' => $user->id,
@@ -561,7 +525,7 @@ class ComplaintObserver
                                     $data = [];
                                     $data['notifiable_type'] = 'App\Models\User\User';
                                     $data['notifiable_id'] = $user->id;
-                                    $data['url'] = ComplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]);
+                                    $data['url'] = (isset($oa->slug) && !empty($oa->slug)) ?  ComplaintResource::getUrl('edit', [$oa?->slug, "record"=>$complaint?->id]) : url('/app/complaints/' . $complaint?->id.'/edit');
                                     $data['title'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . " Resolved";
                                     $data['body'] = ($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance' : 'complaint') . ' has been resolved by a ' . $user->role->name . ' ' . auth()->user()->first_name;
                                     $data['building_id'] = $complaint->building_id;
@@ -598,6 +562,8 @@ class ComplaintObserver
                     }
                 }
             }
+        }
+
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor', 'Facility Manager', 'Property Manager'];
         if ($complaint->technician_id) {
