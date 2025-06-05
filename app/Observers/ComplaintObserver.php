@@ -180,7 +180,6 @@ class ComplaintObserver
                                 }
                             }
                         }
-                    }
                     // Notification::make()
                     //     ->success()
                     //     ->title("New Suggestion Received")
@@ -199,7 +198,7 @@ class ComplaintObserver
                     //             }),
                     //     ])
                     //     ->sendToDatabase($notifyTo);
-                } elseif ($complaint->complaint_type == 'snag') {
+                elseif ($complaint->complaint_type == 'snag') {
                     $requiredPermissions = ['view_any_snags'];
                     $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
