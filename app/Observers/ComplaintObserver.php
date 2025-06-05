@@ -598,8 +598,6 @@ class ComplaintObserver
                     }
                 }
             }
-        }
-
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor', 'Facility Manager', 'Property Manager'];
         if ($complaint->technician_id) {
