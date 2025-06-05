@@ -35,7 +35,11 @@ class PatrollingObserver
                         $data['notifiable_type']='App\Models\User\User';
                         $data['notifiable_id']=$user->id;
                         $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                        $data['url']=PatrollingResource::getUrl('index', [$slug]);
+                        if($slug){
+                            $data['url']=PatrollingResource::getUrl('index', [$slug]);
+                        }else{
+                            $data['url']=url('/app/patrollings');
+                        }
                         $data['title']="New Patrolling";
                         $data['body']='New patrolling details is received';
                         $data['building_id']=$patrolling->building_id;
