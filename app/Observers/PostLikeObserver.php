@@ -32,7 +32,12 @@ class PostLikeObserver
                     $data=[];
                     $data['notifiable_type']='App\Models\User\User';
                     $data['notifiable_id']=$user->id;
-                    $data['url']=PostResource::getUrl('edit', [$slug,$post->id]);
+                    $slug = $oam_id?->slug;
+                    if($slug){
+                        $data['url']=PostResource::getUrl('edit', [$slug,$post->id]);
+                    }else{
+                        $data['url']=url('/app/posts/' . $post->id.'/edit');
+                    }
                     $data['title']="Likes";
                     $data['body']=auth()->user()->first_name . ' liked the post!';
                     $data['building_id']=null;

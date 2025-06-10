@@ -33,7 +33,12 @@ class PollResponseObserver
                     $data=[];
                     $data['notifiable_type']='App\Models\User\User';
                     $data['notifiable_id']=$user->id;
-                    $data['url']=PollResource::getUrl('edit', [$slug,$pollResponse->poll->id]);
+                    $slug = $oam_id?->slug;
+                    if($slug){
+                        $data['url']=PollResource::getUrl('edit', [$slug,$pollResponse->poll->id]);
+                    }else{
+                        $data['url']=url('/app/polls/' . $pollResponse->poll->id.'/edit');
+                    }
                     $data['title']="New Poll Response";
                     $data['body']='New poll response received';
                     $data['building_id']=$building_id;

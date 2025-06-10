@@ -48,7 +48,12 @@ class FacilityServiceBookingObserver
                                 $data=[];
                                 $data['notifiable_type']='App\Models\User\User';
                                 $data['notifiable_id']=$user->id;
-                                $data['url']=FacilityBookingResource::getUrl('edit', [$oa?->slug,$facilityBooking?->id]);
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    $data['url']=FacilityBookingResource::getUrl('edit', [$slug,$facilityBooking?->id]);
+                                }else{
+                                    $data['url']=url('/app/building/facility-bookings/' . $facilityBooking?->id.'/edit');
+                                }
                                 $data['title']="Amenity Booking for Building:".$facilityBooking->building->name;
                                 $data['body']='A new '. $facilityName->name.' booking by '.auth()->user()->first_name;
                                 $data['building_id']=$facilityBooking->building_id;
@@ -97,7 +102,12 @@ class FacilityServiceBookingObserver
                                 $data=[];
                                 $data['notifiable_type']='App\Models\User\User';
                                 $data['notifiable_id']=$user->id;
-                                $data['url']=ServiceBookingResource::getUrl('edit', [$oa?->slug,$facilityBooking?->id]);
+                                $slug = $oa?->slug;
+                                if($slug){
+                                    $data['url']=ServiceBookingResource::getUrl('edit', [$slug,$facilityBooking?->id]);
+                                }else{
+                                    $data['url']=url('/app/building/service-bookings/' . $facilityBooking?->id.'/edit');
+                                }
                                 $data['title']="Personal Service Booking for Building :".$facilityBooking->building->name;
                                 $data['body']='A new '. $serviceName->name.' booking by '.auth()->user()->first_name;
                                 $data['building_id']=$facilityBooking->building_id;

@@ -44,7 +44,12 @@ class UserApprovalObserver
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $data['url']=UserApprovalResource::getUrl('edit', [$slug,$userApproval->id]);
+                            $slug = $oa?->slug;
+                            if($slug){
+                                $data['url']=UserApprovalResource::getUrl('edit', [$slug,$userApproval->id]);
+                            }else{
+                                $data['url']=url('/app/user-approvals/' . $userApproval->id.'/edit');
+                            }
                             $data['title']="New Resident Approval for Building ".$userApproval->flat?->building?->name;
                             $data['body']='New Resident Approval is Received';
                             $data['building_id']=$userApproval->flat?->building?->id;
