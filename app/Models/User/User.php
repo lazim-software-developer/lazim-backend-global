@@ -98,18 +98,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         parent::boot();
 
         static::creating(function ($user) {
-            Log::info('Creating user with data:', $user->toArray());
+            // Log::info('Creating user with data:', $user->toArray());
         });
 
         static::created(function ($user) {
-            Log::info('User created:', $user->toArray());
+            // Log::info('User created:', $user->toArray());
         });
     }
 
     // Check if there's any mutator like this:
     public function setFirstNameAttribute($value)
     {
-        Log::info('Setting first_name attribute:', ['value' => $value]);
+        // Log::info('Setting first_name attribute:', ['value' => $value]);
         $this->attributes['first_name'] = $value;
     }
 
