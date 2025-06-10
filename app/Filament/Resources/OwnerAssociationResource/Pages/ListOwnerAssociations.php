@@ -37,26 +37,26 @@ class ListOwnerAssociations extends ListRecords
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('created_at', 'DESC')
                     ->first();
-                
+
                 // If no record exists, enable the button (return false for disabled)
                 if (!$lastSync) {
                     return false;
                 }
-                
+
                 // If record exists, check if it's less than 30 minutes old
                 return now()->diffInMinutes(Carbon::parse($lastSync->created_at)) < 30;
             })
             ->extraAttributes(function () {
                 // Get the last sync time from database
                 $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Owner')->where('job_name', 'FetchOwnersForFlat')->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
-                
+
                 // Default value if no sync history exists
                 $lastSyncDisplay = 'Never synced';
                 $lastSyncTime = now()->format('Y-m-d H:i:s');
-                
+
                 if ($lastSync) {
                     $lastSyncTime = $lastSync->created_at;
-                    
+
                     // Format the display text based on time difference
                     $diffInMinutes = now()->diffInMinutes($lastSyncTime);
                     if ($diffInMinutes < 60) {
@@ -70,7 +70,7 @@ class ListOwnerAssociations extends ListRecords
                         }
                     }
                 }
-                
+
                 return [
                     'title' => 'Last Sync: ' . $lastSyncDisplay,
                     'class' => 'relative',
@@ -95,10 +95,10 @@ class ListOwnerAssociations extends ListRecords
                         'content-type' => 'application/json',
                         'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
                     ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
-            
+
                     $managementCompanies = $response->json()['response']['managementCompanies'];
-            
-            
+
+
                     foreach ($managementCompanies as $company) {
                         $ownerAssociation = OwnerAssociation::firstOrCreate(
                             [
@@ -181,7 +181,7 @@ class ListOwnerAssociations extends ListRecords
                                     'Content-Type' => 'application/json',
                                 ]);
                             $response = $httpRequest->post(env('ACCOUNTING_URL') . $url, $body);
-                            Log::info([$response->json()]);
+                            // Log::info([$response->json()]);
 
                         } catch (\Exception $e) {
                             Log::error('Error ' . $e->getMessage());

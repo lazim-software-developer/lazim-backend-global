@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
@@ -24,7 +25,7 @@ class OverdueReceiptNotification extends Notification
 
     public function toMail($notifiable)
     {
-        \Log::info('Sending receipt mail to:', ['email' => $notifiable->email]);
+        // Log::info('Sending receipt mail to:', ['email' => $notifiable->email]);
 
         $pdfPath = storage_path('app/public/receipts/' . $this->receipt->receipt_number . '.pdf');
         $mailMessage = (new MailMessage)

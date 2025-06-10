@@ -47,7 +47,7 @@ class ListUserApprovals extends ListRecords
                 ->latest();
         }
         $tenant = Filament::getTenant();
-        Log::info($tenant);
+        // Log::info($tenant);
         if ($tenant) {
             return parent::getTableQuery()->whereIn('flat_id', $flats)->latest();
         }

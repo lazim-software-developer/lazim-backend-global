@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use Carbon\Carbon;
 use Stripe\Stripe;
-use App\Models\Media;
 use App\Models\Order;
 use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
@@ -155,7 +154,7 @@ class PaymentController extends Controller
                 'url' => $url,
             ];
         } catch (\Exception $e) {
-            Log::error('Error fetching/storing PDF', [
+            Log::error('##### PaymentController -> fetchServiceChargePDF ##### Error fetching/storing PDF', [
                 'invoice_id' => $invoice->id,
                 'error' => $e->getMessage(),
                 'pdf_link' => $pdfLink,
@@ -211,18 +210,28 @@ class PaymentController extends Controller
 
     public function fecthInvoiceDetails(Flat $flat)
     {
-        $invoice =  OAMInvoice::where('flat_id', $flat->id)->latest('invoice_date')->first();
-        $receipts = OAMReceipts::where('flat_id', $flat->id)
-        ->where('receipt_date', '>=', $invoice->invoice_date)
-        ->get();
-        $balance = $invoice->due_amount;
-        if ($receipts->isNotEmpty()) {
-            $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
+        try {
+            $invoice =  OAMInvoice::where('flat_id', operator: $flat->id)->latest('invoice_date')->first();
+            if (!$invoice) {
+                return ["data" =>['outstanding_balance' => 0,'virtual_account_number' => 0]];
+            }
+            $receipts = OAMReceipts::where('flat_id', $flat->id)
+            ->where('receipt_date', '>=', $invoice->invoice_date)
+            ->get();
+            $balance = $invoice->due_amount;
+            if ($receipts->isNotEmpty()) {
+                $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
+            }
+            return [
+                "data" =>[
+                    'outstanding_balance' => $balance,
+                    'virtual_account_number' => $flat->virtual_account_number,]
+            ];
+        } catch (\Exception $e) {
+            Log::error('##### PaymentController -> fecthInvoiceDetails #####', [
+                'flat_id' => $flat->id,
+                'error' => $e->getMessage(),
+            ]);
         }
-        return [
-            "data" =>[
-                'outstanding_balance' => $balance,
-                'virtual_account_number' => $flat->virtual_account_number,]
-        ];
     }
 }

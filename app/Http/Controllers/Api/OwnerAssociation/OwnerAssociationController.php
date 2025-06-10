@@ -131,10 +131,10 @@ class OwnerAssociationController extends Controller
         DB::table('roles')->insert($roles);
 
         $permissionsConfig = config('role-permission');
-        Log::info('oa_id' . $oaId);
+        // Log::info('oa_id' . $oaId);
         foreach ($permissionsConfig['roles'] as $roleName => $roleConfig) {
             $role = Role::where('name', $roleName)->where('owner_association_id', $oaId)->first();
-            Log::info("Role" . $role);
+            // Log::info("Role" . $role);
             if (isset($roleConfig['permissions'])) {
                 $role->syncPermissions($roleConfig['permissions']);
             }
@@ -182,7 +182,7 @@ class OwnerAssociationController extends Controller
             // Send email with credentials
             $slug = $data->slug;
             AccountCreationJob::dispatch($user, $password, $slug);
-        } 
+        }
     }
     public function LazimAccountDatabase($data, $user, $password) {
         $connection = DB::connection('lazim_accounts');
