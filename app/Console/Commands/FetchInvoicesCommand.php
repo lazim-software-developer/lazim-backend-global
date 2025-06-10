@@ -13,7 +13,7 @@ class FetchInvoicesCommand extends Command
 
     public function handle()
     {
-        Building::chunk(100, function ($buildings) {
+        Building::where('managed_by','OA')->chunk(100, function ($buildings) {
             foreach ($buildings as $building) {
                 dispatch(new FetchAndSaveInvoices($building));
             }
