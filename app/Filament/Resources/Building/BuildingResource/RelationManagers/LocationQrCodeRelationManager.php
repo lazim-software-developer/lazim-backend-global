@@ -60,7 +60,7 @@ class LocationQrCodeRelationManager extends RelationManager
 
                     }]),
                 TextInput::make('code')
-                    ->visible(fn (): bool => request()->routeIs('*.view'))
+                    ->disabled(fn (?LocationQrCode $record): bool => $record !== null && (request()->routeIs('*.view') || request()->routeIs('*.create')))
                     ->placeholder('Unique Code')
                     ->label('Unique Code')
                     ->maxLength(50),
