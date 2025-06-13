@@ -15,12 +15,16 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ThrottlesApiCalls;
 
 class FetchAndSaveReceipts implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ThrottlesApiCalls;
 
     protected $building;
+
+    public $tries = 3; // Retry 3 times on failure
+    public $backoff = [60, 120, 180]; // Wait 60s, 120s, 180s before retries
 
     public function __construct($building = null, protected $propertyGroupId = null, protected $mollakPropertyId = null, protected $receiptId = null)
     {
@@ -29,11 +33,27 @@ class FetchAndSaveReceipts implements ShouldQueue
 
     public function handle()
     {
+        // Try to throttle
+        if (! $this->throttleApiCall('external-api-global', 4)) {
+            // Too soon, retry after delay
+            $this->release(4); // Retry after 4 minutes
+            return;
+        }
+        $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
+        $mollakPropertyId = $this->mollakPropertyId;
+        $receiptId = $this->receiptId;
+        // Call external API here
+        $this->callExternalApi($this->building,$propertyGroupId,$mollakPropertyId,$receiptId);
+
+    }
+
+    protected function callExternalApi($building,$propertyGroupId, $mollakPropertyId,$receiptId)
+    {
         try {
-            $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
-            $mollakPropertyId = $this->mollakPropertyId;
-            $receiptId = $this->receiptId;
-            $buildingId = $this->building?->id ?: Building::where('property_group_id', $propertyGroupId)->first()?->id;
+            // $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
+            // $mollakPropertyId = $this->mollakPropertyId;
+            // $receiptId = $this->receiptId;
+            $buildingId = isset($building) && !empty($building) ? $building?->id : Building::where('property_group_id', $propertyGroupId)->first()?->id;
 
             $now = new DateTime();
 
@@ -46,11 +66,12 @@ class FetchAndSaveReceipts implements ShouldQueue
             if ($this->receiptId) {
                 $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . "/" . $mollakPropertyId . "/" . $receiptId . "/id";
 
-                Log::info('RECEIPTID', [$url]);
+                // Log::info('RECEIPTID', [$url]);
             } else {
                 $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $startOfWeek . '/' . $endOfWeek;
                 // $url = env("MOLLAK_API_URL") . '/sync/receipts/' . $propertyGroupId . '/' . $dateRange;
             }
+            Log::info('##### FetchAndSaveReceipts -> callExternalApi ##### URL ', [$url]);
             $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
