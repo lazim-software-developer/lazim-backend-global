@@ -141,10 +141,10 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'payment_url' => $property['paymentUrl']
                         ]
                     );
-                    if (isset($invoice->invoice_detail_link) && !empty($invoice->invoice_detail_link)) {
-                        $file  = new PaymentController();
-                        $file->fetchServiceChargePDF($invoice);
-                    }
+                    // if (isset($invoice->invoice_detail_link) && !empty($invoice->invoice_detail_link)) {
+                    //     $file  = new PaymentController();
+                    //     $file->fetchServiceChargePDF($invoice);
+                    // }
 
                     // $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;

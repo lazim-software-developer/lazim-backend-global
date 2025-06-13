@@ -33,7 +33,8 @@ class AccessCard extends Model
         'payment_link',
         'passport',
         'title_deed',
-        'ticket_number'
+        'ticket_number',
+        'emirate_of_registration' 
     ];
 
     protected $searchableFields = ['*'];

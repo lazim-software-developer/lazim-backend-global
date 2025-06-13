@@ -13,6 +13,7 @@ use App\Models\Accounting\WDA;
 use Filament\Facades\Filament;
 use Illuminate\Support\Carbon;
 use App\Models\Building\Building;
+use App\Models\Building\Document;
 use App\Models\Building\FlatTenant;
 use App\Models\Building\BuildingPoc;
 use Illuminate\Support\Facades\View;
@@ -22,6 +23,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Filament\Resources\User\TenantResource;
 use App\Filament\Resources\UserApprovalResource;
 use App\Filament\Resources\Vendor\VendorResource;
+use App\Filament\Resources\TenantDocumentResource;
 use App\Filament\Resources\Building\BuildingResource;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -63,6 +65,12 @@ class StatsOverview extends BaseWidget
             ->where(function ($query) {
                 $query->whereNull('status')->orWhereNotIn('status', ['approved', 'rejected']);
             });
+        $documentApprovalQuery = Document::where('owner_association_id', Filament::getTenant()->id)
+            ->where(function ($query) {
+                $query->whereNull('status')->orWhereNotIn('status', ['approved', 'rejected'])
+                    ->where('documentable_type', 'App\Models\User\User')
+                    ->where('name', '!=', 'Makani number');
+            });
 
         // Apply filters
         if ($buildingId) {
@@ -76,6 +84,9 @@ class StatsOverview extends BaseWidget
             $userApprovalQuery->whereHas('flat.building', function ($q) use ($buildingId) {
                 $q->where('id', $buildingId);
             });
+            $documentApprovalQuery->whereHas('building', function ($q) use ($buildingId) {
+                $q->where('id', $buildingId);
+            });
         }
 
         if ($startDate) {
@@ -85,6 +96,7 @@ class StatsOverview extends BaseWidget
             $wdaQuery->where('created_at', '>=', $startOfDay);
             $vendorsQuery->where('created_at', '>=', $startOfDay);
             $userApprovalQuery->where('created_at', '>=', $startOfDay);
+            $documentApprovalQuery->where('created_at', '>=', $startOfDay);
         }
 
         if ($endDate) {
@@ -94,6 +106,7 @@ class StatsOverview extends BaseWidget
             $wdaQuery->where('created_at', '<=', $endOfDay);
             $vendorsQuery->where('created_at', '<=', $endOfDay);
             $userApprovalQuery->where('created_at', '<=', $endOfDay);
+            $documentApprovalQuery->where('created_at', '<=', $endOfDay);
         }
 
         // Get the counts
@@ -103,6 +116,7 @@ class StatsOverview extends BaseWidget
         $securityCount = $securityQuery->count();
         $vendorsCount = $vendorsQuery->count();
         $pendingUserApprovalCount = $userApprovalQuery->count();
+        $pendingDocumentApprovalCount = $documentApprovalQuery->count();
 
         $role = Role::where('owner_association_id', Filament::getTenant()->id);
         $technicianCount = User::where('role_id', $role->where('name', 'Technician')->value('id'))->count();
@@ -194,6 +208,21 @@ class StatsOverview extends BaseWidget
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
                 ->extraAttributes(['style' => 'background-color: #FFF7E0; color: #FFAA00;']);
+        }
+        if ($user->can('view_any_user::approval')) {
+            $stats[] = Stat::make('Document Approvals', $pendingDocumentApprovalCount)
+                ->description('Pending Document Approvals')
+                ->icon('heroicon-o-user')
+                ->url(TenantDocumentResource::getUrl('index',[
+                    'tableFilters' => [
+                        'status' => [
+                            'value' => 'submitted'
+                        ],
+                    ],
+                    ]))
+                ->color('orange-200')
+                ->chart([5, 15, 25, 35, 45])
+                ->extraAttributes(['style' => 'background-color:#FFF7E0; rgba(78, 55, 8, 0.89);']);
         }
 
         return $stats;

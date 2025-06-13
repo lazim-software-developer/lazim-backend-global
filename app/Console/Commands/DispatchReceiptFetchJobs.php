@@ -13,7 +13,12 @@ class DispatchReceiptFetchJobs extends Command
 
     public function handle()
     {
-        $buildings = Building::all();
+        $buildings = Building::where('managed_by','OA')->get();
+        if ($buildings->isEmpty()) {
+            $this->info('No buildings found to fetch receipts for.');
+            return;
+        }
+        // $buildings = Building::all();
         foreach ($buildings as $building) {
             dispatch(new FetchAndSaveReceipts($building));
         }
