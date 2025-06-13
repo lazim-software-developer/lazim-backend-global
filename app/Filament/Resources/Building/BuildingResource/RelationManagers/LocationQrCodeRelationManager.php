@@ -88,7 +88,7 @@ class LocationQrCodeRelationManager extends RelationManager
                         
                         return '<img src="data:image/png;base64,' . $qrCodeBase64 . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
                     })
-                    ->html()
+                    ->dehydrated(fn (array $record): string => $record['qr_code'])
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
