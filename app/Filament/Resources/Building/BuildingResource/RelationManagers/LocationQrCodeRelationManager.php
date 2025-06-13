@@ -64,31 +64,28 @@ class LocationQrCodeRelationManager extends RelationManager
                     ->placeholder('Unique Code')
                     ->label('Unique Code')
                     ->maxLength(50),
-                FloorQrCode::make('qr_code')
+                    TextColumn::make('qr_code')
                     ->label('QR Code')
                     ->formatStateUsing(function ($record) {
                         if (!$record) {
                             return null;
                         }
                         
-                        // If QR code is already stored in database, use it
-                        if ($record->qr_code) {
-                            return '<img src="data:image/png;base64,' . $record->qr_code . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
-                        }
-                        
-                        // Otherwise generate it dynamically
+                        // Generate QR code data
                         $qrData = json_encode([
                             'floors' => $record->floor_id,
                             'building_id' => $record->building_id,
                             'code' => $record->code
                         ]);
                         
+                        // Generate QR code as base64 image
                         $qrCode = QrCode::size(200)->format('png')->generate($qrData);
                         $qrCodeBase64 = base64_encode($qrCode);
                         
+                        // Return as HTML image tag
                         return '<img src="data:image/png;base64,' . $qrCodeBase64 . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
                     })
-                    ->dehydrated(fn (array $record): string => $record['qr_code'])
+                    ->html() // Allow HTML content
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
