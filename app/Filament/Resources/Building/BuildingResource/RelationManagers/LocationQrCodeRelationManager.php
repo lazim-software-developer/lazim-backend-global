@@ -59,8 +59,20 @@ class LocationQrCodeRelationManager extends RelationManager
                         };
 
                     }]),
+                TextInput::make('code')
+                    ->visible(fn (): bool => request()->routeIs('*.view'))
+                    ->placeholder('Unique Code')
+                    ->label('Unique Code')
+                    ->maxLength(50),
                 FloorQrCode::make('qr_code')
                     ->label('QR Code')
+                    ->dehydrated(fn (array $record): array => [
+                        'qr_code' => $record['qr_code'] ?? QrCode::size(200)->generate(json_encode([
+                            'floors' => $record['floor_id'],
+                            'building_id' => $record['building_id'],
+                            'code'=>$record['code']
+                        ])),
+                    ])
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
@@ -76,6 +88,7 @@ class LocationQrCodeRelationManager extends RelationManager
                         $qrCodeContent = [
                             'floors' => $record->floor_id,
                             'building_id' => $record->building_id,
+                            'code'=>$record->code
                         ];
                         $qrCode = QrCode::format('png')->size(200)->generate(json_encode($qrCodeContent));
                         return 'data:image/png;base64,' . base64_encode($qrCode);
@@ -106,6 +119,7 @@ class LocationQrCodeRelationManager extends RelationManager
                         $qrCodeContent = [
                             'floor_id' => $record->floor_id,
                             'building_id' => $record->building_id,
+                            'code' => $code
                         ];
                         $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
                         LocationQrCode::where('id', $record->id)
@@ -122,6 +136,7 @@ class LocationQrCodeRelationManager extends RelationManager
                         $qrCodeContent = [
                             'floors' => $record->floor_id,
                             'building_id' => $record->building_id,
+                            'code' => $record->code
                         ];
                         // Generate QR code as PNG
                         $qrCode = QrCode::format('png')->size(500) // Increased size for better quality
@@ -176,6 +191,7 @@ class LocationQrCodeRelationManager extends RelationManager
                                             'floors' => $floor->floor_id,
                                             'building_id' => $floor->building_id,
                                             'building_name' => $buildingName,
+                                            'code' => $floor->code
                                         ];
                                         $qrCode = QrCode::format('png')
                                             ->size(500)
