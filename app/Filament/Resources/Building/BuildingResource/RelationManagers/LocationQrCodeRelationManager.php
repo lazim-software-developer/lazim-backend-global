@@ -64,17 +64,31 @@ class LocationQrCodeRelationManager extends RelationManager
                     ->placeholder('Unique Code')
                     ->label('Unique Code')
                     ->maxLength(50),
-                ImageColumn::make('qr_code')
+                FloorQrCode::make('qr_code')
                     ->label('QR Code')
-                    ->getStateUsing(function ($record) {
-                        $qrCodeContent = [
+                    ->formatStateUsing(function ($record) {
+                        if (!$record) {
+                            return null;
+                        }
+                        
+                        // If QR code is already stored in database, use it
+                        if ($record->qr_code) {
+                            return '<img src="data:image/png;base64,' . $record->qr_code . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
+                        }
+                        
+                        // Otherwise generate it dynamically
+                        $qrData = json_encode([
                             'floors' => $record->floor_id,
                             'building_id' => $record->building_id,
-                            'code'=>$record->code
-                        ];
-                        $qrCode = QrCode::format('png')->size(200)->generate(json_encode($qrCodeContent));
-                        return 'data:image/png;base64,' . base64_encode($qrCode);
+                            'code' => $record->code
+                        ]);
+                        
+                        $qrCode = QrCode::size(200)->format('png')->generate($qrData);
+                        $qrCodeBase64 = base64_encode($qrCode);
+                        
+                        return '<img src="data:image/png;base64,' . $qrCodeBase64 . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
                     })
+                    ->dehydrated(fn (array $record): string => $record['qr_code'])
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
