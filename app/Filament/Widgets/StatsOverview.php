@@ -207,22 +207,7 @@ class StatsOverview extends BaseWidget
                     ]))
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
-                ->extraAttributes(['style' => 'background-color: #FFF7E0; color:rgba(78, 55, 8, 0.89);']);
-        }
-        if ($user->can('view_any_user::approval')) {
-            $stats[] = Stat::make('Document Approvals', $pendingDocumentApprovalCount)
-                ->description('Pending Document Approvals')
-                ->icon('heroicon-o-user')
-                ->url(TenantDocumentResource::getUrl('index',[
-                    'tableFilters' => [
-                        'status' => [
-                            'value' => 'submitted'
-                        ],
-                    ],
-                    ]))
-                ->color('orange-200')
-                ->chart([5, 15, 25, 35, 45])
-                ->extraAttributes(['style' => 'background-color:#FFF7E0; rgba(78, 55, 8, 0.89);']);
+                ->extraAttributes(['style' => 'background-color: #FFF7E0; color: #FFAA00;']);
         }
         if ($user->can('view_any_user::approval')) {
             $stats[] = Stat::make('Document Approvals', $pendingDocumentApprovalCount)
