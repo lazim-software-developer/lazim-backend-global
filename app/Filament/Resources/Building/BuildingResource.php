@@ -52,6 +52,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRela
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\LocationQrCodeRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
@@ -94,6 +95,10 @@ class BuildingResource extends Resource
                         ])
                         ->hidden(fn() => ! in_array(auth()->user()->role->name, ['Admin', 'Property Manager'])),
 
+                    TextInput::make('building_code')
+                        ->rules(['max:50'])
+                        ->required()
+                        ->placeholder('Building Code'),
                     TextInput::make('property_group_id')
                         ->rules(['max:50'])
                         ->required()
@@ -182,6 +187,10 @@ class BuildingResource extends Resource
                             }return false;
                         })
                         ->label('Floor'),
+                    TextInput::make('floor_description')
+                    ->rules(['max:255', 'string'])
+                    ->placeholder('Floor Description')
+                    ->label('Floor Description'),
 
                     TextInput::make('parking_count')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
@@ -213,7 +222,8 @@ class BuildingResource extends Resource
 
                     Toggle::make('allow_postupload')
                         ->rules(['boolean'])
-                        ->label('Allow post-upload'),
+                        ->label('Allow post-upload')
+                        ->inline(false),
                     Toggle::make('show_inhouse_services')
                         ->rules(['boolean'])
                         ->label('Show Personal services'),
@@ -1007,6 +1017,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
+            LocationQrCodeRelationManager::class,
             RuleregulationsRelationManager::class,
             // AppartmentsafetyRelationManager::class,
             EmergencyNumbersRelationManager::class,
@@ -1039,6 +1050,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
+            LocationQrCodeRelationManager::class,
             RuleregulationsRelationManager::class,
             // AppartmentsafetyRelationManager::class,
             EmergencyNumbersRelationManager::class,

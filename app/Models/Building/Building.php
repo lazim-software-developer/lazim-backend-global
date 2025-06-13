@@ -6,8 +6,6 @@ use App\Models\Item;
 use App\Models\Asset;
 use App\Models\Floor;
 use App\Models\Meeting;
-use App\Models\OfferPromotion;
-use App\Models\SubContractor;
 use App\Models\User\User;
 use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
@@ -17,6 +15,7 @@ use App\Models\Master\Role;
 use App\Models\MollakTenant;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
+use App\Models\SubContractor;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
 use App\Models\Accounting\WDA;
@@ -24,7 +23,9 @@ use App\Models\BuildingVendor;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
+use App\Models\LocationQrCode;
 use App\Models\Master\Service;
+use App\Models\OfferPromotion;
 use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
@@ -89,7 +90,9 @@ class Building extends Model
         'status',
         'created_by',
         'updated_by',
-        'resource'
+        'resource',
+        'floor_description',
+        'building_code',
     ];
 
     protected $casts = [
@@ -123,6 +126,10 @@ class Building extends Model
     public function floors()
     {
         return $this->hasMany(Floor::class);
+    }
+    public function LocationQrCode()
+    {
+        return $this->hasMany(LocationQrCode::class);
     }
     public function ruleregulations()
     {

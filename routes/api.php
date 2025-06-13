@@ -39,7 +39,6 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\ProposalController;
-use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\Building\BuildingController;
@@ -54,6 +53,7 @@ use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Community\CommunityController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Vendor\SnagDashboardController;
+use App\Http\Controllers\AccessCard\AccessCardController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Forms\ResidentialFormController;
@@ -615,6 +615,13 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::get('/work-permit/{workPermit}', [PermitWorkController::class, 'show']);
     // Update work permit status
     Route::patch('/work-permit/{workPermit}/update-status', [PermitWorkController::class, 'updateStatus']);
+});
+
+
+//Access Card APIs
+Route::middleware(['auth:sanctum', 'active'])->prefix('access-card')->group(function () {
+    // Registration
+    Route::get('/emirate-of-registration', [AccessCardController::class, 'emirateOfRegistration']);
 });
 
 // Technician Related APIs
