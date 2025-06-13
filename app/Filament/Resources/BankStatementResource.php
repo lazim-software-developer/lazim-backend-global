@@ -39,15 +39,43 @@ class BankStatementResource extends Resource
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at', 'desc')->withoutGlobalScopes())
             ->columns([
-                TextColumn::make('flat.property_number')->searchable()->label('Unit'),
-                TextColumn::make('receipt_number')->searchable(),
-                TextColumn::make('receipt_date')->label('Payment date'),
-                TextColumn::make('payment_mode')->label('Payment mode'),
-                TextColumn::make('noqodi_info')->label('Invoice number')->searchable()->default('NA')->formatStateUsing(fn($state) => json_decode($state) ? json_decode($state)->invoiceNumber : 'NA'),
-                TextColumn::make('from_date')->label('General fund')->formatStateUsing(fn($record) => $record->payment_mode == "Virtual Account Transfer" ? $record->receipt_amount : ($record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0)),
+                TextColumn::make('flat.property_number')
+                            ->searchable()
+                            ->label('Unit')
+                            ->sortable()
+                            ->formatStateUsing(fn($state, $record) => $record->flat ? $record->flat->property_number : 'N/A'),
+                TextColumn::make('building.name')
+                            ->searchable()
+                            ->sortable()
+                            ->formatStateUsing(fn($state, $record) => $record->building ? $record->building->name : 'N/A')
+                            ->label('building'),
+                TextColumn::make('receipt_number')
+                            ->searchable()
+                            ->sortable(),
+                TextColumn::make('receipt_date')
+                            ->label('Payment date')
+                            ->sortable(),
+                TextColumn::make('payment_mode')
+                            ->label('Payment mode')
+                            ->sortable(),
+                TextColumn::make('noqodi_info')
+                            ->label('Invoice number')
+                            ->searchable()
+                            ->sortable()
+                            ->default('NA')
+                            ->formatStateUsing(fn($state) => json_decode($state) ? json_decode($state)->invoiceNumber : 'NA'),
+                TextColumn::make('from_date')
+                            ->label('General fund')
+                            ->sortable()
+                            ->formatStateUsing(fn($record) => $record->payment_mode == "Virtual Account Transfer" ? $record->receipt_amount : ($record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0)),
                 // TextColumn::make('from_date')->label('General fund')->formatStateUsing(fn($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->generalFundAmount, 2) : 0),
-                TextColumn::make('to_date')->label('Reserve fund')->formatStateUsing(fn($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->reservedFundAmount, 2) : 0),
-                TextColumn::make('receipt_amount')->label('Total'),
+                TextColumn::make('to_date')
+                            ->label('Reserve fund')
+                            ->sortable()
+                            ->formatStateUsing(fn($record) => $record->noqodi_info ? number_format(json_decode($record->noqodi_info)->reservedFundAmount, 2) : 0),
+                TextColumn::make('receipt_amount')
+                            ->label('Total')
+                            ->sortable(),
             ])
             ->filters([
                 Filter::make('invoice_date')
