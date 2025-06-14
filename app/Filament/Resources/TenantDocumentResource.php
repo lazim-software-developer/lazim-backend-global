@@ -129,7 +129,6 @@ class TenantDocumentResource extends Resource
             ->poll('60s')
             ->modifyQueryUsing(
                 fn(Builder $query) => $query
-                    ->with(['documentable.flatTenants.flat', 'building'])
                     ->where('documentable_type', 'App\Models\User\User')
                     ->where('name', '!=', 'Makani number')
                     ->withoutGlobalScopes()
@@ -147,11 +146,12 @@ class TenantDocumentResource extends Resource
                     ->label('Building')
                     ->limit(50)
                     ->sortable(),
-                TextColumn::make('flatTenant.flat.property_number')
-                    ->label('Unit number')
+                TextColumn::make('unit')
                     ->default('NA')
-                    ->getStateUsing(function ($record) {
-                        return $record->flatTenant->flat->property_number ?? 'NA';
+                    ->label('Unit number')
+                    ->getStateUsing(function (Get $get, $record) {
+                        $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
+                        return Flat::where('id', $flatID)->value('property_number');
                     })
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
