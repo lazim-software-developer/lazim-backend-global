@@ -382,9 +382,11 @@ class RegistrationController extends Controller
             'user_id' => $user->id,
             'document' => $imagePath,
             'document_type' => $request->type == 'Owner' ? 'Title Deed' : 'Ejari',
+            'document_expiry_date' => $request->has('document_expiry_date') ? $request->document_expiry_date : null, // add in mobile app
             'emirates_document' => $emirates,
             'emirates_document_expiry_date' => $request->has('emirates_document_expiry_date') ? $request->emirates_document_expiry_date : null,
             'trade_license' => $tradeLicense,
+            'trade_license_expiry_date' => $request->has('trade_license_expiry_date') ? $request->trade_license_expiry_date : null, // add in mobile app
             'passport' => $passport,
             'passport_expiry_date' => $request->has('passport_expiry_date') ? $request->passport_expiry_date : null,
             'flat_id' => $request->flat_id,
