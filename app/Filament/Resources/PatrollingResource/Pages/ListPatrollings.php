@@ -29,13 +29,13 @@ class ListPatrollings extends ListRecords
             ->pluck('building_id');
 
         if ($role == 'Admin') {
-            return parent::getTableQuery();
+            return parent::getTableQuery()->latest();
         }
         if (in_array($role, ['Property Manager', 'OA'])) {
             return parent::getTableQuery()
                 ->whereIn('building_id', $buildings)
                 ->latest();
         }
-        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id);
+        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id)->latest();
     }
 }
