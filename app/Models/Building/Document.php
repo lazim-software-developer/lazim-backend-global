@@ -66,6 +66,10 @@ class Document extends Model
     {
         return $this->belongsTo(Flat::class);
     }
+    // public function flatTenant()
+    // {
+    //     return $this->belongsTo(FlatTenant::class, 'documentable_id','tenant_id');
+    // }
     public function documentable()
     {
         return $this->morphTo();

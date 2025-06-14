@@ -88,17 +88,7 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->afterStateHydrated(function ($state, $set) {
-                                // Validate file path when hydrating from the database
-                                if ($state && (!preg_match('/^[a-zA-Z0-9\/._-]+$/', $state) || strpos($state, '..') !== false)) {
-                                    $set('url', null);
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Invalid file path loaded from database.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('emirates_document')
                             ->disk('s3')
@@ -106,17 +96,7 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->afterStateHydrated(function ($state, $set) {
-                                // Validate file path when hydrating from the database
-                                if ($state && (!preg_match('/^[a-zA-Z0-9\/._-]+$/', $state) || strpos($state, '..') !== false)) {
-                                    $set('url', null);
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Invalid file path loaded from database.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('passport')
                             ->disk('s3')
@@ -124,17 +104,7 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->afterStateHydrated(function ($state, $set) {
-                                // Validate file path when hydrating from the database
-                                if ($state && (!preg_match('/^[a-zA-Z0-9\/._-]+$/', $state) || strpos($state, '..') !== false)) {
-                                    $set('url', null);
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Invalid file path loaded from database.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('trade_license')
                             ->disk('s3')
@@ -142,17 +112,7 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->afterStateHydrated(function ($state, $set) {
-                                // Validate file path when hydrating from the database
-                                if ($state && (!preg_match('/^[a-zA-Z0-9\/._-]+$/', $state) || strpos($state, '..') !== false)) {
-                                    $set('url', null);
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Invalid file path loaded from database.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         DatePicker::make('emirates_document_expiry_date')
                             ->label('Emirates ID Expiry')
@@ -685,7 +645,6 @@ class UserApprovalResource extends Resource
                         'rejected' => 'Rejected',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        \Illuminate\Support\Facades\Log::info('Filter data:', $data);
                         if (!isset($data['value']) || empty($data['value'])) {
                             return $query;
                         }

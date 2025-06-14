@@ -111,19 +111,7 @@ class TenantDocumentResource extends Resource
                                 ->openable(true)
                                 ->downloadable(true)
                                 ->label('Document')
-                                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png']) // Restrict to specific MIME types
-                                ->maxSize(5120) // Limit file size to 5MB
-                                ->afterStateHydrated(function ($state, $set) {
-                                    // Validate file path when hydrating from the database
-                                    if ($state && (!preg_match('/^[a-zA-Z0-9\/._-]+$/', $state) || strpos($state, '..') !== false)) {
-                                        $set('url', null);
-                                        Notification::make()
-                                            ->title('Error')
-                                            ->body('Invalid file path loaded from database.')
-                                            ->danger()
-                                            ->send();
-                                    }
-                                })
+                                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx']) // Restrict to specific MIME types
                             // ->columnSpan([
                             //     'sm' => 1,
                             //     'md' => 1,
@@ -141,6 +129,7 @@ class TenantDocumentResource extends Resource
             ->poll('60s')
             ->modifyQueryUsing(
                 fn(Builder $query) => $query
+                    ->with(['documentable.flatTenants.flat', 'building'])
                     ->where('documentable_type', 'App\Models\User\User')
                     ->where('name', '!=', 'Makani number')
                     ->withoutGlobalScopes()
@@ -158,15 +147,13 @@ class TenantDocumentResource extends Resource
                     ->label('Building')
                     ->limit(50)
                     ->sortable(),
-                TextColumn::make('unit')
-                    ->default('NA')
+                TextColumn::make('flatTenant.flat.property_number')
                     ->label('Unit number')
-                    ->getStateUsing(function (Get $get, $record) {
-                        $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
-                        return Flat::where('id', $flatID)->value('property_number');
+                    ->default('NA')
+                    ->getStateUsing(function ($record) {
+                        return $record->flatTenant->flat->property_number ?? 'NA';
                     })
-                    ->limit(50)
-                    ->sortable(),
+                    ->limit(50),
                 TextColumn::make('documentUsers.first_name')
                     ->searchable()
                     ->label('Resident name')
@@ -255,7 +242,6 @@ class TenantDocumentResource extends Resource
                         'rejected' => 'Rejected',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        \Illuminate\Support\Facades\Log::info('Filter data:', $data);
                         if (!isset($data['value']) || empty($data['value'])) {
                             return $query;
                         }
