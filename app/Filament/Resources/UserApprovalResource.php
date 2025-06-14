@@ -19,6 +19,7 @@ use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
+// use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -59,6 +60,12 @@ class UserApprovalResource extends Resource
                         DateTimePicker::make('created_at')
                             ->label('Date of Creation')
                             ->disabled(),
+                        TextInput::make('role_name')
+                            ->label('Applied As')
+                            ->disabled()
+                            ->formatStateUsing(function ($record) {
+                                return $record?->user?->role?->name ?? 'N/A';
+                            }),
                     ])
                     ->columns(2),
                 Section::make('Flat & Building Details')
@@ -76,13 +83,7 @@ class UserApprovalResource extends Resource
                     ->columns(2),
                 Section::make('Documents')
                     ->schema([
-                        FileUpload::make('document')
-                            ->label(function (Get $get) {
-                                if ($get('document_type') == 'Ejari') {
-                                    return 'Tenancy Contract / Ejari';
-                                }
-                                return $get('document_type');
-                            })
+                        FileUpload::make('passport')
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
@@ -98,14 +99,6 @@ class UserApprovalResource extends Resource
                             ->required()
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        FileUpload::make('passport')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->required()
-                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('trade_license')
                             ->disk('s3')
                             ->directory('dev')
@@ -114,19 +107,46 @@ class UserApprovalResource extends Resource
                             ->required()
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        DatePicker::make('emirates_document_expiry_date')
-                            ->label('Emirates ID Expiry')
+                        FileUpload::make('document')
+                            ->label(function (Get $get) {
+                                if ($get('document_type') == 'Ejari') {
+                                    return 'Tenancy Contract / Ejari';
+                                }
+                                return $get('document_type');
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         DatePicker::make('passport_expiry_date')
                             ->label('Passport Expiry')
                             ->minDate(Carbon::today())
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        DatePicker::make('emirates_document_expiry_date')
+                            ->label('Emirates ID Expiry')
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         DatePicker::make('trade_license_expiry_date')
                             ->label('Trade License Expiry')
                             ->minDate(Carbon::today())
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        DatePicker::make('document_expiry_date')
+                            ->label(function (Get $get) {
+                                if ($get('document_type') == 'Ejari') {
+                                    return 'Tenancy Contract / Ejari';
+                                }
+                                return $get('document_type');
+                            })
+                            ->disabled(function (Get $get) use ($user) {
+                                return !(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval')) || $get('document_type') != 'Ejari';
+                            })
+                            ->hidden(function (Get $get) {
+                                return $get('document_type') != 'Ejari';
+                            }),
                     ])
-                    ->columns(3),
+                    ->columns(4),
                 Section::make('Owners Information')
                     ->schema([
                         Tabs::make('Owners')
