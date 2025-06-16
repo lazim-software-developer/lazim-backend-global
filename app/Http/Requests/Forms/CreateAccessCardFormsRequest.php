@@ -32,6 +32,7 @@ class CreateAccessCardFormsRequest extends FormRequest
             'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'title_deed' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
+            'emirate_of_registration' => 'required|integer|exists:emirate_of_registrations,id',
         ];
     }
 
@@ -60,6 +61,8 @@ class CreateAccessCardFormsRequest extends FormRequest
             'vehicle_registration.max' => 'The uploaded file for vehicle registration must be less than 2MB.',
             'passport.max' => 'The uploaded image must be less than 2MB.',
             'title_deed.max' => 'The uploaded image must be less than 2MB.',
+            'emirate_of_registration.required' => 'Select Emirate of Registration.',
+            'emirate_of_registration.exists' => 'Invalid Emirate of Registration.',
         ];
     }
 }
