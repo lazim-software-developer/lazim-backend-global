@@ -39,6 +39,7 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\ProposalController;
+use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\Technician\TasksController;
 use App\Http\Controllers\Building\BuildingController;
@@ -53,7 +54,6 @@ use App\Http\Controllers\HelpDesk\ComplaintController;
 use App\Http\Controllers\Community\CommunityController;
 use App\Http\Controllers\Documents\DocumentsController;
 use App\Http\Controllers\Vendor\SnagDashboardController;
-use App\Http\Controllers\AccessCard\AccessCardController;
 use App\Http\Controllers\Api\Auth\RegistrationController;
 use App\Http\Controllers\Api\Auth\VerificationController;
 use App\Http\Controllers\Forms\ResidentialFormController;
@@ -68,6 +68,7 @@ use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use App\Http\Controllers\Api\Tally\TallyIntigrationController;
 use App\Http\Controllers\Notifications\NotificationController;
+use App\Http\Controllers\AccessCard\AccessCardCommanController;
 use App\Http\Controllers\Api\OwnerAssociation\OwnerAssociationController;
 use App\Http\Controllers\Api\OwnerAssociation\NewOwnerAssociationController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
@@ -621,7 +622,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 //Access Card APIs
 Route::middleware(['auth:sanctum', 'active'])->prefix('access-card')->group(function () {
     // Registration
-    Route::get('/emirate-of-registration', [AccessCardController::class, 'emirateOfRegistration']);
+    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
 });
 
 // Technician Related APIs

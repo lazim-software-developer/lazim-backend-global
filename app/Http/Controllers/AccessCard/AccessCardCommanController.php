@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AccessCard\EmirateOfRegistrationResource;
 
-class AccessCardController extends Controller
+class AccessCardCommanController extends Controller
 {
     public function emirateOfRegistration() {
         $emirates = DB::table('emirate_of_registrations')->select('id', 'name','status')->where('status', 1)->get();
