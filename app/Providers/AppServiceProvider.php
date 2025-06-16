@@ -144,6 +144,8 @@ class AppServiceProvider extends ServiceProvider
         // Resource::scopeToTenant(false);
         FilamentIcon::register([
             'panels::topbar.open-database-notifications-button' => view('icons.sidebar-notifications'),
+            'panels::topbar.open-sidebar-button' => 'heroicon-o-bars-3', // Use heroicon-o-bars-3 for open sidebar button hamburger icon
+            'panels::topbar.close-sidebar-button' => 'heroicon-o-x-mark',
         ]);
 
         //Global settings for Admin module (for all table per page options)

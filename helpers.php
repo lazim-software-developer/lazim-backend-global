@@ -66,7 +66,9 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             return $fullPath;
         } else {
             // Unsupported file type
-            return response()->json(['error' => 'Unsupported file type.'], 422);
+            \Illuminate\Support\Facades\Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- Unsupported file type uploaded', ['file_type' => $extension, 'path' => $path, 'filename' => $file->getClientOriginalName(), 'user_id' => auth()->id()]);
+            // return response()->json(['error' => 'Unsupported file type.'], 422);
+            return null;
         }
     } else {
         // No file uploaded
@@ -119,7 +121,7 @@ function NotificationTable($data){
             'updated_at' => now()->format('Y-m-d H:i:s'),
         ]);
     }
-    
+
     DB::table('notifications')->insert([
         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
         'type' => 'Filament\Notifications\DatabaseNotification',
