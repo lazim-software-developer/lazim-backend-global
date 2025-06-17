@@ -402,6 +402,13 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('access-card')->group(function () {
+    Route::post('/', [AccessCardController::class, 'listing']);
+    Route::get('/{accessCard}', [AccessCardController::class, 'show']);
+    Route::post('/{accessCard}/update', [AccessCardController::class, 'update']);
+    Route::delete('/{accessCard}', [AccessCardController::class, 'delete']);
+    
+});
 /**
  * Forms related APIs
  */

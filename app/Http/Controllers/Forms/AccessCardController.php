@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Forms;
 
-use App\Models\Forms\FitOutForm;
-use App\Models\Forms\MoveInOut;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\User\User;
@@ -13,8 +11,10 @@ use App\Models\Forms\Guest;
 use Illuminate\Http\Request;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
+use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\AccountCredentials;
@@ -28,6 +28,8 @@ use App\Http\Requests\FetchFormStatusRequest;
 use App\Http\Resources\AccessCardFormResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
+use App\Http\Requests\Forms\UpdateAccessCardFormsRequest;
+use App\Http\Resources\AccessCard\AccessCardDetailResource;
 
 class AccessCardController extends Controller
 {
@@ -52,6 +54,8 @@ class AccessCardController extends Controller
             if ($request->has($document)) {
                 $file            = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }else{
+                $data[$document] = null;
             }
         }
 
@@ -60,7 +64,6 @@ class AccessCardController extends Controller
         $data['email']                = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
         $data['ticket_number']        = generate_ticket_number("AC");
-
         $accessCard       = AccessCard::create($data);
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
@@ -81,7 +84,46 @@ class AccessCardController extends Controller
             'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
-
+    
+    public function update(AccessCard $accessCard, UpdateAccessCardFormsRequest $request)
+    {
+        $data = $request->all();
+        $document_paths = [
+            'tenancy',
+            'vehicle_registration',
+            'title_deed',
+            'passport',
+        ];
+        foreach ($document_paths as $document) {
+            if ($request->has($document)) {
+                $file            = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
+        }
+        $accessCard->update($data);
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Access card updated successfully!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
+    }
+    
+    public function listing(Request $request)
+    {
+        $accessCards = auth()->user()->accessCard()->latest()->paginate($request->paginate ?? 10);
+        return AccessCardDetailResource::collection($accessCards);
+    }
+    
+    public function delete(AccessCard $accessCard)
+    {
+        $accessCard->delete();
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Access card deleted successfully!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
+    }
+    
     public function fetchFormStatus(Building $building, FetchFormStatusRequest $request)
     {
         $flat_id = $request->input('flat_id');
