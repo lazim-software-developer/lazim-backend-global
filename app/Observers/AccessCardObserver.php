@@ -36,15 +36,15 @@ class AccessCardObserver
                 });
                 if($notifyTo->count() > 0){
                     foreach($notifyTo as $user){
-                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $post?->id)->exists()){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $accessCard->id)->exists()){
                             $data=[];
                             $data['notifiable_type']='App\Models\User\User';
                             $data['notifiable_id']=$user->id;
-                            $slug = OwnerAssociation::where('id',$post?->owner_association_id)->first()?->slug;
+                            $slug = OwnerAssociation::where('id',$accessCard->owner_association_id)->first()?->slug;
                             if($slug){
-                                $data['url']=AccessCardFormsDocumentResource::getUrl('edit', [$slug, $accessCard?->id]);
+                                $data['url']=AccessCardFormsDocumentResource::getUrl('edit', [$slug, $accessCard->id]);
                             }else{
-                                $data['url']=url('/app/access-card-forms-documents/' . $accessCard?->id.'/edit');
+                                $data['url']=url('/app/access-card-forms-documents/' . $accessCard->id.'/edit');
                             }
                             $data['title']='New Access Card Submission';
                             $data['body']='New form submission by ' . auth()->user()->first_name;

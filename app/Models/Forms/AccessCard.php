@@ -9,10 +9,11 @@ use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccessCard extends Model
 {
-    use HasFactory;
+    use HasFactory , SoftDeletes;
     protected $connection = 'mysql';
     protected $fillable = [
         'mobile',
