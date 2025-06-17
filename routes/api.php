@@ -402,6 +402,14 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('access-card')->group(function () {
+    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
+    Route::post('/', [AccessCardController::class, 'listing']);
+    Route::get('/{accessCard}', [AccessCardController::class, 'show']);
+    Route::post('/{accessCard}/update', [AccessCardController::class, 'update']);
+    Route::delete('/{accessCard}', [AccessCardController::class, 'delete']);
+    
+});
 /**
  * Forms related APIs
  */
@@ -620,10 +628,6 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
 
 //Access Card APIs
-Route::middleware(['auth:sanctum', 'active'])->prefix('access-card')->group(function () {
-    // Registration
-    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
-});
 
 // Technician Related APIs
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
