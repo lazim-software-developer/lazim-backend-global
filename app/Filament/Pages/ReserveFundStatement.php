@@ -22,7 +22,7 @@ class ReserveFundStatement extends Page
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.reserve-fund-statement';
-    
+
     protected static ?string $title = 'Reserve Fund Statement';
 
     protected static ?string $slug = 'reserve-fund-statement';
@@ -47,7 +47,7 @@ class ReserveFundStatement extends Page
     protected function getHeaderActions(): array
     {
         return [
-
+        backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
                 Action::make('upload')
                     ->slideOver()
                     ->color("primary")
@@ -63,7 +63,7 @@ class ReserveFundStatement extends Page
                                 else{
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                                } 
+                                }
                             })
                             ->searchable()
                             ->label('Building Name'),
@@ -84,7 +84,7 @@ class ReserveFundStatement extends Page
                     // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
-                    
+
                     if (!file_exists($fullPath)) {
                         Log::error("File not found at path: ", [$fullPath]);
                         // Handle the error appropriately
