@@ -2,6 +2,7 @@
 
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Filament\Actions\Action;
 use Spatie\Pdf\Pdf as SpatiePdf;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
@@ -35,11 +36,14 @@ function imageUploadonS3($image, $path)
 
 function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
-    if ($file) {
+        if (!$file) {
+            Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- No file provided for upload', ['path' => $path, 'user_id' => auth()->id()]);
+            return null;
+        }
         $extension = $file->getClientOriginalExtension();
-        Log::info($extension);
+        $extension = strtolower($extension); // Normalize the extension to lowercase
 
-        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
+        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
             $optimizedImage = Image::make($file)
             ->resize($width, $height, function ($constraint) {
                 $constraint->aspectRatio();
@@ -70,10 +74,6 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             // return response()->json(['error' => 'Unsupported file type.'], 422);
             return null;
         }
-    } else {
-        // No file uploaded
-        return response()->json(['error' => 'No file uploaded.'], 422);
-    }
 }
 
 function createPaymentIntent($amount, $email) {
@@ -154,4 +154,24 @@ function NotificationTable($data){
         'updated_at' => now()->format('Y-m-d H:i:s'),
         'custom_json_data' => $data['custom_json_data'] ?? null,
     ]);
+}
+
+if (! function_exists('backButton')) {
+    /**
+     * Generate a Filament back button action.
+     *
+     * @param string|null $url The URL to redirect to. Defaults to the dashboard.
+     * @param string $label The button label. Defaults to 'Back'.
+     * @param string $icon The button icon. Defaults to 'heroicon-o-arrow-left'.
+     * @param string $color The button color. Defaults to 'gray'.
+     * @return Action
+     */
+    function backButton(?string $url = null, string $label = 'Back', string $icon = 'heroicon-o-arrow-left', string $color = 'gray'): Action
+    {
+        return Action::make('back')
+            ->label($label)
+            ->icon($icon)
+            ->url($url ?? \Filament\Facades\Filament::getPanel()->getPath())
+            ->color($color);
+    }
 }
