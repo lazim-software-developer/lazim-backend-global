@@ -16,7 +16,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 
 class EditUserApproval extends EditRecord
 {
@@ -235,13 +235,34 @@ class EditUserApproval extends EditRecord
                 ->body("Resident has been rejected")
                 ->send();
         }
-        if ($this->record->status == null) {
-            UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first()?->update([
-                'status'     => $this->data['status'],
-                'remarks'    => $this->data['remarks'],
-                'updated_by' => auth()->user()->id,
+        if ($this->data['status'] !== $this->record->status) {
+            \Illuminate\Support\Facades\Log::info('User Approval Status Changed', [
+                'user_approval_id' => $this->record->id,
+                'old_status' => $this->record->status,
+                'new_status' => $this->data['status'],
+            ]);
+            UserApprovalAudit::create([
+                'user_approval_id' => $this->record->id,
+                'status'           => $this->data['status'],
+                'remarks'          => $this->data['remarks'],
+                'updated_by'       => auth()->user()->id,
+                // ============================================================
+                'document' => $this->record->document,
+                'document_type' => $this->record->document_type == 'Owner' ? 'Title Deed' : 'Ejari',
+                'emirates_document' => $this->record->emirates_document,
+                'trade_license' => $this->record->trade_license,
+                'passport' => $this->record->passport,
+                'owner_association_id' => $this->record->owner_association_id,
             ]);
         }
+        // if ($this->record->status == null) {
+        //     UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first()?->update([
+        //         'status'     => $this->data['status'],
+        //         'remarks'    => $this->data['remarks'],
+        //         'updated_by' => auth()->user()->id,
+        //     ]);
+        // }
+
     }
     protected function getRedirectUrl(): string
     {
