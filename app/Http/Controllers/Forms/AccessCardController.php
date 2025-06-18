@@ -23,6 +23,7 @@ use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\ExpoPushNotification;
+use App\Models\ServiceRequestHistory;
 use App\Jobs\Forms\AccessCardRequestJob;
 use App\Http\Requests\FetchFormStatusRequest;
 use App\Http\Resources\AccessCardFormResource;
@@ -35,7 +36,15 @@ class AccessCardController extends Controller
 {
     use UtilsTrait;
     /**
-     * Show the form for creating a new resource.
+     * Create an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\Forms\CreateAccessCardFormsRequest  $request  The request containing the updated data.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 201  CustomResponseResource Response on success.
+     * @return 422  array  ['message' => validation error or incorrect Data.
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
@@ -65,6 +74,14 @@ class AccessCardController extends Controller
         $data['owner_association_id'] = $ownerAssociationId;
         $data['ticket_number']        = generate_ticket_number("AC");
         $accessCard       = AccessCard::create($data);
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'create',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($data),
+        ]);
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -85,6 +102,18 @@ class AccessCardController extends Controller
         ]))->response()->setStatusCode(201);
     }
     
+    /**
+     * Update an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to update.
+     * @param  \App\Http\Requests\Forms\UpdateAccessCardFormsRequest  $request  The request containing the updated data.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card updated successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
     public function update(AccessCard $accessCard, UpdateAccessCardFormsRequest $request)
     {
         $data = $request->all();
@@ -101,22 +130,58 @@ class AccessCardController extends Controller
             }
         }
         $accessCard->update($data);
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'update',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($data),
+        ]);
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => 'Access card updated successfully!',
             'code'    => 200,
         ]))->response()->setStatusCode(200);
     }
-    
+    /**
+     * List all access card forms.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card listing successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
     public function listing(Request $request)
     {
         $accessCards = auth()->user()->accessCard()->latest()->paginate($request->paginate ?? 10);
         return AccessCardDetailResource::collection($accessCards);
     }
     
+    /**
+     * Delete an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to delete.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card deleted successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
     public function delete(AccessCard $accessCard)
     {
         $accessCard->delete();
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'delete',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($accessCard),
+        ]);
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => 'Access card deleted successfully!',
