@@ -156,7 +156,21 @@ class AccessCardController extends Controller
      */
     public function listing(Request $request)
     {
-        $accessCards = auth()->user()->accessCard()->latest()->paginate($request->paginate ?? 10);
+        $accessCards = auth()->user()->accessCard()->latest();
+        if ($request->filled('ticket_number')) {
+            $accessCards = $accessCards->where('ticket_number', 'LIKE', "%{$request->ticket_number}%");
+        }
+        if ($request->filled('flat_number')) {
+            $accessCards = $accessCards->whereHas('flat', function ($query) use ($request) {
+                $query->where('property_number', 'LIKE', "%{$request->flat_number}%");
+            });
+        }
+        if ($request->filled('building_name')) {
+            $accessCards = $accessCards->whereHas('building', function ($query) use ($request) {
+                $query->where('name', 'LIKE', "%{$request->building_name}%");
+            });
+        }
+        $accessCards = $accessCards->paginate($request->paginate ?? 10);
         return AccessCardDetailResource::collection($accessCards);
     }
     
