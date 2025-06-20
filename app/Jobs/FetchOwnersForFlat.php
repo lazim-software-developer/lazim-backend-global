@@ -2,19 +2,19 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Building\AssignFlatsToTenant;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 use App\Models\Building\Flat;
+use Illuminate\Bus\Queueable;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
+use App\Traits\ThrottlesApiCalls;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Traits\ThrottlesApiCalls;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Jobs\Building\AssignFlatsToTenant;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 
 class FetchOwnersForFlat implements ShouldQueue
@@ -23,7 +23,7 @@ class FetchOwnersForFlat implements ShouldQueue
 
     protected $flat;
 
-    public $tries = 3; // Retry 3 times on failure
+    public $tries = 30; // Retry 3 times on failure
     public $backoff = [60, 120, 180]; // Wait 60s, 120s, 180s before retries
 
     public function __construct(Flat $flat)
@@ -57,10 +57,12 @@ class FetchOwnersForFlat implements ShouldQueue
             foreach ($ownerData['response']['properties'] as $property) {
                 // Update property_type for a flat
                 $flat->update(['property_type' => $property['propertyType']]);
+                $ownerIds = [];
 
                 foreach ($property['owners'] as $ownerData) {
                     // Delete record based on owner number
-                    ApartmentOwner::where('owner_number', $ownerData['ownerNumber'])->delete();
+                    // wrong approach, we should not delete the owner if it exists, we should just update it in pivot table and detach old owner
+                    // ApartmentOwner::where('owner_number', $ownerData['ownerNumber'])->delete();
                     $phone = $this->cleanPhoneNumber($ownerData['mobile']);
                         $owner = ApartmentOwner::withTrashed()->updateOrCreate([
                             'owner_number' => $ownerData['ownerNumber'],
@@ -76,6 +78,7 @@ class FetchOwnersForFlat implements ShouldQueue
                             'primary_owner_email' => $ownerData['email'],
                             'deleted_at' => null,
                         ]);
+                    $ownerIds[] = $owner->id;
 
                     // Insert into mollak_unit_owner_histories
                     $apartmentOwner = ApartmentOwner::withTrashed()->where('owner_number', $ownerData['ownerNumber'])->get();
@@ -138,10 +141,14 @@ class FetchOwnersForFlat implements ShouldQueue
                     // Attach the owner to the flat
                     $ownerId = $owner->id;
                     if (!empty($owner)) {
-                        $this->flat->owners()->syncWithoutDetaching($ownerId);
+                        // $this->flat->owners()->syncWithoutDetaching($ownerId);
                         // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
                         AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $ownerId, $customerId, 'Owner')->delay(now()->addSeconds(5));
                     }
+                }
+                // Attach the owners to the flat
+                if (!empty($ownerIds)) {
+                    $this->flat->owners()->sync($ownerIds);
                 }
             }
         }
