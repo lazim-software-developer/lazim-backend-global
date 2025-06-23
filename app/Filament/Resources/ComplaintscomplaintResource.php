@@ -115,7 +115,7 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('flat_id')
                             ->rules(['exists:flats,id'])
                             // ->required()
-                            ->disabled()
+                            ->disabled(fn(Complaint $record) => $record->status == 'closed')
                             ->relationship('flat', 'property_number')
                             ->searchable()
                             ->preload()
