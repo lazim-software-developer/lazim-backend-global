@@ -11,26 +11,15 @@ use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Patrolling extends Model
+class PatrollingList extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'patrolling_records';
+    protected $table = 'patrollings';
     protected $connection = 'mysql';
 
-    // protected $fillable = ['building_id', 'patrolled_by', 'floor_id', 'patrolled_at','owner_association_id'];
-    protected $fillable = [
-        'building_id',
-        'is_completed',
-        'patrolled_by',
-        'owner_association_id',
-        'total_count',
-        'completed_count',
-        'pending_count',
-        'started_at',
-        'ended_at',
-    ];
+    protected $fillable = ['patrolling_record_id', 'building_id', 'patrolled_by', 'floor_id', 'location_id', 'location_name', 'patrolled_at','owner_association_id','is_completed'];
 
     public function ownerAssociation()
     {
@@ -51,9 +40,5 @@ class Patrolling extends Model
 
     public function floor() {
         return $this->belongsTo(Floor::class, 'floor_id');
-    }
-
-    public function patrollingList() {
-        return $this->hasMany(PatrollingList::class, 'patrolling_record_id', 'id');
     }
 }
