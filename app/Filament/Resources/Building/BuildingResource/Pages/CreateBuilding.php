@@ -90,7 +90,7 @@ class CreateBuilding extends CreateRecord
             'is_disable' => 0,
             'plan' => 1,
             'is_enable_login' => 1,
-            'created_by' => auth()->user()?->id,
+            // 'created_by' => auth()->user()?->id,
             'created_at' => now(),
             'updated_at' => now()
         ]);

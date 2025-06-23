@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use ZipArchive;
-use Filament\Forms;
 use Filament\Tables;
 use App\Models\Floor;
 use Filament\Forms\Form;
@@ -20,7 +19,6 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Filament\Resources\RelationManagers\RelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class LocationQrCodeRelationManager extends RelationManager
 {
@@ -66,33 +64,6 @@ class LocationQrCodeRelationManager extends RelationManager
                     ->maxLength(50),
                 FloorQrCode::make('qr_code')
                     ->label('QR Code')
-                    ->formatStateUsing(function ($record) {
-                        // \Illuminate\Support\Facades\Log::info('Generating QR code for record: ' . json_encode($record));
-                        if (!$record) {
-                            return null;
-                        }
-
-                        // If QR code is already stored in database, use it
-                        if ($record->qr_code) {
-                            // \Illuminate\Support\Facades\Log::info('Using existing QR code for record: ' . json_encode($record->qr_code));
-                            $data ='<img src="data:image/png;base64,' . $record->qr_code . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
-                            \Illuminate\Support\Facades\Log::info('Using existing QR code for record: ' . json_encode($data));
-                            return $data;
-                        }
-
-                        // Otherwise generate it dynamically
-                        $qrData = json_encode([
-                            'floors' => $record->floor_id,
-                            'building_id' => $record->building_id,
-                            'code' => $record->code
-                        ]);
-
-                        $qrCode = QrCode::size(200)->format('png')->generate($qrData);
-                        $qrCodeBase64 = base64_encode($qrCode);
-
-                        return '<img src="data:image/png;base64,' . $qrCodeBase64 . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
-                    })
-                    ->dehydrated(fn (array $record): string => $record['qr_code'])
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
