@@ -87,7 +87,7 @@ class AccessCardController extends Controller
             'request_json' => json_encode($data),
         ]);
         // $payment = createPaymentIntent($price ?? 100, auth()->user()->email);
-        $order = Order::create([
+        $order = Order::create([    
             'orderable_id' => $accessCard->id,
             'orderable_type' => AccessCard::class,
             'payment_status' => 'NA',
@@ -219,6 +219,20 @@ class AccessCardController extends Controller
             'action_at' => now(),
             'request_json' => json_encode($accessCard),
         ]);
+        $existingOrder = Order::where('orderable_id', $accessCard->id)->where('orderable_type', AccessCard::class)->latest()->first();
+            if ($existingOrder) {
+                Order::updateOrCreate(
+                    [
+                        'orderable_id' => $accessCard->id,
+                        'orderable_type' => AccessCard::class,
+                        'payment_status' => 'Payment Failed',
+                    ],
+                    [
+                        'amount' => $accessCard->payment_amount ?? 0, // Get amount from record or set default
+                        'payment_intent_id' => $existingOrder->payment_intent_id, // Set appropriate value
+                    ]
+                );
+            }
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => 'Access card deleted successfully!',
