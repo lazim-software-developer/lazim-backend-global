@@ -45,160 +45,159 @@ class UserApprovalResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-    ->schema([
-        Section::make('User Information')
             ->schema([
-                TextInput::make('user')->disabledOn('edit'),
-                TextInput::make('email')->disabledOn('edit'),
-                TextInput::make('phone')->disabledOn('edit'),
-                DateTimePicker::make('created_at')
-                    ->label('Date of Creation')
-                    ->disabled(),
-            ])
-            ->columns(2),
-        Section::make('Flat & Building Details')
-            ->schema([
-                TextInput::make('building')
-                ->formatStateUsing(function($record){
-                    return Flat::where('id', $record->flat_id)->first()?->building->name;
-                })
-                ->disabled(),
-                Select::make('flat_id')->label('Flat')
-                    ->relationship('flat', 'property_number')
-                    ->disabled()
-                    ->live(),
-            ])
-            ->columns(2),
-        Section::make('Documents')
-            ->schema([
-                FileUpload::make('document')
-                    ->label(function (Get $get) {
-                        if($get('document_type') == 'Ejari'){
-                            return 'Tenancy Contract / Ejari';
-                        }
-                        return $get('document_type');
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled(),
-                FileUpload::make('emirates_document')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required()
-                    ->disabled(),
-                FileUpload::make('passport')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->openable(true)
-                    ->downloadable(true)
-                    ->required(function(UserApproval $record){
-                        if ($record->ownerAssociation?->resource == 'Default'){
-                            return false;
-                        }
-                        return true;
-                    })
-                    ->disabled(),
-            ])
-            ->columns(3),
-            Section::make('Owners Information')
-            ->schema([
-                Tabs::make('Owners')
-                    ->tabs(function ($record) {
-                        // Early return if no record
-                        if (!$record || !$record->flat_id) {
-                            return [
-                                Tabs\Tab::make('no_data')
-                                    ->label('No Data')
-                                    ->schema([
-                                        Placeholder::make('no_data')
-                                            ->content('No owner data available.')
-                                    ])
-                            ];
-                        }
-                        
-                        // Get all flat owners associated with this flat
-                        $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
-                        
-                        if ($flatOwners->isEmpty()) {
-                            return [
-                                Tabs\Tab::make('no_owners')
-                                    ->label('No Owners')
-                                    ->schema([
-                                        Placeholder::make('')
-                                            ->content('No owners found for this flat.')
-                                    ])
-                            ];
-                        }
-                        
-                        $tabs = [];
-                        
-                        // Create a tab for each owner
-                        foreach ($flatOwners as $index => $flatOwner) {
-                            $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
-                            
-                            if ($ownerDetail) {
-                                $tabs[] = Tabs\Tab::make("owner_{$index}")
-                                    ->label($ownerDetail->name ?? "Owner " . ($index + 1))
-                                    ->schema([
-                                        Placeholder::make("owner_{$index}_name")
-                                            ->label('Name')
-                                            ->content($ownerDetail->name ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_email")
-                                            ->label('Email')
-                                            ->content($ownerDetail->email ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_phone")
-                                            ->label('Phone')
-                                            ->content($ownerDetail->mobile ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_passport")
-                                            ->label('Passport')
-                                            ->content($ownerDetail->passport ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_emirates_id")
-                                            ->label('National ID')
-                                            ->content($ownerDetail->emirates_id ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_trade_license")
-                                            ->label('Trade License')
-                                            ->content($ownerDetail->trade_license ?? 'N/A'),
-                                    ])
-                                    ->columns(2);
-                            }
-                        }
-                        
-                        return $tabs;
-                    })
-            ]),
-        Section::make('Approval Details')
-            ->schema([
-                Grid::make(2)->schema([
-                Select::make('status')
-                    ->options([
-                        'approved' => 'Approve',
-                        'rejected' => 'Reject',
+                Section::make('User Information')
+                    ->schema([
+                        TextInput::make('user')->disabledOn('edit'),
+                        TextInput::make('email')->disabledOn('edit'),
+                        TextInput::make('phone')->disabledOn('edit'),
+                        DateTimePicker::make('created_at')
+                            ->label('Date of Creation')
+                            ->disabled(),
                     ])
-                    ->disabled(function (UserApproval $record) {
-                        return $record->status != null;
-                    })
-                    ->searchable()
-                    ->live()
-                    ->required()->columnSpan(1),
-                ]),
-                Textarea::make('remarks')
-                    ->maxLength(250)
-                    ->rows(5)
-                    ->required()
-                    ->visible(function (Get $get) {
-                        if ($get('status') == 'rejected') {
-                            return true;
-                        }
-                        return false;
-                    })->columnSpan(1),
-            ])->columns(2),
-    ]);
+                    ->columns(2),
+                Section::make('Flat & Building Details')
+                    ->schema([
+                        TextInput::make('building')
+                            ->formatStateUsing(function ($record) {
+                                return Flat::where('id', $record->flat_id)->first()?->building->name;
+                            })
+                            ->disabled(),
+                        Select::make('flat_id')->label('Flat')
+                            ->relationship('flat', 'property_number')
+                            ->disabled()
+                            ->live(),
+                    ])
+                    ->columns(2),
+                Section::make('Documents')
+                    ->schema([
+                        FileUpload::make('document')
+                            ->label(function (Get $get) {
+                                if ($get('document_type') == 'Ejari') {
+                                    return 'Tenancy Contract / Ejari';
+                                }
+                                return $get('document_type');
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->disabled(),
+                        FileUpload::make('emirates_document')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->disabled(),
+                        FileUpload::make('passport')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required(function (UserApproval $record) {
+                                if ($record->ownerAssociation?->resource == 'Default') {
+                                    return false;
+                                }
+                                return true;
+                            })
+                            ->disabled(),
+                    ])
+                    ->columns(3),
+                Section::make('Owners Information')
+                    ->schema([
+                        Tabs::make('Owners')
+                            ->tabs(function ($record) {
+                                // Early return if no record
+                                if (!$record || !$record->flat_id) {
+                                    return [
+                                        Tabs\Tab::make('no_data')
+                                            ->label('No Data')
+                                            ->schema([
+                                                Placeholder::make('no_data')
+                                                    ->content('No owner data available.')
+                                            ])
+                                    ];
+                                }
 
+                                // Get all flat owners associated with this flat
+                                $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
+
+                                if ($flatOwners->isEmpty()) {
+                                    return [
+                                        Tabs\Tab::make('no_owners')
+                                            ->label('No Owners')
+                                            ->schema([
+                                                Placeholder::make('')
+                                                    ->content('No owners found for this flat.')
+                                            ])
+                                    ];
+                                }
+
+                                $tabs = [];
+
+                                // Create a tab for each owner
+                                foreach ($flatOwners as $index => $flatOwner) {
+                                    $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
+
+                                    if ($ownerDetail) {
+                                        $tabs[] = Tabs\Tab::make("owner_{$index}")
+                                            ->label($ownerDetail->name ?? "Owner " . ($index + 1))
+                                            ->schema([
+                                                Placeholder::make("owner_{$index}_name")
+                                                    ->label('Name')
+                                                    ->content($ownerDetail->name ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_email")
+                                                    ->label('Email')
+                                                    ->content($ownerDetail->email ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_phone")
+                                                    ->label('Phone')
+                                                    ->content($ownerDetail->mobile ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_passport")
+                                                    ->label('Passport')
+                                                    ->content($ownerDetail->passport ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_emirates_id")
+                                                    ->label('National ID')
+                                                    ->content($ownerDetail->emirates_id ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_trade_license")
+                                                    ->label('Trade License')
+                                                    ->content($ownerDetail->trade_license ?? 'N/A'),
+                                            ])
+                                            ->columns(2);
+                                    }
+                                }
+
+                                return $tabs;
+                            })
+                    ]),
+                Section::make('Approval Details')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('status')
+                                ->options([
+                                    'approved' => 'Approve',
+                                    'rejected' => 'Reject',
+                                ])
+                                ->disabled(function (UserApproval $record) {
+                                    return $record->status != null;
+                                })
+                                ->searchable()
+                                ->live()
+                                ->required()->columnSpan(1),
+                        ]),
+                        Textarea::make('remarks')
+                            ->maxLength(250)
+                            ->rows(5)
+                            ->required()
+                            ->visible(function (Get $get) {
+                                if ($get('status') == 'rejected') {
+                                    return true;
+                                }
+                                return false;
+                            })->columnSpan(1),
+                    ])->columns(2),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -207,14 +206,16 @@ class UserApprovalResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
+                    ->sortable()
                     ->numeric()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
-                    ->default('NA')->formatStateUsing(fn ($state) => ucwords($state)),
-                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA'),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat')->default('NA'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')
+                    ->sortable()
+                    ->default('NA')->formatStateUsing(fn($state) => ucwords($state)),
+                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('NA')->sortable(),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat')->default('NA')->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('NA')->sortable()
             ])
             ->filters([
                 Filter::make('filter')
@@ -251,13 +252,31 @@ class UserApprovalResource extends Resource
                                 $q->where('building_id', $data['building_id']);
                             });
                         }
-            
+
                         if (isset($data['flat_id']) && $data['flat_id']) {
                             $query->where('flat_id', $data['flat_id']);
                         }
                     }),
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pending' => 'Pending', // Label for NULL
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!isset($data['value']) || empty($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'pending') {
+                            return $query->whereNull('status');
+                        }
+
+                        return $query->where('status', $data['value']);
+                    })
             ])
-            ->filtersFormColumns(3)            
+            ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

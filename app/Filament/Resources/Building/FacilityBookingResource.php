@@ -53,13 +53,12 @@ class FacilityBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                }    
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->reactive()
                             ->disabledOn('edit')
@@ -67,10 +66,10 @@ class FacilityBookingResource extends Resource
                             ->preload()
                             ->searchable()
                             ->placeholder('Building'),
-                        
+
                         TextInput::make('flat_id')
-                            ->formatStateUsing(function($state){
-                                return Flat::where('id',$state)->value('property_number');
+                            ->formatStateUsing(function ($state) {
+                                return Flat::where('id', $state)->value('property_number');
                             })
                             ->label('Flat')
                             ->disabledOn('edit'),
@@ -95,13 +94,12 @@ class FacilityBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+                                $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
-                                }
-                                else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                                } else {
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
                             })
                             ->preload()
@@ -152,11 +150,12 @@ class FacilityBookingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('building.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('flat_id')
-                    ->formatStateUsing(function($state){
-                        return Flat::where('id',$state)->value('property_number');
+                    ->formatStateUsing(function ($state) {
+                        return Flat::where('id', $state)->value('property_number');
                     })
                     ->default('NA')
                     ->searchable()
@@ -164,15 +163,18 @@ class FacilityBookingResource extends Resource
                     ->label('Flat'),
                 Tables\Columns\TextColumn::make('bookable.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50)
                     ->label('Amenity'),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->date(),
@@ -197,8 +199,8 @@ class FacilityBookingResource extends Resource
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 } else {
-                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                    return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
                                 }
                             })
                             ->searchable()
@@ -222,13 +224,13 @@ class FacilityBookingResource extends Resource
                         if (isset($data['building_id']) && $data['building_id']) {
                             $query->where('building_id', $data['building_id']);
                         }
-            
+
                         if (isset($data['flat_id']) && $data['flat_id']) {
                             $query->where('flat_id', $data['flat_id']);
                         }
                     }),
             ])
-            ->filtersFormColumns(3)            
+            ->filtersFormColumns(3)
             ->actions([
                 EditAction::make(),
                 Action::make('Update Status')

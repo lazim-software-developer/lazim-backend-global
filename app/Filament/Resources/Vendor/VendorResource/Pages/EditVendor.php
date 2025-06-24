@@ -24,13 +24,15 @@ class EditVendor extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+
             // Actions\DeleteAction::make(),
         ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $status= DB::connection('mysql')->table('owner_association_vendor')->where('vendor_id',$data['id'])->where('owner_association_id', Filament::getTenant()?->id)->select(['status','remarks'])->first();
+        $status = DB::connection('mysql')->table('owner_association_vendor')->where('vendor_id', $data['id'])->where('owner_association_id', Filament::getTenant()?->id)->select(['status', 'remarks'])->first();
         $data['status'] = $status?->status;
         $data['remarks'] = $status?->remarks;
 
@@ -101,19 +103,19 @@ class EditVendor extends EditRecord
                 ]);
             }
         }
-        if($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null){
+        if ($this->record->ownerAssociation()->wherePivot('owner_association_id', $tenant)->first()?->pivot->status == null) {
             $vendor         = Vendor::where('id', $this->data['id'])->first();
             $user           = User::find($vendor->owner_id);
             $oa_name        = OwnerAssociation::find($tenant)->name;
             if ($this->data['status'] == 'rejected') {
-                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$oa_name,$mailCredentials);
+                VendorApproveRejectMailJob::dispatch($user, $this->data['status'], $oa_name, $mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'remarks' => $this->data['remarks'],
                 ]);
             }
             if ($this->data['status'] == 'approved') {
-                VendorApproveRejectMailJob::dispatch($user,$this->data['status'],$oa_name,$mailCredentials);
+                VendorApproveRejectMailJob::dispatch($user, $this->data['status'], $oa_name, $mailCredentials);
                 $vendor->ownerAssociation()->updateExistingPivot($tenant, [
                     'status' => $this->data['status'],
                     'active' => true,

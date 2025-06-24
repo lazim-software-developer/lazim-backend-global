@@ -17,6 +17,7 @@ class ListOwnerAssociationReceipts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
             Action::make('Generate Receipt')->url(function () {
                 if (auth()->user()->role->name == 'Admin') {
@@ -24,15 +25,14 @@ class ListOwnerAssociationReceipts extends ListRecords
                 } else {
                     return '/admin/generate-receipt';
                 }
-
             }),
         ];
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('owner_association_id',Filament::getTenant()->id);
+        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id);
     }
 }

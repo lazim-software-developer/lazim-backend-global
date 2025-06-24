@@ -58,189 +58,189 @@ class HelpdeskcomplaintResource extends Resource
                 ])
                     ->columns(2)
                     ->schema([
-                    Section::make('Complaint Details')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('building_id')
-                        ->rules(['exists:buildings,id'])
-                        ->relationship('building', 'name')
-                        ->reactive()
-                        ->disabled()
-                        ->preload()
-                        ->searchable()
-                        ->placeholder('Building'),
-                    Select::make('user_id')
-                        ->relationship('user', 'first_name')
-                        ->options(function () {
-                            $tenants = DB::table('flat_tenants')->pluck('tenant_id');
-                            // dd($tenants);
-                            return DB::table('users')
-                                ->whereIn('users.id', $tenants)
-                                ->select('users.id', 'users.first_name')
-                                ->pluck('users.first_name', 'users.id')
-                                ->toArray();
-                        })
-                        ->disabled()
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->label('User'),
-                    Select::make('vendor_id')
-                        ->relationship('vendor', 'name')
-                        ->preload()
-                        ->required(function(Get $get){
-                            if($get('category')=='Security Services'){
-                                return false;
-                            }
-                            return true;
-                        })
-                        ->options(function (Complaint $record, Get $get) {
-                            $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
-                            if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
-                                    $query->where('owner_association_id', Filament::getTenant()->id);
-                                })->pluck('name', 'id');
-                            }
-                            return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');
-                        })
-                        ->disabled(function (Complaint $record) {
-                            if ($record->category=='Security Services') {
-                                return true;
-                            }
-                            if ($record->vendor_id == null) {
-                                return false;
-                            }
-                            return true;
-                        })
-                        ->live()
-                        ->searchable()
-                        ->label('Vendor name'),
-                    Select::make('flat_id')
-                        ->rules(['exists:flats,id'])
-                        ->required()
-                        ->disabled()
-                        ->relationship('flat', 'property_number')
-                        ->searchable()
-                        ->preload()
-                        ->placeholder('Unit Number'),
-                    TextInput::make('ticket_number')->disabled(),
-                    Select::make('technician_id')
-                        ->relationship('technician', 'first_name')
-                        ->options(function (Complaint $record, Get $get) {
-                            $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
-                            $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
-                            return User::find($technicians)->pluck('first_name', 'id');
-                        })
-                        ->disabled(function (Complaint $record) {
-                            return $record->status == 'closed';
-                        })
-                        ->preload()
-                        ->searchable()
-                        ->label('Technician name'),
-                    TextInput::make('priority')
-                        ->rules([
-                            function () {
-                                return function (string $attribute, $value, Closure $fail) {
-                                    if ($value < 1 || $value > 3) {
-                                        $fail('The priority field accepts 1, 2 and 3 only.');
-                                    }
-                                };
-                            },
-                        ])
-                        ->disabled(function (Complaint $record) {
-                            return $record->status == 'closed';
-                        })
-                        ->numeric(),
-                    DatePicker::make('due_date')
-                        // ->minDate(now()->format('Y-m-d'))
-                        ->rules(['date'])
-                        ->disabled(function (Complaint $record) {
-                            return $record->status == 'closed';
-                        })
-                        ->placeholder('Due Date'),
-                    Select::make('service_id')
-                        ->relationship('service', 'name')
-                        ->preload()
-                        ->disabled()
-                        ->searchable()
-                        ->label('Service'),
-                    TextInput::make('category')->disabled(),
-                    TextInput::make('open_time')->disabled(),
-                    TextInput::make('close_time')->disabled()->default('NA'),
-                    Textarea::make('complaint')
-                        ->disabled()
-                        ->placeholder('Complaint'),
-                    // Textarea::make('complaint_details')
-                    //     ->disabled()
-                    //     ->placeholder('Complaint Details'),
-                    TextInput::make('type')->label('Type')
-                        ->disabled()
-                        ->default('NA'),
-                    Toggle::make('Urgent')
-                        ->disabled()
-                        ->formatStateUsing(function($record){
-                            // dd($record->priority);
-                            if($record->priority==1){
-                                return true;
-                            }else{
-                                return false;
-                            }
-                        })
-                        ->default(false)
-                        ->hidden(function($record){
-                            if($record->type == 'personal'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        })
-                        ->disabled(),
-                    ]),
-                    Repeater::make('media')
-                        ->relationship()
-                        ->disabled()
-                        ->schema([
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->maxSize(2048)
-                                ->openable(true)
-                                ->downloadable(true)
-                                ->label('File'),
-                        ])
-                        ->columns(2)
-                        ->visible(function ($record) {
-                            return $record && $record->media()->exists();
-                        }),
-                    Section::make('Status and Remarks')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('status')
-                            ->options([
-                                'open' => 'Open',
-                                'in-progress' => 'In-progress',
-                                'closed' => 'Closed',
+                        Section::make('Complaint Details')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('building_id')
+                                    ->rules(['exists:buildings,id'])
+                                    ->relationship('building', 'name')
+                                    ->reactive()
+                                    ->disabled()
+                                    ->preload()
+                                    ->searchable()
+                                    ->placeholder('Building'),
+                                Select::make('user_id')
+                                    ->relationship('user', 'first_name')
+                                    ->options(function () {
+                                        $tenants = DB::table('flat_tenants')->pluck('tenant_id');
+                                        // dd($tenants);
+                                        return DB::table('users')
+                                            ->whereIn('users.id', $tenants)
+                                            ->select('users.id', 'users.first_name')
+                                            ->pluck('users.first_name', 'users.id')
+                                            ->toArray();
+                                    })
+                                    ->disabled()
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->label('User'),
+                                Select::make('vendor_id')
+                                    ->relationship('vendor', 'name')
+                                    ->preload()
+                                    ->required(function (Get $get) {
+                                        if ($get('category') == 'Security Services') {
+                                            return false;
+                                        }
+                                        return true;
+                                    })
+                                    ->options(function (Complaint $record, Get $get) {
+                                        $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
+                                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                            return Vendor::whereIn('id', $serviceVendor)->whereHas('ownerAssociation', function ($query) {
+                                                $query->where('owner_association_id', Filament::getTenant()->id);
+                                            })->pluck('name', 'id');
+                                        }
+                                        return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');
+                                    })
+                                    ->disabled(function (Complaint $record) {
+                                        if ($record->category == 'Security Services') {
+                                            return true;
+                                        }
+                                        if ($record->vendor_id == null) {
+                                            return false;
+                                        }
+                                        return true;
+                                    })
+                                    ->live()
+                                    ->searchable()
+                                    ->label('Vendor name'),
+                                Select::make('flat_id')
+                                    ->rules(['exists:flats,id'])
+                                    ->required()
+                                    ->disabled()
+                                    ->relationship('flat', 'property_number')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Unit Number'),
+                                TextInput::make('ticket_number')->disabled(),
+                                Select::make('technician_id')
+                                    ->relationship('technician', 'first_name')
+                                    ->options(function (Complaint $record, Get $get) {
+                                        $technician_vendor = DB::table('service_technician_vendor')->where('service_id', $record->service_id)->pluck('technician_vendor_id');
+                                        $technicians = TechnicianVendor::find($technician_vendor)->where('vendor_id', $get('vendor_id'))->pluck('technician_id');
+                                        return User::find($technicians)->pluck('first_name', 'id');
+                                    })
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->preload()
+                                    ->searchable()
+                                    ->label('Technician name'),
+                                TextInput::make('priority')
+                                    ->rules([
+                                        function () {
+                                            return function (string $attribute, $value, Closure $fail) {
+                                                if ($value < 1 || $value > 3) {
+                                                    $fail('The priority field accepts 1, 2 and 3 only.');
+                                                }
+                                            };
+                                        },
+                                    ])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->numeric(),
+                                DatePicker::make('due_date')
+                                    // ->minDate(now()->format('Y-m-d'))
+                                    ->rules(['date'])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->placeholder('Due Date'),
+                                Select::make('service_id')
+                                    ->relationship('service', 'name')
+                                    ->preload()
+                                    ->disabled()
+                                    ->searchable()
+                                    ->label('Service'),
+                                TextInput::make('category')->disabled(),
+                                TextInput::make('open_time')->disabled(),
+                                TextInput::make('close_time')->disabled()->default('NA'),
+                                Textarea::make('complaint')
+                                    ->disabled()
+                                    ->placeholder('Complaint'),
+                                // Textarea::make('complaint_details')
+                                //     ->disabled()
+                                //     ->placeholder('Complaint Details'),
+                                TextInput::make('type')->label('Type')
+                                    ->disabled()
+                                    ->default('NA'),
+                                Toggle::make('Urgent')
+                                    ->disabled()
+                                    ->formatStateUsing(function ($record) {
+                                        // dd($record->priority);
+                                        if ($record->priority == 1) {
+                                            return true;
+                                        } else {
+                                            return false;
+                                        }
+                                    })
+                                    ->default(false)
+                                    ->hidden(function ($record) {
+                                        if ($record->type == 'personal') {
+                                            return false;
+                                        } else {
+                                            return true;
+                                        }
+                                    })
+                                    ->disabled(),
+                            ]),
+                        Repeater::make('media')
+                            ->relationship()
+                            ->disabled()
+                            ->schema([
+                                FileUpload::make('url')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->maxSize(2048)
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('File'),
                             ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->searchable()
-                            ->live(),
-                        TextArea::make('remarks')
-                            ->rules(['max:250'])
-                            // ->visible(function (callable $get) {
-                            //     if ($get('status') == 'closed') {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required(),
-                    ])
-                        
-                        
+                            ->columns(2)
+                            ->visible(function ($record) {
+                                return $record && $record->media()->exists();
+                            }),
+                        Section::make('Status and Remarks')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('status')
+                                    ->options([
+                                        'open' => 'Open',
+                                        'in-progress' => 'In-progress',
+                                        'closed' => 'Closed',
+                                    ])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->searchable()
+                                    ->live(),
+                                TextArea::make('remarks')
+                                    ->rules(['max:250'])
+                                    // ->visible(function (callable $get) {
+                                    //     if ($get('status') == 'closed') {
+                                    //         return true;
+                                    //     }
+                                    //     return false;
+                                    // })
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required(),
+                            ])
+
+
 
                     ])
             ]);
@@ -255,27 +255,32 @@ class HelpdeskcomplaintResource extends Resource
                 //     ->toggleable(),
                 TextColumn::make('ticket_number')
                     ->toggleable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(20)
                     ->searchable()
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('type')
-                    ->formatStateUsing(fn (string $state) => Str::ucfirst($state))
+                    ->formatStateUsing(fn(string $state) => Str::ucfirst($state))
                     ->default('NA'),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('category')
                     ->toggleable()
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
@@ -293,44 +298,44 @@ class HelpdeskcomplaintResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2) 
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $query->where('building_id', $data['Building']);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $query->where('building_id', $data['Building']);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    }),
 
                 SelectFilter::make('status')
                     ->options([
@@ -340,10 +345,10 @@ class HelpdeskcomplaintResource extends Resource
                     ])
                     ->columns(2)
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),
-                ])
+            ])
             ->actions([]);
     }
 

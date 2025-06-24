@@ -69,7 +69,7 @@ class ComplaintsenquiryResource extends Resource
                             ->searchable()
                             ->placeholder('Building'),
                         Select::make('flat_id')
-                            ->relationship('flat','property_number')
+                            ->relationship('flat', 'property_number')
                             ->disabled(),
                         Select::make('user_id')
                             ->relationship('user', 'first_name')
@@ -97,7 +97,7 @@ class ComplaintsenquiryResource extends Resource
                             ->default('open'),
                         Hidden::make('complaint_type')
                             ->default('enquiries'),
-                        
+
                         DatePicker::make('created_at')
                             ->label('Created on')
                             ->disabled(),
@@ -117,34 +117,34 @@ class ComplaintsenquiryResource extends Resource
                             ->visible(function ($record) {
                                 return $record && $record->media()->exists();
                             }),
-                    Section::make('Status and Remarks')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('status')
-                            ->options([
-                                'open' => 'Open',
-                                'in-progress' => 'In-Progress',
-                                'closed' => 'Closed',
+                        Section::make('Status and Remarks')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('status')
+                                    ->options([
+                                        'open' => 'Open',
+                                        'in-progress' => 'In-Progress',
+                                        'closed' => 'Closed',
+                                    ])
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->live(),
+                                TextArea::make('remarks')
+                                    ->rules(['max:250'])
+                                    // ->visible(function (callable $get) {
+                                    //     if ($get('status') == 'closed') {
+                                    //         return true;
+                                    //     }
+                                    //     return false;
+                                    // })
+                                    ->disabled(function (Complaint $record) {
+                                        return $record->status == 'closed';
+                                    })
+                                    ->required(),
                             ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required()
-                            ->searchable()
-                            ->live(),
-                        TextArea::make('remarks')
-                            ->rules(['max:250'])
-                            // ->visible(function (callable $get) {
-                            //     if ($get('status') == 'closed') {
-                            //         return true;
-                            //     }
-                            //     return false;
-                            // })
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->required(),
-                    ])
                     ])
             ]);
     }
@@ -155,19 +155,23 @@ class ComplaintsenquiryResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('building.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->label('Flat')
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->toggleable()
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
@@ -193,44 +197,44 @@ class ComplaintsenquiryResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2) 
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $query->where('building_id', $data['Building']);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $query->where('building_id', $data['Building']);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    }),
 
                 SelectFilter::make('status')
                     ->options([
@@ -240,15 +244,14 @@ class ComplaintsenquiryResource extends Resource
                     ])
                     ->columns(2)
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
-            ;
-
-
+                ]),
+            ])
+        ;
     }
 
     public static function getRelations(): array

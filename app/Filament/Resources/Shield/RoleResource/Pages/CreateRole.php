@@ -22,9 +22,9 @@ class CreateRole extends CreateRecord
             })
             ->values()
             ->flatten();
-        
-            $data['owner_association_id'] = auth()->user()?->owner_association_id;
-        return Arr::only($data, ['name', 'guard_name','owner_association_id']);
+
+        $data['owner_association_id'] = auth()->user()?->owner_association_id;
+        return Arr::only($data, ['name', 'guard_name', 'owner_association_id']);
     }
 
     protected function afterCreate(): void
@@ -44,5 +44,11 @@ class CreateRole extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
     }
 }

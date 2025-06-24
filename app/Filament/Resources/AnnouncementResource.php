@@ -55,7 +55,8 @@ class AnnouncementResource extends Resource
                         'undo',
                     ])
                     ->rules([
-                        'required', function () {
+                        'required',
+                        function () {
                             return function (string $attribute, $value, Closure $fail) {
                                 $trimmedString = preg_replace('/\s+/', ' ', $value);
                                 $trimmedString = trim($trimmedString);
@@ -149,10 +150,12 @@ class AnnouncementResource extends Resource
                     ->default('NA'),
                 TextColumn::make('building.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
             ])
@@ -174,8 +177,8 @@ class AnnouncementResource extends Resource
                             $oa = OwnerAssociation::find(Filament::getTenant()?->id ?: auth()->user()?->owner_association_id);
                             $buildings = $oa?->building?->pluck('id');
 
-                        $query->whereIn('buildings.id', $buildings?:[]);
-                    }
+                            $query->whereIn('buildings.id', $buildings ?: []);
+                        }
                     })
                     ->searchable()
                     ->preload()
@@ -193,7 +196,8 @@ class AnnouncementResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
+                ]),
+            ])
 
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),

@@ -37,191 +37,190 @@ class MoveOutFormsDocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-    ->schema([
-
-        // Personal Information Section
-        Section::make('Personal Information')
             ->schema([
-                Grid::make([
-                    'sm' => 1,
-                    'md' => 1,
-                    'lg' => 2,
-                ])->schema([
-                    TextInput::make('name')->disabled(),
-                    TextInput::make('email')->disabled(),
-                    TextInput::make('phone')->disabled(),
-                    TextInput::make('moving_date')->disabled(),
-                    TextInput::make('moving_time')->disabled(),
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->preload()
-                        ->disabled()
-                        ->searchable()
-                        ->label('Building'),
-                    Select::make('flat_id')
-                        ->relationship('flat', 'property_number')
-                        ->preload()
-                        ->disabled()
-                        ->searchable()
-                        ->label('Flat'),
-                ]),
-            ]),
 
-        // Document Uploads Section
-        Section::make('Documents')
-            ->columns(3)
-            ->schema([
-                FileUpload::make('noc_landlord')
-                    ->visible(function (callable $get) {
-                        return $get('noc_landlord') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->disabled()
-                    ->previewable(true)
-                    ->label('NOC Landlord'),
+                // Personal Information Section
+                Section::make('Personal Information')
+                    ->schema([
+                        Grid::make([
+                            'sm' => 1,
+                            'md' => 1,
+                            'lg' => 2,
+                        ])->schema([
+                            TextInput::make('name')->disabled(),
+                            TextInput::make('email')->disabled(),
+                            TextInput::make('phone')->disabled(),
+                            TextInput::make('moving_date')->disabled(),
+                            TextInput::make('moving_time')->disabled(),
+                            Select::make('building_id')
+                                ->relationship('building', 'name')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Building'),
+                            Select::make('flat_id')
+                                ->relationship('flat', 'property_number')
+                                ->preload()
+                                ->disabled()
+                                ->searchable()
+                                ->label('Flat'),
+                        ]),
+                    ]),
 
-                FileUpload::make('cooling_final')
-                    ->visible(function (callable $get) {
-                        return $get('cooling_final') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->downloadable(true)
-                    ->disabled()
-                    ->previewable(true)
-                    ->openable(true)
-                    ->label('Cooling Final Bill'),
+                // Document Uploads Section
+                Section::make('Documents')
+                    ->columns(3)
+                    ->schema([
+                        FileUpload::make('noc_landlord')
+                            ->visible(function (callable $get) {
+                                return $get('noc_landlord') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->disabled()
+                            ->previewable(true)
+                            ->label('NOC Landlord'),
 
-                FileUpload::make('contract')
-                    ->visible(function (callable $get) {
-                        return $get('contract') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Tenancy / Ejari'),
+                        FileUpload::make('cooling_final')
+                            ->visible(function (callable $get) {
+                                return $get('cooling_final') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->downloadable(true)
+                            ->disabled()
+                            ->previewable(true)
+                            ->openable(true)
+                            ->label('Cooling Final Bill'),
 
-                FileUpload::make('gas_final')
-                    ->visible(function (callable $get) {
-                        return $get('gas_final') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Gas Final Bill'),
+                        FileUpload::make('contract')
+                            ->visible(function (callable $get) {
+                                return $get('contract') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Tenancy / Ejari'),
 
-                FileUpload::make('gas_clearance')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Gas Clearance'),
+                        FileUpload::make('gas_final')
+                            ->visible(function (callable $get) {
+                                return $get('gas_final') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Gas Final Bill'),
 
-                FileUpload::make('cooling_clearance')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Cooling Clearance'),
+                        FileUpload::make('gas_clearance')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Gas Clearance'),
 
-                FileUpload::make('dewa_final')
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Dewa Final Bill'),
+                        FileUpload::make('cooling_clearance')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Cooling Clearance'),
 
-                FileUpload::make('etisalat_final')
-                    ->visible(function (callable $get) {
-                        return $get('etisalat_final') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Etisalat Final Bill'),
+                        FileUpload::make('dewa_final')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Dewa Final Bill'),
 
-                FileUpload::make('movers_license')
-                    ->visible(function (callable $get) {
-                        return $get('movers_license') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label("Movers ID's and Company License"),
+                        FileUpload::make('etisalat_final')
+                            ->visible(function (callable $get) {
+                                return $get('etisalat_final') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Etisalat Final Bill'),
 
-                FileUpload::make('movers_liability')
-                    ->visible(function (callable $get) {
-                        return $get('movers_liability') != null;
-                    })
-                    ->disk('s3')
-                    ->directory('dev')
-                    ->disabled()
-                    ->downloadable(true)
-                    ->openable(true)
-                    ->label('Movers Third Party Liability/Security Deposit'),
-            ]),
+                        FileUpload::make('movers_license')
+                            ->visible(function (callable $get) {
+                                return $get('movers_license') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label("Movers ID's and Company License"),
 
-        // Status and Remarks Section
-        Section::make('Status and Remarks')
-            ->columns(2)
-            ->schema([
-                Select::make('status')
-                    ->options([
-                        'approved' => 'Approve',
-                        'rejected' => 'Reject',
-                    ])
-                    ->disabled(function (MoveInOut $record) {
-                        return $record->status != null;
-                    })
-                    ->required()
-                    ->searchable()
-                    ->live(),
+                        FileUpload::make('movers_liability')
+                            ->visible(function (callable $get) {
+                                return $get('movers_liability') != null;
+                            })
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->disabled()
+                            ->downloadable(true)
+                            ->openable(true)
+                            ->label('Movers Third Party Liability/Security Deposit'),
+                    ]),
 
-                TextInput::make('remarks')
-                    ->rules(['max:150'])
-                    ->visible(function (callable $get) {
-                        return $get('status') == 'rejected';
-                    })
-                    ->disabled(function (MoveInOut $record) {
-                        return $record->status != null;
-                    })
-                    ->required(),
+                // Status and Remarks Section
+                Section::make('Status and Remarks')
+                    ->columns(2)
+                    ->schema([
+                        Select::make('status')
+                            ->options([
+                                'approved' => 'Approve',
+                                'rejected' => 'Reject',
+                            ])
+                            ->disabled(function (MoveInOut $record) {
+                                return $record->status != null;
+                            })
+                            ->required()
+                            ->searchable()
+                            ->live(),
 
-                // Rejected Fields Section
-                CheckboxList::make('rejected_fields')
-                    ->label('Please select rejected fields')
-                    ->options([
-                        'noc_landlord' => 'NOC landlord',
-                        'cooling_final' => 'Cooling final bill',
-                        'contract' => 'Tenancy / Ejari',
-                        'movers_license' => 'Movers license',
-                        'movers_liability' => 'Movers liability',
-                        'etisalat_final' => 'Etisalat final bill',
-                        'dewa_final' => 'Dewa final bill',
-                        'gas_clearance' => 'Gas clearance',
-                        'cooling_clearance' => 'Cooling clearance',
-                        'gas_final' => 'Gas final bill',
-                    ])->columns(4)
-                    ->visible(function (callable $get) {
-                        return $get('status') == 'rejected';
-                    }),
-            ]),
-    ]);
+                        TextInput::make('remarks')
+                            ->rules(['max:150'])
+                            ->visible(function (callable $get) {
+                                return $get('status') == 'rejected';
+                            })
+                            ->disabled(function (MoveInOut $record) {
+                                return $record->status != null;
+                            })
+                            ->required(),
 
+                        // Rejected Fields Section
+                        CheckboxList::make('rejected_fields')
+                            ->label('Please select rejected fields')
+                            ->options([
+                                'noc_landlord' => 'NOC landlord',
+                                'cooling_final' => 'Cooling final bill',
+                                'contract' => 'Tenancy / Ejari',
+                                'movers_license' => 'Movers license',
+                                'movers_liability' => 'Movers liability',
+                                'etisalat_final' => 'Etisalat final bill',
+                                'dewa_final' => 'Dewa final bill',
+                                'gas_clearance' => 'Gas clearance',
+                                'cooling_clearance' => 'Cooling clearance',
+                                'gas_final' => 'Gas final bill',
+                            ])->columns(4)
+                            ->visible(function (callable $get) {
+                                return $get('status') == 'rejected';
+                            }),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -233,18 +232,22 @@ class MoveOutFormsDocumentResource extends Resource
 
                 TextColumn::make('ticket_number')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Ticket number'),
                 TextColumn::make('name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Flat')
                     ->limit(50),
@@ -260,45 +263,45 @@ class MoveOutFormsDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2) 
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
-                        $query->whereIn('flat_id', $flatIds);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                            $query->whereIn('flat_id', $flatIds);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    }),
 
                 Filter::make('status')
                     ->form([
@@ -315,23 +318,23 @@ class MoveOutFormsDocumentResource extends Resource
                     ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         $selectedStatus = $data['status'] ?? null;
-                        
+
                         if ($selectedStatus === 'NA') {
                             $query->whereNull('status')
-                                    ->orWhereNotIn('status', ['approved', 'rejected']);
-                        }elseif ($selectedStatus !== null) {
+                                ->orWhereNotIn('status', ['approved', 'rejected']);
+                        } elseif ($selectedStatus !== null) {
                             $query->where('status', $selectedStatus);
                         }
 
                         return $query;
                     })
 
-            
+
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),
-                ])
+            ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ]);

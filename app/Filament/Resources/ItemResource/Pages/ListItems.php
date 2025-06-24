@@ -26,6 +26,7 @@ class ListItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\CreateAction::make(),
             ExportAction::make()->exports([
                 ExcelExport::make()->withColumns([
@@ -33,13 +34,13 @@ class ListItems extends ListRecords
                     Column::make('quantity')->heading('Quantity'),
                     Column::make('description')->heading('Description'),
                 ])
-                ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
+                    ->modifyQueryUsing(fn($query) => $query->where('id', 0)),
             ])->label('Download sample file'),
             Action::make('upload')
-                    ->slideOver()
-                    ->color("primary")
-                    ->form([
-                        Select::make('building_id')
+                ->slideOver()
+                ->color("primary")
+                ->form([
+                    Select::make('building_id')
                         ->required()
                         ->relationship('building', 'name')
                         ->options(function () {
@@ -50,16 +51,16 @@ class ListItems extends ListRecords
                         })
                         ->searchable()
                         ->label('Building Name'),
-                        FileUpload::make('excel_file')
+                    FileUpload::make('excel_file')
                         ->label('Items Excel Data')
                         ->acceptedFileTypes([
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
                             'application/vnd.ms-excel', // for .xls
                         ])
                         ->required(),
-                    ])
-                    ->action(function (array $data) {
-                    $buildingId= $data['building_id'];
+                ])
+                ->action(function (array $data) {
+                    $buildingId = $data['building_id'];
                     $filePath = $data['excel_file']; // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
@@ -69,14 +70,13 @@ class ListItems extends ListRecords
                     }
 
                     // Now import using the file path
-                    Excel::import(new ItemsListImport( $buildingId), $fullPath);
-
+                    Excel::import(new ItemsListImport($buildingId), $fullPath);
                 }),
         ];
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
         return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);

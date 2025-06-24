@@ -115,17 +115,22 @@ class WDAResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date')
+                    ->sortable()
                     ->default('NA')
                     ->label('Date'),
                 TextColumn::make('service.name')
+                    ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Service'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->label('Status'),
                 TextColumn::make('building.name')
+                    ->sortable()
                     ->label('Building'),
                 TextColumn::make('contract.contract_type')
+                    ->sortable()
                     ->label('Contract type'),
             ])
             ->defaultSort('created_at', 'desc')

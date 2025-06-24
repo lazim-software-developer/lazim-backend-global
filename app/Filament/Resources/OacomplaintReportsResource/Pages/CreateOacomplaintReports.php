@@ -20,6 +20,13 @@ class CreateOacomplaintReports extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['ticket_number'] = generate_ticket_number('OC');
@@ -34,16 +41,14 @@ class CreateOacomplaintReports extends CreateRecord
     {
         $user_id = $this->record?->user_id;
         $code = '';
-        if($this->record?->type == 'Technician'){
+        if ($this->record?->type == 'Technician') {
             $user_id = $this->record?->technician_id;
             $code = 'PendingRequests';
-        }
-        elseif($this->record?->type == 'Vendor'){
+        } elseif ($this->record?->type == 'Vendor') {
             $user_id = $this->record?->vendor_id;
             $code = 'task';
-        }
-        elseif($this->record?->type == 'Gatekeeper'){
-            $user_id = $this->record?->user_id; 
+        } elseif ($this->record?->type == 'Gatekeeper') {
+            $user_id = $this->record?->user_id;
             $code = 'AssignedToMe';
         }
         $expoPushToken = ExpoPushNotification::where('user_id', $user_id)->first()?->token;

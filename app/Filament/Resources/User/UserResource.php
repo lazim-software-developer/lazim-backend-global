@@ -130,12 +130,15 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable()
+                    ->sortable()
                     ->limit(15),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->sortable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
+                    ->sortable()
                     ->limit(50)
                     ->default('NA'),
                 Tables\Columns\ToggleColumn::make('active'),
@@ -144,6 +147,7 @@ class UserResource extends Resource
                 //     ->searchable()
                 //     ->limit(50),
                 Tables\Columns\TextColumn::make('role.name')
+                    ->sortable()
                     ->toggleable()->searchable()
                     ->limit(50),
             ])

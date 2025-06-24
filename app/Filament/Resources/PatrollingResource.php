@@ -39,13 +39,13 @@ class PatrollingResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('patrolled_at','desc')->withoutGlobalScopes())
             ->columns([
-                TextColumn::make('building.name'),
+                TextColumn::make('building.name')->searchable()->sortable(),
                 TextColumn::make('floor.floors'),
-                TextColumn::make('user.first_name')->label('Patrolled by'),
+                TextColumn::make('user.first_name')->searchable()->label('Patrolled by')->sortable(),
                 TextColumn::make('patrolled_at'),
 
             ])
@@ -57,8 +57,8 @@ class PatrollingResource extends Resource
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 } else {
-                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                    return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
                                 }
                             })
                             ->searchable()
@@ -82,13 +82,13 @@ class PatrollingResource extends Resource
                         if (isset($data['building_id']) && $data['building_id']) {
                             $query->where('building_id', $data['building_id']);
                         }
-            
+
                         if (isset($data['floor_id']) && $data['floor_id']) {
                             $query->where('floor_id', $data['floor_id']);
                         }
                     }),
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])

@@ -47,7 +47,7 @@ class ItemInventoryResource extends Resource
                         ->relationship('item', 'name')
                         ->preload()
                         ->options(function () {
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Item::pluck('name', 'id');
                             }
                             return Item::whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'))->pluck('name', 'id');
@@ -70,8 +70,8 @@ class ItemInventoryResource extends Resource
                     TextInput::make('quantity')
                         ->rules([function (Get $get) {
                             return function (string $attribute, $value, Closure $fail) use ($get) {
-                                if($get('type') == 'used' && Item::find($get('item_id'))->quantity == 0){
-                                    $fail('You cannot use the Item '.Item::find($get('item_id'))->name . ' because the quantity is Zero.');
+                                if ($get('type') == 'used' && Item::find($get('item_id'))->quantity == 0) {
+                                    $fail('You cannot use the Item ' . Item::find($get('item_id'))->name . ' because the quantity is Zero.');
                                 }
                                 if ($get('type') == 'used' && Item::find($get('item_id'))->quantity < $value) {
                                     $fail('The quantity value must be less than are equal to available quantity:' . Item::find($get('item_id'))->quantity . '.');
@@ -94,19 +94,22 @@ class ItemInventoryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         $items = Item::whereIn('building_id', $buildings)->pluck('id');
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('item_id', $items)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->defaultGroup('item.name')
             ->columns([
                 TextColumn::make('item.name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('date'),
-                TextColumn::make('type')->searchable()->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextColumn::make('type')->searchable()->formatStateUsing(fn($state) => ucfirst($state)),
                 TextColumn::make('quantity')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('user.first_name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('comments')
                     ->searchable(),
@@ -115,11 +118,11 @@ class ItemInventoryResource extends Resource
             ->filters([
                 SelectFilter::make('item_id')
                     ->label('Item')
-                    ->options(function(){
+                    ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Item::pluck('name','id');
+                            return Item::pluck('name', 'id');
                         } else {
-                           return Item::where('owner_association_id',auth()->user()->owner_association_id)->pluck('name','id');
+                            return Item::where('owner_association_id', auth()->user()->owner_association_id)->pluck('name', 'id');
                         }
                     })
                     ->searchable()
