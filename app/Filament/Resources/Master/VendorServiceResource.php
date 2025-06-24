@@ -55,50 +55,50 @@ class VendorServiceResource extends Resource
                             ->relationship('subcategory', 'name')
                             ->searchable()
                             ->preload()
-                            // ->createOptionForm([
-                            //     TextInput::make('name')
-                            //         ->rules(['max:50', 'string'])
-                            //         ->required(),
-                            //     TextInput::make('code')
-                            //         ->required(),
-                            //     Select::make('category_id')
-                            //         ->relationship('category', 'name')
-                            //         ->searchable()
-                            //         ->preload()
-                            //         ->createOptionForm([
-                            //             TextInput::make('name')
-                            //                 ->rules(['max:50', 'string'])
-                            //                 ->required(),
-                            //             TextInput::make('code')
-                            //                 ->required(),
-                            //         ]),
-                            // ])
-                            // ->editOptionForm([
-                            //     TextInput::make('name')
-                            //         ->rules(['max:50', 'string'])
-                            //         ->required(),
-                            //     TextInput::make('code')
-                            //         ->required(),
-                            //     Select::make('category_id')
-                            //         ->relationship('category', 'name')
-                            //         ->searchable()
-                            //         ->preload()
-                            //         ->createOptionForm([
-                            //             TextInput::make('name')
-                            //                 ->rules(['max:50', 'string'])
-                            //                 ->required(),
-                            //             TextInput::make('code')
-                            //                 ->required(),
-                            //         ])
-                            //         ->editOptionForm([
-                            //             TextInput::make('name')
-                            //                 ->rules(['max:50', 'string'])
-                            //                 ->required(),
-                            //             TextInput::make('code')
-                            //                 ->required(),
-                            //         ]),
-                            // ])
-                            ,
+                        // ->createOptionForm([
+                        //     TextInput::make('name')
+                        //         ->rules(['max:50', 'string'])
+                        //         ->required(),
+                        //     TextInput::make('code')
+                        //         ->required(),
+                        //     Select::make('category_id')
+                        //         ->relationship('category', 'name')
+                        //         ->searchable()
+                        //         ->preload()
+                        //         ->createOptionForm([
+                        //             TextInput::make('name')
+                        //                 ->rules(['max:50', 'string'])
+                        //                 ->required(),
+                        //             TextInput::make('code')
+                        //                 ->required(),
+                        //         ]),
+                        // ])
+                        // ->editOptionForm([
+                        //     TextInput::make('name')
+                        //         ->rules(['max:50', 'string'])
+                        //         ->required(),
+                        //     TextInput::make('code')
+                        //         ->required(),
+                        //     Select::make('category_id')
+                        //         ->relationship('category', 'name')
+                        //         ->searchable()
+                        //         ->preload()
+                        //         ->createOptionForm([
+                        //             TextInput::make('name')
+                        //                 ->rules(['max:50', 'string'])
+                        //                 ->required(),
+                        //             TextInput::make('code')
+                        //                 ->required(),
+                        //         ])
+                        //         ->editOptionForm([
+                        //             TextInput::make('name')
+                        //                 ->rules(['max:50', 'string'])
+                        //                 ->required(),
+                        //             TextInput::make('code')
+                        //                 ->required(),
+                        //         ]),
+                        // ])
+                        ,
                         Toggle::make('active')
                             ->label('Active')
                             ->default(1)
@@ -114,6 +114,8 @@ class VendorServiceResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
+                    ->sortable()
+                    ->sortable()
                     ->limit(50),
                 IconColumn::make('active')
                     ->boolean()

@@ -74,7 +74,7 @@ class AccessCardFormsDocumentResource extends Resource
                         ->label('User'),
                     Textarea::make('parking_details')
                         ->visible(function (callable $get) {
-                            if ($get('parking_details') != "Invalid parking details format" ) {
+                            if ($get('parking_details') != "Invalid parking details format") {
                                 return true;
                             }
                             return false;
@@ -146,9 +146,9 @@ class AccessCardFormsDocumentResource extends Resource
                         ->searchable()
                         ->live(),
                     TextInput::make('reason')
-                        ->formatStateUsing(function (?Model $record){
-                            $orderpayment_status = Order::where(['orderable_id'=>$record->id,'orderable_type'=>AccessCard::class])->first()?->payment_status;
-                            if($orderpayment_status){
+                        ->formatStateUsing(function (?Model $record) {
+                            $orderpayment_status = Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->first()?->payment_status;
+                            if ($orderpayment_status) {
                                 return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
                             }
                             return 'NA';
@@ -199,19 +199,23 @@ class AccessCardFormsDocumentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                ->searchable()
-                ->default('NA')
-                ->label('Ticket number'),
+                    ->searchable()
+                    ->sortable()
+                    ->default('NA')
+                    ->label('Ticket number'),
                 TextColumn::make('card_type')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('flat.property_number')
@@ -234,7 +238,7 @@ class AccessCardFormsDocumentResource extends Resource
                     ->default('Pending')
                     ->limit(50),
                 TextColumn::make('orders')
-                    ->formatStateUsing(fn ($state) => json_decode($state)? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status): 'NA')
+                    ->formatStateUsing(fn($state) => json_decode($state) ? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status) : 'NA')
                     ->label('Payment status')
                     ->default('NA')
                     ->limit(50),
@@ -247,45 +251,45 @@ class AccessCardFormsDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2) 
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
-                        $query->whereIn('flat_id', $flatIds);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                            $query->whereIn('flat_id', $flatIds);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    }),
 
                 Filter::make('status')
                     ->form([
@@ -302,29 +306,27 @@ class AccessCardFormsDocumentResource extends Resource
                     ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         $selectedStatus = $data['status'] ?? null;
-                        
+
                         if ($selectedStatus === 'NA') {
                             $query->whereNull('status')
-                                    ->orWhereNotIn('status', ['approved', 'rejected']);
-                        }elseif ($selectedStatus !== null) {
+                                ->orWhereNotIn('status', ['approved', 'rejected']);
+                        } elseif ($selectedStatus !== null) {
                             $query->where('status', $selectedStatus);
                         }
 
                         return $query;
                     })
 
-            
+
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(),
-                ]),])
-            ->actions([
-
-            ]);
-
+                ]),
+            ])
+            ->actions([]);
     }
 
     public static function getRelations(): array

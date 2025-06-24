@@ -54,7 +54,7 @@ class ItemResource extends Resource
                         ->required()
                         ->live()
                         ->options(function () {
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                 return Building::pluck('name', 'id');
                             }
                             return Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('name', 'id');
@@ -66,7 +66,7 @@ class ItemResource extends Resource
                         ->rules([
                             'max:50',
                             'regex:/^[a-zA-Z\s]*$/',
-                            fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                 if (Item::where('building_id', $get('building_id'))->where('name', $value)->exists()) {
                                     $fail('The Name is already taken for this Building.');
                                 }
@@ -81,27 +81,31 @@ class ItemResource extends Resource
                     Textarea::make('description')
                         ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/'])
                         ->required()
-                        // ->disabledOn('edit')
-                        ,
+                    // ->disabledOn('edit')
+                    ,
                 ])
             ]);
     }
 
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         return $table
-        // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
+            // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('created_at','desc')->withoutGlobalScopes())
             ->columns([
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('quantity')
                     ->searchable(),
                 TextColumn::make('building.name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('vendors.name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('description')
+                    ->sortable()
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -121,18 +125,17 @@ class ItemResource extends Resource
                 Filter::make('vendor')
                     ->form([
                         Select::make('vendor')
-                        ->options(function(){
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Vendor::pluck('name','id');
-                            } else {
-                                $vendorId = DB::table('owner_association_vendor')->where('owner_association_id',auth()->user()->owner_association_id)->pluck('vendor_id');
-                                return Vendor::whereIn('id',$vendorId)->pluck('name','id');
-                               
-                            }
-                        })
-                        ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Vendor::pluck('name', 'id');
+                                } else {
+                                    $vendorId = DB::table('owner_association_vendor')->where('owner_association_id', auth()->user()->owner_association_id)->pluck('vendor_id');
+                                    return Vendor::whereIn('id', $vendorId)->pluck('name', 'id');
+                                }
+                            })
+                            ->searchable()
                     ])
-                    ->query(function(Builder $query, array $data): Builder {
+                    ->query(function (Builder $query, array $data): Builder {
                         // Filter by the selected vendor from the mapping table (item_vendor)
                         return $query->when(isset($data['vendor']) && $data['vendor'], function ($query) use ($data) {
                             // 'vendors' is the relationship on your Item model
@@ -151,29 +154,29 @@ class ItemResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('attach')
-                    ->form([
-                        Select::make('vendor_id')
-                        ->required()
-                        ->relationship('vendors', 'name')
-                        ->options(function () {
-                            $oaId = auth()->user()?->owner_association_id;
-                            return Vendor::whereHas('ownerAssociation', function ($query) {
-                                $query->where('owner_association_id', Filament::getTenant()->id)
-                                      ->where('status', 'approved');
-                            })->pluck('name', 'id');
-                        })
+                        ->form([
+                            Select::make('vendor_id')
+                                ->required()
+                                ->relationship('vendors', 'name')
+                                ->options(function () {
+                                    $oaId = auth()->user()?->owner_association_id;
+                                    return Vendor::whereHas('ownerAssociation', function ($query) {
+                                        $query->where('owner_association_id', Filament::getTenant()->id)
+                                            ->where('status', 'approved');
+                                    })->pluck('name', 'id');
+                                })
                         ])
-                        ->action(function (Collection $records,array $data){
-                            $vendorId= $data['vendor_id'];
+                        ->action(function (Collection $records, array $data) {
+                            $vendorId = $data['vendor_id'];
                             // dd($records,$vendorId);
-                            foreach($records as $record){
+                            foreach ($records as $record) {
                                 // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
                                 $record->vendors()->sync([$vendorId]);
                             }
                             Notification::make()
-                            ->title("Vendor attached successfully")
-                            ->success()
-                            ->send();
+                                ->title("Vendor attached successfully")
+                                ->success()
+                                ->send();
                         })->label('Attach Vendor')
                 ]),
             ])

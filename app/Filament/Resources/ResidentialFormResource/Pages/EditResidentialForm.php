@@ -19,6 +19,7 @@ class EditResidentialForm extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             //Actions\DeleteAction::make(),
         ];
     }
@@ -65,26 +66,26 @@ class EditResidentialForm extends EditRecord
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your residential form has been approved.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Residential form status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your residential form has been approved.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Residential form status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
 
         if ($this->record->status == 'rejected') {
@@ -101,41 +102,42 @@ class EditResidentialForm extends EditRecord
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your residential form has been rejected.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'danger',
-                            'title' => 'Residential form status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your residential form has been rejected.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title' => 'Residential form status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array {
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
         $emergencyContact = json_decode($data['emergency_contact'], true);
         $formattedDetails = '';
 
-        if(is_array($emergencyContact)) {
+        if (is_array($emergencyContact)) {
             $details = [
-                'name'=> $emergencyContact[0]['name'],
-                'phone'=>$emergencyContact['phone'] = $emergencyContact[0]['country'].$emergencyContact[0]['phone']
+                'name' => $emergencyContact[0]['name'],
+                'phone' => $emergencyContact['phone'] = $emergencyContact[0]['country'] . $emergencyContact[0]['phone']
             ];
-            foreach($details as $key => $val) {
+            foreach ($details as $key => $val) {
                 // Accumulate the formatted details with line breaks
-                $formattedDetails .= ucfirst(str_replace('_', ' ', $key)).": $val\n";
+                $formattedDetails .= ucfirst(str_replace('_', ' ', $key)) . ": $val\n";
             }
         } else {
             // Handle the case where emergency contact is not an array
@@ -149,5 +151,4 @@ class EditResidentialForm extends EditRecord
 
         return $data;
     }
-
 }

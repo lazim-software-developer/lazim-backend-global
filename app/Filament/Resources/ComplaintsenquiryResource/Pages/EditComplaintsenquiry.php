@@ -21,6 +21,8 @@ class EditComplaintsenquiry extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -28,8 +30,8 @@ class EditComplaintsenquiry extends EditRecord
     public function beforeSave()
     {
         $data = $this->form->getState();
-        
-        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)){
+
+        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
 
             Remark::create([
                 'remarks' => $data['remarks'],
@@ -39,7 +41,6 @@ class EditComplaintsenquiry extends EditRecord
                 'complaint_id' => $this->record->id,
             ]);
         }
-
     }
 
     public function afterSave()
@@ -52,7 +53,7 @@ class EditComplaintsenquiry extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Enquiry Acknowledgement',
-                        'body' => 'Your enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
+                        'body' => 'Your enquiry has been acknowledged by ' . auth()->user()->first_name . '. Team will contact you soon.',
                         'data' => ['notificationType' => 'InAppNotficationScreen'],
                     ];
                     $this->expoNotification($message);
@@ -63,7 +64,7 @@ class EditComplaintsenquiry extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
+                            'body' => 'Your enquiry has been acknowledged by ' . auth()->user()->first_name . '. Team will contact you soon.',
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -79,21 +80,20 @@ class EditComplaintsenquiry extends EditRecord
                 }
             }
 
-                    $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
-                    $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-                    $mailCredentials = [
-                        'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                        'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                        'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                        'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                        'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                        'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
-                    ];           
-                    $complaintType = "Enquiry";
-                    $remarks = Remark::where('complaint_id',$this->record->id)->get();
-                    
-                    ComplaintStatusMail::dispatch($this->record->user->email,$this->record->user->first_name,$remarks,$complaintType,$mailCredentials);
+            $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
+            $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
+            $mailCredentials = [
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+            ];
+            $complaintType = "Enquiry";
+            $remarks = Remark::where('complaint_id', $this->record->id)->get();
 
+            ComplaintStatusMail::dispatch($this->record->user->email, $this->record->user->first_name, $remarks, $complaintType, $mailCredentials);
         }
 
         if ($this->record->status == 'in-progress') {

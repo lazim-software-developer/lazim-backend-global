@@ -37,49 +37,49 @@ class VisitorFormResource extends Resource
         return $form
             ->schema([
                 Select::make('flat_id')->label('Flat')
-                ->relationship('flat', 'property_number')->disabled(),
+                    ->relationship('flat', 'property_number')->disabled(),
                 TextInput::make('name')->disabled(),
                 TextInput::make('email')->disabled(),
                 DatePicker::make('start_time')->label('Date')->disabled(),
                 TextInput::make('time_of_viewing')->label('Time')->disabled(),
                 TextInput::make('number_of_visitors')->disabled(),
-                Select::make('building_id')->relationship('building','name')->label('Building')->disabled()->default('NA'),
-                                Repeater::make('guestDocuments')->label('Documents')
-                                    ->relationship('guestDocuments')->disabled()
-                                    ->schema([
-                                        TextInput::make('name')
-                                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
-                                            ->required()
-                                            ->placeholder('Name'),
-                                        FileUpload::make('url')
-                                            ->disk('s3')
-                                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
-                                            ->directory('dev')
-                                            ->openable(true)
-                                            ->downloadable(true)
-                                            ->image()
-                                            ->maxSize(2048)
-                                            ->required()
-                                            ->label('File')
+                Select::make('building_id')->relationship('building', 'name')->label('Building')->disabled()->default('NA'),
+                Repeater::make('guestDocuments')->label('Documents')
+                    ->relationship('guestDocuments')->disabled()
+                    ->schema([
+                        TextInput::make('name')
+                            ->rules(['max:30', 'regex:/^[a-zA-Z\s]*$/'])
+                            ->required()
+                            ->placeholder('Name'),
+                        FileUpload::make('url')
+                            ->disk('s3')
+                            ->rules('file|mimes:jpeg,jpg,png|max:2048')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->image()
+                            ->maxSize(2048)
+                            ->required()
+                            ->label('File')
 
-                                    ])
-                                    ->columns(2)
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 1,
-                                        'lg' => 2,
-                                    ]),
-                                Select::make('status')
-                                    ->options([
-                                        'approved' => 'Approve',
-                                        'rejected' => 'Reject',
-                                    ])
-                                    ->disabled(function(FlatVisitor $record){
-                                        return $record->status != null;
-                                    })
-                                    ->required()
-                                    ->searchable()
-                                    ->live(),
+                    ])
+                    ->columns(2)
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 2,
+                    ]),
+                Select::make('status')
+                    ->options([
+                        'approved' => 'Approve',
+                        'rejected' => 'Reject',
+                    ])
+                    ->disabled(function (FlatVisitor $record) {
+                        return $record->status != null;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live(),
             ]);
     }
 
@@ -88,70 +88,74 @@ class VisitorFormResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ticket_number')
-                ->searchable()
-                ->default('NA')
-                ->label('Ticket number'),
+                    ->searchable()
+                    ->sortable()
+                    ->default('NA')
+                    ->label('Ticket number'),
                 TextColumn::make('building.name')
-                ->label('Building')
-                ->default('NA'),
+                    ->sortable()
+                    ->label('Building')
+                    ->default('NA'),
                 TextColumn::make('flat.property_number')
-                ->label('Flat'),
-                TextColumn::make('name'),
+                    ->sortable()
+                    ->label('Flat'),
+                TextColumn::make('name')->sortable(),
                 TextColumn::make('email'),
                 TextColumn::make('start_time')->date('Y-m-d')
                     ->label('Date')
+                    ->sortable()
                     // ->date()
                     ->default('NA'),
                 TextColumn::make('time_of_viewing')
                     ->label('Time')
                     // ->time()
                     ->default('NA'),
-                TextColumn::make('number_of_visitors')->default('NA'),
+                TextColumn::make('number_of_visitors')->default('NA')->sortable(),
                 TextColumn::make('status')->default('Pending'),
 
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2) 
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
-                        $query->whereIn('flat_id', $flatIds);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                            $query->whereIn('flat_id', $flatIds);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    }),
 
                 Filter::make('status')
                     ->form([
@@ -168,20 +172,20 @@ class VisitorFormResource extends Resource
                     ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         $selectedStatus = $data['status'] ?? null;
-                        
+
                         if ($selectedStatus === 'NA') {
                             $query->whereNull('status')
-                                    ->orWhereNotIn('status', ['approved', 'rejected']);
-                        }elseif ($selectedStatus !== null) {
+                                ->orWhereNotIn('status', ['approved', 'rejected']);
+                        } elseif ($selectedStatus !== null) {
                             $query->where('status', $selectedStatus);
                         }
 
                         return $query;
                     })
 
-            
+
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

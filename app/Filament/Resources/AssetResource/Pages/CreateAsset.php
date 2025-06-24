@@ -24,6 +24,12 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class CreateAsset extends CreateRecord
 {
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
     protected static string $resource = AssetResource::class;
     protected static ?string $title = 'Create asset';
     // public function afterCreate(): void
@@ -38,10 +44,10 @@ class CreateAsset extends CreateRecord
         // Fetch asset details from the database
         $asset = Asset::where('id', $this->record->id)->first();
         // Fetch Building name
-        $building_name = Building::where('id',$asset->building_id)->first();
+        $building_name = Building::where('id', $asset->building_id)->first();
         $ownerAssociationId = DB::table('building_owner_association')->where('building_id', $asset->building_id)->where('active', true)->first()?->owner_association_id;
         $ownerAssociationName = OwnerAssociation::findOrFail($ownerAssociationId)?->name;
-        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)).'-'. Hashids::encode($this->record->id);
+        $assetCode = strtoupper(substr($ownerAssociationName, 0, 2)) . '-' . Hashids::encode($this->record->id);
         // dd($assetCode);
 
         // Build an object with the required properties
@@ -72,15 +78,15 @@ class CreateAsset extends CreateRecord
                     'Content-Type' => 'application/json',
                 ],
                 'json'    => [
-                    'file_name' => $asset->name.'-'.$assetCode,
+                    'file_name' => $asset->name . '-' . $assetCode,
                     'svg'       => $qrCode->toHtml(),
                 ],
-                'verify'=>false,
+                'verify' => false,
             ]);
 
             $content = json_decode($response->getBody()->getContents());
             Log::info(json_encode($content));
-            $this->record->qr_code = $content->url;  
+            $this->record->qr_code = $content->url;
             Log::info($this->record);   // pass this url to database 
             $this->record->save();
         } catch (\Exception $e) {
@@ -98,31 +104,31 @@ class CreateAsset extends CreateRecord
 
         // Update the newly created asset record with the generated QR code
         $oa_id = DB::table('building_owner_association')->where('building_id', $this->record->building_id)->where('active', true)->first()?->owner_association_id;
-        Asset::where('id', $this->record->id)->update(['qr_code' => $content->url,'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
+        Asset::where('id', $this->record->id)->update(['qr_code' => $content->url, 'asset_code' => $assetCode, 'owner_association_id' => $oa_id]);
 
         $buildingId = $this->record->building_id;
         $serviceId = $this->record->service_id;
         $assetId = $this->record->id;
-        $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date','>=', Carbon::now()->toDateString())->first();
-        if($contract){
+        $contract = Contract::where('building_id', $buildingId)->where('service_id', $serviceId)->where('end_date', '>=', Carbon::now()->toDateString())->first();
+        if ($contract) {
             $vendorId = $contract->vendor_id;
 
             $asset = Asset::find($assetId);
             // dd($asset);
             $technicianVendorIds = DB::table('service_technician_vendor')
-                                    ->where('service_id',$serviceId)
-                                    ->pluck('technician_vendor_id');
+                ->where('service_id', $serviceId)
+                ->pluck('technician_vendor_id');
 
             $asset->vendors()->syncWithoutDetaching([$vendorId]);
 
-            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id',$vendorId)->where('active', true)->pluck('technician_id');
-            if ($technicianIds){
-                $assignees = User::whereIn('id',$technicianIds)
-                ->withCount(['assets' => function ($query) {
-                    $query->where('active', true);
-                }])
-                ->orderBy('assets_count', 'asc')
-                ->get();
+            $technicianIds = TechnicianVendor::whereIn('id', $technicianVendorIds)->where('vendor_id', $vendorId)->where('active', true)->pluck('technician_id');
+            if ($technicianIds) {
+                $assignees = User::whereIn('id', $technicianIds)
+                    ->withCount(['assets' => function ($query) {
+                        $query->where('active', true);
+                    }])
+                    ->orderBy('assets_count', 'asc')
+                    ->get();
                 $selectedTechnician = $assignees->first();
 
                 if ($selectedTechnician) {

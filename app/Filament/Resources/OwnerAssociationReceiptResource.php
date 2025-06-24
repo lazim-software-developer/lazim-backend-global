@@ -51,18 +51,19 @@ class OwnerAssociationReceiptResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->form([
-                    FileUpload::make('receipt_document')->disk('s3'),
-                ])->visible(
-                    function( OwnerAssociationReceipt $record){
-                        if($record->receipt_document){
-                            return true;
+                    ->form([
+                        FileUpload::make('receipt_document')->disk('s3'),
+                    ])->visible(
+                        function (OwnerAssociationReceipt $record) {
+                            if ($record->receipt_document) {
+                                return true;
+                            }
+                            return false;
                         }
-                        return false;
-                    }),
+                    ),
                 // Tables\Actions\EditAction::make(),
-                Action::make('download')->url(function( OwnerAssociationReceipt $record){
-                    return route('receipt',['data' => $record]);
+                Action::make('download')->url(function (OwnerAssociationReceipt $record) {
+                    return route('receipt', ['data' => $record]);
                 })
             ])
             ->bulkActions([

@@ -27,13 +27,14 @@ class ListVendorLedgers extends ListRecords
     {
         // $vendor_id = Vendor::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
         // return parent::getTableQuery()->where('status','approved')->whereIn('vendor_id', $vendor_id);
-        $buildings = Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id');
-        $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by',User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',Role::whereIn('name',['MD'])->pluck('id'))->pluck('id'))->where('status','approved')->pluck('invoice_id');
-        return parent::getTableQuery()->whereIn('id',$invoiceapprovaloa)->where('status','approved')->whereIn('building_id', $buildings);
+        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
+        $invoiceapprovaloa = InvoiceApproval::whereIn('updated_by', User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', Role::whereIn('name', ['MD'])->pluck('id'))->pluck('id'))->where('status', 'approved')->pluck('invoice_id');
+        return parent::getTableQuery()->whereIn('id', $invoiceapprovaloa)->where('status', 'approved')->whereIn('building_id', $buildings);
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
             // Action::make('upload')
             //     ->slideOver()
@@ -76,6 +77,4 @@ class ListVendorLedgers extends ListRecords
             //     }),
         ];
     }
-
-    
 }

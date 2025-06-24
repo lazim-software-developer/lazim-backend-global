@@ -14,15 +14,16 @@ class ListHelpdeskcomplaints extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->where('complaint_type', 'help_desk')->where('owner_association_id',auth()->user()?->owner_association_id);
+        return parent::getTableQuery()->where('complaint_type', 'help_desk')->where('owner_association_id', auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
         return [
-           // Actions\CreateAction::make(),
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+            // Actions\CreateAction::make(),
         ];
     }
 }
