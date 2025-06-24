@@ -35,7 +35,9 @@ class AccessCard extends Model
         'passport',
         'title_deed',
         'ticket_number',
-        'emirate_of_registration' 
+        'emirate_of_registration' ,
+        'payment_amount',
+        'payment_status'
     ];
 
     protected $searchableFields = ['*'];
@@ -60,5 +62,9 @@ class AccessCard extends Model
     public function orders()
     {
         return $this->morphMany(Order::class, 'orderable');
+    }
+    public function latestOrder()
+    {
+        return $this->orders()->latest();
     }
 }

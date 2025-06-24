@@ -78,14 +78,12 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 
 function createPaymentIntent($amount, $email) {
     Stripe::setApiKey(env('STRIPE_SECRET'));
-
     try {
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount,
             'currency' => 'aed',
             'receipt_email' => $email,
         ]);
-
         return $paymentIntent;
     } catch (\Exception $e) {
         return (new CustomResponseResource([
