@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Community\Poll;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
@@ -21,11 +22,11 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\PollResource\Pages;
-use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PollResource extends Resource
@@ -204,7 +205,7 @@ class PollResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

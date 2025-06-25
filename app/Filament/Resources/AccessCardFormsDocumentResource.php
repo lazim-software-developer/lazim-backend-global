@@ -2,29 +2,30 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Tables;
+use App\Models\Order;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\Forms\AccessCard;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\Order;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use Filament\Tables;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 
 class AccessCardFormsDocumentResource extends Resource
 {
@@ -318,7 +319,7 @@ class AccessCardFormsDocumentResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

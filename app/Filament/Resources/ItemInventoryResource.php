@@ -5,28 +5,29 @@ namespace App\Filament\Resources;
 use Closure;
 use Filament\Forms;
 use App\Models\Item;
-use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
 use App\Models\ItemInventory;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ItemInventoryResource\Pages;
-use App\Filament\Resources\ItemInventoryResource\RelationManagers;
-use App\Models\Master\Role;
-use Filament\Tables\Filters\SelectFilter;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\ItemInventoryResource\RelationManagers;
 
 class ItemInventoryResource extends Resource
 {
@@ -127,7 +128,7 @@ class ItemInventoryResource extends Resource
                     })
                     ->searchable()
                     ->preload()
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

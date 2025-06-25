@@ -9,28 +9,29 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Vendor\Vendor;
 use App\Models\Master\Service;
+use Filament\Facades\Filament;
 use App\Forms\Components\QrCode;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\AssetResource\Pages;
-use App\Models\OwnerAssociation;
-use App\Models\Vendor\Vendor;
-use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Filament\Resources\AssetResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AssetResource extends Resource
@@ -184,7 +185,7 @@ class AssetResource extends Resource
                         false: fn(Builder $query) => $query->whereDoesntHave('vendors'),
                         blank: fn(Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
                     )
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

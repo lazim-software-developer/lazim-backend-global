@@ -2,25 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PatrollingResource\Pages;
-use App\Filament\Resources\PatrollingResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Floor;
-use App\Models\Gatekeeper\Patrolling;
-use App\Models\Master\Role;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
+use App\Models\Floor;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Tables\Filters\Filter;
+use App\Models\Gatekeeper\Patrolling;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\PatrollingResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\PatrollingResource\RelationManagers;
 
 class PatrollingResource extends Resource
 {
@@ -87,7 +88,7 @@ class PatrollingResource extends Resource
                             $query->where('floor_id', $data['floor_id']);
                         }
                     }),
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),

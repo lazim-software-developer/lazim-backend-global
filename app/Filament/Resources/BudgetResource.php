@@ -10,12 +10,14 @@ use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -24,7 +26,6 @@ use App\Filament\Resources\BudgetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BudgetResource\RelationManagers;
 use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationManager;
-use Illuminate\Support\Facades\DB;
 
 class BudgetResource extends Resource
 {
@@ -121,7 +122,7 @@ class BudgetResource extends Resource
                     })
                     ->native(false)
                     ->searchable(),
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('create tender')

@@ -9,13 +9,16 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use App\Models\Complaintsenquiry;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -24,6 +27,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -32,9 +36,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 use App\Filament\Resources\ComplaintsenquiryResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use Filament\Tables\Filters\Filter;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -243,7 +244,7 @@ class ComplaintsenquiryResource extends Resource
                         'closed' => 'Closed'
                     ])
                     ->columns(2)
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

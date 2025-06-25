@@ -2,35 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AssetMaintenanceResource\Pages;
-use App\Filament\Resources\AssetMaintenanceResource\RelationManagers;
-use App\Models\Asset;
-use App\Models\AssetMaintenance;
-use App\Models\Building\Building;
-use App\Models\Master\Role;
-use App\Models\TechnicianAssets;
-use App\Models\User\User;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables;
+use App\Models\Asset;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\AssetMaintenance;
+use App\Models\TechnicianAssets;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
-use Filament\Forms\Form;
-use Filament\Infolists\Components\ImageEntry;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\ImageEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\AssetMaintenanceResource\Pages;
+use App\Filament\Resources\AssetMaintenanceResource\RelationManagers;
 
 class AssetMaintenanceResource extends Resource
 {
@@ -125,7 +126,7 @@ class AssetMaintenanceResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),

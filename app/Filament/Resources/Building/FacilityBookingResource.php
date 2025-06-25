@@ -14,6 +14,7 @@ use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -21,13 +22,13 @@ use Filament\Tables\Actions\EditAction;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\FacilityBookingResource\Pages;
-use Filament\Tables\Filters\Filter;
 
 class FacilityBookingResource extends Resource
 {
@@ -229,7 +230,7 @@ class FacilityBookingResource extends Resource
                             $query->where('flat_id', $data['flat_id']);
                         }
                     }),
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 EditAction::make(),

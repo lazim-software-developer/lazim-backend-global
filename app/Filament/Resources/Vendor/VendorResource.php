@@ -30,6 +30,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -227,7 +228,7 @@ class VendorResource extends Resource
                         return $query;
                     }),
 
-            ])
+            ], FiltersLayout::AboveContent)
 
             ->actions([
                 Tables\Actions\EditAction::make(),

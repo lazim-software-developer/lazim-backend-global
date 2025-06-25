@@ -17,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -271,7 +272,7 @@ class ActivityResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', $date),
                             );
                     }),
-            ]);
+            ], FiltersLayout::AboveContent);
     }
 
     public static function getPages(): array

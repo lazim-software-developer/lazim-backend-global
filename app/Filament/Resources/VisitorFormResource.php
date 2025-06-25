@@ -2,28 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\VisitorFormResource\Pages;
-use App\Filament\Resources\VisitorFormResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use App\Models\Master\Role;
-use App\Models\Visitor\FlatVisitor;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use App\Models\Visitor\FlatVisitor;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\VisitorFormResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\VisitorFormResource\RelationManagers;
 
 class VisitorFormResource extends Resource
 {
@@ -184,7 +185,7 @@ class VisitorFormResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),

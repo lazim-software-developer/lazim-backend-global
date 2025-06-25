@@ -23,6 +23,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -275,7 +276,7 @@ class UserApprovalResource extends Resource
 
                         return $query->where('status', $data['value']);
                     })
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
