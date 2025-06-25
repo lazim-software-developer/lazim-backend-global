@@ -18,10 +18,14 @@ use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use App\Models\Accounting\Budgetitem;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -30,9 +34,6 @@ use App\Filament\Resources\ContractResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ContractResource\RelationManagers;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Log;
 
 class ContractResource extends Resource
 {
@@ -294,7 +295,7 @@ class ContractResource extends Resource
                         return $query;
                     }),
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

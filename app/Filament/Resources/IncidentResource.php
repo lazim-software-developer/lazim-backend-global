@@ -2,35 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
-use App\Filament\Resources\IncidentResource\Pages;
-use App\Filament\Resources\IncidentResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Building\Complaint;
-use App\Models\Incident;
-use App\Models\Master\Role;
-use App\Models\User\User;
 use Closure;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Tables;
+use App\Models\Incident;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\IncidentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\IncidentResource\RelationManagers;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class IncidentResource extends Resource
 {
@@ -182,7 +183,7 @@ class IncidentResource extends Resource
                         'open' => 'Open',
                         'closed' => 'Closed'
                     ])
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

@@ -21,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Enums\FiltersLayout;
 
 class MollakTenantResource extends Resource
 {
@@ -176,7 +177,7 @@ class MollakTenantResource extends Resource
                         }
                         return $query;
                     }),
-            ]);
+            ], FiltersLayout::AboveContent);
     }
 
     public static function getRelations(): array

@@ -6,24 +6,25 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use App\Models\Building\FlatTenant;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\DB;
 
 class FlatTenantResource extends Resource
 {
@@ -160,7 +161,7 @@ class FlatTenantResource extends Resource
                         return $query;
                     })
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),

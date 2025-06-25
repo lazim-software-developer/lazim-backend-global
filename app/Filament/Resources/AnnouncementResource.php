@@ -7,9 +7,12 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
+use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Community\Post;
+use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
@@ -17,16 +20,14 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\AnnouncementResource\Pages;
-use App\Models\OwnerAssociation;
-use App\Models\User\User;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\RichEditor;
-use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AnnouncementResource extends Resource
@@ -188,7 +189,7 @@ class AnnouncementResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

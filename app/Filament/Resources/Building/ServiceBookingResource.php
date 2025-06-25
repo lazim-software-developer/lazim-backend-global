@@ -8,30 +8,31 @@ use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use App\Models\Building\ServiceBooking;
 use Filament\Tables\Actions\EditAction;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Building\FacilityBooking;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\ServiceBookingResource\Pages;
 use App\Filament\Resources\Building\ServiceBookingResource\RelationManagers;
-use App\Models\Building\Flat;
-use Filament\Facades\Filament;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Model;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ServiceBookingResource extends Resource
 {
@@ -55,13 +56,12 @@ class ServiceBookingResource extends Resource
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name')
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                }    
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->reactive()
                             ->required()
@@ -71,8 +71,8 @@ class ServiceBookingResource extends Resource
                             ->placeholder('Building'),
 
                         TextInput::make('flat_id')
-                            ->formatStateUsing(function($state){
-                                return Flat::where('id',$state)->value('property_number');
+                            ->formatStateUsing(function ($state) {
+                                return Flat::where('id', $state)->value('property_number');
                             })
                             ->label('Flat')
                             ->disabledOn('edit'),
@@ -99,15 +99,14 @@ class ServiceBookingResource extends Resource
                             ->required()
                             ->relationship('user', 'first_name')
                             ->options(function () {
-                                $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+                                $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                                } else {
+                                    return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
                                 }
-                                else{
-                                    return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
-                                }
-                                })
+                            })
                             ->searchable()
                             ->disabledOn('edit')
                             ->preload()
@@ -155,8 +154,8 @@ class ServiceBookingResource extends Resource
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('flat_id')
-                    ->formatStateUsing(function($state){
-                        return Flat::where('id',$state)->value('property_number');
+                    ->formatStateUsing(function ($state) {
+                        return Flat::where('id', $state)->value('property_number');
                     })
                     ->default('NA')
                     ->searchable()
@@ -195,8 +194,8 @@ class ServiceBookingResource extends Resource
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
                                 } else {
-                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                    return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
                                 }
                             })
                             ->searchable()
@@ -220,13 +219,13 @@ class ServiceBookingResource extends Resource
                         if (isset($data['building_id']) && $data['building_id']) {
                             $query->where('building_id', $data['building_id']);
                         }
-            
+
                         if (isset($data['flat_id']) && $data['flat_id']) {
                             $query->where('flat_id', $data['flat_id']);
                         }
                     }),
-            ])
-            ->filtersFormColumns(3) 
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns(3)
             ->actions([
                 EditAction::make(),
             ])

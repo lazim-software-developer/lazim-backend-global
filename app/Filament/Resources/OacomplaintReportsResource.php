@@ -11,26 +11,27 @@ use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
 use App\Models\BuildingVendor;
+use App\Models\Master\Service;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use App\Models\OacomplaintReports;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
 use App\Models\Building\BuildingPoc;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use App\Models\Accounting\SubCategory;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
-use App\Filament\Resources\OacomplaintReportsResource\Pages;
-use App\Models\Accounting\SubCategory;
-use App\Models\Master\Service;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\OacomplaintReportsResource\Pages;
 
 class OacomplaintReportsResource extends Resource
 {
@@ -234,7 +235,7 @@ class OacomplaintReportsResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building')
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ]);

@@ -5,24 +5,25 @@ namespace App\Filament\Resources;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
+use Filament\Facades\Filament;
 use App\Models\ResidentialForm;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\ResidentialFormResource\Pages;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ResidentialFormResource extends Resource
@@ -312,7 +313,7 @@ class ResidentialFormResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->defaultSort('created_at', 'desc')
             ->bulkActions([

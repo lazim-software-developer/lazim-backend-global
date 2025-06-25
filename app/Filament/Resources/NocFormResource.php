@@ -7,10 +7,12 @@ use App\Models\Order;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
@@ -20,13 +22,12 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\NocFormResource\Pages;
-use App\Models\Building\Flat;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class NocFormResource extends Resource
@@ -432,7 +433,7 @@ class NocFormResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

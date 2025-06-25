@@ -27,6 +27,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -237,7 +238,7 @@ class ComplaintssuggessionResource extends Resource
                         'closed' => 'Closed'
                     ])
                     ->columns(2)
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

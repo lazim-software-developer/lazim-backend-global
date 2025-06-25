@@ -24,6 +24,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use pxlrbt\FilamentExcel\Columns\Column;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -244,7 +245,7 @@ class FlatResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),

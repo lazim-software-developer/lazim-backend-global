@@ -11,6 +11,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use App\Models\TechnicianAssets;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -19,14 +20,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers\AssetMaintenancesRelationManager;
-use Filament\Facades\Filament;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TechnicianAssetsResource extends Resource
 {
@@ -137,7 +138,7 @@ class TechnicianAssetsResource extends Resource
                     ->preload()
                     ->native(false)
                     ->label('Technician')
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])

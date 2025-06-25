@@ -8,8 +8,10 @@ use Filament\Tables\Table;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use App\Models\Building\Flat;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -21,16 +23,15 @@ use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\GuestRegistrationResource\Pages;
-use App\Models\Building\Flat;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\GuestRegistrationResource\Pages;
 
 
 class GuestRegistrationResource extends Resource
@@ -309,7 +310,7 @@ class GuestRegistrationResource extends Resource
                     })
 
 
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->actions([
                 //Tables\Actions\EditAction::make(),

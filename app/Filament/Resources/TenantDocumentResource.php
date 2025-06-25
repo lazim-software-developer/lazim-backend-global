@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -20,14 +22,13 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Models\Building\Flat;
-use Closure;
 
 class TenantDocumentResource extends Resource
 {
@@ -202,7 +203,7 @@ class TenantDocumentResource extends Resource
                         }
                         return $query->where('status', $data['value']);
                     }),
-            ])
+            ], FiltersLayout::AboveContent)
             ->actions([
                 EditAction::make(),
             ]);

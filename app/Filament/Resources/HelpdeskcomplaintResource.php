@@ -9,14 +9,17 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use App\Models\Building\Flat;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use App\Models\TechnicianVendor;
 use Filament\Resources\Resource;
+use App\Models\Building\Building;
 use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -27,6 +30,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -34,9 +38,6 @@ use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\HelpdeskcomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
-use App\Models\Building\Building;
-use App\Models\Building\Flat;
-use Filament\Tables\Filters\Filter;
 
 class HelpdeskcomplaintResource extends Resource
 {
@@ -344,7 +345,7 @@ class HelpdeskcomplaintResource extends Resource
                         'closed' => 'Closed'
                     ])
                     ->columns(2)
-            ])
+            ], FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),
