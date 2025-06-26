@@ -122,7 +122,7 @@ class BudgetResource extends Resource
                     })
                     ->native(false)
                     ->searchable(),
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
                 Action::make('create tender')

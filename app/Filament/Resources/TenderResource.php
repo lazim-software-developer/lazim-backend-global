@@ -164,7 +164,7 @@ class TenderResource extends Resource
 
                         return $query;
                     })
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

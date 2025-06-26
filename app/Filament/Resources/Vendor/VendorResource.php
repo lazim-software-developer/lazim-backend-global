@@ -228,7 +228,7 @@ class VendorResource extends Resource
                         return $query;
                     }),
 
-            ], FiltersLayout::AboveContent)
+            ])
 
             ->actions([
                 Tables\Actions\EditAction::make(),

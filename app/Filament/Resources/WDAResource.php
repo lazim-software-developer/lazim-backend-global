@@ -152,7 +152,7 @@ class WDAResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Building'),
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

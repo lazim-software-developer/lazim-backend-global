@@ -138,7 +138,7 @@ class TechnicianAssetsResource extends Resource
                     ->preload()
                     ->native(false)
                     ->label('Technician')
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])

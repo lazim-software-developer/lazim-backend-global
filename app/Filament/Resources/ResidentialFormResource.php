@@ -313,7 +313,7 @@ class ResidentialFormResource extends Resource
                     })
 
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->defaultSort('created_at', 'desc')
             ->bulkActions([

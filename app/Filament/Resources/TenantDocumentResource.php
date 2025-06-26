@@ -203,7 +203,7 @@ class TenantDocumentResource extends Resource
                         }
                         return $query->where('status', $data['value']);
                     }),
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 EditAction::make(),
             ]);

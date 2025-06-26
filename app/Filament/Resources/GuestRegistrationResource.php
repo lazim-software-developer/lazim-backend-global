@@ -310,7 +310,7 @@ class GuestRegistrationResource extends Resource
                     })
 
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 //Tables\Actions\EditAction::make(),

@@ -145,7 +145,7 @@ class ItemResource extends Resource
                             });
                         });
                     })
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

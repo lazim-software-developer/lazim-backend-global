@@ -344,7 +344,7 @@ class MoveInFormsDocumentResource extends Resource
                     })
 
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

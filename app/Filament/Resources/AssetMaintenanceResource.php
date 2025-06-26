@@ -126,7 +126,7 @@ class AssetMaintenanceResource extends Resource
                     })
 
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),

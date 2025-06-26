@@ -205,7 +205,7 @@ class PollResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

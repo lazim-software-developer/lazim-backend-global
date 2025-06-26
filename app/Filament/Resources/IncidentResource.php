@@ -183,7 +183,7 @@ class IncidentResource extends Resource
                         'open' => 'Open',
                         'closed' => 'Closed'
                     ])
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

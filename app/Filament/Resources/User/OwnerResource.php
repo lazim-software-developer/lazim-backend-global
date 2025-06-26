@@ -393,7 +393,7 @@ class OwnerResource extends Resource
                         }
                         return $query;
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(2)
+            ])->filtersFormColumns(2)
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);

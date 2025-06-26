@@ -295,7 +295,7 @@ class ContractResource extends Resource
                         return $query;
                     }),
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

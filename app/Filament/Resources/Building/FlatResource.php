@@ -245,7 +245,7 @@ class FlatResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload()
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
