@@ -128,7 +128,7 @@ class ItemInventoryResource extends Resource
                     })
                     ->searchable()
                     ->preload()
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

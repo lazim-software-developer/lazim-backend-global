@@ -193,7 +193,7 @@ class ProposalResource extends Resource
                             }
                         );
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(4)
+            ])->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

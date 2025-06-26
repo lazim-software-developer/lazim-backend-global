@@ -230,7 +230,7 @@ class FacilityBookingResource extends Resource
                             $query->where('flat_id', $data['flat_id']);
                         }
                     }),
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 EditAction::make(),

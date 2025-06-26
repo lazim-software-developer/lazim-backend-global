@@ -88,7 +88,7 @@ class PatrollingResource extends Resource
                             $query->where('floor_id', $data['floor_id']);
                         }
                     }),
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),

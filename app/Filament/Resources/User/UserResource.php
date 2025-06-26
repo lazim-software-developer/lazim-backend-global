@@ -165,7 +165,7 @@ class UserResource extends Resource
                     })
                     ->label('Role')
                     ->searchable(),
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

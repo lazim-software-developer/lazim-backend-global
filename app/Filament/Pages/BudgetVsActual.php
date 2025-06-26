@@ -80,6 +80,6 @@ class BudgetVsActual extends Page implements HasTable
                         }
                         return $query;
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3);
+            ],)->filtersFormColumns(3);
     }
 }

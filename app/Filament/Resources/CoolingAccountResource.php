@@ -122,7 +122,7 @@ class CoolingAccountResource extends Resource
 
                         return $query;
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ])->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),

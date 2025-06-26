@@ -238,7 +238,7 @@ class ComplaintssuggessionResource extends Resource
                         'closed' => 'Closed'
                     ])
                     ->columns(2)
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->bulkActions([
                 ExportBulkAction::make(),

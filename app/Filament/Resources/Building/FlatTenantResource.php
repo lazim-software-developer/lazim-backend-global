@@ -161,7 +161,7 @@ class FlatTenantResource extends Resource
                         return $query;
                     })
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),

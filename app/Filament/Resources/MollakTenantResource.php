@@ -177,7 +177,7 @@ class MollakTenantResource extends Resource
                         }
                         return $query;
                     }),
-            ], FiltersLayout::AboveContent);
+            ]);
     }
 
     public static function getRelations(): array

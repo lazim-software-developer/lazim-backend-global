@@ -272,7 +272,7 @@ class ActivityResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('created_at', $date),
                             );
                     }),
-            ], FiltersLayout::AboveContent);
+            ]);
     }
 
     public static function getPages(): array

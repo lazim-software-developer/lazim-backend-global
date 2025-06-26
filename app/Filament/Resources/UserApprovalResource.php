@@ -276,7 +276,7 @@ class UserApprovalResource extends Resource
 
                         return $query->where('status', $data['value']);
                     })
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),

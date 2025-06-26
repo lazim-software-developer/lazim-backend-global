@@ -326,7 +326,7 @@ class SnagsResource extends Resource
                         'closed' => 'Closed'
                     ])
 
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

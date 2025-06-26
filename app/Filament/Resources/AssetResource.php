@@ -185,7 +185,7 @@ class AssetResource extends Resource
                         false: fn(Builder $query) => $query->whereDoesntHave('vendors'),
                         blank: fn(Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
                     )
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

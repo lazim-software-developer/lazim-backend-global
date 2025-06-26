@@ -107,7 +107,7 @@ class DelinquentOwnerResource extends Resource
                                 fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ])->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])

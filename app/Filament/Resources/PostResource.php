@@ -237,7 +237,7 @@ class PostResource extends Resource
                         'published' => 'Published',
                         'draft' => 'Draft',
                     ])
-            ], FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

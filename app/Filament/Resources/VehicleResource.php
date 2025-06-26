@@ -169,7 +169,7 @@ class VehicleResource extends Resource
 
                         return $query;
                     })
-            ], FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),

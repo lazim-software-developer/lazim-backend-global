@@ -404,7 +404,7 @@ class TenantResource extends Resource
                         }
                         return $query;
                     }),
-            ], FiltersLayout::AboveContent)
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
