@@ -62,9 +62,9 @@ class ServiceResource extends Resource
                             ->maxValue(10000)
                             ->placeholder('NA'),
                         Toggle::make('active')
-                                ->label('Active')
-                                ->default(1)
-                                ->rules(['boolean']),
+                            ->label('Active')
+                            ->default(1)
+                            ->rules(['boolean']),
                         FileUpload::make('icon')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->disk('s3')
@@ -81,6 +81,7 @@ class ServiceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 IconColumn::make('active')

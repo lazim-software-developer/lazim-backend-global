@@ -2,23 +2,31 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Accounting\WDA;
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
+use App\Models\User\User;
 use App\Models\FlatOwners;
 use App\Models\Master\Role;
 use App\Models\MollakTenant;
-use App\Models\User\User;
 use App\Models\UserApproval;
+use App\Models\Building\Flat;
 use App\Models\Vendor\Vendor;
+use App\Models\Accounting\WDA;
 use Filament\Facades\Filament;
+use Illuminate\Support\Carbon;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use App\Models\Building\FlatTenant;
+use App\Models\Building\BuildingPoc;
+use Illuminate\Support\Facades\View;
+use App\Filament\Resources\WDAResource;
+use App\Filament\Resources\User\OwnerResource;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Filament\Resources\User\TenantResource;
+use App\Filament\Resources\UserApprovalResource;
+use App\Filament\Resources\Vendor\VendorResource;
+use App\Filament\Resources\TenantDocumentResource;
+use App\Filament\Resources\Building\BuildingResource;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\View;
 
 class StatsOverview extends BaseWidget
 {
@@ -26,9 +34,9 @@ class StatsOverview extends BaseWidget
 
     // protected int | string | array $columnSpan = 2;
     protected function getColumns(): int
-{
-    return 4; // Set the number of columns for the layout
-}
+    {
+        return 4; // Set the number of columns for the layout
+    }
 
     protected function getStats(): array
     {
@@ -57,6 +65,12 @@ class StatsOverview extends BaseWidget
             ->where(function ($query) {
                 $query->whereNull('status')->orWhereNotIn('status', ['approved', 'rejected']);
             });
+        $documentApprovalQuery = Document::where('owner_association_id', Filament::getTenant()->id)
+            ->where(function ($query) {
+                $query->whereNull('status')->orWhereNotIn('status', ['approved', 'rejected'])
+                    ->where('documentable_type', 'App\Models\User\User')
+                    ->where('name', '!=', 'Makani number');
+            });
 
         // Apply filters
         if ($buildingId) {
@@ -68,6 +82,10 @@ class StatsOverview extends BaseWidget
                 $q->where('building_id', $buildingId);
             });
             $userApprovalQuery->whereHas('flat.building', function ($q) use ($buildingId) {
+                $q->where('id', $buildingId);
+            });
+
+            $documentApprovalQuery->whereHas('building', function ($q) use ($buildingId) {
                 $q->where('id', $buildingId);
             });
         }
@@ -88,6 +106,7 @@ class StatsOverview extends BaseWidget
             $wdaQuery->where('created_at', '<=', $endOfDay);
             $vendorsQuery->where('created_at', '<=', $endOfDay);
             $userApprovalQuery->where('created_at', '<=', $endOfDay);
+            $documentApprovalQuery->where('created_at', '<=', $endOfDay);
         }
 
         // Get the counts
@@ -97,6 +116,7 @@ class StatsOverview extends BaseWidget
         $securityCount = $securityQuery->count();
         $vendorsCount = $vendorsQuery->count();
         $pendingUserApprovalCount = $userApprovalQuery->count();
+        $pendingDocumentApprovalCount = $documentApprovalQuery->count();
 
         $role = Role::where('owner_association_id', Filament::getTenant()->id);
         $technicianCount = User::where('role_id', $role->where('name', 'Technician')->value('id'))->count();
@@ -109,6 +129,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Buildings', $buildings)
                 ->description('Buildings')
                 ->icon('heroicon-s-building-office-2')
+                ->url(BuildingResource::getUrl('index'))
                 ->color('blue')
                 ->chart([12, 22, 32, 42, 52])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']);
@@ -119,6 +140,7 @@ class StatsOverview extends BaseWidget
                 ->description('Owners')
                 ->icon('heroicon-o-user-group')
                 ->color('green')
+                ->url(OwnerResource::getUrl('index'))
                 ->chart([10, 30, 50, 70, 90])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E6F4EA, #A7F3D0); color: #10B981;']);
         }
@@ -127,6 +149,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Total Tenants', $tenantCount)
                 ->description('Tenants')
                 ->icon('heroicon-o-users')
+                ->url(TenantResource::getUrl('index'))
                 ->color('orange')
                 ->chart([15, 25, 35, 45, 55])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #FFF7E0, #FED7AA); color: #F97316;']);
@@ -136,6 +159,7 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('WDA', $wdaCount)
                 ->description('Pending WDA')
                 ->icon('heroicon-o-chart-bar-square')
+                ->url(WDAResource::getUrl('index', ['tableFilters' => ['status' => ['value' => 'pending']]]))
                 ->color('purple')
                 ->chart([15, 25, 35, 45, 55])
                 ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD); color: #8B5CF6;']);
@@ -144,6 +168,7 @@ class StatsOverview extends BaseWidget
         if ($user->can('view_any_vendor::vendor')) {
             $stats[] = Stat::make('Total Vendors', $vendorsCount)
                 ->description('Vendors')
+                ->url(VendorResource::getUrl('index'))
                 ->icon('heroicon-o-briefcase')
                 ->color('emerald-200')
                 ->chart([10, 20, 30, 40, 50])
@@ -172,9 +197,32 @@ class StatsOverview extends BaseWidget
             $stats[] = Stat::make('Resident Approvals', $pendingUserApprovalCount)
                 ->description('Pending Resident Approvals')
                 ->icon('heroicon-o-user')
+                ->url(UserApprovalResource::getUrl('index', [
+                    'tableFilters' => [
+                        'status' => [
+                            'value' => 'pending'
+                        ],
+                    ],
+                ]))
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
                 ->extraAttributes(['style' => 'background-color: #FFF7E0; color: #FFAA00;']);
+        }
+
+        if ($user->can('view_any_user::approval')) {
+            $stats[] = Stat::make('Document Approvals', $pendingDocumentApprovalCount)
+                ->description('Pending Document Approvals')
+                ->icon('heroicon-o-user')
+                ->url(TenantDocumentResource::getUrl('index', [
+                    'tableFilters' => [
+                        'status' => [
+                            'value' => 'submitted'
+                        ],
+                    ],
+                ]))
+                ->color('orange-200')
+                ->chart([5, 15, 25, 35, 45])
+                ->extraAttributes(['style' => 'background-color:#FFF7E0; rgba(78, 55, 8, 0.89);']);
         }
 
         return $stats;

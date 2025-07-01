@@ -26,7 +26,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 class BuildingserviceRelationManager extends RelationManager
 {
     protected static string $relationship = 'buildingservice';
-    protected static ?string $modelLabel = 'Personal Service';
+    protected static ?string $modelLabel = 'Personal Services';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {

@@ -78,6 +78,7 @@ class FacilityResource extends Resource
             ->query($facilities)
             ->columns([
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 IconColumn::make('active')

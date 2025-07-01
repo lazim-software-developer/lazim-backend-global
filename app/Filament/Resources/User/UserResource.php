@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\UserResource\Pages;
@@ -130,12 +131,15 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable()
+                    ->sortable()
                     ->limit(15),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->sortable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
+                    ->sortable()
                     ->limit(50)
                     ->default('NA'),
                 Tables\Columns\ToggleColumn::make('active'),
@@ -144,6 +148,7 @@ class UserResource extends Resource
                 //     ->searchable()
                 //     ->limit(50),
                 Tables\Columns\TextColumn::make('role.name')
+                    ->sortable()
                     ->toggleable()->searchable()
                     ->limit(50),
             ])

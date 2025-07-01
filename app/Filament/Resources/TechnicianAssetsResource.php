@@ -11,6 +11,7 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
 use App\Models\TechnicianAssets;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -19,14 +20,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\TechnicianAssetsResource\Pages;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers;
 use App\Filament\Resources\TechnicianAssetsResource\RelationManagers\AssetMaintenancesRelationManager;
-use Filament\Facades\Filament;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class TechnicianAssetsResource extends Resource
 {
@@ -93,10 +94,10 @@ class TechnicianAssetsResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('asset.name')->searchable()->label('Asset name'),
-                TextColumn::make('user.first_name')->searchable()->label('Technician name'),
-                TextColumn::make('vendor.name')->searchable()->label('Vendor name'),
-                TextColumn::make('building.name')->searchable()->label('Building name'),
+                TextColumn::make('asset.name')->searchable()->label('Asset name')->sortable(),
+                TextColumn::make('user.first_name')->searchable()->label('Technician name')->sortable(),
+                TextColumn::make('vendor.name')->searchable()->label('Vendor name')->sortable(),
+                TextColumn::make('building.name')->searchable()->label('Building name')->sortable(),
                 IconColumn::make('active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
@@ -124,13 +125,13 @@ class TechnicianAssetsResource extends Resource
                     ->label('Vendor'),
 
                 SelectFilter::make('technician_id')
-                    ->options(function(){
+                    ->options(function () {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             $userId = TechnicianAssets::pluck('technician_id');
-                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                            return User::whereIn('id', $userId)->pluck('first_name', 'id');
                         } else {
-                            $userId = TechnicianAssets::where('owner_association_id',auth()->user()->owner_association_id)->pluck('technician_id');
-                            return User::whereIn('id',$userId)->pluck('first_name','id');
+                            $userId = TechnicianAssets::where('owner_association_id', auth()->user()->owner_association_id)->pluck('technician_id');
+                            return User::whereIn('id', $userId)->pluck('first_name', 'id');
                         }
                     })
                     ->searchable()

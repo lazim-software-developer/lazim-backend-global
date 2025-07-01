@@ -19,6 +19,7 @@ class EditVisitorForm extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\DeleteAction::make(),
         ];
     }
@@ -30,47 +31,45 @@ class EditVisitorForm extends EditRecord
 
     public function afterSave()
     {
-        if ($this->record->status !== null)
-        {
-            if ($this->record->status == 'approved')
-            {
-                $security= BuildingPoc::where('building_id',$this->record->building_id)->where('active',true)->first()?->user_id;
+        if ($this->record->status !== null) {
+            if ($this->record->status == 'approved') {
+                $security = BuildingPoc::where('building_id', $this->record->building_id)->where('active', true)->first()?->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $security)->pluck('token');
-            if ($expoPushTokens->count() > 0) {
-                $date= $this->record->start_time->toDateString();
-                $time= $this->record->time_of_viewing;
-                $visitorCount= $this->record->number_of_visitors;
-                $unit = $this->record->flat->property_number;
-                foreach ($expoPushTokens as $expoPushToken) {
-                    $message = [
-                        'to' => $expoPushToken,
-                        'sound' => 'default',
-                        'title' => 'Visitor form status.',
-                        'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
-                        'data' => ['notificationType' => 'InAppNotfication'],
-                    ];
-                    $this->expoNotification($message);
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $security,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
+                if ($expoPushTokens->count() > 0) {
+                    $date = $this->record->start_time->toDateString();
+                    $time = $this->record->time_of_viewing;
+                    $visitorCount = $this->record->number_of_visitors;
+                    $unit = $this->record->flat->property_number;
+                    foreach ($expoPushTokens as $expoPushToken) {
+                        $message = [
+                            'to' => $expoPushToken,
+                            'sound' => 'default',
                             'title' => 'Visitor form status.',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => '',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
-                }
+                            'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                            'data' => ['notificationType' => 'InAppNotfication'],
+                        ];
+                        $this->expoNotification($message);
+                        DB::table('notifications')->insert([
+                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                            'type' => 'Filament\Notifications\DatabaseNotification',
+                            'notifiable_type' => 'App\Models\User\User',
+                            'notifiable_id' => $security,
+                            'data' => json_encode([
+                                'actions' => [],
+                                'body' => "Visitor form has been approved \nfor $date at $time\n No. of visitors: $visitorCount\n Unit:$unit ",
+                                'duration' => 'persistent',
+                                'icon' => 'heroicon-o-document-text',
+                                'iconColor' => 'warning',
+                                'title' => 'Visitor form status.',
+                                'view' => 'notifications::notification',
+                                'viewData' => [],
+                                'format' => 'filament',
+                                'url' => '',
+                            ]),
+                            'created_at' => now()->format('Y-m-d H:i:s'),
+                            'updated_at' => now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
             }
         }

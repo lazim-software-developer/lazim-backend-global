@@ -37,15 +37,15 @@ class ListMollakTenants extends ListRecords
     // }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') 
-        {
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->whereIn('building_id',Building::where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id'));
+        return parent::getTableQuery()->whereIn('building_id', Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id'));
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
 
             Action::make('upload')
                 ->slideOver()
@@ -84,7 +84,6 @@ class ListMollakTenants extends ListRecords
 
                     // Now import using the file path
                     Excel::import(new MyClientImport($buildingId), $fullPath);
-
                 }),
         ];
     }

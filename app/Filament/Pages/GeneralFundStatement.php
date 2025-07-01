@@ -30,11 +30,10 @@ class GeneralFundStatement extends Page
     public function getViewData(): array
     {
         $currentYear = Carbon::now()->year;
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             $buildings = Building::all();
-        }
-        else{
-            $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+        } else {
+            $buildings_id = DB::table('building_owner_association')->where('owner_association_id', Filament::getTenant()->id)->where('active', true)->pluck('building_id');
             $buildings = Building::whereIn('id', $buildings_id)->get();
         }
         return [
@@ -43,57 +42,55 @@ class GeneralFundStatement extends Page
             "message" => "Please Select a building and Year",
         ];
     }
-    
+
     protected function getHeaderActions(): array
     {
         return [
-
-                Action::make('upload')
-                    ->slideOver()
-                    ->color("primary")
-                    ->form([
-                        Grid::make(2)
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+            Action::make('upload')
+                ->slideOver()
+                ->color("primary")
+                ->form([
+                    Grid::make(2)
                         ->schema([
                             Select::make('building_id')
-                            ->required()
-                            ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return Building::all()->pluck('name', 'id');
-                                }
-                                else{
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
-                            })
-                            ->searchable()
-                            ->label('Building Name'),
+                                ->required()
+                                ->options(function () {
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                        return Building::all()->pluck('name', 'id');
+                                    } else {
+                                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                            ->pluck('name', 'id');
+                                    }
+                                })
+                                ->searchable()
+                                ->label('Building Name'),
                             DatePicker::make('statement_date')->required(),
                             FileUpload::make('excel_file')
-                            ->label('General Fund Excel Data')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
-                            ])
-                            ->required(),
+                                ->label('General Fund Excel Data')
+                                ->acceptedFileTypes([
+                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                    'application/vnd.ms-excel', // for .xls
+                                ])
+                                ->required(),
                         ])
-                    ])
-                    ->action(function (array $data) {
-                    $buildingId= $data['building_id'];
+                ])
+                ->action(function (array $data) {
+                    $buildingId = $data['building_id'];
                     $date = $data['statement_date'];
                     $filePath = $data['excel_file'];
                     // dd($data); 
                     // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
-                    
+
                     if (!file_exists($fullPath)) {
                         Log::error("File not found at path: ", [$fullPath]);
                         // Handle the error appropriately
                     }
 
                     // // Now import using the file path
-                    Excel::import(new GeneralFundImport( $buildingId, $date ), $fullPath);
-
+                    Excel::import(new GeneralFundImport($buildingId, $date), $fullPath);
                 }),
         ];
     }

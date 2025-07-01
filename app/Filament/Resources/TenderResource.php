@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -57,7 +58,7 @@ class TenderResource extends Resource
                     ->disabled()
                     ->label('Budget period'),
                 Select::make('service_id')
-                    ->relationship('service','name')
+                    ->relationship('service', 'name')
                     ->preload()
                     ->searchable()
                     ->disabled()
@@ -86,14 +87,17 @@ class TenderResource extends Resource
             ->columns([
                 TextColumn::make('building.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Building'),
                 TextColumn::make('budget.budget_period')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Budget period'),
                 TextColumn::make('service.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Service'),
                 TextColumn::make('tender_type')
@@ -109,57 +113,57 @@ class TenderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                ->label('Building')
-                ->options(function () {
-                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        return Building::all()->pluck('name', 'id');
-                    } else {
-                        $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                        return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                    }
-                })
-                ->native(false)
-                ->searchable(),
+                    ->label('Building')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                            return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                        }
+                    })
+                    ->native(false)
+                    ->searchable(),
 
                 SelectFilter::make('service_id')
-                ->label('Service')
-                ->relationship('service','name')
-                ->searchable()
-                ->preload()
-                ->native(false),
+                    ->label('Service')
+                    ->relationship('service', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
 
                 Filter::make('budget period')
-                ->form([
-                    Select::make('year')
-                    ->label('Budget period')
-                    ->options(function () {
-                        $currentYear = Carbon::now()->year; // Get the current year
-                        $years = [];
-                    
-                        // Generate past 10 years including the current year
-                        for ($i = 0; $i < 10; $i++) {
-                            $years[$currentYear - $i] = $currentYear - $i;
+                    ->form([
+                        Select::make('year')
+                            ->label('Budget period')
+                            ->options(function () {
+                                $currentYear = Carbon::now()->year; // Get the current year
+                                $years = [];
+
+                                // Generate past 10 years including the current year
+                                for ($i = 0; $i < 10; $i++) {
+                                    $years[$currentYear - $i] = $currentYear - $i;
+                                }
+
+                                return $years;
+                            })
+                            ->placeholder('Select Year')
+                            ->required(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        // Check if a year is selected
+                        if (!empty($data['year'])) {
+                            $selectedYear = $data['year'];
+
+                            // Filter tenders based on the associated budget's period
+                            $query->whereHas('budget', function ($query) use ($selectedYear) {
+                                $query->whereYear('budget_from', '<=', $selectedYear)  // Budget starts before or in the selected year
+                                    ->whereYear('budget_to', '>=', $selectedYear);    // Budget ends after or in the selected year
+                            });
                         }
-                    
-                        return $years; 
+
+                        return $query;
                     })
-                    ->placeholder('Select Year')
-                    ->required(),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    // Check if a year is selected
-                    if (!empty($data['year'])) {
-                        $selectedYear = $data['year'];
-            
-                        // Filter tenders based on the associated budget's period
-                        $query->whereHas('budget', function ($query) use ($selectedYear) {
-                            $query->whereYear('budget_from', '<=', $selectedYear)  // Budget starts before or in the selected year
-                                  ->whereYear('budget_to', '>=', $selectedYear);    // Budget ends after or in the selected year
-                        });
-                    }
-                    
-                    return $query;
-                })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -73,7 +73,7 @@ class ProposalResource extends Resource
                     ->disabled()
                     ->default(now()),
                 ViewField::make('Budget amount')
-                        ->view('forms.components.budgetamount'),
+                    ->view('forms.components.budgetamount'),
                 Select::make('status')
                     ->options([
                         'approved' => 'Approve',
@@ -110,9 +110,9 @@ class ProposalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('amount')->searchable()->label('Amount'),
+                TextColumn::make('amount')->searchable()->label('Amount')->sortable(),
                 ViewColumn::make('Budget amount')->view('tables.columns.budgetamount')->alignCenter(),
-                TextColumn::make('submittedBy.name')->searchable()->label('Vendor name'),
+                TextColumn::make('submittedBy.name')->searchable()->label('Vendor name')->sortable(),
                 TextColumn::make('submitted_on')->label('Submitted on'),
                 TextColumn::make('status')->default('NA')->searchable()->label('Status'),
             ])
@@ -133,13 +133,12 @@ class ProposalResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             })
                             ->preload()
                             ->placeholder('Select Building'),
@@ -194,7 +193,7 @@ class ProposalResource extends Resource
                             }
                         );
                     }),
-            ],layout: FiltersLayout::AboveContent)->filtersFormColumns(4)
+            ])->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

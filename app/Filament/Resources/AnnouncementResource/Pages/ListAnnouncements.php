@@ -15,17 +15,17 @@ class ListAnnouncements extends ListRecords
     protected static ?string $modeLabel = 'Notice board';
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
-        {
-            return parent::getTableQuery()->where('is_announcement',1)->where('owner_association_id',auth()->user()?->owner_association_id);
+        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+            return parent::getTableQuery()->where('is_announcement', 1)->where('owner_association_id', auth()->user()?->owner_association_id);
         }
-        return parent::getTableQuery()->where('is_announcement',1);
+        return parent::getTableQuery()->where('is_announcement', 1);
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\CreateAction::make()
-            ->label('New Notice board'),
+                ->label('New Notice board'),
         ];
     }
 }
