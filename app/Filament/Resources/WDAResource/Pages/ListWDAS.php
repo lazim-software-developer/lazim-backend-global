@@ -18,15 +18,16 @@ class ListWDAS extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
         ];
     }
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        return parent::getTableQuery()->whereIn('vendor_id',Vendor::whereHas('ownerAssociation', function ($query) {
+        return parent::getTableQuery()->whereIn('vendor_id', Vendor::whereHas('ownerAssociation', function ($query) {
             $query->where('owner_association_id', Filament::getTenant()->id);
         })->pluck('id'));
     }

@@ -25,13 +25,19 @@ class CreateOwnerAssociation extends CreateRecord
     {
         $this->password = $this->data['password'];
     }
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
 
     public function afterCreate()
     {
         $owner = OwnerAssociation::where('id', $this->record->id)
-                ->update([
-                    'verified'    => 1,
-                ]);
+            ->update([
+                'verified'    => 1,
+            ]);
         $this->AssignedPermisionToOwnerAssociation($this->record->id);
         $this->CreateUser($this->record);
     }
@@ -111,12 +117,13 @@ class CreateOwnerAssociation extends CreateRecord
             // Send email with credentials
             $slug = $data->slug;
             AccountCreationJob::dispatch($user, $this->password, $slug);
-        } 
+        }
     }
 
-    public function LazimAccountDatabase($data, $user, $password) {
+    public function LazimAccountDatabase($data, $user, $password)
+    {
         $connection = DB::connection(env('SECOND_DB_CONNECTION'));
-        $building_id = DB::table('building_owner_association')->where('owner_association_id' , $data->id)->first()?->building_id;
+        $building_id = DB::table('building_owner_association')->where('owner_association_id', $data->id)->first()?->building_id;
         $connection->table('users')->insert([
             'name' => $data->name,
             'email'                => $data->email,
@@ -127,11 +134,11 @@ class CreateOwnerAssociation extends CreateRecord
             'created_by' => auth()->user()->id,
             'plan' => 1,
             'owner_association_id' => $data->id,
-            'building_id' => $building_id??NULL,
+            'building_id' => $building_id ?? NULL,
             'created_at' => now(),
             'updated_at' => now()
         ]);
-        $accountUser = $connection->table('users')->where('email',$data->email)->where('owner_association_id',$data->id )->first();
+        $accountUser = $connection->table('users')->where('email', $data->email)->where('owner_association_id', $data->id)->first();
         $role = $connection->table('roles')->where('name', 'company')->first();
         $connection->table('model_has_roles')->insertOrIgnore([
             'role_id' => $role?->id,

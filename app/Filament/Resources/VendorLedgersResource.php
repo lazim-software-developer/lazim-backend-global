@@ -139,23 +139,22 @@ class VendorLedgersResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             })
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ])->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Action::make('Update Payment')

@@ -40,17 +40,17 @@ class CoolingAccountResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('building.name'),
-                TextColumn::make('flat.property_number')->label('Unit number'),
+                TextColumn::make('building.name')->sortable(),
+                TextColumn::make('flat.property_number')->label('Unit number')->sortable(),
                 TextColumn::make('date')->date(),
-                TextColumn::make('opening_balance'),
+                TextColumn::make('opening_balance')->sortable(),
                 TextColumn::make('consumption'),
-                TextColumn::make('demand_charge'),
+                TextColumn::make('demand_charge')->sortable(),
                 TextColumn::make('security_deposit'),
-                TextColumn::make('billing_charges'),
+                TextColumn::make('billing_charges')->sortable(),
                 TextColumn::make('other_charges'),
                 TextColumn::make('receipts'),
-                TextColumn::make('closing_balance'),
+                TextColumn::make('closing_balance')->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -77,13 +77,12 @@ class CoolingAccountResource extends Resource
                         Select::make('building')
                             ->searchable()
                             ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                                     return Building::all()->pluck('name', 'id');
-                                }
-                                else{
+                                } else {
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
+                                        ->pluck('name', 'id');
+                                }
                             }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -93,15 +92,15 @@ class CoolingAccountResource extends Resource
                                 fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
-                    Filter::make('Date')
+                Filter::make('Date')
                     ->form([
-                        Grid::make(2) 
-                        ->schema([
-                            DatePicker::make('from')
-                                ->label('From'),
-                            DatePicker::make('to')
-                                ->label('To'),
-                        ]),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('from')
+                                    ->label('From'),
+                                DatePicker::make('to')
+                                    ->label('To'),
+                            ]),
                     ])
                     ->columns(1)
                     ->query(function (Builder $query, array $data) {
@@ -114,16 +113,16 @@ class CoolingAccountResource extends Resource
                             //     ->send();
                             // }
                             $query->whereDate('date', '>=', $data['from'])
-                                  ->whereDate('date', '<=', $data['to']);
+                                ->whereDate('date', '<=', $data['to']);
                         } elseif ($data['from']) {
                             $query->whereDate('date', '>=', $data['from']);
                         } elseif ($data['to']) {
                             $query->whereDate('date', '<=', $data['to']);
                         }
-    
+
                         return $query;
-                    }), 
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+                    }),
+            ])->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
@@ -132,7 +131,8 @@ class CoolingAccountResource extends Resource
                 ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                ]),])
+                ]),
+            ])
             ->emptyStateActions([
                 // Tables\Actions\CreateAction::make(),
             ]);

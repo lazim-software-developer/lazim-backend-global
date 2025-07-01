@@ -17,12 +17,19 @@ class CreateFacility extends CreateRecord
         return 'Create Amenity';
     }
 
-    protected function afterCreate(){
+    protected function afterCreate()
+    {
 
         Facility::where('id', $this->record->id)
             ->update([
-                'active'=>1
+                'active' => 1
             ]);
+    }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
     }
 }

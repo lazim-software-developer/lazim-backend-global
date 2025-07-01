@@ -7,6 +7,8 @@ use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateOwnerAssociationInvoice extends CreateRecord
+
+
 {
     protected static string $resource = OwnerAssociationInvoiceResource::class;
 }

@@ -17,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,8 +49,8 @@ class ActivityResource extends Resource
                                 /** @phpstan-ignore-next-line */
                                 return $component->state($record->causer?->name);
                             })
-                            ->formatStateUsing(function($state){
-                                return User::where('id',$state)->value('first_name');
+                            ->formatStateUsing(function ($state) {
+                                return User::where('id', $state)->value('first_name');
                             })
                             ->label(__('filament-logger::filament-logger.resource.label.user')),
 
@@ -130,12 +131,12 @@ class ActivityResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->modifyQueryUsing(function (Builder $query) {
-            $userId = User::where('owner_association_id',auth()->user()->owner_association_id)->pluck('id');
-            $query->whereIn('causer_id',$userId);
-            
-            return $query->latest();
-        })
+            ->modifyQueryUsing(function (Builder $query) {
+                $userId = User::where('owner_association_id', auth()->user()->owner_association_id)->pluck('id');
+                $query->whereIn('causer_id', $userId);
+
+                return $query->latest();
+            })
             ->columns([
                 // TextColumn::make('log_name')
                 //     ->badge()
@@ -145,9 +146,12 @@ class ActivityResource extends Resource
                 //     ->sortable(),
 
                 TextColumn::make('event')
+                    ->sortable()
                     ->label('Action'),
 
+
                 TextColumn::make('description')
+                    ->sortable()
                     ->label(__('filament-logger::filament-logger.resource.label.description'))
                     // ->toggleable()
                     // ->toggledHiddenByDefault()
@@ -165,6 +169,7 @@ class ActivityResource extends Resource
 
                 TextColumn::make('subject_type')
                     ->default('NA')
+                    ->sortable()
                     ->label('Feature')
                     ->formatStateUsing(function ($state, Model $record) {
                         /** @var Activity&ActivityModel $record */
@@ -177,8 +182,8 @@ class ActivityResource extends Resource
                     }),
 
                 TextColumn::make('causer_id')
-                    ->formatStateUsing(function($record){
-                        return User::where('id',$record->causer_id)->value('first_name');
+                    ->formatStateUsing(function ($record) {
+                        return User::where('id', $record->causer_id)->value('first_name');
                     })
                     ->label(__('filament-logger::filament-logger.resource.label.user')),
 
@@ -240,18 +245,18 @@ class ActivityResource extends Resource
                 //         return $query->where('properties->attributes', 'like', "%{$data['new']}%");
                 //     }),
                 SelectFilter::make('causer_id')
-                ->label('User')
-                ->options(function(){
-                    $users  = Activity::select('causer_id')->distinct()->pluck('causer_id');
-                    return User::whereIn('id',$users)->where('owner_association_id',auth()->user()->owner_association_id)->pluck('first_name','id');
-                })
-                ->query(function (Builder $query, array $data) {
-                    
-                    if (!empty($data['value'])) { // Ensure that the value is present
-                        return $query->where('causer_id', $data['value']); // Filter by the user selected
-                    }
-                    return $query;
-                }),
+                    ->label('User')
+                    ->options(function () {
+                        $users  = Activity::select('causer_id')->distinct()->pluck('causer_id');
+                        return User::whereIn('id', $users)->where('owner_association_id', auth()->user()->owner_association_id)->pluck('first_name', 'id');
+                    })
+                    ->query(function (Builder $query, array $data) {
+
+                        if (!empty($data['value'])) { // Ensure that the value is present
+                            return $query->where('causer_id', $data['value']); // Filter by the user selected
+                        }
+                        return $query;
+                    }),
 
                 Filter::make('created_at')
                     ->form([
@@ -287,7 +292,7 @@ class ActivityResource extends Resource
     {
         if (config('filament-logger.resources.enabled', true)) {
             $subjects                 = [];
-            $exceptResources          = [ ...config('filament-logger.resources.exclude'), config('filament-logger.activity_resource')];
+            $exceptResources          = [...config('filament-logger.resources.exclude'), config('filament-logger.activity_resource')];
             $removedExcludedResources = collect(Filament::getResources())->filter(function ($resource) use ($exceptResources) {
                 return !in_array($resource, $exceptResources);
             });
@@ -317,8 +322,8 @@ class ActivityResource extends Resource
                 config('filament-logger.models.log_name') => config('filament-logger.models.log_name'),
             ] : [],
             config('filament-logger.access.enabled')
-            ? [config('filament-logger.access.log_name') => config('filament-logger.access.log_name')]
-            : [],
+                ? [config('filament-logger.access.log_name') => config('filament-logger.access.log_name')]
+                : [],
             config('filament-logger.notifications.enabled') ? [
                 config('filament-logger.notifications.log_name') => config('filament-logger.notifications.log_name'),
             ] : [],

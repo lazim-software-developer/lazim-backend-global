@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use Closure;
@@ -84,12 +86,12 @@ class OwnerAssociationResource extends Resource
                                 ->disabled(function (callable $get) {
                                     // Get the current operation (create or edit)
                                     $isCreate = !$get('id'); // if id exists, it's edit operation
-                                
+
                                     // If it's create operation, return false (not disabled)
                                     if ($isCreate) {
                                         return false;
                                     }
-                                
+
                                     // For edit operation, apply your existing logic
                                     return DB::table('owner_associations')
                                         ->where('slug', $get('slug'))
@@ -214,19 +216,20 @@ class OwnerAssociationResource extends Resource
                                         ->exists();
                                 })
                                 ->placeholder('Email'),
-                                TextInput::make('password')
+                            TextInput::make('password')
                                 ->password()
-                                ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
-                                ->dehydrated(fn ($state) => filled($state))
-                                ->required(fn (string $operation): bool => $operation === 'create')
-                                ->rule(Password::min(8)
-                                    ->letters()
-                                    ->mixedCase()
-                                    ->numbers()
-                                    ->symbols()
-                                    ->uncompromised()
+                                ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null)
+                                ->dehydrated(fn($state) => filled($state))
+                                ->required(fn(string $operation): bool => $operation === 'create')
+                                ->rule(
+                                    Password::min(8)
+                                        ->letters()
+                                        ->mixedCase()
+                                        ->numbers()
+                                        ->symbols()
+                                        ->uncompromised()
                                 )
-                                ->visible(fn (string $operation): bool => $operation === 'create'),
+                                ->visible(fn(string $operation): bool => $operation === 'create'),
                             TextInput::make('bank_account_number')
                                 ->label('Bank Account Number')
                                 ->numeric()
@@ -239,13 +242,13 @@ class OwnerAssociationResource extends Resource
                                     }
                                 })
                                 ->placeholder('Account Number'),
-                                Hidden::make('verified_by')
+                            Hidden::make('verified_by')
                                 ->default(auth()->user()?->id),
-                                Hidden::make('created_by')
+                            Hidden::make('created_by')
                                 ->default(auth()->user()?->id),
-                                Hidden::make('updated_by')
+                            Hidden::make('updated_by')
                                 ->default(auth()->user()?->id),
-                                Hidden::make('resource')
+                            Hidden::make('resource')
                                 ->default('Lazim'),
                             Toggle::make('verified')
                                 ->rules(['boolean'])
@@ -359,10 +362,12 @@ class OwnerAssociationResource extends Resource
                 //     ->limit(50),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('phone')
@@ -371,21 +376,26 @@ class OwnerAssociationResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('trn_number')
                     ->label('VAT Certificate')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('address')
                     ->default('NA')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('bank_account_number')
                     ->default('NA')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('resource')
                     ->default('NA')
+                    ->sortable()
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -399,10 +409,10 @@ class OwnerAssociationResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make()
-                ->visible(fn () => auth()->user()->hasRole('Admin')),
+                    ->visible(fn() => auth()->user()->hasRole('Admin')),
                 Action::make('delete')
                     ->button()
-                    ->visible(fn () => auth()->user()->hasRole('Admin'))
+                    ->visible(fn() => auth()->user()->hasRole('Admin'))
                     ->action(function ($record,) {
                         $record->delete();
 
@@ -419,53 +429,56 @@ class OwnerAssociationResource extends Resource
 
             ->bulkActions([
                 ExportBulkAction::make()
-                ->exports([
-                    ExcelExport::make()
-                        ->withColumns([
-                            Column::make('created_by')
-                            ->heading('Created By')
-                            ->formatStateUsing(fn ($record) => 
-                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            ), 
-                            Column::make('name')
-                                ->heading('Name'),
-                            Column::make('phone')
-                                ->heading('Phone Number'),
-                            Column::make('email')
-                                ->heading('Email'),
-                            Column::make('trn_number')
-                                ->heading('TRN Number'),
-                            Column::make('address')
-                            ->heading('Address'),
-                            Column::make('bank_account_number')
-                                ->heading('Bank Account Number'),      
-                            // Formatted date with custom accessor
-                            Column::make('created_at')
-                                ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) => 
-                                    $state ? $state->format('d/m/Y') : ''
-                                ),
+                    ->exports([
+                        ExcelExport::make()
+                            ->withColumns([
+                                Column::make('created_by')
+                                    ->heading('Created By')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->CreatedBy->first_name . ' ' . $record->CreatedBy->last_name ?? 'N/A'
+                                    ),
+                                Column::make('name')
+                                    ->heading('Name'),
+                                Column::make('phone')
+                                    ->heading('Phone Number'),
+                                Column::make('email')
+                                    ->heading('Email'),
+                                Column::make('trn_number')
+                                    ->heading('TRN Number'),
+                                Column::make('address')
+                                    ->heading('Address'),
+                                Column::make('bank_account_number')
+                                    ->heading('Bank Account Number'),
+                                // Formatted date with custom accessor
+                                Column::make('created_at')
+                                    ->heading('Created Date')
+                                    ->formatStateUsing(
+                                        fn($state) =>
+                                        $state ? $state->format('d/m/Y') : ''
+                                    ),
                                 Column::make('active')
-                                ->heading('Status')
-                                ->formatStateUsing(fn ($record) => 
-                                    $record->active == 1
-                                        ? 'Active' 
-                                        : 'Inactive'
-                                ),
-                                
-                            // Created by user info
-                            // Column::make('created_by_name')
-                            //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) => 
-                            //         $record->createdBy->name ?? 'System'
-                            //     ),
-                        ])
-                        ->withFilename(date('Y-m-d') . '-owner-association-report')
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                ]),
+                                    ->heading('Status')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->active == 1
+                                            ? 'Active'
+                                            : 'Inactive'
+                                    ),
+
+                                // Created by user info
+                                // Column::make('created_by_name')
+                                //     ->heading('Created By')
+                                //     ->formatStateUsing(fn ($record) => 
+                                //         $record->createdBy->name ?? 'System'
+                                //     ),
+                            ])
+                            ->withFilename(date('Y-m-d') . '-owner-association-report')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                    ]),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                    ->visible(fn () => auth()->user()->hasRole('Admin')),
+                        ->visible(fn() => auth()->user()->hasRole('Admin')),
                 ]),
             ])
             ->emptyStateActions([
@@ -489,5 +502,4 @@ class OwnerAssociationResource extends Resource
             'edit'   => Pages\EditOwnerAssociation::route('/{record}/edit'),
         ];
     }
-    
 }

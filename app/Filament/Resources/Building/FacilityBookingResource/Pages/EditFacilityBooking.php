@@ -18,6 +18,7 @@ class EditFacilityBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -36,33 +37,33 @@ class EditFacilityBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' => $facilityName->name.' Booking Status.',
-                        'body' => 'Your amenity booking request for '.$facilityName->name.' is approved',
+                        'title' => $facilityName->name . ' Booking Status.',
+                        'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
                         'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your amenity booking request for '.$facilityName->name. ' is approved',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' =>  $facilityName->name.' Booking Status.',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyBookingsFacility',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is approved',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' =>  $facilityName->name . ' Booking Status.',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyBookingsFacility',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
 
         if ($this->record->approved == 0) {
@@ -72,33 +73,33 @@ class EditFacilityBooking extends EditRecord
                     $message = [
                         'to' => $expoPushToken,
                         'sound' => 'default',
-                        'title' =>  $facilityName->name.' Booking Status.',
-                        'body' => 'Your amenity booking request for '.$facilityName->name. ' is rejected',
+                        'title' =>  $facilityName->name . ' Booking Status.',
+                        'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
                         'data' => ['notificationType' => 'MyBookingsFacility'],
                     ];
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your amenity booking request for '.$facilityName->name. ' is rejected',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'danger',
-                            'title' =>  $facilityName->name.' Booking Status.',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyBookingsFacility',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your amenity booking request for ' . $facilityName->name . ' is rejected',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title' =>  $facilityName->name . ' Booking Status.',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyBookingsFacility',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 }

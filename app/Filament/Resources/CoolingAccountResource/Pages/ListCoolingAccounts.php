@@ -31,62 +31,61 @@ class ListCoolingAccounts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-
-                Action::make('upload')
-                    ->slideOver()
-                    ->color("primary")
-                    ->form([
-                        Grid::make(2)
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+            Action::make('upload')
+                ->slideOver()
+                ->color("primary")
+                ->form([
+                    Grid::make(2)
                         ->schema([
                             Select::make('building_id')
-                            ->required()
-                            ->relationship('building', 'name')
-                            ->options(function () {
-                                if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                    return Building::all()->pluck('name', 'id');
-                                }
-                                else{
-                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                                } 
-                            })
-                            ->searchable()
-                            ->label('Building'),
+                                ->required()
+                                ->relationship('building', 'name')
+                                ->options(function () {
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                        return Building::all()->pluck('name', 'id');
+                                    } else {
+                                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                            ->pluck('name', 'id');
+                                    }
+                                })
+                                ->searchable()
+                                ->label('Building'),
                             Select::make('month')
-                            ->searchable()
-                            ->required()
-                            ->placeholder('Select Month')
-                            ->options([
-                                'january' => 'January',
-                                'february' => 'February',
-                                'march' => 'March',
-                                'april' => 'April',
-                                'may' => 'May',
-                                'june' => 'June',
-                                'july' => 'July',
-                                'august' => 'August',
-                                'september' => 'September',
-                                'october' => 'October',
-                                'november' => 'November',
-                                'december' => 'December',
-                            ]),
+                                ->searchable()
+                                ->required()
+                                ->placeholder('Select Month')
+                                ->options([
+                                    'january' => 'January',
+                                    'february' => 'February',
+                                    'march' => 'March',
+                                    'april' => 'April',
+                                    'may' => 'May',
+                                    'june' => 'June',
+                                    'july' => 'July',
+                                    'august' => 'August',
+                                    'september' => 'September',
+                                    'october' => 'October',
+                                    'november' => 'November',
+                                    'december' => 'December',
+                                ]),
                             Select::make('year')
-                            ->required()
-                            ->searchable()
-                            ->placeholder('Select Year')
-                            ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
+                                ->required()
+                                ->searchable()
+                                ->placeholder('Select Year')
+                                ->options(array_combine(range(now()->year, 2018), range(now()->year, 2018))),
                             FileUpload::make('excel_file')
-                            ->label('Cooling Accounts Excel Data')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                                'application/vnd.ms-excel', // for .xls
-                            ])
-                            ->required(),
+                                ->label('Cooling Accounts Excel Data')
+                                ->acceptedFileTypes([
+                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                    'application/vnd.ms-excel', // for .xls
+                                ])
+                                ->required(),
                         ])
-                    ])
-                    ->action(function (array $data) {
-                    $buildingId= $data['building_id'];
-                    $month = $data['month'].$data['year'];
+                ])
+                ->action(function (array $data) {
+                    $buildingId = $data['building_id'];
+                    $month = $data['month'] . $data['year'];
                     $filePath = $data['excel_file']; // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
@@ -96,24 +95,23 @@ class ListCoolingAccounts extends ListRecords
                     }
 
                     // Now import using the file path
-                    Excel::import(new CoolingAccountImport( $buildingId, $month ), $fullPath);
-
+                    Excel::import(new CoolingAccountImport($buildingId, $month), $fullPath);
                 }),
 
-                ExportAction::make()->exports([
-                    ExcelExport::make()->withColumns([
-                        Column::make('flat_id')->heading('Unit No'),
-                        Column::make('opening_balance')->heading('Opening balance : receivable/ (advance)'),
-                        Column::make('consumption')->heading('In-unit consumption'),
-                        Column::make('demand_charge')->heading('In-unit demand charge'),
-                        Column::make('security_deposit')->heading('In-unit security deposit'),
-                        Column::make('billing_charges')->heading('In-unit billing charges'),
-                        Column::make('other_charges')->heading('In-unit other charges'),
-                        Column::make('receipts')->heading('Receipts'),
-                        Column::make('closing_balance')->heading('Closing balance'),
-                    ])
-                    ->modifyQueryUsing(fn ($query) => $query->where('id', 0)),
-                ])->label('Download sample file')
+            ExportAction::make()->exports([
+                ExcelExport::make()->withColumns([
+                    Column::make('flat_id')->heading('Unit No'),
+                    Column::make('opening_balance')->heading('Opening balance : receivable/ (advance)'),
+                    Column::make('consumption')->heading('In-unit consumption'),
+                    Column::make('demand_charge')->heading('In-unit demand charge'),
+                    Column::make('security_deposit')->heading('In-unit security deposit'),
+                    Column::make('billing_charges')->heading('In-unit billing charges'),
+                    Column::make('other_charges')->heading('In-unit other charges'),
+                    Column::make('receipts')->heading('Receipts'),
+                    Column::make('closing_balance')->heading('Closing balance'),
+                ])
+                    ->modifyQueryUsing(fn($query) => $query->where('id', 0)),
+            ])->label('Download sample file')
         ];
     }
 }

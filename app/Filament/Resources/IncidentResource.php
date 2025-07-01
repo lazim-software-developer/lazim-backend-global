@@ -2,35 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
-use App\Filament\Resources\IncidentResource\Pages;
-use App\Filament\Resources\IncidentResource\RelationManagers;
-use App\Models\Building\Building;
-use App\Models\Building\Complaint;
-use App\Models\Incident;
-use App\Models\Master\Role;
-use App\Models\User\User;
 use Closure;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Tables;
+use App\Models\Incident;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Resources\Resource;
+use App\Models\Building\Building;
+use App\Models\Building\Complaint;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\IncidentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\IncidentResource\RelationManagers;
+use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class IncidentResource extends Resource
 {
@@ -90,7 +91,7 @@ class IncidentResource extends Resource
                             ->live(),
                         Repeater::make('comments')
                             ->relationship('comments')
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No Comments' : '';
                             })
                             ->schema([
@@ -100,14 +101,14 @@ class IncidentResource extends Resource
                                     'lg' => 2,
                                 ])->schema([
                                     Textarea::make('body')->label('comment')->required()->maxLength(50)
-                                    ->readOnly(function($state){
-                                        if($state != null){
-                                            return true;
-                                        }
-                                        return false;
-                                    }),
+                                        ->readOnly(function ($state) {
+                                            if ($state != null) {
+                                                return true;
+                                            }
+                                            return false;
+                                        }),
                                     Hidden::make('user_id')->default(auth()->user()?->id),
-                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled()              
+                                    DateTimePicker::make('created_at')->label('time')->format('MM/dd/yyyy hh:mm:ss tt')->default(now())->disabled()
                                 ])
                             ])->deletable(false)
                             ->columnSpan([
@@ -118,7 +119,7 @@ class IncidentResource extends Resource
                         Repeater::make('media')
                             ->relationship()
                             ->disabled()
-                            ->helperText(function($state){
+                            ->helperText(function ($state) {
                                 return $state == [] ? 'No media' : '';
                             })
                             ->schema([
@@ -143,15 +144,18 @@ class IncidentResource extends Resource
             ->columns([
                 TextColumn::make('building.name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
                     ->default('NA')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('complaint')
                     ->label('Incident Deatils')
                     ->toggleable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(20)
                     ->searchable(),
@@ -169,11 +173,11 @@ class IncidentResource extends Resource
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
                             return Building::all()->pluck('name', 'id');
                         } else {
-                            $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                            return Building::whereIn('id',$buildingId)->pluck('name', 'id');
+                            $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                            return Building::whereIn('id', $buildingId)->pluck('name', 'id');
                         }
                     }),
-            
+
                 SelectFilter::make('status')
                     ->options([
                         'open' => 'Open',

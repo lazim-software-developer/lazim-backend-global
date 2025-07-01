@@ -18,6 +18,7 @@ class EditSnags extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -34,7 +35,7 @@ class EditSnags extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => 'Snags status',
-                        'body' => 'Your Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                        'body' => 'Your Snag has been resolved by ' . $role->name . ' : ' . auth()->user()->first_name,
                         'data' => ['notificationType' => 'MyComplaints'],
                     ];
                     $this->expoNotification($message);
@@ -45,7 +46,7 @@ class EditSnags extends EditRecord
                         'notifiable_id' => $this->record->user_id,
                         'data' => json_encode([
                             'actions' => [],
-                            'body' => 'Your Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'body' => 'Your Snag has been resolved by ' . $role->name . ' : ' . auth()->user()->first_name,
                             'duration' => 'persistent',
                             'icon' => 'heroicon-o-document-text',
                             'iconColor' => 'warning',
@@ -60,7 +61,7 @@ class EditSnags extends EditRecord
                     ]);
                 }
             }
-            if($this->record->technician_id){
+            if ($this->record->technician_id) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $this->record->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -68,7 +69,7 @@ class EditSnags extends EditRecord
                             'to' => $expoPushToken,
                             'sound' => 'default',
                             'title' => 'Snags status',
-                            'body' => 'A Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                            'body' => 'A Snag has been resolved by ' . $role->name . ' : ' . auth()->user()->first_name,
                             'data' => ['notificationType' => 'ResolvedRequests'],
                         ];
                         $this->expoNotification($message);
@@ -79,7 +80,7 @@ class EditSnags extends EditRecord
                             'notifiable_id' => $this->record->technician_id,
                             'data' => json_encode([
                                 'actions' => [],
-                                'body' => 'A Snag has been resolved by '.$role->name.' : '.auth()->user()->first_name,
+                                'body' => 'A Snag has been resolved by ' . $role->name . ' : ' . auth()->user()->first_name,
                                 'duration' => 'persistent',
                                 'icon' => 'heroicon-o-document-text',
                                 'iconColor' => 'warning',
