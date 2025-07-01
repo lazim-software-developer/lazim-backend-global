@@ -2,31 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ComplaintsenquiryResource\Pages;
+use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\User\User;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
+use Filament\Facades\Filament;
+use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use App\Models\Master\Role;
-use App\Models\User\User;
-use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Log;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\ComplaintsenquiryResource\Pages;
 
 class ComplaintsenquiryResource extends Resource
 {
@@ -150,13 +151,30 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->label('Ticket number'),
+                TextColumn::make('flat.property_number')
+                    ->label('Unit')
+                    ->default('NA')
+                    ->searchable()
+                    ->limit(50),
                 TextColumn::make('building.name')
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('flat.property_number')
-                    ->label('Unit')
-                    ->default('NA')
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                   ->color(fn(string $state): string => match ($state) {
+                        'open'        => 'success',
+                        'in-progress' => 'primary',
+                        'closed'      => 'danger',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'open'       => 'Open',
+                        'in-progress'=> 'In-Progress',
+                        'closed'     => 'Closed',
+
+                    })
+                    ->toggleable()
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.first_name')
@@ -176,24 +194,6 @@ class ComplaintsenquiryResource extends Resource
                     ->limit(20)
                     ->searchable()
                     ->label('Enquiry details'),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'open'                                       => 'Open',
-                        'in-progress'                                => 'In-Progress',
-                        'closed'                                     => 'Closed',
-
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'open'                            => 'primary',
-                        'in-progress'                     => 'success',
-                        'closed'                          => 'gray',
-                    })
-                    ->toggleable()
-                    ->searchable()
-                    ->limit(50),
-
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -218,6 +218,12 @@ class ComplaintsenquiryResource extends Resource
                     ->searchable()
                     ->label('Building')
                     ->preload(),
+                SelectFilter::make('status')
+                    ->options([
+                        'open'        => 'Open',
+                        'in-progress' => 'In-Progress',
+                        'closed'      => 'Closed',
+                    ]),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),

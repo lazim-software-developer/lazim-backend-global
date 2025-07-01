@@ -26,18 +26,46 @@ class PollResponseObserver
         });
         $building_id = DB::table('building_poll')->where('poll_id', $pollResponse->poll->id)->first()->building_id;
         $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
-        Notification::make()
-        ->success()
-        ->title('New Poll Response')
-        ->body('New Poll Response Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(fn () => PollResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$pollResponse->poll_id]))
-        ])
-        ->sendToDatabase($notifyTo);
+        $slug = OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug;
+        if($notifyTo->count() > 0){
+            foreach($notifyTo as $user){
+                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->poll_id', $pollResponse->poll->id)->exists()){
+                    $data=[];
+                    $data['notifiable_type']='App\Models\User\User';
+                    $data['notifiable_id']=$user->id;
+                    $slug = $oam_id?->slug;
+                    if($slug){
+                        $data['url']=PollResource::getUrl('edit', [$slug,$pollResponse->poll->id]);
+                    }else{
+                        $data['url']=url('/app/polls/' . $pollResponse->poll->id.'/edit');
+                    }
+                    $data['title']="New Poll Response";
+                    $data['body']='New poll response received';
+                    $data['building_id']=$building_id;
+                    $data['custom_json_data']=json_encode([
+                        'building_id' => $building_id,
+                        'poll_id' => $pollResponse->poll->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'owner_association_id' => $oam_id->owner_association_id,
+                        'type' => 'Poll',
+                        'priority' => 'Medium',
+                    ]);
+                    NotificationTable($data);
+                }
+            }
+        }
+        // Notification::make()
+        // ->success()
+        // ->title('New Poll Response')
+        // ->body('New Poll Response Received')
+        // ->icon('heroicon-o-document-text')
+        // ->iconColor('warning')
+        // ->actions([
+        //     Action::make('View')
+        //     ->button()
+        //     ->url(fn () => PollResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$pollResponse->poll_id]))
+        // ])
+        // ->sendToDatabase($notifyTo);
     }
 
     /**

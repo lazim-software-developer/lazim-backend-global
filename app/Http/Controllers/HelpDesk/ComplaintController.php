@@ -168,24 +168,51 @@ class ComplaintController extends Controller
                       ->where('owner_association_id', $oa_id);
             })
             ->get();
-            Notification::make()
-                ->success()
-                ->title("New Incident")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New Incident created!')
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($oa_id,$complaint){
-                            $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
-                            if($slug){
-                                return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
-                            }
-                            return url('/app/incidents/' . $complaint?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->complaint_id', $complaint?->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                        if($slug){
+                            $data['url']=IncidentResource::getUrl('edit', [$slug, $complaint?->id]);
+                        }else{
+                            $data['url']=url('/app/incidents/' . $complaint?->id.'/edit');
+                        }
+                        $data['title']='New Incident';
+                        $data['body']='New Incident created by ' . auth()->user()->first_name;
+                        $data['building_id']=$complaint->building_id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'owner_association_id' => $complaint->owner_association_id,
+                            'type' => 'Incident',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
+                    }
+                }
+            }
+                // Notification::make()
+                //     ->success()
+                //     ->title("New Incident")
+                //     ->icon('heroicon-o-document-text')
+                //     ->iconColor('warning')
+                // ->body('New Incident created!')
+                // ->actions([
+                //     Action::make('view')
+                //         ->button()
+                //         ->url(function() use ($oa_id,$complaint){
+                //             $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                //             if($slug){
+                //                 return IncidentResource::getUrl('edit', [$slug,$complaint?->id]);
+                //             }
+                //             return url('/app/incidents/' . $complaint?->id.'/edit');
+                //         }),
+                // ])
+                // ->sendToDatabase($notifyTo);
         }
 
         return (new CustomResponseResource([
@@ -310,6 +337,14 @@ class ComplaintController extends Controller
                             'type'            => 'Filament\Notifications\DatabaseNotification',
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id'   => $isActiveSecurity?->user_id,
+                            'custom_json_data' => json_encode([
+                                'owner_association_id' => $oa_id,
+                                'building_id' => $building->id ?? null,
+                                'flat_id' => $flatTenant->flat_id ?? null,
+                                'user_id' => $isActiveSecurity?->user_id ?? null,
+                                'type' => 'AssignedToMe',
+                                'priority' => 'Medium',
+                            ]),
                             'data'            => json_encode([
                                 'actions'   => [],
                                 'body'      => 'Task has been assigned',
@@ -378,6 +413,15 @@ class ComplaintController extends Controller
                 }])
                 ->orderBy('assignees_count', 'asc')
                 ->get();
+            $selectedTechnician = $assignees->first();
+
+            if ($selectedTechnician) {
+                $complaint->technician_id = $selectedTechnician->id;
+                $complaint->vendor_id     = $vendorId;
+                $complaint->save();
+            } else {
+                Log::info("No technicians to add", []);
+            }
         }
         return (new CustomResponseResource([
             'title'   => 'Success',
@@ -414,7 +458,6 @@ class ComplaintController extends Controller
         }
 
         if ($complaint->user_id != auth()->user()->id) {
-
             $expoPushToken = ExpoPushNotification::where('user_id', $complaint->user_id)->first()?->token;
             if ($expoPushToken) {
                 if ($complaint->complaint_type == 'help_desk') {
@@ -447,6 +490,14 @@ class ComplaintController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $complaint->user_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $oa_id,
+                        'building_id' => $building->id ?? null,
+                        'flat_id' => $flatTenant->flat_id ?? null,
+                        'user_id' => $complaint->user_id ?? null,
+                        'type' => 'ResolvedRequests',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'Your '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance' : 'complaint').' has been resolved by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
@@ -491,6 +542,14 @@ class ComplaintController extends Controller
                     'type'            => 'Filament\Notifications\DatabaseNotification',
                     'notifiable_type' => 'App\Models\User\User',
                     'notifiable_id'   => $complaint->technician_id,
+                    'custom_json_data' => json_encode([
+                        'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                        'building_id' => $complaint->building_id,
+                        'complaint_id' => $complaint->id,
+                        'user_id' => auth()->user()->id ?? null,
+                        'type' => 'ResolvedRequests',
+                        'priority' => 'Medium',
+                    ]),
                     'data'            => json_encode([
                         'actions'   => [],
                         'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'Preventive Maintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,
@@ -542,6 +601,14 @@ class ComplaintController extends Controller
                         'type'            => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id'   => $residentId,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $complaint->building->owner_association_id ?? 1,
+                            'building_id' => $complaint->building_id,
+                            'complaint_id' => $complaint->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'type' => 'PreventiveMaintenance',
+                            'priority' => 'Medium',
+                        ]),
                         'data'            => json_encode([
                             'actions'   => [],
                             'body'      => 'A '.($complaint->complaint_type === 'preventive_maintenance' ? 'PreventiveMaintenance has been completed' : 'complaint has been resolved').' by : ' . auth()->user()->role->name . ' ' . auth()->user()->first_name,

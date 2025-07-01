@@ -32,27 +32,53 @@ class ContractObserver
             ->filter(function ($notifyTo) use ($requiredPermissions) {
                 return $notifyTo->can($requiredPermissions);
             });
-            Notification::make()
-                ->success()
-                ->title("New Contract")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New contract is created')
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($oam_id,$contract){
-                            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
-                            if($slug){
-                                return ContractResource::getUrl('edit', [$slug,$contract?->id]);
-                            }
-                            return url('/app/contracts/' . $contract?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+            $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+            if($notifyTo->count() > 0){
+                foreach($notifyTo as $user){
+                    if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->contract_id', $contract->id)->exists()){
+                        $data=[];
+                        $data['notifiable_type']='App\Models\User\User';
+                        $data['notifiable_id']=$user->id;
+                        if($slug){
+                            $data['url']=ContractResource::getUrl('edit', [$slug, $contract->id]);
+                        }else{
+                            $data['url']=url('/app/contracts/' . $contract?->id.'/edit');
+                        }
+                        $data['title']='New Contract for Building:'. $contract->building->name;
+                        $data['body']='A new contract received from  '.auth()->user()->first_name;
+                        $data['building_id']=$contract->building_id;
+                        $data['custom_json_data']=json_encode([
+                            'building_id' => $contract->building_id,
+                            'contract_id' => $contract->id,
+                            'user_id' => auth()->user()->id ?? null,
+                            'owner_association_id' => $oam_id,
+                            'type' => 'Contract',
+                            'priority' => 'Medium',
+                        ]);
+                        NotificationTable($data);
+                    }
+                }
+            }
+                // Notification::make()
+                // ->success()
+                // ->title("New Contract")
+                // ->icon('heroicon-o-document-text')
+                // ->iconColor('warning')
+                // ->body('New contract is created')
+                // ->actions([
+                //     Action::make('view')
+                //         ->button()
+                //         ->url(function() use ($oam_id,$contract){
+                //             $slug = OwnerAssociation::where('id',$oam_id)->first()?->slug;
+                //             if($slug){
+                //                 return ContractResource::getUrl('edit', [$slug,$contract?->id]);
+                //             }
+                //             return url('/app/contracts/' . $contract?->id.'/edit');
+                //         }),
+                // ])
+                // ->sendToDatabase($notifyTo);
         }
     }
-
     /**
      * Handle the Contract "updated" event.
      */
@@ -66,6 +92,14 @@ class ContractObserver
                 'type' => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id' => $vendor->owner_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $contract->building->owner_association_id,
+                    'building_id' => $contract->building_id,
+                    'contract_id' => $contract->id,
+                    'user_id' => auth()->user()->id ?? null,
+                    'type' => 'Contract',
+                    'priority' => 'Medium',
+                ]),
                 'data' => json_encode([
                     'actions' => [],
                     'body' => 'Contract document has been updated.',

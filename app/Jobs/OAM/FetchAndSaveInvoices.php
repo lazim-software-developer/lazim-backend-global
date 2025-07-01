@@ -2,26 +2,31 @@
 
 namespace App\Jobs\OAM;
 
+use App\Http\Controllers\User\PaymentController;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Building\Building;
 use App\Models\Building\Flat;
 use App\Models\User\User;
 use DateTime;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+// use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+// use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ThrottlesApiCalls;
 
 class FetchAndSaveInvoices implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ThrottlesApiCalls;
 
     protected $building;
+
+    public $tries = 3; // Retry 3 times on failure
+    public $backoff = [60, 120, 180]; // Wait 60s, 120s, 180s before retries
 
     public function __construct($building = null, protected $propertyGroupId = null, protected $serviceChargeGroupId = null, protected $quarterCode = null)
     {
@@ -33,9 +38,22 @@ class FetchAndSaveInvoices implements ShouldQueue
      */
     public function handle(): void
     {
+                // Try to throttle
+        if (! $this->throttleApiCall('external-api-global', 4)) {
+            // Too soon, retry after delay
+            $this->release(4); // Retry after 4 minutes
+            return;
+        }
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
         $serviceChargeGroupId = $this->serviceChargeGroupId;
-        $buildingId = $this->building?->id ?: Building::where('property_group_id', $propertyGroupId)->first()?->id;
+
+        // Call external API here
+        $this->callExternalApi($this->building,$propertyGroupId,$serviceChargeGroupId);
+    }
+
+    protected function callExternalApi($building,$propertyGroupId, $serviceChargeGroupId)
+    {
+        $buildingId = $building?->id ?: Building::where('property_group_id', $propertyGroupId)->first()?->id;
 
         $currentDate = new DateTime();
         $currentYear = $currentDate->format('Y');
@@ -44,7 +62,7 @@ class FetchAndSaveInvoices implements ShouldQueue
         $quarter = $this->quarterCode ?: "Q" . $currentQuarter . "-JAN" . $currentYear . "-DEC" . $currentYear;
 
         try {
-            if (!$this->serviceChargeGroupId) {
+            if (!$serviceChargeGroupId) {
                 $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
                 // $url = env("MOLLAK_API_URL") ."/sync/invoices/". $propertyGroupId ."/all/Q1-JAN2023-DEC2023";
             } else {
@@ -52,17 +70,17 @@ class FetchAndSaveInvoices implements ShouldQueue
             }
             $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
-                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
+                'consumer-id' => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
 
-            Log::info('RESPONSE', [$response->json()]);
+            // Log::info('RESPONSE', [$response->json()]);
 
             $invoicesData = $response->json()['response']['serviceChargeGroups'];
 
             // Log::info('invoice'.json_encode($invoicesData));
             foreach ($invoicesData as $data) {
                 foreach ($data['properties'] as $property) {
-                    $flat = Flat::where('mollak_property_id',  $property['mollakPropertyId'])->first();
+                    $flat = Flat::where('mollak_property_id', $property['mollakPropertyId'])->first();
 
                     // Save amount data
                     $generalFundAmount = 0;
@@ -92,7 +110,8 @@ class FetchAndSaveInvoices implements ShouldQueue
                         }
                     }
 
-                    OAMInvoice::updateOrCreate(
+
+                    $invoice = OAMInvoice::updateOrCreate(
                         [
                             'building_id' => $buildingId,
                             'flat_id' => $flat->id,
@@ -101,6 +120,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'invoice_period' => $data['invoicePeriod'],
                             'budget_period' => $data['budgetPeriod'],
                             'service_charge_group_id' => $data['serviceChargeGroupId'],
+                            'owner_association_id' => $flat->owner_association_id
                         ],
                         [
                             'invoice_date' => $property['invoiceDate'],
@@ -118,10 +138,14 @@ class FetchAndSaveInvoices implements ShouldQueue
                             'amount_paid' => 0,
                             'updated_by' => User::first()->id,
                             'type' => 'service_charge',
-                            'payment_url' => $property['paymentUrl'],
-                            'owner_association_id' => $flat->owner_association_id
+                            'payment_url' => $property['paymentUrl']
                         ]
                     );
+                    // if (isset($invoice->invoice_detail_link) && !empty($invoice->invoice_detail_link)) {
+                    //     $file  = new PaymentController();
+                    //     $file->fetchServiceChargePDF($invoice);
+                    // }
+
                     // $connection = DB::connection('lazim_accounts');
                     // $created_by = $connection->table('users')->where('owner_association_id', $flat->owner_association_id)->where('type', 'company')->first()?->id;
                     // $invoiceId = $connection->table('invoices')->where('created_by', $created_by)->orderByDesc('invoice_id')->first()?->invoice_id + 1;
@@ -172,8 +196,13 @@ class FetchAndSaveInvoices implements ShouldQueue
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Invoice Fetch Failed: " . " File: " . $e->getFile() . " Line: " . $e->getLine() . " Message: " . $e->getMessage());
-            Log::error('Failed to fetch or save invoices: ' . $this->building->property_group_id);
+            Log::error("##### FetchAndSaveInvoices -> callExternalApi #####  Invoice Fetch Failed File: " . $e->getFile() . " Line: " . $e->getLine() . " Message: " . $e->getMessage());
+            Log::error("##### FetchAndSaveInvoices -> callExternalApi ##### Failed to fetch or save invoices for building property group id: " . $this->building->property_group_id);
         }
+
+    }
+    public function backoff()
+    {
+        return [1, 3, 5, 10, 30]; // Retry delays in seconds
     }
 }

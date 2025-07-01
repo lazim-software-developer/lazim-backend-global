@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\User;
 
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Order;
+use Stripe\PaymentIntent;
+use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceChargeResource;
+use Illuminate\Support\Facades\Http;
 use App\Models\Accounting\OAMInvoice;
 use App\Models\Accounting\OAMReceipts;
-use App\Models\Building\Flat;
-use App\Models\Order;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\ServiceChargeResource;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Stripe\PaymentIntent;
-use Stripe\Stripe;
 
 class PaymentController extends Controller
 {
@@ -101,14 +103,65 @@ class PaymentController extends Controller
         ])->get("https://b2bgateway.dubailand.gov.ae/mollak/external/sync/invoices/235553/17651639/0223010004632489/detail");
     }
 
+    /**
+     * Fetch or retrieve the service charge PDF for an invoice.
+     *
+     * @param OAMInvoice $invoice
+     * @return array{file_path: string, url: string}
+     * @throws Exception
+     */
     public function fetchServiceChargePDF(OAMInvoice $invoice)
     {
+        // Check if pdf_path exists and file is present in S3
+        if (!empty($invoice->pdf_path) && Storage::disk('s3')->exists($invoice->pdf_path)) {
+            return [
+                'file_path' => $invoice->pdf_path,
+                'url' => Storage::disk('s3')->url($invoice->pdf_path),
+            ];
+        }
+        // Fetch PDF from API
         $pdfLink = $invoice->invoice_detail_link;
+        try {
+            $response = Http::withoutVerifying()->withHeaders([
+                'content-type' => 'application/json',
+                'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+            ])->get($pdfLink);
 
-        return $response = Http::withoutVerifying()->withHeaders([
-            'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get($pdfLink);
+            if (!$response->successful()) {
+                throw new \Exception("Failed to fetch PDF from API. Status: {$response->status()}");
+            }
+
+            // Generate filename and store in S3
+            $fileName = 'invoices/invoice_' . $invoice->id . '_' . time() . '.pdf';
+            $fullPath = 'dev/' . $fileName;
+
+            // Store PDF in S3 with public visibility
+            Storage::disk('s3')->put($fullPath, $response->body(), 'public');
+
+            // Verify the file was stored
+            if (!Storage::disk('s3')->exists($fullPath)) {
+                throw new \Exception('Failed to store PDF in S3');
+            }
+
+            // Update database with the file path
+            $invoice->update(['pdf_path' => $fullPath]);
+
+            // Generate public S3 URL
+            $url = Storage::disk('s3')->url($fullPath);
+
+            return [
+                'file_path' => $fullPath,
+                'url' => $url,
+            ];
+        } catch (\Exception $e) {
+            Log::error('##### PaymentController -> fetchServiceChargePDF ##### Error fetching/storing PDF', [
+                'invoice_id' => $invoice->id,
+                'error' => $e->getMessage(),
+                'pdf_link' => $pdfLink,
+            ]);
+            throw new \Exception('Unable to fetch or store PDF: ' . $e->getMessage());
+        }
+
     }
 
     public function createPaymentIntent()
@@ -157,18 +210,28 @@ class PaymentController extends Controller
 
     public function fecthInvoiceDetails(Flat $flat)
     {
-        $invoice =  OAMInvoice::where('flat_id', $flat->id)->latest('invoice_date')->first();
-        $receipts = OAMReceipts::where('flat_id', $flat->id)
-        ->where('receipt_date', '>=', $invoice->invoice_date)
-        ->get();
-        $balance = $invoice->due_amount;
-        if ($receipts->isNotEmpty()) {
-            $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
+        try {
+            $invoice =  OAMInvoice::where('flat_id', operator: $flat->id)->latest('invoice_date')->first();
+            if (!$invoice) {
+                return ["data" =>['outstanding_balance' => 0,'virtual_account_number' => 0]];
+            }
+            $receipts = OAMReceipts::where('flat_id', $flat->id)
+            ->where('receipt_date', '>=', $invoice->invoice_date)
+            ->get();
+            $balance = $invoice->due_amount;
+            if ($receipts->isNotEmpty()) {
+                $balance = $invoice->due_amount - $receipts->sum('receipt_amount');
+            }
+            return [
+                "data" =>[
+                    'outstanding_balance' => $balance,
+                    'virtual_account_number' => $flat->virtual_account_number,]
+            ];
+        } catch (\Exception $e) {
+            Log::error('##### PaymentController -> fecthInvoiceDetails #####', [
+                'flat_id' => $flat->id,
+                'error' => $e->getMessage(),
+            ]);
         }
-        return [
-            "data" =>[
-                'outstanding_balance' => $balance,
-                'virtual_account_number' => $flat->virtual_account_number,]
-        ];
     }
 }

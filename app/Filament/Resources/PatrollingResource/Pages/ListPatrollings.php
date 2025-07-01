@@ -16,6 +16,7 @@ class ListPatrollings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
         ];
     }
@@ -29,13 +30,13 @@ class ListPatrollings extends ListRecords
             ->pluck('building_id');
 
         if ($role == 'Admin') {
-            return parent::getTableQuery();
+            return parent::getTableQuery()->latest();
         }
         if (in_array($role, ['Property Manager', 'OA'])) {
             return parent::getTableQuery()
                 ->whereIn('building_id', $buildings)
                 ->latest();
         }
-        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id);
+        return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()->id)->latest();
     }
 }

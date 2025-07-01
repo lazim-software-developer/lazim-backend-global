@@ -16,6 +16,13 @@ use App\Filament\Resources\Building\BuildingResource;
 class CreateBuilding extends CreateRecord
 {
     protected static string $resource = BuildingResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         if (array_key_exists('search', $data)) {
@@ -83,7 +90,7 @@ class CreateBuilding extends CreateRecord
             'is_disable' => 0,
             'plan' => 1,
             'is_enable_login' => 1,
-            'created_by' => auth()->user()?->id,
+            // 'created_by' => auth()->user()?->id,
             'created_at' => now(),
             'updated_at' => now()
         ]);

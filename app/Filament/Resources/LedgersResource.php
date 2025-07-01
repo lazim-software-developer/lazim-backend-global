@@ -82,24 +82,24 @@ class LedgersResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Filter::make('invoice_date')
-                    ->form([
-                        Flatpickr::make('Date')
-                            ->range(true),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['Date'])) {
-                            $segments = Str::of($data['Date'])->split('/[\s,]+/');
+                // Filter::make('invoice_date')
+                //     ->form([
+                //         Flatpickr::make('Date')
+                //             ->range(true),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         if (isset($data['Date'])) {
+                //             $segments = Str::of($data['Date'])->split('/[\s,]+/');
 
-                            if (count($segments) === 3) {
-                                $from  = $segments[0];
-                                $until = $segments[2];
+                //             if (count($segments) === 3) {
+                //                 $from  = $segments[0];
+                //                 $until = $segments[2];
 
-                                return $query->whereBetween('invoice_date', [$from, $until]);
-                            }
-                        }
-                        return $query;
-                    }),
+                //                 return $query->whereBetween('invoice_date', [$from, $until]);
+                //             }
+                //         }
+                //         return $query;
+                //     }),
                 Filter::make('Building')
                     ->form([
                         Select::make('building')

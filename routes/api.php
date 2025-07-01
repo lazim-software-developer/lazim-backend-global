@@ -2,6 +2,8 @@
 
 use App\Jobs\SendSMSJobTest;
 use Illuminate\Http\Request;
+use App\Models\Building\Flat;
+use App\Jobs\FetchOwnersForFlat;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppController;
@@ -66,6 +68,7 @@ use App\Http\Controllers\Vendor\EscalationMatrixController;
 use App\Http\Controllers\Vendor\VendorRegistrationController;
 use App\Http\Controllers\Api\Tally\TallyIntigrationController;
 use App\Http\Controllers\Notifications\NotificationController;
+use App\Http\Controllers\AccessCard\AccessCardCommanController;
 use App\Http\Controllers\Api\OwnerAssociation\OwnerAssociationController;
 use App\Http\Controllers\Api\OwnerAssociation\NewOwnerAssociationController;
 use App\Http\Controllers\Technician\BuildingController as TechnicianBuildingController;
@@ -81,6 +84,12 @@ use App\Http\Controllers\Gatekeeper\ComplaintController as GatekeeperComplaintCo
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
+Route::post('/fetch-flat-from-mollak', function(Request $request) {
+    $flat = Flat::where('id', $request->flat_id)->first();
+    FetchOwnersForFlat::dispatch($flat);
+})->name('mollak.fetch-flat-owners');
+
+
 // OA Login
 Route::post('/send-sms-test', function (Request $request) {
     $request->validate([
@@ -365,7 +374,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 /**
  * Payment APIs for Owners
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('payments')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('payments')->group(function () {
     Route::get('/{flat}/service-charges', [PaymentController::class, 'fetchServiceCharges']);
 
     // Access PDF link for serviceCharge
@@ -393,10 +402,18 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('access-card')->group(function () {
+    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
+    Route::post('/listing', [AccessCardController::class, 'listing']);
+    Route::get('/{accessCard}', [AccessCardController::class, 'show']);
+    Route::post('/{accessCard}/update', [AccessCardController::class, 'update']);
+    Route::delete('/{accessCard}', [AccessCardController::class, 'delete']);
+
+});
 /**
  * Forms related APIs
  */
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('forms')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('forms')->group(function () {
     Route::post('/move-in-out', [MoveInOutController::class, 'store']);
     Route::post('/guest-registration', [GuestController::class, 'store']);
     Route::post('/sale-noc', [SaleNocController::class, 'store']);
@@ -425,7 +442,7 @@ Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active']
 Route::post('/fit-out/contractor/{fitout}', [FitOutFormsController::class, 'contractorRequest']);
 
 //Bills related Api's
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('bills')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('bills')->group(function () {
     Route::get('/flat/{flat}', [BillController::class, 'index']);
 });
 
@@ -445,12 +462,12 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 // API  to fetch Security for a building
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->prefix('building')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('building')->group(function () {
     Route::get('/{building}/security', [SecurityController::class, 'fetchSecurity']);
 });
 
 // App suggestion and feedback
-Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     Route::post('/feedback', [AppFeedbackController::class, 'store']);
 });
 
@@ -609,6 +626,9 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
     Route::patch('/work-permit/{workPermit}/update-status', [PermitWorkController::class, 'updateStatus']);
 });
 
+
+//Access Card APIs
+
 // Technician Related APIs
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
     // Registration
@@ -659,7 +679,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
 
-    Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::get('floors/{building}', [PatrollingController::class, 'featchAllFloors']);
+    Route::post('start-patrolling/{building}', [PatrollingController::class, 'createPatrolling']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
     // List all residents for an

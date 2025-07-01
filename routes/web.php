@@ -1,5 +1,6 @@
 <?php
 
+use Livewire\Livewire;
 use App\Livewire\VendorRegistration;
 use App\Filament\Pages\BudgetListing;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,7 @@ use App\Http\Controllers\FlatImportController;
 use App\Http\Controllers\Master\PDFController;
 use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\ReserveFundController;
+use App\Http\Controllers\BudgetImportController;
 use App\Http\Controllers\TrialBalanceController;
 use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\Vendor\MasterController;
@@ -55,6 +57,9 @@ Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'ser
 // // ROutes for PDF links
 // Route::middleware(['auth:sanctum', 'email.verified', 'phone.verified', 'active'])->group(function () {
 // });
+
+Route::get('/download/sample-budget-file', [BudgetImportController::class, 'downloadSampleBudgetFile'])
+    ->name('download.sample-budget-file');
 
 Route::post('/get-vendors-based-on-services', [MasterController::class, 'getVendorsBasedOnServices'])->name('vendors.based.on.services');
 

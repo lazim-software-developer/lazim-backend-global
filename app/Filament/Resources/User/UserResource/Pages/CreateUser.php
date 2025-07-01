@@ -21,6 +21,13 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
+
     protected function beforeCreate(): void
     {
         // dd($this->data['roles']);
@@ -129,7 +136,7 @@ class CreateUser extends CreateRecord
 
              $authUserRole = auth()->user()->role->name;
             $pm_oa = auth()->user()?->first_name;
-            $pm_logo = auth()->user()?->ownerAssociation?->first()->profile_photo;
+            $pm_logo = auth()->user()?->ownerAssociation?->first()?->profile_photo;
 
             if ($authUserRole === 'Property Manager') {
                 // If Property Manager is creating users, use CreateUserJob

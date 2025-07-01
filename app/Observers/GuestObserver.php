@@ -35,24 +35,51 @@ class GuestObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                ->success()
-                ->title("New Guest Registration Form Submission")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New form submission by '.auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($guest, $oa){
-                            $slug = $oa?->slug;
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->guest_id', $guest->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $slug = $oa->slug;
                             if($slug){
-                                return GuestRegistrationResource::getUrl('edit', [$slug,$guest?->id]);
+                                $data['url']=GuestRegistrationResource::getUrl('view', [$slug,$guest->id]);
+                            }else{
+                                $data['url']=url('/app/guest-registrations/' . $guest->id.'/view');
                             }
-                            return url('/app/guest-registrations/' . $guest?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+                            $data['title']="New Guest Registration Form Submission";
+                            $data['body']='New form submission by '.auth()->user()->first_name;
+                            $data['building_id']=$guest->flatVisitor->building_id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $guest->flatVisitor->building_id,
+                                'guest_id' => $guest->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'owner_association_id' => $oa->id,
+                                'type' => 'Guest',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
+                        }
+                    }
+                }
+                // Notification::make()
+                // ->success()
+                // ->title("New Guest Registration Form Submission")
+                // ->icon('heroicon-o-document-text')
+                // ->iconColor('warning')
+                // ->body('New form submission by '.auth()->user()->first_name)
+                // ->actions([
+                //     Action::make('view')
+                //         ->button()
+                //         ->url(function() use ($guest, $oa){
+                //             $slug = $oa?->slug;
+                //             if($slug){
+                //                 return GuestRegistrationResource::getUrl('edit', [$slug,$guest?->id]);
+                //             }
+                //             return url('/app/guest-registrations/' . $guest?->id.'/edit');
+                //         }),
+                // ])
+                // ->sendToDatabase($notifyTo);
             }
         }
     }

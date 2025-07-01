@@ -36,24 +36,33 @@ class SaleNOCObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                Notification::make()
-                ->success()
-                ->title("New Sale Noc Submission")
-                ->icon('heroicon-o-document-text')
-                ->iconColor('warning')
-                ->body('New form submission by '.auth()->user()->first_name)
-                ->actions([
-                    Action::make('view')
-                        ->button()
-                        ->url(function() use ($saleNOC,$oa){
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->sale_noc_id', $saleNOC->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
                             $slug = $oa?->slug;
                             if($slug){
-                                return NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                                $data['url']=NocFormResource::getUrl('edit', [$slug,$saleNOC?->id]);
+                            }else{
+                                $data['url']=url('/app/sale-nocs/' . $saleNOC?->id.'/edit');
                             }
-                            return url('/app/noc-forms/' . $saleNOC?->id.'/edit');
-                        }),
-                ])
-                ->sendToDatabase($notifyTo);
+                            $data['title']="New Sale Noc Submission for Building :". $saleNOC->building->name;
+                            $data['body']='New form submission by '.auth()->user()->first_name;
+                            $data['building_id']=$saleNOC->building_id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $saleNOC->building_id,
+                                'sale_noc_id' => $saleNOC->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'owner_association_id' => $oa->id,
+                                'type' => 'SaleNoc',
+                                'priority' => 'High',
+                            ]);
+                            NotificationTable($data);
+                        }
+            }
+        }
             }
         }
     }

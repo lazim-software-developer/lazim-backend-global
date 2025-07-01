@@ -25,6 +25,7 @@ class EditProposal extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             //Actions\DeleteAction::make(),
         ];
     }
@@ -154,6 +155,14 @@ class EditProposal extends EditRecord
                 'type' => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id' => $record->submitted_by,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $record->building->owner_association_id ?? 1,
+                    'building_id' => $record->building_id ?? null,
+                    'flat_id' => $record->flat_id ?? null,
+                    'user_id' => $record->user_id ?? null,
+                    'type' => 'Proposal',
+                    'priority' => 'Medium',
+                ]),
                 'data' => json_encode([
                     'actions' => [],
                     'body' => 'Proposal has been approved.',
@@ -179,6 +188,14 @@ class EditProposal extends EditRecord
                 'type' => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id' => $record->submitted_by,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $record->building->owner_association_id ?? 1,
+                    'building_id' => $record->building_id ?? null,
+                    'flat_id' => $record->flat_id ?? null,
+                    'user_id' => $record->user_id ?? null,
+                    'type' => 'Proposal',
+                    'priority' => 'Medium',
+                ]),
                 'data' => json_encode([
                     'actions' => [],
                     'body' => 'Proposal has been rejected.',

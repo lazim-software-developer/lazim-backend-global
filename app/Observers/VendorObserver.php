@@ -2,13 +2,14 @@
 
 namespace App\Observers;
 
-use App\Filament\Resources\Vendor\VendorResource;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
+use App\Models\Master\Role;
 use App\Models\Vendor\Vendor;
-use Filament\Notifications\Actions\Action;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Filament\Resources\Vendor\VendorResource;
 
 class VendorObserver
 {
@@ -23,24 +24,51 @@ class VendorObserver
         ->filter(function ($notifyTo) use ($requiredPermissions) {
             return $notifyTo->can($requiredPermissions);
         });
-            Notification::make()
-            ->success()
-            ->title("New Vendor")
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->body('New vendor created '.$vendor->name)
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(function() use ($vendor){
-                        $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
-                        if($slug){
-                            return VendorResource::getUrl('edit', [$slug,$vendor->id]);
-                        }
-                        return url('/app/facility-managers/' . $vendor->id.'/edit');
-                    }),
-            ])
-            ->sendToDatabase($notifyTo);
+        if($notifyTo->count() > 0){
+            foreach($notifyTo as $user){
+                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->vendor_id', $vendor->id)->exists()){
+                    $data=[];
+                    $data['notifiable_type']='App\Models\User\User';
+                    $data['notifiable_id']=$user->id;
+                    $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
+                    if($slug){
+                        $data['url']=VendorResource::getUrl('edit', [$slug,$vendor->id]);
+                    }else{
+                        $data['url']=url('/app/vendors/' . $vendor->id.'/edit');
+                    }
+                    $data['title']="New Vendor";
+                    $data['body']='New vendor created '.$vendor->name;
+                    $data['building_id']=$vendor->building_id ?? null;
+                    $data['custom_json_data']=json_encode([
+                        'building_id' => $vendor->building_id ?? null,
+                        'vendor_id' => $vendor->id,
+                        'user_id' => $vendor->owner_id ?? null,
+                        'owner_association_id' => $vendor->owner_association_id,
+                        'type' => 'Vendor',
+                        'priority' => 'Medium',
+                    ]);
+                    NotificationTable($data);
+                }
+            }
+        }
+            // Notification::make()
+            // ->success()
+            // ->title("New Vendor")
+            // ->icon('heroicon-o-document-text')
+            // ->iconColor('warning')
+            // ->body('New vendor created '.$vendor->name)
+            // ->actions([
+            //     Action::make('view')
+            //         ->button()
+            //         ->url(function() use ($vendor){
+            //             $slug = OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug;
+            //             if($slug){
+            //                 return VendorResource::getUrl('edit', [$slug,$vendor->id]);
+            //             }
+            //             return url('/app/facility-managers/' . $vendor->id.'/edit');
+            //         }),
+            // ])
+            // ->sendToDatabase($notifyTo);
     }
 
     /**

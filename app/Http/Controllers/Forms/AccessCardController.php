@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Forms;
 
-use App\Models\Forms\FitOutForm;
-use App\Models\Forms\MoveInOut;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\User\User;
@@ -11,10 +9,13 @@ use App\Models\WorkPermit;
 use App\Traits\UtilsTrait;
 use App\Models\Forms\Guest;
 use Illuminate\Http\Request;
+use App\Models\Configuration;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
+use App\Models\Forms\MoveInOut;
 use App\Models\ResidentialForm;
 use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
 use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\AccountCredentials;
@@ -23,17 +24,28 @@ use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\ExpoPushNotification;
+use App\Models\ServiceRequestHistory;
 use App\Jobs\Forms\AccessCardRequestJob;
 use App\Http\Requests\FetchFormStatusRequest;
 use App\Http\Resources\AccessCardFormResource;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Requests\Forms\CreateAccessCardFormsRequest;
+use App\Http\Requests\Forms\UpdateAccessCardFormsRequest;
+use App\Http\Resources\AccessCard\AccessCardDetailResource;
 
 class AccessCardController extends Controller
 {
     use UtilsTrait;
     /**
-     * Show the form for creating a new resource.
+     * Create an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\Forms\CreateAccessCardFormsRequest  $request  The request containing the updated data.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 201  CustomResponseResource Response on success.
+     * @return 422  array  ['message' => validation error or incorrect Data.
      */
     public function create(CreateAccessCardFormsRequest $request)
     {
@@ -52,16 +64,47 @@ class AccessCardController extends Controller
             if ($request->has($document)) {
                 $file            = $request->file($document);
                 $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }else{
+                $data[$document] = null;
             }
         }
-
+        $price = Configuration::where('key', 'access_card_price')->where('owner_association_id', $ownerAssociationId)->first()->value;
         $data['user_id']              = auth()->user()->id;
         $data['mobile']               = auth()->user()->phone;
         $data['email']                = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
         $data['ticket_number']        = generate_ticket_number("AC");
-
+        $data['status']               = 'requested';
+        $data['payment_amount']       = $price;
+        $data['payment_status']       = 'NA';
         $accessCard       = AccessCard::create($data);
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'create',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($data),
+        ]);
+        // $payment = createPaymentIntent($price ?? 100, auth()->user()->email);
+        $order = Order::create([    
+            'orderable_id' => $accessCard->id,
+            'orderable_type' => AccessCard::class,
+            'payment_status' => 'NA',
+            'amount' => $price ?? 100,
+            'payment_intent_id' => (new class {
+                public function generateRandomString()
+                {
+                    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    $charactersLength = strlen($characters);
+                    $randomString = '';
+                    for ($i = 0; $i < 50; $i++) {
+                        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+                    }
+                    return 'lazim_' . $randomString;
+                }
+            })->generateRandomString(),
+        ]);
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
@@ -81,7 +124,122 @@ class AccessCardController extends Controller
             'code'    => 201,
         ]))->response()->setStatusCode(201);
     }
-
+    
+    /**
+     * Update an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to update.
+     * @param  \App\Http\Requests\Forms\UpdateAccessCardFormsRequest  $request  The request containing the updated data.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card updated successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
+    public function update(AccessCard $accessCard, UpdateAccessCardFormsRequest $request)
+    {
+        $data = $request->all();
+        $document_paths = [
+            'tenancy',
+            'vehicle_registration',
+            'title_deed',
+            'passport',
+        ];
+        foreach ($document_paths as $document) {
+            if ($request->has($document)) {
+                $file            = $request->file($document);
+                $data[$document] = optimizeDocumentAndUpload($file, 'dev');
+            }
+        }
+        $accessCard->update($data);
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'update',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($data),
+        ]);
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Access card updated successfully!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
+    }
+    /**
+     * List all access card forms.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card listing successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
+    public function listing(Request $request)
+    {
+        $accessCards = auth()->user()->accessCard()->latest();
+        if ($request->filled('ticket_number')) {
+            $accessCards = $accessCards->where('ticket_number', 'LIKE', "%{$request->ticket_number}%");
+        }
+        if ($request->filled('flat_number')) {
+            $accessCards = $accessCards->whereHas('flat', function ($query) use ($request) {
+                $query->where('property_number', 'LIKE', "%{$request->flat_number}%");
+            });
+        }
+        if ($request->filled('building_name')) {
+            $accessCards = $accessCards->whereHas('building', function ($query) use ($request) {
+                $query->where('name', 'LIKE', "%{$request->building_name}%");
+            });
+        }
+        $accessCards = $accessCards->paginate($request->paginate ?? 10);
+        return AccessCardDetailResource::collection($accessCards);
+    }
+    
+    /**
+     * Delete an access card form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to delete.
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @return 200  Access card deleted successfully.
+     * @return 422  array  ['message' => validation error or incorrect Data.
+     */
+    public function delete(AccessCard $accessCard)
+    {
+        $accessCard->delete();
+        ServiceRequestHistory::create([
+            'record_id' => $accessCard->id,
+            'type' => 'Access Card',
+            'action' => 'delete',
+            'user_id' => auth()->user()->id,
+            'action_at' => now(),
+            'request_json' => json_encode($accessCard),
+        ]);
+        $existingOrder = Order::where('orderable_id', $accessCard->id)->where('orderable_type', AccessCard::class)->latest()->first();
+            if ($existingOrder) {
+                Order::updateOrCreate(
+                    [
+                        'orderable_id' => $accessCard->id,
+                        'orderable_type' => AccessCard::class,
+                        'payment_status' => 'Payment Failed',
+                    ],
+                    [
+                        'amount' => $accessCard->payment_amount ?? 0, // Get amount from record or set default
+                        'payment_intent_id' => $existingOrder->payment_intent_id, // Set appropriate value
+                    ]
+                );
+            }
+        return (new CustomResponseResource([
+            'title'   => 'Success',
+            'message' => 'Access card deleted successfully!',
+            'code'    => 200,
+        ]))->response()->setStatusCode(200);
+    }
+    
     public function fetchFormStatus(Building $building, FetchFormStatusRequest $request)
     {
         $flat_id = $request->input('flat_id');
@@ -456,6 +614,14 @@ class AccessCardController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $accessCard->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $accessCard->building->owner_association_id ?? 1,
+                    'building_id' => $accessCard->building_id ?? null,
+                    'flat_id' => $accessCard->flat_id ?? null,
+                    'user_id' => $accessCard->user_id ?? null,
+                    'type' => 'AccessCardForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your access card form has been approved. ',
@@ -513,6 +679,14 @@ class AccessCardController extends Controller
                 'type'            => 'Filament\Notifications\DatabaseNotification',
                 'notifiable_type' => 'App\Models\User\User',
                 'notifiable_id'   => $accessCard->user_id,
+                'custom_json_data' => json_encode([
+                    'owner_association_id' => $accessCard->building->owner_association_id ?? 1,
+                    'building_id' => $accessCard->building_id ?? null,
+                    'flat_id' => $accessCard->flat_id ?? null,
+                    'user_id' => $accessCard->user_id ?? null,
+                    'type' => 'AccessCardForm',
+                    'priority' => 'Medium',
+                ]),
                 'data'            => json_encode([
                     'actions'   => [],
                     'body'      => 'Your access card form has been rejected.',

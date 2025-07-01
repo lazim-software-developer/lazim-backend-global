@@ -7,8 +7,8 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
-use App\Models\FlatOwners;
 use App\Models\User\User;
+use App\Models\FlatOwners;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\RentalDetail;
@@ -19,6 +19,7 @@ use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
+// use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -27,6 +28,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserApprovalResource\Pages;
@@ -34,16 +37,16 @@ use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelation
 
 class UserApprovalResource extends Resource
 {
-    protected static ?string $model      = UserApproval::class;
+    protected static ?string $model = UserApproval::class;
     protected static ?string $modelLabel = 'Resident Approval';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static bool $isScopedToTenant  = false;
+    protected static bool $isScopedToTenant = false;
 
     public static function form(Form $form): Form
     {
         $isPropertyManager = auth()->user()?->role->name === 'Property Manager';
-        $user = User::find(auth()->user()->id) ;
+        $user = User::find(auth()->user()->id);
         return $form
             ->schema([
                 Section::make('User Information')
@@ -57,6 +60,12 @@ class UserApprovalResource extends Resource
                         DateTimePicker::make('created_at')
                             ->label('Date of Creation')
                             ->disabled(),
+                        TextInput::make('role_name')
+                            ->label('Applied As')
+                            ->disabled()
+                            ->formatStateUsing(function ($record) {
+                                return $record?->user?->role?->name ?? 'N/A';
+                            }),
                     ])
                     ->columns(2),
                 Section::make('Flat & Building Details')
@@ -74,6 +83,29 @@ class UserApprovalResource extends Resource
                     ->columns(2),
                 Section::make('Documents')
                     ->schema([
+                        FileUpload::make('passport')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        FileUpload::make('emirates_document')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->required()
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        FileUpload::make('trade_license')
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('document')
                             ->label(function (Get $get) {
                                 if ($get('document_type') == 'Ejari') {
@@ -86,96 +118,100 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        FileUpload::make('emirates_document')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->required()
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        FileUpload::make('passport')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->required()
-                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
-                        DatePicker::make('emirates_document_expiry_date')
-                            ->label('Emirates ID Expiry')
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         DatePicker::make('passport_expiry_date')
                             ->label('Passport Expiry')
                             ->minDate(Carbon::today())
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        DatePicker::make('emirates_document_expiry_date')
+                            ->label('Emirates ID Expiry')
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        DatePicker::make('trade_license_expiry_date')
+                            ->label('Trade License Expiry')
+                            ->minDate(Carbon::today())
+                            ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
+                        DatePicker::make('document_expiry_date')
+                            ->label(function (Get $get) {
+                                if ($get('document_type') == 'Ejari') {
+                                    return 'Tenancy Contract / Ejari';
+                                }
+                                return $get('document_type');
+                            })
+                            ->disabled(function (Get $get) use ($user) {
+                                return !(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval')) || $get('document_type') != 'Ejari';
+                            })
+                            ->hidden(function (Get $get) {
+                                return $get('document_type') != 'Ejari';
+                            }),
                     ])
-                    ->columns(3),
-                    Section::make('Owners Information')
-            ->schema([
-                Tabs::make('Owners')
-                    ->tabs(function ($record) {
-                        // Early return if no record
-                        if (!$record || !$record->flat_id) {
-                            return [
-                                Tabs\Tab::make('no_data')
-                                    ->label('No Data')
-                                    ->schema([
-                                        Placeholder::make('no_data')
-                                            ->content('No owner data available.')
-                                    ])
-                            ];
-                        }
-                        
-                        // Get all flat owners associated with this flat
-                        $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
-                        
-                        if ($flatOwners->isEmpty()) {
-                            return [
-                                Tabs\Tab::make('no_owners')
-                                    ->label('No Owners')
-                                    ->schema([
-                                        Placeholder::make('')
-                                            ->content('No owners found for this flat.')
-                                    ])
-                            ];
-                        }
-                        
-                        $tabs = [];
-                        
-                        // Create a tab for each owner
-                        foreach ($flatOwners as $index => $flatOwner) {
-                            $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
-                            
-                            if ($ownerDetail) {
-                                $tabs[] = Tabs\Tab::make("owner_{$index}")
-                                    ->label($ownerDetail->name ?? "Owner " . ($index + 1))
-                                    ->schema([
-                                        Placeholder::make("owner_{$index}_name")
-                                            ->label('Name')
-                                            ->content($ownerDetail->name ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_email")
-                                            ->label('Email')
-                                            ->content($ownerDetail->email ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_phone")
-                                            ->label('Phone')
-                                            ->content($ownerDetail->mobile ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_passport")
-                                            ->label('Passport')
-                                            ->content($ownerDetail->passport ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_emirates_id")
-                                            ->label('Emirates ID')
-                                            ->content($ownerDetail->emirates_id ?? 'N/A'),
-                                        Placeholder::make("owner_{$index}_trade_license")
-                                            ->label('Trade License')
-                                            ->content($ownerDetail->trade_license ?? 'N/A'),
-                                    ])
-                                    ->columns(2);
-                            }
-                        }
-                        
-                        return $tabs;
-                    })
-            ]),
+                    ->columns(4),
+                Section::make('Owners Information')
+                    ->schema([
+                        Tabs::make('Owners')
+                            ->tabs(function ($record) {
+                                // Early return if no record
+                                if (!$record || !$record->flat_id) {
+                                    return [
+                                        Tabs\Tab::make('no_data')
+                                            ->label('No Data')
+                                            ->schema([
+                                                Placeholder::make('no_data')
+                                                    ->content('No owner data available.')
+                                            ])
+                                    ];
+                                }
+
+                                // Get all flat owners associated with this flat
+                                $flatOwners = FlatOwners::where('flat_id', $record->flat_id)->get();
+
+                                if ($flatOwners->isEmpty()) {
+                                    return [
+                                        Tabs\Tab::make('no_owners')
+                                            ->label('No Owners')
+                                            ->schema([
+                                                Placeholder::make('')
+                                                    ->content('No owners found for this flat.')
+                                            ])
+                                    ];
+                                }
+
+                                $tabs = [];
+
+                                // Create a tab for each owner
+                                foreach ($flatOwners as $index => $flatOwner) {
+                                    $ownerDetail = ApartmentOwner::where('id', $flatOwner->owner_id)->first();
+
+                                    if ($ownerDetail) {
+                                        $tabs[] = Tabs\Tab::make("owner_{$index}")
+                                            ->label($ownerDetail->name ?? "Owner " . ($index + 1))
+                                            ->schema([
+                                                Placeholder::make("owner_{$index}_name")
+                                                    ->label('Name')
+                                                    ->content($ownerDetail->name ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_email")
+                                                    ->label('Email')
+                                                    ->content($ownerDetail->email ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_phone")
+                                                    ->label('Phone')
+                                                    ->content($ownerDetail->mobile ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_passport")
+                                                    ->label('Passport')
+                                                    ->content($ownerDetail->passport ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_emirates_id")
+                                                    ->label('Emirates ID')
+                                                    ->content($ownerDetail->emirates_id ?? 'N/A'),
+                                                Placeholder::make("owner_{$index}_trade_license")
+                                                    ->label('Trade License')
+                                                    ->content($ownerDetail->trade_license ?? 'N/A'),
+                                            ])
+                                            ->columns(2);
+                                    }
+                                }
+
+                                return $tabs;
+                            })
+                    ]),
                 Section::make('Approval Details')
                     ->schema([
                         Grid::make(2)->schema([
@@ -233,11 +269,12 @@ class UserApprovalResource extends Resource
                                 ->live()
                                 ->required()
                                 ->afterStateUpdated(function ($state, $record, Set $set) {
-                                    if ($state === 'approved' &&
+                                    if (
+                                        $state === 'approved' &&
                                         DB::table('flat_tenants')
-                                        ->where('tenant_id', $record->user_id)
-                                        ->where('role', 'Tenant')
-                                        ->exists()
+                                            ->where('tenant_id', $record->user_id)
+                                            ->where('role', 'Tenant')
+                                            ->exists()
                                     ) {
                                         $set('validation_errors', null);
                                     }
@@ -260,8 +297,8 @@ class UserApprovalResource extends Resource
                                         ->suffix('AED')
                                         ->maxValue(99999999.99) // Adjusted max value to fit within the allowed range
                                         ->validationMessages([
-                                            'required'  => 'Contract amount is required',
-                                            'numeric'   => 'Contract amount must be a number',
+                                            'required' => 'Contract amount is required',
+                                            'numeric' => 'Contract amount must be a number',
                                             'max_value' => 'Contract amount cannot exceed 99,999,999.99 AED', // Updated error message
                                         ])
                                         ->afterStateUpdated(function ($get, $set, $state) {
@@ -277,7 +314,7 @@ class UserApprovalResource extends Resource
                                                 if (is_array($cheques)) {
                                                     foreach ($cheques as $index => $cheque) {
                                                         // Only update if the amount hasn't been manually modified
-                                                        if (! isset($cheque['amount_manually_edited'])) {
+                                                        if (!isset($cheque['amount_manually_edited'])) {
                                                             $set("cheques.{$index}.amount", $defaultAmount);
                                                         }
                                                     }
@@ -285,7 +322,7 @@ class UserApprovalResource extends Resource
                                             }
                                         })
                                         ->disabled(function ($record) {
-                                            if (! $record) {
+                                            if (!$record) {
                                                 return false;
                                             }
 
@@ -302,7 +339,7 @@ class UserApprovalResource extends Resource
                                     Select::make('number_of_cheques')
                                         ->required()
                                         ->disabled(function ($record) {
-                                            if (! $record) {
+                                            if (!$record) {
                                                 return false;
                                             }
 
@@ -316,11 +353,11 @@ class UserApprovalResource extends Resource
                                                 ->exists();
                                         })
                                         ->options([
-                                            '1'  => '1',
-                                            '2'  => '2',
-                                            '3'  => '3',
-                                            '4'  => '4',
-                                            '6'  => '6',
+                                            '1' => '1',
+                                            '2' => '2',
+                                            '3' => '3',
+                                            '4' => '4',
+                                            '6' => '6',
                                             '12' => '12',
                                         ])
                                         ->reactive()
@@ -331,10 +368,10 @@ class UserApprovalResource extends Resource
                                             // Create an array of empty cheque entries
                                             $cheques = array_fill(0, (int) $state, [
                                                 'cheque_number' => '',
-                                                'amount'        => $adminFee ? round($adminFee / $state, 2) : '',
-                                                'due_date'      => '',
-                                                'status'        => 'Upcoming',
-                                                'mode_payment'  => 'Cheque',
+                                                'amount' => $adminFee ? round($adminFee / $state, 2) : '',
+                                                'due_date' => '',
+                                                'status' => 'Upcoming',
+                                                'mode_payment' => 'Cheque',
                                             ]);
 
                                             $set('cheques', $cheques);
@@ -373,25 +410,25 @@ class UserApprovalResource extends Resource
                                         ->numeric()
                                         ->live()
                                         ->disabled(fn($record, $state) => static::shouldDisableField($record))
-                                    // ->disabled(function (callable $get) {
-                                    //     if ($get('contract_status' == 'Contract ended')) {
-                                    //         return true;
-                                    //     }
-                                    // })
+                                        // ->disabled(function (callable $get) {
+                                        //     if ($get('contract_status' == 'Contract ended')) {
+                                        //         return true;
+                                        //     }
+                                        // })
                                         ->label('Security Deposit')
                                         ->suffix('AED')
                                         ->maxValue(999999999.99)
                                         ->validationMessages([
-                                            'required'  => 'Security deposit amount is required',
-                                            'numeric'   => 'Security deposit must be a number',
+                                            'required' => 'Security deposit amount is required',
+                                            'numeric' => 'Security deposit must be a number',
                                             'max_value' => 'Security deposit cannot exceed 999,999,999.99 AED',
                                         ]),
                                     Select::make('advance_amount_payment_mode')
-                                    // ->disabled(function (callable $get) {
-                                    //     if ($get('contract_status' == 'Contract ended')) {
-                                    //         return true;
-                                    //     }
-                                    // })
+                                        // ->disabled(function (callable $get) {
+                                        //     if ($get('contract_status' == 'Contract ended')) {
+                                        //         return true;
+                                        //     }
+                                        // })
                                         ->disabled(fn($record, $state) => static::shouldDisableField($record))
                                         ->live()
                                         ->required()
@@ -399,7 +436,7 @@ class UserApprovalResource extends Resource
                                         ->options([
                                             'Online' => 'Online',
                                             'Cheque' => 'Cheque',
-                                            'Cash'   => 'Cash',
+                                            'Cash' => 'Cash',
                                         ]),
                                     TextInput::make('admin_charges')
                                         ->nullable()
@@ -436,8 +473,8 @@ class UserApprovalResource extends Resource
                                         ->required()
                                         ->label('Contract Status')
                                         ->options([
-                                            'Active'            => 'Active',
-                                            'Contract ended'    => 'Ended',
+                                            'Active' => 'Active',
+                                            'Contract ended' => 'Ended',
                                             'Contract extended' => 'Extended',
                                         ])
                                         ->live()
@@ -460,11 +497,11 @@ class UserApprovalResource extends Resource
                                 ->columns(2)
                                 ->visible(function (Get $get, $record) {
                                     return $get('status') === 'approved' &&
-                                    DB::table('flat_tenants')
-                                        ->where('tenant_id', $record->user_id)
-                                        ->where('flat_id', $record->flat_id)
-                                        ->where('role', 'Tenant')
-                                        ->exists();
+                                        DB::table('flat_tenants')
+                                            ->where('tenant_id', $record->user_id)
+                                            ->where('flat_id', $record->flat_id)
+                                            ->where('role', 'Tenant')
+                                            ->exists();
                                 }),
 
                             Section::make('Cheque Details')
@@ -483,8 +520,8 @@ class UserApprovalResource extends Resource
                                                 ->minLength(6)
                                                 ->maxLength(12)
                                                 ->validationMessages([
-                                                    'required'   => 'Cheque number is required',
-                                                    'numeric'    => 'Cheque number must contain only numbers',
+                                                    'required' => 'Cheque number is required',
+                                                    'numeric' => 'Cheque number must contain only numbers',
                                                     'min_length' => 'Cheque number must be at least 6 digits',
                                                     'max_length' => 'Cheque number cannot exceed 12 digits',
                                                 ])
@@ -495,8 +532,8 @@ class UserApprovalResource extends Resource
                                                 ->numeric()
                                                 ->maxValue(999999999.99)
                                                 ->validationMessages([
-                                                    'required'  => 'Cheque amount is required',
-                                                    'numeric'   => 'Cheque amount must be a number',
+                                                    'required' => 'Cheque amount is required',
+                                                    'numeric' => 'Cheque amount must be a number',
                                                     'max_value' => 'Cheque amount cannot exceed 999,999,999.99 AED',
                                                 ])
                                                 ->placeholder('Enter amount')
@@ -515,7 +552,7 @@ class UserApprovalResource extends Resource
                                                 ->options([
                                                     'Online' => 'Online',
                                                     'Cheque' => 'Cheque',
-                                                    'Cash'   => 'Cash',
+                                                    'Cash' => 'Cash',
                                                 ]),
                                         ])
                                         ->columns(2)
@@ -523,7 +560,7 @@ class UserApprovalResource extends Resource
                                         ->deletable(false)
                                         ->defaultItems(0)
                                         ->disabled(function ($record) {
-                                            if (! $record) {
+                                            if (!$record) {
                                                 return false;
                                             }
 
@@ -538,10 +575,10 @@ class UserApprovalResource extends Resource
                                 ])
                                 ->visible(function (Get $get, $record) {
                                     return $get('status') === 'approved' &&
-                                    DB::table('flat_tenants')
-                                        ->where('tenant_id', $record->user_id)
-                                        ->where('role', 'Tenant')
-                                        ->exists();
+                                        DB::table('flat_tenants')
+                                            ->where('tenant_id', $record->user_id)
+                                            ->where('role', 'Tenant')
+                                            ->exists();
                                 }),
                         ]),
                         Textarea::make('remarks')
@@ -565,28 +602,78 @@ class UserApprovalResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->numeric()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')->default('--'),
-                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')->default('--'),
-                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')->default('--'),
-                Tables\Columns\TextColumn::make('user.role.name')->label('Role')->default('--'),
+                    ->sortable()
+                    ->searchable()
+                    ->tooltip(fn($record) => $record->user->full_name ?? 'No Name')
+                    ->default('--')
+                    ->limit(20),
+                Tables\Columns\TextColumn::make('flat.property_number')->label('Flat Number')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('flat.building.name')->label('Building')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->label('Date of creation')
+                    ->default('--')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.role.name')->label('Role')
+                    ->default('--')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
+                    ->sortable()
                     ->colors([
                         'success' => 'approved',
-                        'danger'  => 'rejected',
+                        'danger' => 'rejected',
                         'warning' => fn($state) => $state === null || $state === 'NA',
                     ])
                     ->icons([
-                        'heroicon-o-x-circle'     => 'rejected',
-                        'heroicon-o-clock'        => fn($state)        => $state === null || $state === 'NA',
+                        'heroicon-o-x-circle' => 'rejected',
+                        'heroicon-o-clock' => fn($state) => $state === null || $state === 'NA',
                         'heroicon-o-check-circle' => 'approved',
                     ])
                     ->formatStateUsing(fn($state) => $state === null || $state === 'NA' ? 'Pending' : ucfirst($state))
                     ->default('--'),
             ])
             ->filters([
-                //
+                // SelectFilter::make('status')
+                //     ->options([
+                //         'approved'    => 'Approved',
+                //         'rejected'    => 'Rejected',
+                //         'pending'     => 'Pending',
+                //         'NA'          => 'Not Applicable',
+                //     ])
+                SelectFilter::make('building_id')
+                    ->relationship('flat.building', 'name', function (Builder $query) {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                            $query->where('owner_association_id', Filament::getTenant()?->id);
+                        }
+                    })
+                    ->searchable()
+                    ->label('Building')
+                    ->preload(),
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pending' => 'Pending', // Label for NULL
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!isset($data['value']) || empty($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'pending') {
+                            return $query->whereNull('status');
+                        }
+
+                        return $query->where('status', $data['value']);
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -612,10 +699,10 @@ class UserApprovalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUserApprovals::route('/'),
+            'index' => Pages\ListUserApprovals::route('/'),
             'create' => Pages\CreateUserApproval::route('/create'),
-            'view'   => Pages\ViewUserApproval::route('/{record}'),
-            'edit'   => Pages\EditUserApproval::route('/{record}/edit'),
+            'view' => Pages\ViewUserApproval::route('/{record}'),
+            'edit' => Pages\EditUserApproval::route('/{record}/edit'),
         ];
     }
 
@@ -651,11 +738,11 @@ class UserApprovalResource extends Resource
     // Add this helper method to the class
     private static function shouldDisableField($record): bool
     {
-        if (! auth()->user()?->role->name === 'Property Manager') {
+        if (!auth()->user()?->role->name === 'Property Manager') {
             return true;
         }
 
-        if (! $record) {
+        if (!$record) {
             return false;
         }
 

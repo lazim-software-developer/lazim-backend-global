@@ -37,9 +37,9 @@ class CustomerCreationJob implements ShouldQueue
         $customer = $connection->table('customers')->where('created_by', $buildingUser->id)->orderByDesc('customer_id')->first();
         $customerId = $customer ? $customer->customer_id + 1 : 1;
         $name = $this->owner->name . ' - ' . $this->flat->property_number;
-        Log::info('flat',[$this->flat]);
-        Log::info('owner',[$this->owner]);
-        Log::info('name',[$this->owner->name]);
+        // Log::info('flat',[$this->flat]);
+        // Log::info('owner',[$this->owner]);
+        // Log::info('name',[$this->owner->name]);
         $url = 'api/customer';
         $body = [
             'name' => $name,

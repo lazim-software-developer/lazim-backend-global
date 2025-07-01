@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Resources\CustomResponseResource;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use Spatie\Pdf\Pdf as SpatiePdf;
-use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Stripe\PaymentIntent;
+use Filament\Actions\Action;
+use Spatie\Pdf\Pdf as SpatiePdf;
+use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\CustomResponseResource;
 
 function optimizeAndUpload($image, $path, $width = 474, $height = 622)
 {
@@ -34,11 +36,14 @@ function imageUploadonS3($image, $path)
 
 function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
-    if ($file) {
+        if (!$file) {
+            Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- No file provided for upload', ['path' => $path, 'user_id' => auth()->id()]);
+            return null;
+        }
         $extension = $file->getClientOriginalExtension();
-        Log::info($extension);
+        $extension = strtolower($extension); // Normalize the extension to lowercase
 
-        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
+        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
             $optimizedImage = Image::make($file)
             ->resize($width, $height, function ($constraint) {
                 $constraint->aspectRatio();
@@ -65,24 +70,20 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             return $fullPath;
         } else {
             // Unsupported file type
-            return response()->json(['error' => 'Unsupported file type.'], 422);
+            \Illuminate\Support\Facades\Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- Unsupported file type uploaded', ['file_type' => $extension, 'path' => $path, 'filename' => $file->getClientOriginalName(), 'user_id' => auth()->id()]);
+            // return response()->json(['error' => 'Unsupported file type.'], 422);
+            return null;
         }
-    } else {
-        // No file uploaded
-        return response()->json(['error' => 'No file uploaded.'], 422);
-    }
 }
 
 function createPaymentIntent($amount, $email) {
     Stripe::setApiKey(env('STRIPE_SECRET'));
-
     try {
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount,
             'currency' => 'aed',
             'receipt_email' => $email,
         ]);
-
         return $paymentIntent;
     } catch (\Exception $e) {
         return (new CustomResponseResource([
@@ -108,4 +109,67 @@ function generateAlphanumericOTP($length = 6) {
         $otp .= $characters[random_int(0, $charactersLength - 1)];
     }
     return $otp;
+}
+function NotificationTable($data){
+    $notificationTypeId = DB::table('notification_types')->where('name', json_decode($data['custom_json_data'], true)['type'] ?? null)->value('id');
+    if (!$notificationTypeId) {
+        $notificationTypeId = DB::table('notification_types')->insertGetId([
+            'name' => json_decode($data['custom_json_data'], true)['type'] ?? null,
+            'created_at' => now()->format('Y-m-d H:i:s'),
+            'updated_at' => now()->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    DB::table('notifications')->insert([
+        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+        'type' => 'Filament\Notifications\DatabaseNotification',
+        'notifiable_type' => $data['notifiable_type'] ?? null,
+        'notifiable_id' =>$data['notifiable_id'] ?? null,
+        'data' => json_encode([
+            'actions' => [
+                [
+                    "name" => "view",
+                    "iconPosition" => "before",
+                    "label" => "View",
+                    "size" => "sm",
+                    "url" => $data['url'] ?? null,
+                    "view" => "filament-actions::button-action",
+                ],
+            ],
+            'body' => $data['body'] ?? null,
+            'duration' => 'persistent',
+            'icon' => 'heroicon-o-document-text',
+            'iconColor' => 'warning',
+            'title' => $data['title'] ?? null,
+            'view' => 'notifications::notification',
+            'viewData' => [
+                'building_id' => $data['building_id'] ?? null,
+            ],
+            'format' => 'filament',
+            'url' => $data['url'] ?? null,
+        ]),
+        'created_at' => now()->format('Y-m-d H:i:s'),
+        'updated_at' => now()->format('Y-m-d H:i:s'),
+        'custom_json_data' => $data['custom_json_data'] ?? null,
+    ]);
+}
+
+if (! function_exists('backButton')) {
+    /**
+     * Generate a Filament back button action.
+     *
+     * @param string|null $url The URL to redirect to. Defaults to the dashboard.
+     * @param string $label The button label. Defaults to 'Back'.
+     * @param string $icon The button icon. Defaults to 'heroicon-o-arrow-left'.
+     * @param string $color The button color. Defaults to 'gray'.
+     * @return Action
+     */
+    function backButton(?string $url = null, string $label = 'Back', string $icon = 'heroicon-o-arrow-left', string $color = 'gray'): Action
+    {
+        return Action::make('back')
+            ->label($label)
+            ->icon($icon)
+            ->url($url ?? \Filament\Facades\Filament::getPanel()->getPath())
+            ->color($color);
+    }
 }

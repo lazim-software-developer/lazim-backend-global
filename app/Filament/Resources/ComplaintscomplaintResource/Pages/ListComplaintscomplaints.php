@@ -16,12 +16,13 @@ class ListComplaintscomplaints extends ListRecords
         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
         return parent::getTableQuery();
         }
-        
-        return parent::getTableQuery()->where('complaint_type', 'tenant_complaint')->where('owner_association_id',auth()->user()?->owner_association_id);
+
+        return parent::getTableQuery()->whereNotIn('complaint_type', ['enquiries','suggestions'])->where('owner_association_id',auth()->user()?->owner_association_id);
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
         ];
     }

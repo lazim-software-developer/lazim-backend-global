@@ -21,6 +21,7 @@ class EditComplaintsenquiry extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -63,6 +64,14 @@ class EditComplaintsenquiry extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $this->record->building->owner_association_id ?? 1,
+                            'building_id' => $this->record->building_id ?? null,
+                            'flat_id' => $this->record->flat_id ?? null,
+                            'user_id' => $this->record->user_id ?? null,
+                            'type' => 'Enquiry',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your enquiry has been acknowledged by '.auth()->user()->first_name. '. Team will contact you soon.',
@@ -118,6 +127,14 @@ class EditComplaintsenquiry extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $this->record->building->owner_association_id ?? 1,
+                            'building_id' => $this->record->building_id ?? null,
+                            'flat_id' => $this->record->flat_id ?? null,
+                            'user_id' => $this->record->user_id ?? null,
+                            'type' => 'Enquiry',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your enquiry is moved to In-Progress',

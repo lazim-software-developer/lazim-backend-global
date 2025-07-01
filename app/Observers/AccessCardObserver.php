@@ -34,28 +34,54 @@ class AccessCardObserver
                 ->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
                 });
-                    Notification::make()
-                        ->success()
-                        ->title("New Access Card Submission")
-                        ->icon('heroicon-o-document-text')
-                        ->iconColor('warning')
-                        ->body('New form submission by ' . auth()->user()->first_name)
-                        ->actions([
-                            Action::make('view')
-                                ->button()
-                                ->url(function() use ($oa,$accessCard){
-                                    $slug = $oa?->slug;
-                                    if($slug){
-                                        return AccessCardFormsDocumentResource::getUrl('edit', [$slug,$accessCard?->id]);
-                                    }
-                                    return url('/app/access-card-forms-documents/' . $accessCard?->id.'/edit');
-                                }),
-                        ])
-                        ->sendToDatabase($notifyTo);
+                if($notifyTo->count() > 0){
+                    foreach($notifyTo as $user){
+                        if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $accessCard->id)->exists()){
+                            $data=[];
+                            $data['notifiable_type']='App\Models\User\User';
+                            $data['notifiable_id']=$user->id;
+                            $slug = OwnerAssociation::where('id',$accessCard->owner_association_id)->first()?->slug;
+                            if($slug){
+                                $data['url']=AccessCardFormsDocumentResource::getUrl('edit', [$slug, $accessCard->id]);
+                            }else{
+                                $data['url']=url('/app/access-card-forms-documents/' . $accessCard->id.'/edit');
+                            }
+                            $data['title']='New Access Card Submission';
+                            $data['body']='New form submission by ' . auth()->user()->first_name;
+                            $data['building_id']=$accessCard->building_id;
+                            $data['custom_json_data']=json_encode([
+                                'building_id' => $accessCard->building_id,
+                                'post_id' => $accessCard->id,
+                                'user_id' => auth()->user()->id ?? null,
+                                'owner_association_id' => $accessCard->owner_association_id,
+                                'type' => 'Access Card',
+                                'priority' => 'Medium',
+                            ]);
+                            NotificationTable($data);
+                        }
+                    }
+                }
+                    // Notification::make()
+                    //     ->success()
+                    //     ->title("New Access Card Submission")
+                    //     ->icon('heroicon-o-document-text')
+                    //     ->iconColor('warning')
+                    //     ->body('New form submission by ' . auth()->user()->first_name)
+                    //     ->actions([
+                    //         Action::make('view')
+                    //             ->button()
+                    //             ->url(function() use ($oa,$accessCard){
+                    //                 $slug = $oa?->slug;
+                    //                 if($slug){
+                    //                     return AccessCardFormsDocumentResource::getUrl('edit', [$slug,$accessCard?->id]);
+                    //                 }
+                    //                 return url('/app/access-card-forms-documents/' . $accessCard?->id.'/edit');
+                    //             }),
+                    //     ])
+                    //     ->sendToDatabase($notifyTo);
             }
         }
     }
-
     /**
      * Handle the AccessCard "updated" event.
      */

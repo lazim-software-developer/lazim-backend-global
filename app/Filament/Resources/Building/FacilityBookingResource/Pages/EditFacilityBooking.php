@@ -19,6 +19,7 @@ class EditFacilityBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), # TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -53,6 +54,14 @@ class EditFacilityBooking extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $user->building->owner_association_id ?? 1,
+                            'building_id' => $user->building_id ?? null,
+                            'flat_id' => $user->flat_id ?? null,
+                            'user_id' => $user->user_id ?? null,
+                            'type' => 'FacilityBooking',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your amenity booking request for '.$facilityName->name. ' is approved',
@@ -92,6 +101,14 @@ class EditFacilityBooking extends EditRecord
                         'type' => 'Filament\Notifications\DatabaseNotification',
                         'notifiable_type' => 'App\Models\User\User',
                         'notifiable_id' => $this->record->user_id,
+                        'custom_json_data' => json_encode([
+                            'owner_association_id' => $user->building->owner_association_id ?? 1,
+                            'building_id' => $user->building_id ?? null,
+                            'flat_id' => $user->flat_id ?? null,
+                            'user_id' => $user->user_id ?? null,
+                            'type' => 'FacilityBooking',
+                            'priority' => 'Medium',
+                        ]),
                         'data' => json_encode([
                             'actions' => [],
                             'body' => 'Your amenity booking request for '.$facilityName->name. ' is rejected',

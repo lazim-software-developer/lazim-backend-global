@@ -149,7 +149,7 @@ class MollakController extends Controller
         if(env('APP_ENV') == 'production'){
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
+        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=4&exptime=60");
 
         Log::info('RESPONSEEE:-' . $response);
 
@@ -375,7 +375,7 @@ class MollakController extends Controller
         header("Access-Control-Allow-Headers: Authorization, Origin, X-Requested-With, Content-Type, Accept");
         // // header("Content-Type: application/json");
         // // header("Access-Control-Allow-Headers: Content-Type, Authorization");
-        Log::info($request->header('mollak-id'));
+        // Log::info($request->header('mollak-id'));
         // Log::info($request->headers->all());
         // Log::info("Webhook--->".json_encode($request->all()));
 
@@ -423,7 +423,8 @@ class MollakController extends Controller
                     'reference_number' => $acknowledgeRef
                 ]);
 
-                BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);
+                // BudgetApprovedWebhookJob::dispatch($propertyGroupId,$periodCode);
+                // TODO: Uncomment this line when the job is ready we are not using this job right now. We are uploading the budgets manually
                 break;
             case 'invoice_generated':
 
