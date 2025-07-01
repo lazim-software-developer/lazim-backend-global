@@ -55,14 +55,14 @@ class OwnerAssociation extends Model
         'password',
     ];
 
-    
+
     public function users()
     {
         return $this->hasMany(User::class);
     }
     public function CreatedBy()
     {
-        return $this->belongsTo(User::class,'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
     public function saleNoc()
     {
@@ -141,6 +141,11 @@ class OwnerAssociation extends Model
     {
         return $this->belongsToMany(Vendor::class, 'owner_association_vendor')->withPivot(['status']);
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
     public function flats()
     {
         return $this->hasManyThrough(
@@ -152,5 +157,4 @@ class OwnerAssociation extends Model
             'id'                 // Local key on buildings table
         );
     }
-    
 }
