@@ -43,14 +43,15 @@ use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\AssetMaintenanceResource;
 use App\Filament\Resources\BuildingEngineerResource;
 use App\Filament\Resources\ComplaintOfficerResource;
+use App\Filament\Resources\NotificationListResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 // use Filament\Pages\Dashboard;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
 use App\Filament\Resources\OwnerAssociationReceiptResource;
@@ -783,6 +784,18 @@ class AdminPanelProvider extends PanelProvider
                             ->collapsed(true),
                     ]);
                 }
+
+                $builder->groups([
+                    NavigationGroup::make('Notifications')
+                        ->items([
+                            NavigationItem::make('Notification')
+                                ->url(NotificationListResource::getUrl('index'))
+                                ->icon('heroicon-o-bell')
+                                ->activeIcon('heroicon-o-bell')
+                                ->sort(1),
+                        ])
+                        ->collapsed(true),
+                ]);
                 return $builder;
             })
             ->renderHook(
