@@ -363,6 +363,7 @@ class EditProfile extends BaseEditProfile
                 'trade_license_number' => $data['ownerAssociation']['trade_license_number'] ?? $ownerAssociation->trade_license_number,
                 'address' => $data['ownerAssociation']['address'] ?? $ownerAssociation->address,
                 'bank_account_number' => $data['ownerAssociation']['bank_account_number'] ?? $ownerAssociation->bank_account_number,
+                'bank_account_holder_name' => $data['ownerAssociation']['bank_account_holder_name'] ?? $ownerAssociation->bank_account_holder_name,
             ]);
         }
     }
