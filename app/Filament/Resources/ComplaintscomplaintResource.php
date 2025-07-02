@@ -398,6 +398,7 @@ class ComplaintscomplaintResource extends Resource
                     ->label('Building')
                     ->preload(),
                 SelectFilter::make('status')
+                    ->multiple()
                     ->options([
                         'open'        => 'Open',
                         'in-progress' => 'In-Progress',
