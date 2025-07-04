@@ -28,6 +28,7 @@ use App\Models\TechnicianAssets;
 use App\Observers\GuestObserver;
 use App\Observers\OrderObserver;
 use App\Observers\SnagsObserver;
+use App\Services\SessionService;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Tender;
 use App\Models\Building\Building;
@@ -49,10 +50,12 @@ use App\Observers\PostLikeObserver;
 use App\Observers\ProposalObserver;
 use App\Observers\ComplaintObserver;
 use App\Observers\MoveInOutObserver;
+use App\Services\GenericHttpService;
 use App\Models\Gatekeeper\Patrolling;
 use App\Observers\AccessCardObserver;
 use App\Observers\FitOutFormObserver;
 use App\Observers\PatrollingObserver;
+use App\Services\SessionLocalService;
 use App\Models\Community\PollResponse;
 use App\Observers\AppFeedbackObserver;
 use Illuminate\Support\Facades\Schema;
@@ -61,16 +64,16 @@ use App\Observers\PollResponseObserver;
 use App\Observers\UserApprovalObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Building\FacilityBooking;
+use Filament\Notifications\Notification;
 use Filament\Tables\Enums\FiltersLayout;
+use App\Notifications\CustomNotification;
 use App\Observers\ResidentialFormObserver;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Facades\FilamentView;
 use App\Observers\OwnerAssociationObserver;
 use App\Observers\TechnicianAssetsObserver;
 use App\Observers\FacilityServiceBookingObserver;
-use App\Services\GenericHttpService;
-use App\Services\SessionLocalService;
-use App\Services\SessionService;
+use Filament\Notifications\Notification as BaseNotification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -94,6 +97,8 @@ class AppServiceProvider extends ServiceProvider
             'panels::footer',
             fn(): View => view('filament.hooks.footer'),
         );
+
+        $this->app->bind(BaseNotification::class, CustomNotification::class);
     }
 
 
@@ -154,6 +159,10 @@ class AppServiceProvider extends ServiceProvider
             $table
                 ->filtersLayout(FiltersLayout::AboveContent)
                 ->paginationPageOptions([10, 25, 50]);
+        });
+
+        Notification::configureUsing(function (Notification $notification): void {
+            $notification->view('filament.notifications.customnotification'); // yahaan aapka custom blade ka path hai
         });
     }
 }

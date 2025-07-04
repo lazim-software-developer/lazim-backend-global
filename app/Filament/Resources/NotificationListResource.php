@@ -6,19 +6,21 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\Master\Role;
 use App\Models\Notification;
-use App\Models\NotificationList;
+use Pages\ViewNotificationList;
 use Filament\Resources\Resource;
-use Laravel\Jetstream\OwnerRole;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Building\Building;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use App\Filament\Resources\NotificationListResource\Pages;
-use App\Filament\Resources\NotificationListResource\RelationManagers;
+
 
 class NotificationListResource extends Resource
 {
     protected static ?string $model = Notification::class;
+
+    protected static ?string $modelLabel  = 'Notifications';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -26,7 +28,10 @@ class NotificationListResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('read_at')
+                    ->disabled()
+                    ->label('Read At'),
+                // Textarea::make('data.body')->required(),
             ]);
     }
 
@@ -34,17 +39,30 @@ class NotificationListResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('title')
+                    ->searchable()
+                    ->sortable()
+                    ->default('NA')
+                    ->label('Notification Title'),
+                TextColumn::make('read_at')
+                    ->searchable()
+                    ->sortable()
+                    ->default('NA')
+                    ->label('Read At'),
                 //
-            ])
+            ])->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
+
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -59,9 +77,8 @@ class NotificationListResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListNotificationLists::route('/'),
-            // 'create' => Pages\CreateNotificationList::route('/create'),
-            // 'edit' => Pages\EditNotificationList::route('/{record}/edit'),
+            'index' => Pages\ListNotificationSents::route('/'),
+            'view' => Pages\ViewNotificationSent::route('/{record}'),
         ];
     }
 }
