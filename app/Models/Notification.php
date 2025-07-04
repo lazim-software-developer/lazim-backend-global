@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Notification extends Model
+class Notification extends DatabaseNotification
 {
 
     protected $connection = 'mysql';
@@ -20,6 +20,10 @@ class Notification extends Model
         'read_at',
         'owner_association_id',
         'notification_type_d'
+    ];
+    protected $casts = [
+        // 'id' => 'string',
+        // 'data' => 'array',
     ];
 
     // public function notificationType()

@@ -7,6 +7,8 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Notification;
+use Filament\Facades\Filament;
+use Log;
 use Pages\ViewNotificationList;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -55,8 +57,18 @@ class NotificationListResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                ->url(function(Notification $record){
+                    // dd($record->id,$record);
+                    Log::info('Notification record ID: ' . json_encode($record));
+                    return route('filament.admin.resources.notification-lists.view', ['tenant' => Filament::getTenant(), 'record' => $record->id]);
+                })
+                    // ->icon('heroicon-o-eye')
+                    // ->label('View Notification'),
+                // Tables\Actions\ViewAction::make()->url(fn (Notification $record): string => route('filament.admin.resources.notification-lists.view', ['tenant'=> Filament::getTenant(),'record' => $record->id]))
+                    ->icon('heroicon-o-eye')
+                    ->label('View Notification'),
+                Tables\Actions\EditAction::make(),
 
 
             ])
