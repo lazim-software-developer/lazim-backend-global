@@ -8,11 +8,13 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
 use App\Models\Accounting\WDA;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -20,7 +22,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\WDAResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\WDAResource\RelationManagers;
-use Filament\Facades\Filament;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class WDAResource extends Resource
@@ -115,17 +116,22 @@ class WDAResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('date')
+                    ->sortable()
                     ->default('NA')
                     ->label('Date'),
                 TextColumn::make('service.name')
+                    ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Service'),
                 TextColumn::make('status')
                     ->default('NA')
                     ->label('Status'),
                 TextColumn::make('building.name')
+                    ->sortable()
                     ->label('Building'),
                 TextColumn::make('contract.contract_type')
+                    ->sortable()
                     ->label('Contract type'),
             ])
             ->defaultSort('created_at', 'desc')

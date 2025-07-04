@@ -25,6 +25,7 @@ class EditInvoice extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -176,10 +177,10 @@ class EditInvoice extends EditRecord
                 ]);
 
                 $product_services = $connection->table('product_services')
-                    ->where(['name'=> $this->record->contract->service->name,'building_id'=>$this->record->contract->building_id])
+                    ->where(['name' => $this->record->contract->service->name, 'building_id' => $this->record->contract->building_id])
                     ->first();
                 $category = $connection->table('product_service_categories')
-                    ->where(['name'=> $this->record->contract->service->subcategory->name,'building_id'=>$this->record->contract->building_id])->first();
+                    ->where(['name' => $this->record->contract->service->subcategory->name, 'building_id' => $this->record->contract->building_id])->first();
                 $product_services = $connection->table('product_services')->where('name', $this->record->contract->service->name)->first();
                 if ($connection->table('bills')->where('lazim_invoice_id', $this->record->id)->count() == 0) {
                     $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $this->record->contract->building_id])->first();
@@ -187,31 +188,30 @@ class EditInvoice extends EditRecord
                         ->withHeaders([
                             'Content-Type' => 'application/json',
                         ])->post(env('ACCOUNTING_CREATE_BILL_API'), [
-                        'created_by'     => $creator->id,
-                        'buildingId'     => $this->record->contract->building_id,
-                        'invoiceId'      => $this->record->id,
-                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $this->record->vendor_id,'building_id' => $this->record->contract->building_id])->first()?->id,
-                        'billDate'       => $this->record->date,
-                        'dueDate'        => Carbon::parse($this->record->date)->addDays(30),
-                        'categoryId'     => $category->id,
-                        'chartAccountId' => null,
-                        'items'          => [
-                            [
-                                'item'             => $product_services?->id,
-                                'quantity'         => 1,
-                                'tax'              => $connection->table('taxes')->where(['building_id' => $this->record->contract->building_id, 'name' => 'VAT'])->first()->id,
-                                'price'            => $this->record->invoice_amount / (1 + 5 / 100),
-                                'chart_account_id' => $product_services->expense_chartaccount_id,
+                            'created_by'     => $creator->id,
+                            'buildingId'     => $this->record->contract->building_id,
+                            'invoiceId'      => $this->record->id,
+                            'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $this->record->vendor_id, 'building_id' => $this->record->contract->building_id])->first()?->id,
+                            'billDate'       => $this->record->date,
+                            'dueDate'        => Carbon::parse($this->record->date)->addDays(30),
+                            'categoryId'     => $category->id,
+                            'chartAccountId' => null,
+                            'items'          => [
+                                [
+                                    'item'             => $product_services?->id,
+                                    'quantity'         => 1,
+                                    'tax'              => $connection->table('taxes')->where(['building_id' => $this->record->contract->building_id, 'name' => 'VAT'])->first()->id,
+                                    'price'            => $this->record->invoice_amount / (1 + 5 / 100),
+                                    'chart_account_id' => $product_services->expense_chartaccount_id,
+                                ],
                             ],
-                        ],
-                    ]);
+                        ]);
 
                     if ($httpRequest->successful()) {
                         Log::info('All Is Well');
                     } else {
                         Log::info($httpRequest->body());
                     }
-
                 }
             } else {
                 InvoiceApproval::firstOrCreate([

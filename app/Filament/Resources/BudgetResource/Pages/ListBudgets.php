@@ -26,58 +26,58 @@ class ListBudgets extends ListRecords
     protected static ?string $title = 'Budgets';
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
             return parent::getTableQuery();
         }
-        $buildings_id = DB::table('building_owner_association')->where('owner_association_id',Filament::getTenant()->id)->where('active', true)->pluck('building_id');
+        $buildings_id = DB::table('building_owner_association')->where('owner_association_id', Filament::getTenant()->id)->where('active', true)->pluck('building_id');
         return parent::getTableQuery()->whereIn('building_id', $buildings_id);
     }
 
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Action::make('feature')
                 ->label('Upload Budget') // Set a label for your action
                 ->modalHeading('Upload Budget for Period') // Modal heading
                 ->form([
                     Grid::make(2)
-                    ->schema([
-                        Select::make('building_id')
-                        ->options(function(){
-                            if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                                return Building::all()->pluck('name', 'id');
-                            }
-                            else{
-                                return Building::where('owner_association_id', Filament::getTenant()->id)
-                                ->pluck('name', 'id');
-                            } 
-                        })
-                        ->preload()
-                        ->searchable()
-                        ->label('Select Building')
-                        ->required(),
-                    Select::make('budget_period')
-                        ->label('Select Budget Period')
-                        ->options([
-                            'Jan 2024 - Dec 2024' => '2024',
-                            'Jan 2023 - Dec 2023' => '2023',
-                            'Jan 2022 - Dec 2022' => '2022',
-                            'Jan 2021 - Dec 2021' => '2021',
-                            'Jan 2020 - Dec 2020' => '2020',
-                            'Jan 2019 - Dec 2019' => '2019',
-                            'Jan 2018 - Dec 2018' => '2018',
-                        ])
-                        ->searchable()
-                        ->required(),
-                    FileUpload::make('excel_file')
-                        ->label('Upload File')
-                        ->acceptedFileTypes([
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
-                            'application/vnd.ms-excel', // for .xls
-                        ])
-                        ->required()
-                        ->disk('local') // or your preferred disk
-                        ->directory('budget_imports'), // or your preferred directory
+                        ->schema([
+                            Select::make('building_id')
+                                ->options(function () {
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                        return Building::all()->pluck('name', 'id');
+                                    } else {
+                                        return Building::where('owner_association_id', Filament::getTenant()->id)
+                                            ->pluck('name', 'id');
+                                    }
+                                })
+                                ->preload()
+                                ->searchable()
+                                ->label('Select Building')
+                                ->required(),
+                            Select::make('budget_period')
+                                ->label('Select Budget Period')
+                                ->options([
+                                    'Jan 2024 - Dec 2024' => '2024',
+                                    'Jan 2023 - Dec 2023' => '2023',
+                                    'Jan 2022 - Dec 2022' => '2022',
+                                    'Jan 2021 - Dec 2021' => '2021',
+                                    'Jan 2020 - Dec 2020' => '2020',
+                                    'Jan 2019 - Dec 2019' => '2019',
+                                    'Jan 2018 - Dec 2018' => '2018',
+                                ])
+                                ->searchable()
+                                ->required(),
+                            FileUpload::make('excel_file')
+                                ->label('Upload File')
+                                ->acceptedFileTypes([
+                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // for .xlsx
+                                    'application/vnd.ms-excel', // for .xls
+                                ])
+                                ->required()
+                                ->disk('local') // or your preferred disk
+                                ->directory('budget_imports'), // or your preferred directory
                         ])
                 ])
                 ->action(function ($record, array $data, $livewire) {

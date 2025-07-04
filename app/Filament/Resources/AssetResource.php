@@ -9,28 +9,29 @@ use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Vendor\Vendor;
 use App\Models\Master\Service;
+use Filament\Facades\Filament;
 use App\Forms\Components\QrCode;
+use App\Models\OwnerAssociation;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\AssetResource\Pages;
-use App\Models\OwnerAssociation;
-use App\Models\Vendor\Vendor;
-use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Filament\Resources\AssetResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AssetResource extends Resource
@@ -93,7 +94,7 @@ class AssetResource extends Resource
                             ->required()
                             ->rules(['max:50']),
                         TextInput::make('frequency_of_service')
-                                ->required()->integer()->suffix('days')->minValue(1),
+                            ->required()->integer()->suffix('days')->minValue(1),
                         Textarea::make('description')
                             ->label('Description')
                             ->rules(['max:100', 'regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#$%^&*_+\-=,.]*$/']),
@@ -109,12 +110,12 @@ class AssetResource extends Resource
                             ->searchable()
                             ->label('Service'),
                         TextInput::make('asset_code')
-                                ->visible(function (callable $get) {
-                                    if ($get('asset_code') != null) {
-                                        return true;
-                                    }
-                                    return false;
-                                }),
+                            ->visible(function (callable $get) {
+                                if ($get('asset_code') != null) {
+                                    return true;
+                                }
+                                return false;
+                            }),
                     ]),
                 QrCode::make('qr_code')
                     ->label('QR Code')
@@ -122,7 +123,7 @@ class AssetResource extends Resource
                         'sm' => 1,
                         'md' => 2,
                         'lg' => 2,
-                    ]),  
+                    ]),
 
             ]);
     }
@@ -131,11 +132,11 @@ class AssetResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->label('Asset name'),
+                TextColumn::make('name')->searchable()->label('Asset name')->sortable(),
                 TextColumn::make('description')->searchable()->default('NA')->label('Description'),
                 TextColumn::make('location')->label('Location'),
-                TextColumn::make('service.name')->searchable()->label('Service'),
-                TextColumn::make('building.name')->searchable()->label('Building'),
+                TextColumn::make('service.name')->searchable()->label('Service')->sortable(),
+                TextColumn::make('building.name')->searchable()->label('Building')->sortable(),
                 TextColumn::make('asset_code'),
                 TextColumn::make('vendors.name')->default('NA')
                     ->searchable()->label('Vendor'),
@@ -152,20 +153,20 @@ class AssetResource extends Resource
                     ->preload()
                     ->label('Building'),
                 SelectFilter::make('service_id')
-                    ->relationship('service', 'name', fn (Builder $query) => $query->where('type', 'vendor_service'))
+                    ->relationship('service', 'name', fn(Builder $query) => $query->where('type', 'vendor_service'))
                     ->searchable()
                     ->preload()
                     ->label('Service'),
                 Filter::make('Vendor')
                     ->form([
                         Select::make('vendor')
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                                return OwnerAssociation::find(Filament::getTenant()?->id)->vendors->where('pivot.status', 'approved')->pluck('name', 'id');
-                            } else {
-                                return Vendor::pluck('name', 'id');
-                            }
-                        })
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+                                    return OwnerAssociation::find(Filament::getTenant()?->id)->vendors->where('pivot.status', 'approved')->pluck('name', 'id');
+                                } else {
+                                    return Vendor::pluck('name', 'id');
+                                }
+                            })
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (!empty($data['vendor'])) {
@@ -180,9 +181,9 @@ class AssetResource extends Resource
                     ->trueLabel('Assigned assets')
                     ->falseLabel('Unassigned assets')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('vendors'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('vendors'),
-                        blank: fn (Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
+                        true: fn(Builder $query) => $query->whereHas('vendors'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('vendors'),
+                        blank: fn(Builder $query) => $query, // In this example, we do not want to filter the query when it is blank.
                     )
             ])
             ->actions([
@@ -194,23 +195,23 @@ class AssetResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('attach')
-                    ->form([
-                        Select::make('vendor_id')
-                        ->required()
-                        ->relationship('vendors', 'name')
-                        ->options(function () {
-                            $oaId = auth()->user()?->owner_association_id;
-                            return Vendor::whereHas('ownerAssociation', function ($query) {
-                                $query->where('owner_association_id', Filament::getTenant()->id)
-                                      ->where('status', 'approved');
-                            })
-                                ->pluck('name', 'id');
-                        })
+                        ->form([
+                            Select::make('vendor_id')
+                                ->required()
+                                ->relationship('vendors', 'name')
+                                ->options(function () {
+                                    $oaId = auth()->user()?->owner_association_id;
+                                    return Vendor::whereHas('ownerAssociation', function ($query) {
+                                        $query->where('owner_association_id', Filament::getTenant()->id)
+                                            ->where('status', 'approved');
+                                    })
+                                        ->pluck('name', 'id');
+                                })
                         ])
-                        ->action(function (Collection $records,array $data){
-                            $vendorId= $data['vendor_id'];
+                        ->action(function (Collection $records, array $data) {
+                            $vendorId = $data['vendor_id'];
                             // dd($records,$vendorId);
-                            foreach($records as $record){
+                            foreach ($records as $record) {
                                 // dd($record->vendors()->syncWithoutDetaching([$vendorId]));
                                 $record->vendors()->sync([$vendorId]);
                             }
@@ -243,5 +244,4 @@ class AssetResource extends Resource
 
         ];
     }
-
 }

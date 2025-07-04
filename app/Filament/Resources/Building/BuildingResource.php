@@ -79,37 +79,37 @@ class BuildingResource extends Resource
                         ])
                         // ->disabled()
                         ->placeholder('Name'),
-                        TextInput::make('slug')
-                                ->label('Slug')
-                                ->required()
-                                ->placeholder('Slug')
-                                ->rules([
-                                    'required',
-                                    'string',
-                                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                                    'min:4',
-                                    'max:30'
-                                ])
-                                ->validationMessages([
-                                    'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
-                                ])
-                                ->unique('buildings', 'slug', ignoreRecord: true)
-                                ->disabled(function (callable $get) {
-                                    // Get the current operation (create or edit)
-                                    $isCreate = !$get('id'); // if id exists, it's edit operation
-                                
-                                    // If it's create operation, return false (not disabled)
-                                    if ($isCreate) {
-                                        return false;
-                                    }
-                                
-                                    // For edit operation, apply your existing logic
-                                    return Role::where('id', auth()->user()->role_id)
-                                        ->first()->name != 'Admin' && 
-                                        DB::table('buildings')
-                                        ->where('slug', $get('slug'))
-                                        ->exists();
-                                }),
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->placeholder('Slug')
+                        ->rules([
+                            'required',
+                            'string',
+                            'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                            'min:4',
+                            'max:30'
+                        ])
+                        ->validationMessages([
+                            'regex' => 'Slug format is Invalid. It can only accept Lowercase letters, Numbers and hyphen'
+                        ])
+                        ->unique('buildings', 'slug', ignoreRecord: true)
+                        ->disabled(function (callable $get) {
+                            // Get the current operation (create or edit)
+                            $isCreate = !$get('id'); // if id exists, it's edit operation
+
+                            // If it's create operation, return false (not disabled)
+                            if ($isCreate) {
+                                return false;
+                            }
+
+                            // For edit operation, apply your existing logic
+                            return Role::where('id', auth()->user()->role_id)
+                                ->first()->name != 'Admin' &&
+                                DB::table('buildings')
+                                ->where('slug', $get('slug'))
+                                ->exists();
+                        }),
                     TextInput::make('property_group_id')
                         ->rules(['max:50', 'string'])
                         ->required()
@@ -125,11 +125,11 @@ class BuildingResource extends Resource
                         ->unique(
                             table: 'buildings',
                             column: 'property_group_id',
-                            ignorable: fn ($record) => $record
+                            ignorable: fn($record) => $record
                         ),
 
                     TextInput::make('address_line1')
-                        ->rules(['required','max:500', 'string'])
+                        ->rules(['required', 'max:500', 'string'])
                         ->required()
                         ->label('Address Line 1')
                         ->placeholder('Address line 1'),
@@ -143,11 +143,11 @@ class BuildingResource extends Resource
                     Hidden::make('owner_association_id')
                         ->default(auth()->user()?->owner_association_id),
                     Hidden::make('created_by')
-                    ->default(auth()->user()?->id),
+                        ->default(auth()->user()?->id),
                     Hidden::make('updated_by')
-                    ->default(auth()->user()?->id),
+                        ->default(auth()->user()?->id),
                     Hidden::make('resource')
-                    ->default('Lazim'),
+                        ->default('Lazim'),
                     TextInput::make('area')
                         ->rules(['max:100', 'string'])
                         ->required()
@@ -173,52 +173,52 @@ class BuildingResource extends Resource
                         ->placeholder('Floors')
                         ->label('Floor'),
 
-                        Select::make('country_id')
-                            ->label('Country')
-                            ->native(false)
-                            ->required()
-                            ->rules(['required'])
-                            ->options(function () {
-                                return Country::pluck('name', 'id');
-                            })
-                            ->reactive()
-                            ->afterStateUpdated(function (callable $set) {
-                                // When country changes, clear both state and city
-                                $set('state_id', null);
-                                $set('city_id', null);
-                            })
-                            ->searchable(),
+                    Select::make('country_id')
+                        ->label('Country')
+                        ->native(false)
+                        ->required()
+                        ->rules(['required'])
+                        ->options(function () {
+                            return Country::pluck('name', 'id');
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            // When country changes, clear both state and city
+                            $set('state_id', null);
+                            $set('city_id', null);
+                        })
+                        ->searchable(),
 
-                        Select::make('state_id')
-                            ->label('State')
-                            ->native(false)
-                            ->required()
-                            ->rules(['required'])
-                            ->options(function (callable $get) {
-                                if ($get('country_id')) {
-                                    return State::where('country_id', $get('country_id'))->pluck('name', 'id');
-                                }
-                                return [];
-                            })
-                            ->reactive()
-                            ->afterStateUpdated(function (callable $set) {
-                                // When state changes, only clear city
-                                $set('city_id', null);
-                            })
-                            ->searchable(),
+                    Select::make('state_id')
+                        ->label('State')
+                        ->native(false)
+                        ->required()
+                        ->rules(['required'])
+                        ->options(function (callable $get) {
+                            if ($get('country_id')) {
+                                return State::where('country_id', $get('country_id'))->pluck('name', 'id');
+                            }
+                            return [];
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                            // When state changes, only clear city
+                            $set('city_id', null);
+                        })
+                        ->searchable(),
 
-                        Select::make('city_id')
-                            ->label('City')
-                            ->native(false)
-                            ->required()
-                            ->rules(['required'])
-                            ->options(function (callable $get) {
-                                if ($get('state_id')) {
-                                    return City::where('state_id', $get('state_id'))->pluck('name', 'id');
-                                }
-                                return [];
-                            })
-                            ->searchable(),
+                    Select::make('city_id')
+                        ->label('City')
+                        ->native(false)
+                        ->required()
+                        ->rules(['required'])
+                        ->options(function (callable $get) {
+                            if ($get('state_id')) {
+                                return City::where('state_id', $get('state_id'))->pluck('name', 'id');
+                            }
+                            return [];
+                        })
+                        ->searchable(),
 
                     Toggle::make('allow_postupload')
                         ->columnStart([
@@ -284,6 +284,7 @@ class BuildingResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->toggleable()
+                    ->sortable()
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
@@ -337,7 +338,7 @@ class BuildingResource extends Resource
             ->filters([
                 //
             ])
-            
+
             ->actions([
                 Tables\Actions\EditAction::make(),
                 // Action::make('feature')
@@ -387,7 +388,7 @@ class BuildingResource extends Resource
                 //         //     ->send();
                 //         // }
                 //     }),
-                    Action::make('delete')
+                Action::make('delete')
                     ->button()
                     ->action(function ($record,) {
                         $record->delete();
@@ -404,73 +405,82 @@ class BuildingResource extends Resource
             ])
             ->bulkActions([
                 ExportBulkAction::make()
-                ->exports([
-                    ExcelExport::make()
-                        ->withColumns([
-                            Column::make('created_by')
-                            ->heading('Created By')
-                            ->formatStateUsing(fn ($record) => 
-                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            ), 
-                            // Custom column using relationship
-                            Column::make('owner_association_id')
-                            ->heading('Owner Association Name')
-                            ->formatStateUsing(fn ($record) => 
-                                $record->ownerAssociationData->name ?? 'N/A'
-                            ), 
-                            Column::make('name')
-                                ->heading('Building Name'),
-                            Column::make('floors')
-                                ->heading('Floors'),
-                            Column::make('property_group_id')
-                                ->heading('Property Group ID')
-                                ->formatStateUsing(fn ($record) => 
-                                    $record->property_group_id ?? 'N/A'
-                                ),
-                            Column::make('address_line1')
-                                ->heading('Address Line 1')
-                                ->formatStateUsing(fn ($record) => 
-                                    $record->address_line1 ?? 'N/A'
-                                ),
-                            Column::make('address_line2')
-                            ->heading('Address Line 2')
-                            ->formatStateUsing(fn ($record) => 
-                                $record->address_line2 ?? 'N/A'
-                            ),
-                            Column::make('area')
-                                ->heading('Area')
-                                ->formatStateUsing(fn ($record) => 
-                                    $record->area ?? 'N/A'
-                                ),
-                            Column::make('city_id')
-                            ->heading('City')
-                            ->formatStateUsing(fn ($record) => 
-                                $record->cities->name ?? 'N/A'
-                            ),    
-                            // Formatted date with custom accessor
-                            Column::make('created_at')
-                                ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) => 
-                                    $state ? $state->format('d/m/Y') : ''
-                                ),
+                    ->exports([
+                        ExcelExport::make()
+                            ->withColumns([
+                                Column::make('created_by')
+                                    ->heading('Created By')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->CreatedBy->first_name . ' ' . $record->CreatedBy->last_name ?? 'N/A'
+                                    ),
+                                // Custom column using relationship
+                                Column::make('owner_association_id')
+                                    ->heading('Owner Association Name')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->ownerAssociationData->name ?? 'N/A'
+                                    ),
+                                Column::make('name')
+                                    ->heading('Building Name'),
+                                Column::make('floors')
+                                    ->heading('Floors'),
+                                Column::make('property_group_id')
+                                    ->heading('Property Group ID')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->property_group_id ?? 'N/A'
+                                    ),
+                                Column::make('address_line1')
+                                    ->heading('Address Line 1')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->address_line1 ?? 'N/A'
+                                    ),
+                                Column::make('address_line2')
+                                    ->heading('Address Line 2')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->address_line2 ?? 'N/A'
+                                    ),
+                                Column::make('area')
+                                    ->heading('Area')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->area ?? 'N/A'
+                                    ),
+                                Column::make('city_id')
+                                    ->heading('City')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->cities->name ?? 'N/A'
+                                    ),
+                                // Formatted date with custom accessor
+                                Column::make('created_at')
+                                    ->heading('Created Date')
+                                    ->formatStateUsing(
+                                        fn($state) =>
+                                        $state ? $state->format('d/m/Y') : ''
+                                    ),
                                 Column::make('status')
-                                ->heading('Status')
-                                ->formatStateUsing(fn ($record) => 
-                                    $record->status == 1
-                                        ? 'Active' 
-                                        : 'Inactive'
-                                ),
-                                
-                            // Created by user info
-                            // Column::make('created_by_name')
-                            //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) => 
-                            //         $record->createdBy->name ?? 'System'
-                            //     ),
-                        ])
-                        ->withFilename(date('Y-m-d') . '-buildings-report')
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                ]),
+                                    ->heading('Status')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->status == 1
+                                            ? 'Active'
+                                            : 'Inactive'
+                                    ),
+
+                                // Created by user info
+                                // Column::make('created_by_name')
+                                //     ->heading('Created By')
+                                //     ->formatStateUsing(fn ($record) => 
+                                //         $record->createdBy->name ?? 'System'
+                                //     ),
+                            ])
+                            ->withFilename(date('Y-m-d') . '-buildings-report')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                    ]),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
@@ -501,58 +511,55 @@ class BuildingResource extends Resource
                         try {
                             $import = new BuildingImport();
                             Excel::import($import, $data['file']);
-                            
-                            $result = $import->getResultSummary();
-                            
-                            if($result['status']===200)
-                            {
-                            // Generate detailed report
-                            $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
-                            $report .= "Successfully imported: {$result['imported']}\n";
-                            $report .= "Skipped (already exists): {$result['skip']}\n";
-                            $report .= "Errors: {$result['error']}\n\n";
-                            
-                            // Add detailed error and skip information
-                            foreach ($result['details'] as $detail) {
-                                $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
-                                $report .= "Data: " . json_encode($detail['data']) . "\n\n";
-                            }
-                            
-                            // Save report
-                            $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
-                            $reportPath = 'import-reports/' . $filename;
-                            Storage::disk('local')->put($reportPath, $report);
-                            }
-                            if($result['status']===401)
-                            {
-                                Notification::make()
-                                ->title('invalid File')
-                                ->body("{$result['error']}")
-                                ->danger()
-                                ->persistent()
-                                ->send();
-                            }else{
-                            // Show notification with results
-                            Notification::make()
-                                ->title('Import Complete')
-                                ->body(
-                                    collect([
-                                        "Successfully imported: {$result['imported']}",
-                                        "Skipped: {$result['skip']}",
-                                        "Errors: {$result['error']}"
-                                    ])->join("\n")
-                                )
-                                ->actions([
-                                    \Filament\Notifications\Actions\Action::make('download_report')
-                                    ->label('Download Report')
-                                    ->url(route('download.import.report', ['filename' => $filename]))
-                                    ->openUrlInNewTab()
-                                ])
-                                ->success()
-                                ->persistent()
-                                ->send();
-                            }
 
+                            $result = $import->getResultSummary();
+
+                            if ($result['status'] === 200) {
+                                // Generate detailed report
+                                $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+                                $report .= "Successfully imported: {$result['imported']}\n";
+                                $report .= "Skipped (already exists): {$result['skip']}\n";
+                                $report .= "Errors: {$result['error']}\n\n";
+
+                                // Add detailed error and skip information
+                                foreach ($result['details'] as $detail) {
+                                    $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+                                    $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+                                }
+
+                                // Save report
+                                $filename = 'building-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                                $reportPath = 'import-reports/' . $filename;
+                                Storage::disk('local')->put($reportPath, $report);
+                            }
+                            if ($result['status'] === 401) {
+                                Notification::make()
+                                    ->title('invalid File')
+                                    ->body("{$result['error']}")
+                                    ->danger()
+                                    ->persistent()
+                                    ->send();
+                            } else {
+                                // Show notification with results
+                                Notification::make()
+                                    ->title('Import Complete')
+                                    ->body(
+                                        collect([
+                                            "Successfully imported: {$result['imported']}",
+                                            "Skipped: {$result['skip']}",
+                                            "Errors: {$result['error']}"
+                                        ])->join("\n")
+                                    )
+                                    ->actions([
+                                        \Filament\Notifications\Actions\Action::make('download_report')
+                                            ->label('Download Report')
+                                            ->url(route('download.import.report', ['filename' => $filename]))
+                                            ->openUrlInNewTab()
+                                    ])
+                                    ->success()
+                                    ->persistent()
+                                    ->send();
+                            }
                         } catch (\Exception $e) {
                             Notification::make()
                                 ->title('Import Failed')

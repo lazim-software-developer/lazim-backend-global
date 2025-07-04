@@ -26,6 +26,7 @@ class EditUserApproval extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\ViewAction::make(),
             // Actions\DeleteAction::make(),
         ];
@@ -74,16 +75,16 @@ class EditUserApproval extends EditRecord
                 ->send();
         }
         if ($this->data['status'] == 'rejected' && $this->record->status == null) {
-            ResidentRejection::dispatch($user, $mailCredentials,$this->record);
+            ResidentRejection::dispatch($user, $mailCredentials, $this->record);
             Notification::make()
                 ->title("Resident Rejected")
                 ->danger()
                 ->body("Resident has been rejacted")
                 ->send();
         }
-        if($this->record->status == null){
+        if ($this->record->status == null) {
             $userHistory = UserApprovalAudit::where('user_approval_id', $this->record->id)->where('status', null)->first();
-            if(!$userHistory){
+            if (!$userHistory) {
                 UserApprovalAudit::create([
                     'user_approval_id' => $this->record->id,
                     'document' => $this->record->document,
@@ -95,8 +96,7 @@ class EditUserApproval extends EditRecord
                     'updated_by' => auth()->user()->id,
                     'owner_association_id' => $this->record->owner_association_id,
                 ]);
-            }
-            else{
+            } else {
                 $userHistory->update([
                     'status' => $this->data['status'],
                     'remarks' => $this->data['remarks'],
@@ -112,6 +112,6 @@ class EditUserApproval extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-    return null;
+        return null;
     }
 }

@@ -20,6 +20,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,13 +54,13 @@ class TenantResource extends Resource
                                     if (empty($value)) {
                                         return;
                                     }
-                            
+
                                     $ownerAssociationId = auth()->user()->owner_association_id;
                                     $buildingId = $record['building_id'] ?? null;
                                     $flatId = $record['flat_id'] ?? null;
                                     $query = MollakTenant::where('contract_number', $value)
                                         ->where('owner_association_id', $ownerAssociationId);
-                                    
+
                                     if ($record) {
                                         $query->where('id', '!=', $record->id);
                                     }
@@ -94,13 +95,13 @@ class TenantResource extends Resource
                                     if (empty($value)) {
                                         return;
                                     }
-                            
+
                                     $ownerAssociationId = auth()->user()->owner_association_id;
                                     $buildingId = $record['building_id'] ?? null;
                                     $flatId = $record['flat_id'] ?? null;
                                     $query = MollakTenant::where('emirates_id', $value)
                                         ->where('owner_association_id', $ownerAssociationId);
-                                    
+
                                     if ($record) {
                                         $query->where('id', '!=', $record->id);
                                     }
@@ -121,43 +122,43 @@ class TenantResource extends Resource
                         ])
                         ->placeholder('National ID'),
                     TextInput::make('passport')
-                    ->required()
-                    ->rules('alpha_num')
-                    ->placeholder('Passport Number')
-                    ->rules([
-                        function ($record) {
-                            return function (string $attribute, $value, Closure $fail) use ($record) {
-                                if (empty($value)) {
-                                    return;
-                                }
-                        
-                                $ownerAssociationId = auth()->user()->owner_association_id;
-                                $buildingId = $record['building_id'] ?? null;
-                                $flatId = $record['flat_id'] ?? null;
-                                $query = MollakTenant::where('passport', $value)
-                                    ->where('owner_association_id', $ownerAssociationId);
-                                
-                                if ($record) {
-                                    $query->where('id', '!=', $record->id);
-                                }
-                                // Add a condition to check the building ID
-                                if (!empty($buildingId)) {
-                                    $query->where('building_id', $buildingId);
-                                }
-                                // Add a condition to check the Flat ID
-                                if (!empty($flatId)) {
-                                    $query->where('flat_id', $flatId);
-                                }
-                                $query->whereNull('deleted_at');
-                                if ($query->exists()) {
-                                    $fail("This Tenant passport number is already registered with this building, Unit & owner association.");
-                                }
-                            };
-                        }
-                    ]),
+                        ->required()
+                        ->rules('alpha_num')
+                        ->placeholder('Passport Number')
+                        ->rules([
+                            function ($record) {
+                                return function (string $attribute, $value, Closure $fail) use ($record) {
+                                    if (empty($value)) {
+                                        return;
+                                    }
+
+                                    $ownerAssociationId = auth()->user()->owner_association_id;
+                                    $buildingId = $record['building_id'] ?? null;
+                                    $flatId = $record['flat_id'] ?? null;
+                                    $query = MollakTenant::where('passport', $value)
+                                        ->where('owner_association_id', $ownerAssociationId);
+
+                                    if ($record) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
+                                    // Add a condition to check the building ID
+                                    if (!empty($buildingId)) {
+                                        $query->where('building_id', $buildingId);
+                                    }
+                                    // Add a condition to check the Flat ID
+                                    if (!empty($flatId)) {
+                                        $query->where('flat_id', $flatId);
+                                    }
+                                    $query->whereNull('deleted_at');
+                                    if ($query->exists()) {
+                                        $fail("This Tenant passport number is already registered with this building, Unit & owner association.");
+                                    }
+                                };
+                            }
+                        ]),
                     TextInput::make('license_number')
-                    ->rules('alpha_num')
-                    ->placeholder('License Number'),
+                        ->rules('alpha_num')
+                        ->placeholder('License Number'),
                     TextInput::make('mobile')
                         ->rules(['regex:/^\+?[1-9]\d{1,14}$/'])
                         ->required()
@@ -168,13 +169,13 @@ class TenantResource extends Resource
                                     if (empty($value)) {
                                         return;
                                     }
-                            
+
                                     $ownerAssociationId = auth()->user()->owner_association_id;
                                     $buildingId = $record['building_id'] ?? null;
                                     $flatId = $record['flat_id'] ?? null;
                                     $query = MollakTenant::where('mobile', $value)
                                         ->where('owner_association_id', $ownerAssociationId);
-                                    
+
                                     if ($record) {
                                         $query->where('id', '!=', $record->id);
                                     }
@@ -203,13 +204,13 @@ class TenantResource extends Resource
                                     if (empty($value)) {
                                         return;
                                     }
-                            
+
                                     $ownerAssociationId = auth()->user()->owner_association_id;
                                     $buildingId = $record['building_id'] ?? null;
                                     $flatId = $record['flat_id'] ?? null;
                                     $query = MollakTenant::where('email', $value)
                                         ->where('owner_association_id', $ownerAssociationId);
-                                    
+
                                     if ($record) {
                                         $query->where('id', '!=', $record->id);
                                     }
@@ -229,46 +230,46 @@ class TenantResource extends Resource
                             }
                         ]),
                     Select::make('building_id')
-                    ->rules(['exists:buildings,id'])
-                    ->options(function () {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                            return Building::where('status', 1)
-                            ->pluck('name', 'id');
-                        }else{
-                        return Building::where('owner_association_id', auth()->user()->owner_association_id)
-                            ->where('status', 1)
-                            ->where('resource', 'Default')
-                            ->pluck('name', 'id');
-                        }
-                    })
-                    ->reactive()
-                    ->preload()
-                    ->searchable()
-                    ->required()
-                    ->placeholder('Select a Building'),
+                        ->rules(['exists:buildings,id'])
+                        ->options(function () {
+                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                return Building::where('status', 1)
+                                    ->pluck('name', 'id');
+                            } else {
+                                return Building::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->where('status', 1)
+                                    ->where('resource', 'Default')
+                                    ->pluck('name', 'id');
+                            }
+                        })
+                        ->reactive()
+                        ->preload()
+                        ->searchable()
+                        ->required()
+                        ->placeholder('Select a Building'),
                     Select::make('flat_id')
-                    ->rules(['exists:flats,id'])
-                    ->required()
-                    ->options(function ($get) {
-                        $buildingId = $get('building_id');
-                        if (!$buildingId) return [];
-                        
-                        return Flat::where('building_id', $buildingId)
-                            ->where('status', 1)
-                            ->get()
-                            ->mapWithKeys(function ($flat) {
-                                return [$flat->id => $flat->property_number];
-                            });
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->label('Unit Number')
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, $set) {
-                        if ($state === null) {
-                            $set('flat_id', null);
-                        }
-                    }),
+                        ->rules(['exists:flats,id'])
+                        ->required()
+                        ->options(function ($get) {
+                            $buildingId = $get('building_id');
+                            if (!$buildingId) return [];
+
+                            return Flat::where('building_id', $buildingId)
+                                ->where('status', 1)
+                                ->get()
+                                ->mapWithKeys(function ($flat) {
+                                    return [$flat->id => $flat->property_number];
+                                });
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->label('Unit Number')
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, $set) {
+                            if ($state === null) {
+                                $set('flat_id', null);
+                            }
+                        }),
                     DatePicker::make('start_date')
                         ->rules(['date'])
                         ->required()
@@ -280,9 +281,9 @@ class TenantResource extends Resource
                         ->placeholder('End Date')
                         ->minDate(now()->startOfDay()),
                     Hidden::make('owner_association_id')
-                    ->default(auth()->user()?->owner_association_id),
+                        ->default(auth()->user()?->owner_association_id),
                     Hidden::make('resource')
-                    ->default('Lazim'),
+                        ->default('Lazim'),
                     Select::make('contract_status')
                         ->options([
                             'pass auditing'  => 'Pass Auditing',

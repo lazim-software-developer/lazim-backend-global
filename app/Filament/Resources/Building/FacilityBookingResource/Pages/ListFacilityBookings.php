@@ -14,16 +14,16 @@ class ListFacilityBookings extends ListRecords
     protected static string $resource = FacilityBookingResource::class;
     protected function getTableQuery(): Builder
     {
-        $buildings = Building::all()->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('id')->toArray();
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin') 
-        {
-            return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility')->whereIn('building_id',$buildings);
+        $buildings = Building::all()->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id')->toArray();
+        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+            return parent::getTableQuery()->where('bookable_type', 'App\Models\Master\Facility')->whereIn('building_id', $buildings);
         }
-        return parent::getTableQuery()->where('bookable_type','App\Models\Master\Facility');
+        return parent::getTableQuery()->where('bookable_type', 'App\Models\Master\Facility');
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\CreateAction::make(),
         ];
     }

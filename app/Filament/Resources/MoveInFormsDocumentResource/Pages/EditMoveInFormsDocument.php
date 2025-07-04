@@ -20,6 +20,7 @@ class EditMoveInFormsDocument extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -46,28 +47,28 @@ class EditMoveInFormsDocument extends EditRecord
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your move-in form has been approved.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Move-in form status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
-            $security= $this->record->building->buildingPocs->where('active',true)->where('role_name','security')->first();
-            if($security?->exists()) {
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your move-in form has been approved.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Move-in form status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+            $security = $this->record->building->buildingPocs->where('active', true)->where('role_name', 'security')->first();
+            if ($security?->exists()) {
                 $id = $security?->first()?->user_id;
                 $expoPushTokens = ExpoPushNotification::where('user_id', $id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
@@ -82,26 +83,26 @@ class EditMoveInFormsDocument extends EditRecord
                         $this->expoNotification($message);
                     }
                 }
-                        DB::table('notifications')->insert([
-                            'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                            'type' => 'Filament\Notifications\DatabaseNotification',
-                            'notifiable_type' => 'App\Models\User\User',
-                            'notifiable_id' => $id,
-                            'data' => json_encode([
-                                'actions' => [],
-                                'body' => 'New move-in form received.',
-                                'duration' => 'persistent',
-                                'icon' => 'heroicon-o-document-text',
-                                'iconColor' => 'warning',
-                                'title' => 'Move-in',
-                                'view' => 'notifications::notification',
-                                'viewData' => [],
-                                'format' => 'filament',
-                                'url' => 'Move-in',
-                            ]),
-                            'created_at' => now()->format('Y-m-d H:i:s'),
-                            'updated_at' => now()->format('Y-m-d H:i:s'),
-                        ]);
+                DB::table('notifications')->insert([
+                    'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type' => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id' => $id,
+                    'data' => json_encode([
+                        'actions' => [],
+                        'body' => 'New move-in form received.',
+                        'duration' => 'persistent',
+                        'icon' => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title' => 'Move-in',
+                        'view' => 'notifications::notification',
+                        'viewData' => [],
+                        'format' => 'filament',
+                        'url' => 'Move-in',
+                    ]),
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                    'updated_at' => now()->format('Y-m-d H:i:s'),
+                ]);
             }
         }
 
@@ -120,26 +121,26 @@ class EditMoveInFormsDocument extends EditRecord
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your move-in form has been rejected.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'danger',
-                            'title' => 'Move-in form status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your move-in form has been rejected.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title' => 'Move-in form status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
 
         $selectedCheckboxes = $this->form->getState('rejected_fields');

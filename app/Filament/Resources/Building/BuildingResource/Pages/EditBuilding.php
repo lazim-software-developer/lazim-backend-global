@@ -22,6 +22,7 @@ class EditBuilding extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
             // Action::make('Inhouse services')
             //     ->label('Inhouse services')
@@ -38,14 +39,14 @@ class EditBuilding extends EditRecord
                     'floors' => $countfloor,
                     'building_id' => $this->record->id,
                 ];
-                
+
                 $exists = Floor::where('floors', $countfloor)
-                ->where('building_id', $this->record->id)
-                ->exists();
+                    ->where('building_id', $this->record->id)
+                    ->exists();
 
                 if (!$exists) {
-                // Generate a QR code using the QrCode library
-                $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
+                    // Generate a QR code using the QrCode library
+                    $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
                     Floor::create([
                         'floors' => $countfloor,
                         'building_id' => $this->record->id,
@@ -61,7 +62,7 @@ class EditBuilding extends EditRecord
         $connection->table('users')->updateOrInsert([
             'building_id' => $this->record->id,
             'owner_association_id' => $this->record->owner_association_id,
-        ],[
+        ], [
             'name' => $this->record->name,
         ]);
     }

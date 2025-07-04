@@ -21,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Enums\FiltersLayout;
 
 class MollakTenantResource extends Resource
 {
@@ -33,64 +34,64 @@ class MollakTenantResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Section::make('Personal Details')
-                ->schema([
-                    TextInput::make('name')
-                        ->label('Name')
-                        ->disabled(),
-                    TextInput::make('emirates_id')
-                        ->label('National ID')
-                        ->formatStateUsing(function ($state) {
-                            return $state ?: 'NA';
-                        })
-                        ->disabled(),
-                    TextInput::make('mobile')
-                        ->label('Mobile')
-                        ->disabled(),
-                    TextInput::make('email')
-                        ->label('Email')
-                        ->disabled(),
-                ])
-                ->columns(2), // Two columns in this section
+            ->schema([
+                Section::make('Personal Details')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->disabled(),
+                        TextInput::make('emirates_id')
+                            ->label('National ID')
+                            ->formatStateUsing(function ($state) {
+                                return $state ?: 'NA';
+                            })
+                            ->disabled(),
+                        TextInput::make('mobile')
+                            ->label('Mobile')
+                            ->disabled(),
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->disabled(),
+                    ])
+                    ->columns(2), // Two columns in this section
 
-            Section::make('Contract Details')
-                ->schema([
-                    TextInput::make('contract_number')
-                        ->label('Contract number')
-                        ->disabled(),
-                    TextInput::make('license_number')
-                        ->label('License number')
-                        ->formatStateUsing(function ($state) {
-                            return $state ?: 'NA';
-                        })
-                        ->default('NA')
-                        ->disabled(),
-                    TextInput::make('start_date')
-                        ->label('Start date')
-                        ->disabled(),
-                    TextInput::make('end_date')
-                        ->label('End date')
-                        ->disabled(),
-                    TextInput::make('contract_status')
-                        ->label('Contract status')
-                        ->disabled(),
-                ])
-                ->columns(2), // Two columns in this section
+                Section::make('Contract Details')
+                    ->schema([
+                        TextInput::make('contract_number')
+                            ->label('Contract number')
+                            ->disabled(),
+                        TextInput::make('license_number')
+                            ->label('License number')
+                            ->formatStateUsing(function ($state) {
+                                return $state ?: 'NA';
+                            })
+                            ->default('NA')
+                            ->disabled(),
+                        TextInput::make('start_date')
+                            ->label('Start date')
+                            ->disabled(),
+                        TextInput::make('end_date')
+                            ->label('End date')
+                            ->disabled(),
+                        TextInput::make('contract_status')
+                            ->label('Contract status')
+                            ->disabled(),
+                    ])
+                    ->columns(2), // Two columns in this section
 
-            Section::make('Property Information')
-                ->schema([
-                    Select::make('building_id')
-                        ->relationship('building', 'name')
-                        ->label('Building')
-                        ->disabled(),
-                    Select::make('flat_id')
-                        ->relationship('flat', 'property_number')
-                        ->label('Flat')
-                        ->disabled(),
-                ])
-                ->columns(2), // Two columns in this section
-        ]);
+                Section::make('Property Information')
+                    ->schema([
+                        Select::make('building_id')
+                            ->relationship('building', 'name')
+                            ->label('Building')
+                            ->disabled(),
+                        Select::make('flat_id')
+                            ->relationship('flat', 'property_number')
+                            ->label('Flat')
+                            ->disabled(),
+                    ])
+                    ->columns(2), // Two columns in this section
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -99,17 +100,21 @@ class MollakTenantResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
+                    ->sortable()
                     ->limit(25)
                     ->default('NA'),
                 TextColumn::make('contract_number')
+                    ->searchable()
                     ->searchable()
                     ->default('NA'),
                 TextColumn::make('emirates_id')
                     ->label('National ID')
                     ->searchable()
+                    ->sortable()
                     ->default('NA'),
                 TextColumn::make('license_number')
                     ->searchable()
+                    ->sortable()
                     ->default('NA'),
                 TextColumn::make('mobile')
                     ->searchable()
@@ -155,12 +160,11 @@ class MollakTenantResource extends Resource
                     ->form([
                         Select::make('property_number')
                             ->placeholder('Search Unit Number')->label('Unit')
-                            ->options(function(){
-                                if(auth()->user()->role->first()->name == 'Admin'){
-                                    return Flat::pluck('property_number','property_number');
-                                }else{
-                                    return Flat::where('owner_association_id',auth()->user()->owner_association_id)->pluck('property_number','property_number');
-
+                            ->options(function () {
+                                if (auth()->user()->role->first()->name == 'Admin') {
+                                    return Flat::pluck('property_number', 'property_number');
+                                } else {
+                                    return Flat::where('owner_association_id', auth()->user()->owner_association_id)->pluck('property_number', 'property_number');
                                 }
                             })
                             ->searchable(),
@@ -173,7 +177,7 @@ class MollakTenantResource extends Resource
                         }
                         return $query;
                     }),
-                ]);
+            ]);
     }
 
     public static function getRelations(): array

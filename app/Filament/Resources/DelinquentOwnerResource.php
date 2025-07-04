@@ -45,11 +45,11 @@ class DelinquentOwnerResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('flat.property_number')->label('Unit')->searchable(),
-                TextColumn::make('owner.name')->limit(25),
+                TextColumn::make('flat.property_number')->label('Unit')->sortable()->searchable(),
+                TextColumn::make('owner.name')->limit(25)->sortable()->sortable(),
                 TextColumn::make('last_payment_date')->default('NA'),
                 TextColumn::make('last_payment_amount')->default('NA'),
-                TextColumn::make('outstanding_balance'),
+                TextColumn::make('outstanding_balance')->sortable(),
                 TextColumn::make('quarter_1_balance')->default('NA'),
                 TextColumn::make('quarter_2_balance')->default('NA'),
                 TextColumn::make('quarter_3_balance')->default('NA'),
@@ -81,7 +81,7 @@ class DelinquentOwnerResource extends Resource
                             return $query
                                 ->when(
                                     $data['year'],
-                                    fn (Builder $query, $year) => $query->where('year', $year)
+                                    fn(Builder $query, $year) => $query->where('year', $year)
                                 );
                         }
 
@@ -104,10 +104,10 @@ class DelinquentOwnerResource extends Resource
                         return $query
                             ->when(
                                 $data['building'],
-                                fn (Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
+                                fn(Builder $query, $building_id): Builder => $query->where('building_id', $building_id),
                             );
                     }),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ])->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])
@@ -123,7 +123,7 @@ class DelinquentOwnerResource extends Resource
                                 ->label('Content of email')
                                 ->helperText('Enter content with values less than 500 characters.'),
                         ])
-                        ->fillForm(fn (DelinquentOwner $record): array => [
+                        ->fillForm(fn(DelinquentOwner $record): array => [
                             'content' => 'Your payment is Due, please make the payment ASAP.',
                         ])
                         ->action(function (Collection $records, array $data): void {

@@ -19,6 +19,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\VehicleResource\Pages;
@@ -83,17 +84,17 @@ class VehicleResource extends Resource
                     fn(?Model $record) => $record
                 )->required()->minLength(2)->maxLength(10),
                 TextInput::make('parking_number')
-                // ->prefix(function (Get $get) {                
-                //         return Flat::find($get('flat_id'))?->property_number . ' -';
-                // })
-                ->helperText('Unit no. would be added as prefix')
-                ->alphaNum()->minLength(2)->maxLength(10)->disabledOn('edit')
-                ->unique(
-                    'vehicles',
-                    'parking_number',
-                    fn(?Model $record) => $record
-                )
-                ->required(),
+                    // ->prefix(function (Get $get) {                
+                    //         return Flat::find($get('flat_id'))?->property_number . ' -';
+                    // })
+                    ->helperText('Unit no. would be added as prefix')
+                    ->alphaNum()->minLength(2)->maxLength(10)->disabledOn('edit')
+                    ->unique(
+                        'vehicles',
+                        'parking_number',
+                        fn(?Model $record) => $record
+                    )
+                    ->required(),
                 Select::make('user_id')->label('Resident')->searchable()->preload()->required()->disabledOn('edit')
                     ->relationship('user', 'first_name')
                     ->options(function (Get $get) {
@@ -129,45 +130,45 @@ class VehicleResource extends Resource
             ])
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->native(false)
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                                    ->pluck('name', 'id');
-                            }
-                        })
-                        ->searchable()
-                        ->reactive()  // Reactivity added here
-                        ->afterStateUpdated(function (callable $set, $state) {
-                            $set('flat', null); // Reset flat when building changes
-                        }),
-                    Select::make('flat')
-                        ->native(false)
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (!$buildingId) {
-                                return [];
-                            }
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        })
-                        ->searchable()
-                ])
-                ->columns(2)
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['Building'])) {
-                        $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
-                        $query->whereIn('flat_id', $flatIds);
-                    }
-                    if (!empty($data['flat'])) {
-                        $query->where('flat_id', $data['flat']);
-                    }
-            
-                    return $query;
-                })
+                    ->form([
+                        Select::make('Building')
+                            ->native(false)
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                        ->pluck('name', 'id');
+                                }
+                            })
+                            ->searchable()
+                            ->reactive()  // Reactivity added here
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                $set('flat', null); // Reset flat when building changes
+                            }),
+                        Select::make('flat')
+                            ->native(false)
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (!$buildingId) {
+                                    return [];
+                                }
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            })
+                            ->searchable()
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['Building'])) {
+                            $flatIds = Flat::where('building_id', $data['Building'])->pluck('id');
+                            $query->whereIn('flat_id', $flatIds);
+                        }
+                        if (!empty($data['flat'])) {
+                            $query->where('flat_id', $data['flat']);
+                        }
+
+                        return $query;
+                    })
             ])
             ->filtersFormColumns(3)
             ->actions([

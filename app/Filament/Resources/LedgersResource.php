@@ -68,7 +68,7 @@ class LedgersResource extends Resource
                 TextColumn::make('invoice_pdf_link')
                     ->limit(20)
                     ->label('Invoice'),
-                TextColumn::make('invoice_amount')->formatStateUsing(fn ($state) => number_format($state, 2))
+                TextColumn::make('invoice_amount')->formatStateUsing(fn($state) => number_format($state, 2))
                     ->label('Invoice amount')->alignEnd(),
                 ViewColumn::make('Paid Amount')->view('tables.columns.invoice-amount-paid')
                     ->alignEnd(),
@@ -103,8 +103,8 @@ class LedgersResource extends Resource
                         }
                         return $query;
                     }),
-                    
-                    Filter::make('building')
+
+                Filter::make('building')
                     ->form([
                         Select::make('building_id')
                             ->label('Building')
@@ -125,7 +125,7 @@ class LedgersResource extends Resource
                             ->afterStateUpdated(function (callable $set, $state) {
                                 $set('flat_id', null); // Reset the flat selection when the building changes
                             }),
-                        
+
                         Select::make('flat_id')
                             ->label('Flat')
                             ->native(false)
@@ -148,9 +148,9 @@ class LedgersResource extends Resource
                         }
                         return $query;
                     })
-                
 
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+
+            ])->filtersFormColumns(3)
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Action::make('View Receipts')

@@ -36,7 +36,7 @@ class EditAccessCardFormsDocument extends EditRecord
             // Handle the case where parking_details is not an array
             $formattedDetails = "Invalid parking details format";
         }
-        if($parkingDetails == [] ){
+        if ($parkingDetails == []) {
             $formattedDetails = "Invalid parking details format";
         }
 
@@ -51,6 +51,7 @@ class EditAccessCardFormsDocument extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition   
             // Actions\DeleteAction::make(),
         ];
     }
@@ -73,26 +74,26 @@ class EditAccessCardFormsDocument extends EditRecord
                 }
             }
 
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your access card form has been approved. ',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => 'Access card form status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your access card form has been approved. ',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => 'Access card form status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
             // Generate payment link and save it in access_cards_table
 
             try {
@@ -130,26 +131,26 @@ class EditAccessCardFormsDocument extends EditRecord
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->user_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'Your access card form has been rejected.',
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'danger',
-                            'title' => 'Access card form status!',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyRequest',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);  
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->user_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'Your access card form has been rejected.',
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title' => 'Access card form status!',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyRequest',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 }
