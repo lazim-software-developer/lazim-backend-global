@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use Closure;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
@@ -20,14 +22,13 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use App\Filament\Resources\TenantDocumentResource\Pages;
-use App\Models\Building\Flat;
-use Closure;
 
 class TenantDocumentResource extends Resource
 {
@@ -46,79 +47,79 @@ class TenantDocumentResource extends Resource
                     'md' => 1,
                     'lg' => 2,
                 ])->schema([
-                            TextInput::make('documentable_id')
-                                ->label('Resident name')
-                                ->formatStateUsing(function($state){
-                                    $user = User::find($state);
-                                    return $user ? $user->first_name . ' ' . $user->last_name : null;
-                                })
-                                ->disabled(),
-                            // TextInput::make('name')->disabled(),
-                            Select::make('document_library_id')
-                                ->rules(['exists:document_libraries,id'])
-                                ->relationship('documentLibrary', 'name')
-                                ->disabled()
-                                ->searchable()
-                                ->placeholder('Document Library'),
-                            Select::make('building_id')
-                                ->relationship('building', 'name')
-                                ->preload()
-                                ->disabled()
-                                ->default('NA')
-                                ->searchable()
-                                ->label('Building'),
-                            TextInput::make('unit')
-                                ->label('Unit number')
-                                ->default('NA')
-                                ->afterStateHydrated(function ($set, $record) {
-                                    $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
-                                    $unitNumber = Flat::where('id', $flatID)->value('property_number') ?? 'NA';
-                                    $set('unit', $unitNumber);
-                                })
-                                ->disabled() 
-                                ->dehydrated(false),                          
-                            DatePicker::make('expiry_date')
-                                ->rules(['date'])
-                                ->required()
-                                ->disabled()
-                                ->readonly()
-                                ->placeholder('Expiry date'),
-                            Select::make('status')
-                                ->options([
-                                    'approved' => 'Approve',
-                                    'rejected' => 'Reject',
-                                ])
-                                ->disabled(function (Document $record) {
-                                    return $record->status != 'submitted';
-                                })
-                                ->searchable()
-                                ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
-                                ->visible(function (callable $get) {
-                                    if ($get('status') == 'rejected') {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                ->disabled(function (Document $record) {
-                                    return $record->status != 'submitted';
-                                })
-                                ->required(),
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->disabled()
-                                ->openable(true)
-                                ->downloadable(true)
-                                ->label('Document')
-                                // ->columnSpan([
-                                //     'sm' => 1,
-                                //     'md' => 1,
-                                //     'lg' => 2,
-                                // ])
-                                ,
-                        ]),
+                    TextInput::make('documentable_id')
+                        ->label('Resident name')
+                        ->formatStateUsing(function ($state) {
+                            $user = User::find($state);
+                            return $user ? $user->first_name . ' ' . $user->last_name : null;
+                        })
+                        ->disabled(),
+                    // TextInput::make('name')->disabled(),
+                    Select::make('document_library_id')
+                        ->rules(['exists:document_libraries,id'])
+                        ->relationship('documentLibrary', 'name')
+                        ->disabled()
+                        ->searchable()
+                        ->placeholder('Document Library'),
+                    Select::make('building_id')
+                        ->relationship('building', 'name')
+                        ->preload()
+                        ->disabled()
+                        ->default('NA')
+                        ->searchable()
+                        ->label('Building'),
+                    TextInput::make('unit')
+                        ->label('Unit number')
+                        ->default('NA')
+                        ->afterStateHydrated(function ($set, $record) {
+                            $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
+                            $unitNumber = Flat::where('id', $flatID)->value('property_number') ?? 'NA';
+                            $set('unit', $unitNumber);
+                        })
+                        ->disabled()
+                        ->dehydrated(false),
+                    DatePicker::make('expiry_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->disabled()
+                        ->readonly()
+                        ->placeholder('Expiry date'),
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approve',
+                            'rejected' => 'Reject',
+                        ])
+                        ->disabled(function (Document $record) {
+                            return $record->status != 'submitted';
+                        })
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:150'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->disabled(function (Document $record) {
+                            return $record->status != 'submitted';
+                        })
+                        ->required(),
+                    FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->disabled()
+                        ->openable(true)
+                        ->downloadable(true)
+                        ->label('Document')
+                    // ->columnSpan([
+                    //     'sm' => 1,
+                    //     'md' => 1,
+                    //     'lg' => 2,
+                    // ])
+                    ,
+                ]),
 
             ]);
     }
@@ -133,25 +134,29 @@ class TenantDocumentResource extends Resource
                     ->searchable()
                     ->label('Document name')
                     ->default('NA')
+                    ->sortable()
                     ->limit(50),
                 TextColumn::make('building.name')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->label('Building')
                     ->limit(50),
                 TextColumn::make('unit')
                     ->default('NA')
                     ->label('Unit number')
-                    ->getStateUsing(function(Get $get,$record){
-                        $flatID = FlatTenant::where('tenant_id',$record->documentable_id)->value('flat_id');
-                        return Flat::where('id',$flatID)->value('property_number');
+                    ->getStateUsing(function (Get $get, $record) {
+                        $flatID = FlatTenant::where('tenant_id', $record->documentable_id)->value('flat_id');
+                        return Flat::where('id', $flatID)->value('property_number');
                     })
                     ->limit(50),
                 TextColumn::make('status')
                     ->searchable()
+                    ->sortable()
                     ->default('NA')
                     ->limit(50),
                 TextColumn::make('documentUsers.first_name')
+                    ->sortable()
                     ->searchable()
                     ->label('Resident name')
                     ->default('NA'),
@@ -159,33 +164,45 @@ class TenantDocumentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+
                 SelectFilter::make('documentable_id')
                     ->options(function () {
-                    $roleId = Role::whereIn('name',['tenant','owner'])->pluck('id')->toArray();
+                        $roleId = Role::whereIn('name', ['tenant', 'owner'])->pluck('id')->toArray();
 
-                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                        return User::whereIn('role_id', $roleId)->pluck('first_name', 'id'); 
-                    }
-                    else{
-                        return User::whereIn('role_id', $roleId)->where('owner_association_id',auth()->user()?->owner_association_id)->pluck('first_name', 'id');
-                    }
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return User::whereIn('role_id', $roleId)->pluck('first_name', 'id');
+                        } else {
+                            return User::whereIn('role_id', $roleId)->where('owner_association_id', auth()->user()?->owner_association_id)->pluck('first_name', 'id');
+                        }
                     })
                     ->searchable()
                     ->preload()
                     ->label('Resident'),
                 SelectFilter::make('building_id')
                     ->options(function () {
-                    if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-                        return Building::all()->pluck('name', 'id');
-                    }
-                    else{
-                        return Building::where('owner_association_id', auth()->user()?->owner_association_id)
-                        ->pluck('name', 'id');
-                    }    
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->pluck('name', 'id');
+                        }
                     })
                     ->searchable()
                     ->preload()
                     ->label('Building'),
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'submitted' => 'Approval Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!isset($data['value']) || empty($data['value'])) {
+                            return $query;
+                        }
+                        return $query->where('status', $data['value']);
+                    }),
             ])
             ->actions([
                 EditAction::make(),

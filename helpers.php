@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Resources\CustomResponseResource;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use Spatie\Pdf\Pdf as SpatiePdf;
-use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Stripe\PaymentIntent;
+use Filament\Actions\Action;
+use Spatie\Pdf\Pdf as SpatiePdf;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\CustomResponseResource;
 
 function optimizeAndUpload($image, $path, $width = 474, $height = 622)
 {
@@ -28,7 +29,7 @@ function imageUploadonS3($image, $path)
 {
     $filename = uniqid() . '.' . $image->getClientOriginalExtension();
     $fullPath = $path . '/' . $filename;
-    $file=Storage::disk('s3')->put($path, $image, 'public');
+    $file = Storage::disk('s3')->put($path, $image, 'public');
     return $file;
 }
 
@@ -39,11 +40,11 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
 
         if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
             $optimizedImage = Image::make($file)
-            ->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 80);
+                ->resize($width, $height, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('jpg', 80);
 
             $filename = uniqid() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
@@ -72,7 +73,8 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
     }
 }
 
-function createPaymentIntent($amount, $email) {
+function createPaymentIntent($amount, $email)
+{
     Stripe::setApiKey(env('STRIPE_SECRET'));
 
     try {
@@ -99,7 +101,8 @@ if (!function_exists('generate_ticket_number')) {
     }
 }
 
-function generateAlphanumericOTP($length = 6) {
+function generateAlphanumericOTP($length = 6)
+{
     $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     $charactersLength = strlen($characters);
     $otp = '';
@@ -107,4 +110,13 @@ function generateAlphanumericOTP($length = 6) {
         $otp .= $characters[random_int(0, $charactersLength - 1)];
     }
     return $otp;
+}
+
+function backButton(?string $url = null, string $label = 'Back', string $icon = 'heroicon-o-arrow-left', string $color = 'gray'): Action
+{
+    return Action::make('back')
+        ->label($label)
+        ->icon($icon)
+        ->url($url ?? \Filament\Facades\Filament::getPanel()->getPath())
+        ->color($color);
 }

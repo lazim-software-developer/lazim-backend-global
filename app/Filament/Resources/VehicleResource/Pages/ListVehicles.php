@@ -15,17 +15,17 @@ class ListVehicles extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        if(Role::where('id',auth()->user()->role_id)->first()->name != 'Admin')
-        {
-            $roles = Role::whereIn('name',['Tenant','Owner'])->pluck('id');
-            $users= User::where('owner_association_id',auth()->user()?->owner_association_id)->whereIn('role_id',$roles)->pluck('id');
-            return parent::getTableQuery()->whereIn('user_id',$users);
+        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
+            $roles = Role::whereIn('name', ['Tenant', 'Owner'])->pluck('id');
+            $users = User::where('owner_association_id', auth()->user()?->owner_association_id)->whereIn('role_id', $roles)->pluck('id');
+            return parent::getTableQuery()->whereIn('user_id', $users);
         }
         return parent::getTableQuery();
     }
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\CreateAction::make(),
         ];
     }

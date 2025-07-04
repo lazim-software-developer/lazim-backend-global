@@ -10,12 +10,14 @@ use App\Models\Master\Role;
 use Filament\Resources\Resource;
 use App\Models\Accounting\Budget;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -24,7 +26,6 @@ use App\Filament\Resources\BudgetResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BudgetResource\RelationManagers;
 use App\Filament\Resources\BudgetResource\RelationManagers\BudgetitemsRelationManager;
-use Illuminate\Support\Facades\DB;
 
 class BudgetResource extends Resource
 {
@@ -35,58 +36,58 @@ class BudgetResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Grid::make([
-                'sm' => 1,
-                'md' => 1,
-                'lg' => 2,
-            ])
             ->schema([
-                Select::make('building_id')
-                    ->relationship('building', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->label('Building Name'),
-                TextInput::make('budget_period'),
-                DatePicker::make('budget_from')
-                    ->rules(['date'])
-                    ->required()
-                    ->placeholder('Budget From'),
-                DatePicker::make('budget_to')
-                    ->rules(['date'])
-                    ->required()
-                    ->placeholder('Budget To'),
-                Repeater::make('tenders')
-                    ->relationship()
+                Grid::make([
+                    'sm' => 1,
+                    'md' => 1,
+                    'lg' => 2,
+                ])
                     ->schema([
                         Select::make('building_id')
                             ->relationship('building', 'name')
                             ->preload()
                             ->searchable()
                             ->label('Building Name'),
-                        FileUpload::make('document')
-                            ->disk('s3')
-                            ->directory('dev')
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->label('Document'),
-                        DatePicker::make('date')
+                        TextInput::make('budget_period'),
+                        DatePicker::make('budget_from')
                             ->rules(['date'])
                             ->required()
-                            ->placeholder('Date'),
-                        DatePicker::make('end_date')
+                            ->placeholder('Budget From'),
+                        DatePicker::make('budget_to')
                             ->rules(['date'])
                             ->required()
-                            ->placeholder('End Date'),
-                    ])
-                    ->columnSpan([
-                        'sm' => 1,
-                        'md' => 1,
-                        'lg' => 2,
-                    ])
+                            ->placeholder('Budget To'),
+                        Repeater::make('tenders')
+                            ->relationship()
+                            ->schema([
+                                Select::make('building_id')
+                                    ->relationship('building', 'name')
+                                    ->preload()
+                                    ->searchable()
+                                    ->label('Building Name'),
+                                FileUpload::make('document')
+                                    ->disk('s3')
+                                    ->directory('dev')
+                                    ->openable(true)
+                                    ->downloadable(true)
+                                    ->label('Document'),
+                                DatePicker::make('date')
+                                    ->rules(['date'])
+                                    ->required()
+                                    ->placeholder('Date'),
+                                DatePicker::make('end_date')
+                                    ->rules(['date'])
+                                    ->required()
+                                    ->placeholder('End Date'),
+                            ])
+                            ->columnSpan([
+                                'sm' => 1,
+                                'md' => 1,
+                                'lg' => 2,
+                            ])
 
-            ])
-                    ]);
+                    ])
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -94,10 +95,12 @@ class BudgetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('building.name')
+                    ->sortable()
                     ->default('NA')
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('budget_period')
+                    ->sortable()
                     ->label('Budget period')
                     ->default('NA'),
                 TextColumn::make('budget_from')
@@ -108,17 +111,17 @@ class BudgetResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('building_id')
-                ->label('Building')
-                ->options(function () {
-                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        return Building::all()->pluck('name', 'id');
-                    } else {
-                        $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                        return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                    }
-                })
-                ->native(false)
-                ->searchable(),
+                    ->label('Building')
+                    ->options(function () {
+                        if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                            return Building::all()->pluck('name', 'id');
+                        } else {
+                            $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                            return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                        }
+                    })
+                    ->native(false)
+                    ->searchable(),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
@@ -126,8 +129,7 @@ class BudgetResource extends Resource
                     ->label('Create Tender')
                     ->url(function (Budget $records) {
                         if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                        return route('tenders.create', ['budget' => $records->id]);
-                            
+                            return route('tenders.create', ['budget' => $records->id]);
                         }
                         return route('tender.create', ['budget' => $records->id]);
                     })

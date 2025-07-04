@@ -24,6 +24,7 @@ class EditOwnerAssociation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -43,13 +44,13 @@ class EditOwnerAssociation extends EditRecord
     }
     public function UpdateUser($data)
     {
-        $user = User::where('owner_association_id', $data->id)->where('phone',$data->phone)->where('email',$data->email)
-        ->update([
-            'first_name' => $data->name,
-            'phone'      => $data->phone,
-            'profile_photo' => $data->profile_photo,
-            'active'  => $data->active,
-        ]);
+        $user = User::where('owner_association_id', $data->id)->where('phone', $data->phone)->where('email', $data->email)
+            ->update([
+                'first_name' => $data->name,
+                'phone'      => $data->phone,
+                'profile_photo' => $data->profile_photo,
+                'active'  => $data->active,
+            ]);
 
         $connection = DB::connection(env('SECOND_DB_CONNECTION'));
         $connection->table('users')->where('email', $data->email)->where('owner_association_id', $data->id)->update([

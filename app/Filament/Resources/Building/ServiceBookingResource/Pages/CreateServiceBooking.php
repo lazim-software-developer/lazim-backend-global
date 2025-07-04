@@ -10,7 +10,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateServiceBooking extends CreateRecord
 {
     protected static string $resource = ServiceBookingResource::class;
-    protected function afterCreate(){
+    protected function afterCreate()
+    {
         // $tenant=Filament::getTenant()?;
         // FacilityBooking::where('id', $this->record->id)
         //     ->update([
@@ -21,8 +22,13 @@ class CreateServiceBooking extends CreateRecord
 
             ->update([
                 // 'approved_by'=>$this->record->user_id,
-                'owner_association_id'=>auth()->user()?->owner_association_id
+                'owner_association_id' => auth()->user()?->owner_association_id
             ]);
-
+    }
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
     }
 }

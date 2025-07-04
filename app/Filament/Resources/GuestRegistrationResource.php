@@ -8,8 +8,10 @@ use Filament\Tables\Table;
 use App\Models\Forms\Guest;
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use App\Models\Building\Flat;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
 use App\Models\Visitor\FlatVisitor;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -21,16 +23,15 @@ use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Filament\Forms\Components\CheckboxList;
-use App\Filament\Resources\GuestRegistrationResource\Pages;
-use App\Models\Building\Flat;
-use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use App\Filament\Resources\GuestRegistrationResource\Pages;
 
 
 class GuestRegistrationResource extends Resource
@@ -126,7 +127,7 @@ class GuestRegistrationResource extends Resource
                                 ->unique(
                                     'flat_visitors',
                                     'phone',
-                                    fn (?Model $record) => $record
+                                    fn(?Model $record) => $record
                                 ),
                             Hidden::make('type')
                                 ->default('Guest'),
@@ -211,10 +212,12 @@ class GuestRegistrationResource extends Resource
             ->columns([
                 TextColumn::make('ticket_number')
                     ->default('NA')
+                    ->sortable()
                     ->label('Ticket Number'),
                 ViewColumn::make('Name')->view('tables.columns.name'),
                 TextColumn::make('stay_duration')
                     ->searchable()
+                    ->sortable()
                     ->alignCenter()
                     ->default('NA')
                     ->label('Stay duration(days)'),
@@ -222,6 +225,7 @@ class GuestRegistrationResource extends Resource
                 ViewColumn::make('Flat')->view('tables.columns.flat'),
                 TextColumn::make('remarks')
                     ->searchable()
+                    ->sortable()
                     ->default('NA'),
                 TextColumn::make('status')
                     ->searchable()
@@ -230,54 +234,54 @@ class GuestRegistrationResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('building')
-                ->form([
-                    Select::make('Building')
-                        ->searchable()
-                        ->options(function () {
-                            if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
-                                return Building::all()->pluck('name', 'id');
-                            } else {
-                                $buildingId = DB::table('building_owner_association')->where('owner_association_id',auth()->user()?->owner_association_id)->where('active',true)->pluck('building_id');
-                                return Building::whereIn('id',$buildingId)->pluck('name', 'id');
-                            }
-                        })
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set) {
-                            $set('flat', null);
-                        }),
-                    
-                    Select::make('flat')
-                        ->searchable()
-                        ->options(function (callable $get) {
-                            $buildingId = $get('Building'); // Get selected building ID
-                            if (empty($buildingId)) {
-                                return []; 
-                            }
-            
-                            return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
-                        }),
-                ])
-                ->columns(2)  // Ensure layout is in two columns
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query->when(
-                        isset($data['Building']),
-                        function ($query) use ($data) {
-                            $query->whereHas('flatVisitor', function ($query) use ($data) {
-                                $query->whereHas('building', function ($query) use ($data) {
-                                    $query->where('id', $data['Building']);
+                    ->form([
+                        Select::make('Building')
+                            ->searchable()
+                            ->options(function () {
+                                if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                    return Building::all()->pluck('name', 'id');
+                                } else {
+                                    $buildingId = DB::table('building_owner_association')->where('owner_association_id', auth()->user()?->owner_association_id)->where('active', true)->pluck('building_id');
+                                    return Building::whereIn('id', $buildingId)->pluck('name', 'id');
+                                }
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('flat', null);
+                            }),
+
+                        Select::make('flat')
+                            ->searchable()
+                            ->options(function (callable $get) {
+                                $buildingId = $get('Building'); // Get selected building ID
+                                if (empty($buildingId)) {
+                                    return [];
+                                }
+
+                                return Flat::where('building_id', $buildingId)->pluck('property_number', 'id');
+                            }),
+                    ])
+                    ->columns(2)  // Ensure layout is in two columns
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            isset($data['Building']),
+                            function ($query) use ($data) {
+                                $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                    $query->whereHas('building', function ($query) use ($data) {
+                                        $query->where('id', $data['Building']);
+                                    });
                                 });
-                            });
-                        }
-                    )
-                    ->when(
-                        isset($data['flat']),
-                        function ($query) use ($data) {
-                            $query->whereHas('flatVisitor', function ($query) use ($data) {
-                                $query->where('flat_id', $data['flat']); 
-                            });
-                        }
-                    );
-                }),
+                            }
+                        )
+                            ->when(
+                                isset($data['flat']),
+                                function ($query) use ($data) {
+                                    $query->whereHas('flatVisitor', function ($query) use ($data) {
+                                        $query->where('flat_id', $data['flat']);
+                                    });
+                                }
+                            );
+                    }),
 
                 Filter::make('status')
                     ->form([
@@ -294,20 +298,20 @@ class GuestRegistrationResource extends Resource
                     ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         $selectedStatus = $data['status'] ?? null;
-                        
+
                         if ($selectedStatus === 'NA') {
                             $query->whereNull('status')
-                                    ->orWhereNotIn('status', ['approved', 'rejected']);
-                        }elseif ($selectedStatus !== null) {
+                                ->orWhereNotIn('status', ['approved', 'rejected']);
+                        } elseif ($selectedStatus !== null) {
                             $query->where('status', $selectedStatus);
                         }
 
                         return $query;
                     })
 
-            
+
             ])
-            ->filtersFormColumns(3) 
+            ->filtersFormColumns(3)
             ->actions([
                 //Tables\Actions\EditAction::make(),
             ])

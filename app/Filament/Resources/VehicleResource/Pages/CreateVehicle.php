@@ -14,6 +14,12 @@ class CreateVehicle extends CreateRecord
 {
     protected static string $resource = VehicleResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+        ];
+    }
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
@@ -22,9 +28,9 @@ class CreateVehicle extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $flat = Flat::find($data['flat_id']);
-        $vehicleCount = Vehicle::where('flat_id',$data['flat_id'])->get()->count();
+        $vehicleCount = Vehicle::where('flat_id', $data['flat_id'])->get()->count();
 
-        $data['parking_number']=$flat?->property_number.'-'.$data['parking_number'];
+        $data['parking_number'] = $flat?->property_number . '-' . $data['parking_number'];
 
         if ($vehicleCount >= $flat->parking_count || $flat->parking_count == null) {
             Notification::make()
@@ -32,16 +38,15 @@ class CreateVehicle extends CreateRecord
                 ->title('No Slots!')
                 ->body('No Available parking slot for this flat.')
                 ->send();
-        
+
             $this->halt();
-        }
-        elseif(Vehicle::where('parking_number',$data['parking_number'])->whereNot('flat_id',$data['flat_id'])->exists()){
+        } elseif (Vehicle::where('parking_number', $data['parking_number'])->whereNot('flat_id', $data['flat_id'])->exists()) {
             Notification::make()
                 ->warning()
                 ->title('Dulpicate')
                 ->body('This parking no. already exists.')
                 ->send();
-        
+
             $this->halt();
         }
 

@@ -25,6 +25,7 @@ class EditProposal extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             //Actions\DeleteAction::make(),
         ];
     }
@@ -87,14 +88,17 @@ class EditProposal extends EditRecord
             $vendor = Vendor::find($record->vendor_id);
             $user = User::find($vendor->owner_id);
             $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $tender->building_id])->first();
-            $exists = $connection->table('venders')->where(['lazim_vendor_id'=>$vendor->id,
-                                                            'building_id'=>$tender->building_id]
-                                                        )->count();
-            if(isset($contract,$vendor,$creator) && $exists==0){
+            $exists = $connection->table('venders')->where(
+                [
+                    'lazim_vendor_id' => $vendor->id,
+                    'building_id' => $tender->building_id
+                ]
+            )->count();
+            if (isset($contract, $vendor, $creator) && $exists == 0) {
                 $connection->table('venders')->insert([
                     'vender_id'       => $connection->table('venders')->where('created_by', $creator->id)->orderByDesc('vender_id')->first()?->vender_id + 1,
                     'name'            => $vendor->name,
-                    'email'           => substr($creator->name, 0, 2).$user->email,
+                    'email'           => substr($creator->name, 0, 2) . $user->email,
                     'password'        => '',
                     'contact'         => $user->phone,
                     'created_by'      => $creator->id,

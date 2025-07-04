@@ -19,6 +19,7 @@ class EditTenantDocument extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -50,32 +51,32 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
+                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by ' . auth()->user()->role?->name . ' : ' . auth()->user()->first_name,
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->documentable_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'warning',
-                            'title' => $this->record->name . ' Submission Status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyDocuments',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->documentable_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by ' . auth()->user()->role?->name . ' : ' . auth()->user()->first_name,
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'warning',
+                    'title' => $this->record->name . ' Submission Status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyDocuments',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
 
         if ($this->record->status == 'rejected') {
@@ -86,32 +87,32 @@ class EditTenantDocument extends EditRecord
                         'to' => $expoPushToken,
                         'sound' => 'default',
                         'title' => $this->record->name . ' Submission Status',
-                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
+                        'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by ' . auth()->user()->role?->name . ' : ' . auth()->user()->first_name,
                         'data' => ['notificationType' => 'MyDocuments'],
                     ];
                     $this->expoNotification($message);
                 }
             }
-                    DB::table('notifications')->insert([
-                        'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                        'type' => 'Filament\Notifications\DatabaseNotification',
-                        'notifiable_type' => 'App\Models\User\User',
-                        'notifiable_id' => $this->record->documentable_id,
-                        'data' => json_encode([
-                            'actions' => [],
-                            'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by '.auth()->user()->role?->name.' : '.auth()->user()->first_name,
-                            'duration' => 'persistent',
-                            'icon' => 'heroicon-o-document-text',
-                            'iconColor' => 'danger',
-                            'title' => $this->record->name . ' Submission Status',
-                            'view' => 'notifications::notification',
-                            'viewData' => [],
-                            'format' => 'filament',
-                            'url' => 'MyDocuments',
-                        ]),
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                        'updated_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
+            DB::table('notifications')->insert([
+                'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                'type' => 'Filament\Notifications\DatabaseNotification',
+                'notifiable_type' => 'App\Models\User\User',
+                'notifiable_id' => $this->record->documentable_id,
+                'data' => json_encode([
+                    'actions' => [],
+                    'body' => 'The document ' . $this->record->name . ' submitted by you has been ' . $this->record->status . ' by ' . auth()->user()->role?->name . ' : ' . auth()->user()->first_name,
+                    'duration' => 'persistent',
+                    'icon' => 'heroicon-o-document-text',
+                    'iconColor' => 'danger',
+                    'title' => $this->record->name . ' Submission Status',
+                    'view' => 'notifications::notification',
+                    'viewData' => [],
+                    'format' => 'filament',
+                    'url' => 'MyDocuments',
+                ]),
+                'created_at' => now()->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         }
     }
 }
