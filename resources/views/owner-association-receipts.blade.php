@@ -14,13 +14,13 @@
             <p style="font-size: 12px;">E-Mail: {{$data->owner?->email}}</p>
             <h3 style="font-size: 16px; margin-top: 10px;">Receipt Voucher</h3>
         </div>
-        
+
         <!-- Voucher Info -->
         <div style="display: flex; justify-content: space-between; padding-top: 2mm;">
             <p style="font-size: 12px;"><strong>No. :</strong> {{$data->receipt_number}}</p>
             <p style="font-size: 12px;"><strong>Dated :</strong> {{$data->date}}</p>
         </div>
-        
+
         <!-- Through -->
         <p style="font-size: 12px; margin: 0;"><strong>Through :</strong> {{$data->received_in}}</p>
 
@@ -33,7 +33,7 @@
             <tr>
                 <td style="padding: 2mm 0; font-size: 12px; "><strong>Account :</strong> </td>
                 <td style="padding: 2mm 0; font-size: 12px; border-top: 1px solid #000;"> </td>
-                
+
             </tr>
             <tr>
                 <td style="padding: 2mm 0; font-size: 12px;">{{$data->payment_reference}}</td>
@@ -45,7 +45,7 @@
         <div style="flex-grow: 1;"></div>
         <table style="position: absolute; bottom: 80mm;  right: 1mm; ">
             <tr>
-                <td style="padding: 2mm 0; font-size: 12px; text-align: right;"><strong>Total AED :</strong>  {{$data->amount}}</td>
+                <td style="padding: 2mm 0; font-size: 12px; text-align: right;"><strong>Total MVR :</strong>  {{$data->amount}}</td>
             </tr>
         </table>
 

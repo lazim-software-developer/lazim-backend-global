@@ -8,7 +8,7 @@
             ->where('service_id', $getRecord()?->tender?->service_id)->first()?->total;
             @endphp
             @if($budget_amount!=null)
-            <div>AED {{ $budget_amount}}</div>
+            <div>MVR {{ $budget_amount}}</div>
             @else
             <div>{{'NA'}}</div>
             @endif
