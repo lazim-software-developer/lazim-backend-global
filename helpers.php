@@ -80,7 +80,7 @@ function createPaymentIntent($amount, $email)
     try {
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount,
-            'currency' => 'aed',
+            'currency' => 'mvr',
             'receipt_email' => $email,
         ]);
 
