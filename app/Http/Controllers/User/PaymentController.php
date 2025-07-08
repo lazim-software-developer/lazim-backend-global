@@ -121,7 +121,7 @@ class PaymentController extends Controller
         try {
             $paymentIntent = PaymentIntent::create([
                 'amount' => 1000,
-                'currency' => 'aed',
+                'currency' => 'mvr',
             ]);
 
             return response()->json(['clientSecret' => $paymentIntent->client_secret]);

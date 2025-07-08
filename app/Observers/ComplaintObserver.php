@@ -28,13 +28,13 @@ class ComplaintObserver
      */
     public function created(Complaint $complaint): void
     {
-        $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         if ($complaint->complaint_type == 'tenant_complaint') {
             $requiredPermissions = ['view_any_complaintscomplaint'];
-                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                        return $notifyTo->can($requiredPermissions);
-                    });
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("Happiness center Complaint Received")
@@ -44,31 +44,35 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintscomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->markAsRead()
+                        ->url(fn() => ComplaintscomplaintResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
             $requiredPermissions = ['view_any_complaintsenquiry'];
-                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                        return $notifyTo->can($requiredPermissions);
-                    });
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("New Enquiry Received")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A enquiry has been received raised by ' . auth()->user()->first_name)
+                ->type('Enquiry')
+                ->priority('High')
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintsenquiryResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->markAsRead()
+                        ->url(fn() => ComplaintsenquiryResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'suggestions') {
             $requiredPermissions = ['view_any_complaintssuggession'];
-                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                        return $notifyTo->can($requiredPermissions);
-                    });
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("New Suggestion Received")
@@ -78,29 +82,29 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->url(fn() => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
-        } elseif($complaint->complaint_type == 'snag'){
+        } elseif ($complaint->complaint_type == 'snag') {
             $requiredPermissions = ['view_any_snags'];
-            $roles = Role::where('owner_association_id',$complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
-             $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
+            $roles = Role::where('owner_association_id', $complaint->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
+            $notifyTo = User::where('owner_association_id', $complaint->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
+                ->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
             Notification::make()
-            ->success()
-            ->title('New Snag')
-            ->body('New Snag Created')
-            ->icon('heroicon-o-document-text')
-            ->iconColor('warning')
-            ->actions([
-                Action::make('View')
-                ->button()
-                ->url(fn () => SnagsResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id]))
-            ])
-            ->sendToDatabase($notifyTo);
-            if($complaint->technician_id){
+                ->success()
+                ->title('New Snag')
+                ->body('New Snag Created')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->actions([
+                    Action::make('View')
+                        ->button()
+                        ->url(fn() => SnagsResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id]))
+                ])
+                ->sendToDatabase($notifyTo);
+            if ($complaint->technician_id) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
                     foreach ($expoPushTokens as $expoPushToken) {
@@ -135,12 +139,11 @@ class ComplaintObserver
                     }
                 }
             }
-        }
-        else {
+        } else {
             $requiredPermissions = ['view_any_helpdeskcomplaint'];
-                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                        return $notifyTo->can($requiredPermissions);
-                    });
+            $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
             Notification::make()
                 ->success()
                 ->title("Facility support Ticket Received")
@@ -150,7 +153,7 @@ class ComplaintObserver
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                        ->url(fn() => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }
@@ -214,15 +217,15 @@ class ComplaintObserver
         $oldValues = $complaint->getOriginal();
         $newValues = $complaint->getAttributes();
         $building = Building::where('id', $complaint->building_id)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
         //DB notification for ADMIN status update from resident/technician
         if ($complaint->status == 'closed') {
             if ($complaint->complaint_type == 'help_desk') {
                 $requiredPermissions = ['view_any_helpdeskcomplaint'];
-                    $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
-                        return $notifyTo->can($requiredPermissions);
-                    });
+                $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
                 Notification::make()
                     ->success()
                     ->title("Facility Support Issue Resolution")
@@ -232,10 +235,10 @@ class ComplaintObserver
                     ->actions([
                         Action::make('view')
                             ->button()
-                            ->url(fn () => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id',$complaint->owner_association_id)->first()?->slug,$complaint->id])),
+                            ->url(fn() => HelpdeskcomplaintResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                     ])
                     ->sendToDatabase($notifyTo);
-            } elseif ($complaint->complaint_type == 'oa_complaint_report'){
+            } elseif ($complaint->complaint_type == 'oa_complaint_report') {
                 $requiredPermissions = ['view_any_oacomplaint::reports'];
                 $notifyTo->filter(function ($notifyTo) use ($requiredPermissions) {
                     return $notifyTo->can($requiredPermissions);
@@ -252,10 +255,9 @@ class ComplaintObserver
                             ->url(fn() => OacomplaintReportsResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                     ])
                     ->sendToDatabase($notifyTo);
-            }
-            else {
+            } else {
                 // $requiredPermissions = ['view_any_helpdeskcomplaint'];
-                    $notifyTo->where('role_id', Role::where('name', 'OA')->first()->id);
+                $notifyTo->where('role_id', Role::where('name', 'OA')->first()->id);
                 Notification::make()
                     ->success()
                     ->title("Complaints Resolved")
@@ -268,7 +270,7 @@ class ComplaintObserver
 
         //assign technician notification to assigned technician (assigned by 'OA', 'Vendor')
         $allowedRole = ['OA', 'Vendor'];
-        if($complaint->technician_id){
+        if ($complaint->technician_id) {
             if (in_array($user->role->name, $allowedRole)) {
                 if ($complaint->technician_id != $newValues['technician_id']) {
                     $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
@@ -380,7 +382,7 @@ class ComplaintObserver
                     }
 
                     //if OA is updating the due_date then vendor will notify
-                    if($complaint->vendor_id){
+                    if ($complaint->vendor_id) {
                         if ($user->role->name == 'OA') {
                             $technician = User::where('id', $newValues['technician_id'])->first();
                             $vendor = Vendor::where('id', $complaint->vendor_id)->first();
@@ -412,7 +414,7 @@ class ComplaintObserver
 
         //complaints status update push notification to technician mobile app (if closed by 'Owner', 'OA', 'Tenant')
         $allowedRoles = ['Owner', 'OA', 'Tenant'];
-        if($complaint->technician_id){
+        if ($complaint->technician_id) {
             if (in_array($user->role->name, $allowedRoles)) {
                 if ($complaint->status == 'closed') {
                     if ($complaint->complaint_type == 'help_desk') {
@@ -451,12 +453,11 @@ class ComplaintObserver
                         }
                     }
                 }
-
             }
         }
 
         //if due_date updated then assign technician will get the notification
-        if($complaint->technician_id){
+        if ($complaint->technician_id) {
             if ($newValues['due_date'] != $oldValues['due_date']) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
@@ -493,7 +494,7 @@ class ComplaintObserver
                 }
 
                 //if OA is updating the due_date then vendor will notify
-                if($complaint->vendor_id){
+                if ($complaint->vendor_id) {
                     if ($user->role->name == 'OA') {
                         $vendor = Vendor::where('id', $complaint->vendor_id)->first();
                         DB::table('notifications')->insert([
@@ -522,7 +523,7 @@ class ComplaintObserver
         }
 
         //if priority updated then assign technician will get the notification
-        if($complaint->technician_id){
+        if ($complaint->technician_id) {
             if ($newValues['priority'] != $oldValues['priority']) {
                 $expoPushTokens = ExpoPushNotification::where('user_id', $complaint->technician_id)->pluck('token');
                 if ($expoPushTokens->count() > 0) {
@@ -559,7 +560,7 @@ class ComplaintObserver
                 }
 
                 //if OA is updating the priority then vendor will notify
-                if($complaint->vendor_id){
+                if ($complaint->vendor_id) {
                     if ($user->role->name == 'OA') {
                         $vendor = Vendor::where('id', $complaint->vendor_id)->first();
                         DB::table('notifications')->insert([
@@ -620,7 +621,7 @@ class ComplaintObserver
         }
 
         //when new technician is assigned to vendor, will notify to vendor
-        if($complaint->vendor_id){
+        if ($complaint->vendor_id) {
             if ($user->role->name == 'OA') {
                 if ($complaint->technician_id && $complaint->technician_id != $newValues['technician_id']) {
                     $technician = User::where('id', $newValues['technician_id'])->first();
@@ -648,7 +649,6 @@ class ComplaintObserver
                 }
             }
         }
-
     }
 
     /**
