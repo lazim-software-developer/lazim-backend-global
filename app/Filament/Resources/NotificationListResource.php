@@ -57,14 +57,14 @@ class NotificationListResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->url(function(Notification $record){
-                    // dd($record->id,$record);
-                    // Log::info('Notification record ID: ' . json_encode($record));
-                    return route('filament.admin.resources.notification-lists.view', ['tenant' => Filament::getTenant(), 'record' => $record->id]);
-                })
+                    ->url(function (Notification $record) {
+                        // dd($record->id,$record);
+                        // Log::info('Notification record ID: ' . json_encode($record));
+                        return route('filament.admin.resources.notification-lists.view', ['tenant' => Filament::getTenant(), 'record' => $record->id]);
+                    })
                     // ->icon('heroicon-o-eye')
                     // ->label('View Notification'),
-                // Tables\Actions\ViewAction::make()->url(fn (Notification $record): string => route('filament.admin.resources.notification-lists.view', ['tenant'=> Filament::getTenant(),'record' => $record->id]))
+                    // Tables\Actions\ViewAction::make()->url(fn (Notification $record): string => route('filament.admin.resources.notification-lists.view', ['tenant'=> Filament::getTenant(),'record' => $record->id]))
                     ->icon('heroicon-o-eye')
                     ->label('View Notification'),
                 Tables\Actions\EditAction::make(),

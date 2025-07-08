@@ -19,7 +19,7 @@ class Notification extends DatabaseNotification
         'data',
         'read_at',
         'owner_association_id',
-        'notification_type_d'
+        'notification_type_id'
     ];
     protected $casts = [
         // 'id' => 'string',
