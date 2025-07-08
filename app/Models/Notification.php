@@ -23,7 +23,7 @@ class Notification extends DatabaseNotification
     ];
     protected $casts = [
         // 'id' => 'string',
-        // 'data' => 'array',
+        'data' => 'array',
     ];
 
     // public function notificationType()
