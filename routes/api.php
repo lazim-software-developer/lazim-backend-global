@@ -613,7 +613,7 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
-Route::get('buildings', [BuildingController::class, 'index']);
+Route::get('buildings', [BuildingController::class, 'index'])->middleware(['active']);
 // Dilip Shekhawat [Created New APIs]
 Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association
