@@ -17,6 +17,8 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
+use Filament\View\PanelsRenderHook;
+use Filament\Support\Enums\MaxWidth;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
@@ -48,9 +50,9 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
+// use Filament\Pages\Dashboard;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
-// use Filament\Pages\Dashboard;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Filament\Resources\OwnerAssociationInvoiceResource;
@@ -73,6 +75,7 @@ class AdminPanelProvider extends PanelProvider
                 config('filament-logger.activity_resource')
             ])
             ->profile(EditProfile::class)
+            ->maxContentWidth(MaxWidth::Full) // Set to Full to allow
             ->colors([
 
                 'danger' => Color::Rose,
@@ -93,6 +96,8 @@ class AdminPanelProvider extends PanelProvider
                 // Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
             ])
+            ->brandLogo(asset('images/logo.png'))
+            ->brandLogoHeight('40px')
             ->favicon(asset('images/favicon.png'))
             ->darkMode(false)
             ->databaseNotifications()
@@ -802,6 +807,10 @@ class AdminPanelProvider extends PanelProvider
                 'panels::footer',
                 fn(): View => view('filament.hooks.footer'),
             )
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_START,
+                fn (): string => view('filament.hooks.topbar-logo')->render()
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -818,7 +827,22 @@ class AdminPanelProvider extends PanelProvider
 
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),,
                 // FilamentApexChartsPlugin::make()
             ]);
     }
