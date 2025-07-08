@@ -26,6 +26,6 @@ class ServiceVendor extends Model
         if (substr($price, -3) == '.00') {
             $price = substr($price, 0, -3);
         }
-        return "AED " . $price;
+        return "MVR " . $price;
     }
 }

@@ -55,11 +55,11 @@ class Service extends Model
             if (substr($price, -3) == '.00') {
                 $price = substr($price, 0, -3);
             }
-            return "AED " . $price;
+            return "MVR " . $price;
         }
         return null;
     }
-    
+
     public function buildings()
     {
         return $this->belongsToMany(Building::class, 'building_service');
@@ -83,7 +83,7 @@ class Service extends Model
     {
         return $this->hasMany(Asset::class);
     }
-    
+
     public function subcategory()
     {
         return $this->belongsTo(SubCategory::class);

@@ -95,13 +95,13 @@ class ContractsRelationManager extends RelationManager
                             ->numeric(true)
                             ->minValue(1)
                             ->maxValue(1000000)
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->required(),
                         TextInput::make('budget_amount')
                             ->numeric(true)
                             ->minValue(1)
                             ->maxValue(1000000)
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->required(),
                         Hidden::make('vendor_id')
                             ->default(function (RelationManager $livewire) {
