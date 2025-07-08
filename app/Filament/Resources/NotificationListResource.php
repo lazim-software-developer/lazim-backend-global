@@ -33,6 +33,7 @@ class NotificationListResource extends Resource
                     ->disabled()
                     ->label('Read At'),
                 // Textarea::make('data.body')->required(),
+
             ]);
     }
 
