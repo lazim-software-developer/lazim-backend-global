@@ -139,7 +139,7 @@ class ContractResource extends Resource
                                 ->disabledOn('edit')
                                 ->minValue(1)
                                 ->maxValue(1000000)
-                                ->prefix('AED')
+                                ->prefix('MVR')
                                 ->required()
                                 ->reactive()
                                 ->readOnly(function (callable $set, callable $get) {
@@ -188,7 +188,7 @@ class ContractResource extends Resource
 
                             TextInput::make('remaining_amount')
                                 ->label('Balance amount')
-                                ->prefix('AED')
+                                ->prefix('MVR')
                                 ->readOnly(),
 
                             TextInput::make('amount')
@@ -199,7 +199,7 @@ class ContractResource extends Resource
                                 ->maxValue(function (callable $get) {
                                     return $get('remaining_amount');
                                 })
-                                ->prefix('AED')
+                                ->prefix('MVR')
                                 ->helperText('Contract Amount must be less than Balance Amount')
                                 ->required(),
                         ]),

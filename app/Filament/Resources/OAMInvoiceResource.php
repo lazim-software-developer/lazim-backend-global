@@ -50,12 +50,12 @@ class OAMInvoiceResource extends Resource
                 TextInput::make('invoice_number')->disabled()->label('Invoice Number'),
                 DatePicker::make('invoice_date')->disabled()->label('Invoice Date'),
                 Select::make('invoice_status')->options(['Paid' => 'Paid', 'Defered' => 'Defered'])->searchable()->label('Invoice Status'),
-                TextInput::make('due_amount')->label('Due Amount')->prefix('AED'),
-                TextInput::make('general_fund_amount')->disabled()->label('General Fund Amount')->prefix('AED'),
-                TextInput::make('reserve_fund_amount')->disabled()->label('Reserve Fund Amount')->prefix('AED'),
-                TextInput::make('additional_charges')->disabled()->label('Additional Charges')->prefix('AED'),
-                TextInput::make('previous_balance')->disabled()->label('Previous Balance')->prefix('AED'),
-                TextInput::make('Adjust_amount')->disabled()->label('Adjust Amount')->prefix('AED'),
+                TextInput::make('due_amount')->label('Due Amount')->prefix('MVR'),
+                TextInput::make('general_fund_amount')->disabled()->label('General Fund Amount')->prefix('MVR'),
+                TextInput::make('reserve_fund_amount')->disabled()->label('Reserve Fund Amount')->prefix('MVR'),
+                TextInput::make('additional_charges')->disabled()->label('Additional Charges')->prefix('MVR'),
+                TextInput::make('previous_balance')->disabled()->label('Previous Balance')->prefix('MVR'),
+                TextInput::make('Adjust_amount')->disabled()->label('Adjust Amount')->prefix('MVR'),
                 TextInput::make('invoice_due_date')->disabled()->label('Invoice Due Date'),
 
             ]);

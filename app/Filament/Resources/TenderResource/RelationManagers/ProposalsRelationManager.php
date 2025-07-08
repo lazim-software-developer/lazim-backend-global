@@ -48,7 +48,7 @@ class ProposalsRelationManager extends RelationManager
             ])->schema([
                 TextInput::make('amount')
                     ->label('Amount')
-                    ->prefix('AED')
+                    ->prefix('MVR')
                     ->disabled(),
                 Select::make('vendor_id')
                     ->relationship('vendor', 'name')
