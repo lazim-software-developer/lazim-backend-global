@@ -8,7 +8,6 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Notification;
 use Filament\Facades\Filament;
-use Pages\ViewNotificationList;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Textarea;
