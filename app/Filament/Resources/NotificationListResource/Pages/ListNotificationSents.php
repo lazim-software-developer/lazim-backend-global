@@ -16,7 +16,7 @@ class ListNotificationSents extends ListRecords
 
         return [
             backButton(url: url()->previous())->visible(), // TODO: Change this to the correct association ID or condition
-            Actions\CreateAction::make(),
+            // Actions\CreateAction::make(),
         ];
     }
 
