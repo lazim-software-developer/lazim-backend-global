@@ -85,11 +85,11 @@ class InvoicesRelationManager extends RelationManager
                                 'lg' => 2,
                             ]),
                         TextInput::make('opening_balance')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->readOnly()
                             ->live(),
                         TextInput::make('payment')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->numeric()
                             ->minValue(1)
                         // ->maxValue(function (Get $get) {
@@ -128,13 +128,13 @@ class InvoicesRelationManager extends RelationManager
                         // },])
                             ->live(),
                         TextInput::make('balance')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice Amount')
                             ->disabled()
-                            ->prefix('AED'),
+                            ->prefix('MVR'),
                         Select::make('status')
                             ->required()
                             ->options([

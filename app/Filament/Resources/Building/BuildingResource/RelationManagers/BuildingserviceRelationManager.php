@@ -59,7 +59,7 @@ class BuildingserviceRelationManager extends RelationManager
                             ->placeholder('NA')
                             ->url(),
                         TextInput::make('price')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(10000)

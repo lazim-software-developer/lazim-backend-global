@@ -56,6 +56,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                 $existingBuilding = Flat::where([
                     'floor' => $row['floor'],
                     'building_id' => $building->id,
+                    'property_number' => $row['property_number'],
                     'owner_association_id' => $ownerAssociation->id,
                 ])->first();
 
@@ -65,7 +66,7 @@ class UnitImport implements ToCollection, WithHeadingRow
                     continue;
                 }
 
-                
+
                     Flat::create([
                     'floor'                  => $row['floor'],
                     'building_id'            => $building->id,

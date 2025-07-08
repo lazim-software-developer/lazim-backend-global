@@ -92,11 +92,11 @@ class InvoiceResource extends Resource
                 ])
                     ->schema([
                         TextInput::make('opening_balance')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->readOnly()
                             ->live(),
                         TextInput::make('payment')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->numeric()
                             ->minValue(1)
                             ->disabled(function (Invoice $record) {
@@ -123,13 +123,13 @@ class InvoiceResource extends Resource
                             })
                             ->live(),
                         TextInput::make('balance')
-                            ->prefix('AED')
+                            ->prefix('MVR')
                             ->readOnly()
                             ->live(),
                         TextInput::make('invoice_amount')
                             ->label('Invoice amount')
                             ->disabled()
-                            ->prefix('AED'),
+                            ->prefix('MVR'),
                     ]),
             ]),
         Section::make('Documents')
@@ -224,7 +224,7 @@ class InvoiceResource extends Resource
                     ]),
             ]),
 
-        
+
     ]);
 
     }
