@@ -842,7 +842,7 @@ class AdminPanelProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                    ]),,
+                    ]),
                 // FilamentApexChartsPlugin::make()
             ]);
     }
