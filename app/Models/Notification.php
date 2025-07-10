@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,19 +23,19 @@ class Notification extends DatabaseNotification
         'notification_type_id'
     ];
     protected $casts = [
-        // 'id' => 'string',
-        // 'data' => 'array',
+        'id' => 'string',
+        'data' => 'array',
     ];
 
-    // public function notificationType()
-    // {
-    //     return $this->belongsTo(NotificationType::class, 'notification_type_id');
-    // }
 
     public function ownerAssociation()
     {
         return $this->belongsTo(
             OwnerAssociation::class
         );
+    }
+    public function histories()
+    {
+        return $this->hasMany(NotificationHistory::class, 'notification_id');
     }
 }
