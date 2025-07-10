@@ -41,11 +41,14 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('Complaint has been created by' . auth()->user()->first_name)
+                ->type('Complaint')
+                ->priority('Low')
+                ->building($complaint->building_id)
                 ->actions([
                     Action::make('view')
                         ->button()
                         ->markAsRead()
-                        ->url(fn() => ComplaintscomplaintResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
+                        ->url(fn() => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         } elseif ($complaint->complaint_type == 'enquiries') {
@@ -60,7 +63,8 @@ class ComplaintObserver
                 ->iconColor('warning')
                 ->body('A enquiry has been received raised by ' . auth()->user()->first_name)
                 ->type('Enquiry')
-                ->priority('High')
+                ->priority('Low')
+                ->building($complaint->building_id)
                 ->actions([
                     Action::make('view')
                         ->button()
@@ -79,9 +83,13 @@ class ComplaintObserver
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('A suggestion made by ' . auth()->user()->first_name)
+                ->type('Suggestion')
+                ->priority('Low')
+                ->building($complaint->building_id)
                 ->actions([
                     Action::make('view')
                         ->button()
+                        ->markAsRead()
                         ->url(fn() => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
@@ -98,10 +106,14 @@ class ComplaintObserver
                 ->body('New Snag Created')
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
+                ->type('Snag')
+                ->priority('Low')
+                ->building($complaint->building_id)
                 ->actions([
-                    Action::make('View')
+                    Action::make('view')
                         ->button()
-                        ->url(fn() => SnagsResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id]))
+                        ->markAsRead()
+                        ->url(fn() => ComplaintssuggessionResource::getUrl('edit', [OwnerAssociation::where('id', $complaint->owner_association_id)->first()?->slug, $complaint->id])),
                 ])
                 ->sendToDatabase($notifyTo);
             if ($complaint->technician_id) {

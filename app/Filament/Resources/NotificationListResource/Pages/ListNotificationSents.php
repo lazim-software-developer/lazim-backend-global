@@ -16,15 +16,16 @@ class ListNotificationSents extends ListRecords
 
         return [
             backButton(url: url()->previous())->visible(), // TODO: Change this to the correct association ID or condition
-            // Actions\CreateAction::make(),
         ];
     }
 
     protected function getTableQuery(): Builder
     {
         $query = static::getModel()::query()
-            ->select('notifications.id', 'notifications.type', 'notifications.data', 'notifications.read_at', 'notifications.created_at')
+            ->select('notifications.id', 'notifications.type', 'notifications.data', 'notifications.notifiable_type',  'notifications.notifiable_id', 'notifications.read_at', 'notifications.created_at')
             ->addSelect('data->title as title')
+            ->addSelect('data->building as building')
+            ->addSelect('data->actions[0]->url as full_url')
             ->where('notifiable_id', '=', auth()->user()->id);
 
         return $query;

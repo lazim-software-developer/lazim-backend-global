@@ -8,6 +8,7 @@ class CustomNotification extends BaseNotification
 {
     protected string $type = '';
     protected string $priority = '';
+    protected int $building = 0;
 
 
     public function toArray(): array
@@ -16,6 +17,7 @@ class CustomNotification extends BaseNotification
             ...parent::toArray(),
             'type' => $this->getType(),
             'priority' => $this->getPriority(),
+            'building' => $this->getBuilding(),
         ];
     }
 
@@ -23,7 +25,8 @@ class CustomNotification extends BaseNotification
     {
         return parent::fromArray($data)
             ->type($data['type'] ?? '')
-            ->priority($data['priority'] ?? '');
+            ->priority($data['priority'] ?? '')
+            ->building($data['building'] ?? 0);
     }
 
     public function type(string $type): static
@@ -46,5 +49,15 @@ class CustomNotification extends BaseNotification
     public function getPriority(): string
     {
         return $this->priority;
+    }
+    public function building(int $building): static
+    {
+        $this->building = $building;
+        return $this;
+    }
+
+    public function getBuilding(): int
+    {
+        return $this->building;
     }
 }
