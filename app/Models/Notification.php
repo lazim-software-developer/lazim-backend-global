@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Notification extends DatabaseNotification
 {
+    // use SoftDeletes;
 
     protected $connection = 'mysql';
     protected $table = 'notifications';

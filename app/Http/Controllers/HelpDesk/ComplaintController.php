@@ -150,19 +150,22 @@ class ComplaintController extends Controller
         }
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereHas('role', function ($query) use ($building) {
             $query->where('name', 'OA')
-                  ->where('owner_association_id', $building->owner_association_id);
+                ->where('owner_association_id', $building->owner_association_id);
         })
-        ->get();
+            ->get();
         Notification::make()
             ->success()
             ->title("New Incident")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New Incident created!')
+            ->type('complaint')
+            ->priority('Low')
+            ->building($complaint->building_id)
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => IncidentResource::getUrl('edit', [OwnerAssociation::where('id',$building->owner_association_id)->first()?->slug,$complaint->id])),
+                    ->url(fn() => IncidentResource::getUrl('edit', [OwnerAssociation::where('id', $building->owner_association_id)->first()?->slug, $complaint->id])),
             ])
             ->sendToDatabase($notifyTo);
 
@@ -255,7 +258,9 @@ class ComplaintController extends Controller
 
         // Fetch vendor id who is having an active contract for the given service in the building
         $vendor = ServiceVendor::where([
-            'building_id' => $building->id, 'service_id' => $service_id, 'active' => 1,
+            'building_id' => $building->id,
+            'service_id' => $service_id,
+            'active' => 1,
         ])->first();
 
         $request->merge([
@@ -288,45 +293,45 @@ class ComplaintController extends Controller
 
         // sending push notification for security
 
-        if( $categoryName == 'Security Services'){
+        if ($categoryName == 'Security Services') {
 
             $isActiveSecurity = BuildingPoc::where([
                 'role_name'   => 'security',
                 'building_id' => $building->id,
                 'active'      => 1,
             ])->first();
-            if($isActiveSecurity){
-            $expoPushToken = ExpoPushNotification::where('user_id', $isActiveSecurity?->user_id)->first()?->token;
-                    if ($expoPushToken) {
-                        $message = [
-                            'to'    => $expoPushToken,
-                            'sound' => 'default',
-                            'title' => 'Task Assigned',
-                            'body'  => 'Task has been assigned',
-                            'data'  => ['notificationType' => 'AssignedToMe'],
-                        ];
-                        $this->expoNotification($message);
-                    }
-                        DB::table('notifications')->insert([
-                            'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
-                            'type'            => 'Filament\Notifications\DatabaseNotification',
-                            'notifiable_type' => 'App\Models\User\User',
-                            'notifiable_id'   => $isActiveSecurity?->user_id,
-                            'data'            => json_encode([
-                                'actions'   => [],
-                                'body'      => 'Task has been assigned',
-                                'duration'  => 'persistent',
-                                'icon'      => 'heroicon-o-document-text',
-                                'iconColor' => 'warning',
-                                'title'     => 'Task Assigned',
-                                'view'      => 'notifications::notification',
-                                'viewData'  => [],
-                                'format'    => 'filament',
-                                'url'       => 'AssignedToMe',
-                            ]),
-                            'created_at'      => now()->format('Y-m-d H:i:s'),
-                            'updated_at'      => now()->format('Y-m-d H:i:s'),
-                        ]);
+            if ($isActiveSecurity) {
+                $expoPushToken = ExpoPushNotification::where('user_id', $isActiveSecurity?->user_id)->first()?->token;
+                if ($expoPushToken) {
+                    $message = [
+                        'to'    => $expoPushToken,
+                        'sound' => 'default',
+                        'title' => 'Task Assigned',
+                        'body'  => 'Task has been assigned',
+                        'data'  => ['notificationType' => 'AssignedToMe'],
+                    ];
+                    $this->expoNotification($message);
+                }
+                DB::table('notifications')->insert([
+                    'id'              => (string) \Ramsey\Uuid\Uuid::uuid4(),
+                    'type'            => 'Filament\Notifications\DatabaseNotification',
+                    'notifiable_type' => 'App\Models\User\User',
+                    'notifiable_id'   => $isActiveSecurity?->user_id,
+                    'data'            => json_encode([
+                        'actions'   => [],
+                        'body'      => 'Task has been assigned',
+                        'duration'  => 'persistent',
+                        'icon'      => 'heroicon-o-document-text',
+                        'iconColor' => 'warning',
+                        'title'     => 'Task Assigned',
+                        'view'      => 'notifications::notification',
+                        'viewData'  => [],
+                        'format'    => 'filament',
+                        'url'       => 'AssignedToMe',
+                    ]),
+                    'created_at'      => now()->format('Y-m-d H:i:s'),
+                    'updated_at'      => now()->format('Y-m-d H:i:s'),
+                ]);
             }
         }
         $credentials = AccountCredentials::where('oa_id', $complaint->owner_association_id)->where('active', true)->latest()->first();

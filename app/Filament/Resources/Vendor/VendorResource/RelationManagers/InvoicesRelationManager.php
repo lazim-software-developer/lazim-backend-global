@@ -92,9 +92,9 @@ class InvoicesRelationManager extends RelationManager
                             ->prefix('MVR')
                             ->numeric()
                             ->minValue(1)
-                        // ->maxValue(function (Get $get) {
-                        //     return $get('opening_balance') ?? $get('invoice_amount');
-                        // })
+                            // ->maxValue(function (Get $get) {
+                            //     return $get('opening_balance') ?? $get('invoice_amount');
+                            // })
                             ->disabled(function (Invoice $record) {
                                 if (Role::where('id', auth()->user()->role_id)->first()->name == 'OA') {
                                     return true;
@@ -119,13 +119,13 @@ class InvoicesRelationManager extends RelationManager
                                     return false;
                                 }
                             })
-                        // ->rules([function (Get $get) {
-                        //     return function (string $attribute, $value, Closure $fail) use($get) {
-                        //         if ($get('status')==='rejected' && $value) {
-                        //             $fail('No need to input a payment amount when rejecting');
-                        //         }
-                        //     };
-                        // },])
+                            // ->rules([function (Get $get) {
+                            //     return function (string $attribute, $value, Closure $fail) use($get) {
+                            //         if ($get('status')==='rejected' && $value) {
+                            //             $fail('No need to input a payment amount when rejecting');
+                            //         }
+                            //     };
+                            // },])
                             ->live(),
                         TextInput::make('balance')
                             ->prefix('MVR')
@@ -337,6 +337,8 @@ class InvoicesRelationManager extends RelationManager
                                     ->icon('heroicon-o-document-text')
                                     ->iconColor('warning')
                                     ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by Account Manager ' . auth()->user()->first_name . '.')
+                                    ->type('invoice')
+                                    ->priority('Low')
                                     ->sendToDatabase($notify);
                                 $user    = User::find($record->created_by);
                                 $invoice = Invoice::find($record->id);
@@ -366,26 +368,25 @@ class InvoicesRelationManager extends RelationManager
                                         ->withHeaders([
                                             'Content-Type' => 'application/json',
                                         ])->post(env('ACCOUNTING_CREATE_BILL_API', 'http://localhost:8000/api/bill/create'), [
-                                        'created_by'     => $creator->id,
-                                        'buildingId'     => $record->contract->building_id,
-                                        'invoiceId'      => $record->id,
-                                        'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $record->vendor_id, 'building_id' => $record->contract->building_id])->first()?->id,
-                                        'billDate'       => $record->date,
-                                        'dueDate'        => Carbon::parse($record->date)->addDays(30),
-                                        'categoryId'     => $category?->id,
-                                        'chartAccountId' => null,
-                                        'items'          => [
-                                            [
-                                                'item'             => $product_services?->id,
-                                                'quantity'         => 1,
-                                                'tax'              => $connection->table('taxes')->where(['building_id' => $record->contract->building_id, 'name' => 'VAT'])->first()->id,
-                                                'price'            => $record->invoice_amount / (1 + 5 / 100),
-                                                'chart_account_id' => $product_services->expense_chartaccount_id,
+                                            'created_by'     => $creator->id,
+                                            'buildingId'     => $record->contract->building_id,
+                                            'invoiceId'      => $record->id,
+                                            'venderId'       => $connection->table('venders')->where(['lazim_vendor_id' => $record->vendor_id, 'building_id' => $record->contract->building_id])->first()?->id,
+                                            'billDate'       => $record->date,
+                                            'dueDate'        => Carbon::parse($record->date)->addDays(30),
+                                            'categoryId'     => $category?->id,
+                                            'chartAccountId' => null,
+                                            'items'          => [
+                                                [
+                                                    'item'             => $product_services?->id,
+                                                    'quantity'         => 1,
+                                                    'tax'              => $connection->table('taxes')->where(['building_id' => $record->contract->building_id, 'name' => 'VAT'])->first()->id,
+                                                    'price'            => $record->invoice_amount / (1 + 5 / 100),
+                                                    'chart_account_id' => $product_services->expense_chartaccount_id,
+                                                ],
                                             ],
-                                        ],
-                                    ]);
+                                        ]);
                                 }
-
                             } else {
                                 InvoiceApproval::firstOrCreate([
                                     'invoice_id' => $record->id,
@@ -406,6 +407,8 @@ class InvoicesRelationManager extends RelationManager
                                     ->icon('heroicon-o-document-text')
                                     ->iconColor('warning')
                                     ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                                    ->type('invoice')
+                                    ->priority('Low')
                                     ->sendToDatabase($notifyoa);
                                 foreach ($notifyacc as $user) {
                                     Notification::make()
@@ -414,6 +417,8 @@ class InvoicesRelationManager extends RelationManager
                                         ->icon('heroicon-o-document-text')
                                         ->iconColor('warning')
                                         ->body('We regret to inform that invoice ' . $record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                                        ->type('invoice')
+                                        ->priority('Low')
                                         ->sendToDatabase($user);
                                 }
 

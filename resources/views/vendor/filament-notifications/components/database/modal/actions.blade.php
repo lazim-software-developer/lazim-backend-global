@@ -11,7 +11,7 @@
         color="primary" size="sm" class="font-bold">
         View All
     </x-filament::link>
-    <x-filament::link color="danger" tabindex="-1" tag="button" wire:click="clearNotifications" x-on:click="close()">
+    {{-- <x-filament::link color="danger" tabindex="-1" tag="button" wire:click="clearNotifications" x-on:click="close()">
         {{ __('filament-notifications::database.modal.actions.clear.label') }}
-    </x-filament::link>
+    </x-filament::link> --}}
 </div>

@@ -19,25 +19,28 @@ class PollResponseObserver
     public function created(PollResponse $pollResponse): void
     {
         $requiredPermissions = ['view_any_poll'];
-        $roles = Role::where('owner_association_id',$pollResponse->poll->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $pollResponse->poll->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $pollResponse->poll->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
         $building_id = DB::table('building_poll')->where('poll_id', $pollResponse->poll->id)->first()->building_id;
         $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
         Notification::make()
-        ->success()
-        ->title('New Poll Response')
-        ->body('New Poll Response Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(fn () => PollResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$pollResponse->poll_id]))
-        ])
-        ->sendToDatabase($notifyTo);
+            ->success()
+            ->title('New Poll Response')
+            ->body('New Poll Response Received')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->type('poll')
+            ->priority('Low')
+            ->actions([
+                Action::make('View')
+                    ->button()
+                    ->markAsRead()
+                    ->url(fn() => PollResource::getUrl('edit', [OwnerAssociation::where('id', $oam_id->owner_association_id)->first()?->slug, $pollResponse->poll_id]))
+            ])
+            ->sendToDatabase($notifyTo);
     }
 
     /**
