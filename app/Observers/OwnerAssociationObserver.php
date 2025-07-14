@@ -14,13 +14,15 @@ class OwnerAssociationObserver
     public function created(OwnerAssociation $ownerAssociation)
     {
         // FetchBuildingsJob::dispatch($ownerAssociation);
-        $notifyTo = User::where('role_id',Role::where('name','Admin')->first()->id)->get();
+        $notifyTo = User::where('role_id', Role::where('name', 'Admin')->first()->id)->get();
         Notification::make()
             ->success()
             ->title("New Owner Association")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New Owner Association Added')
+            ->type('owner_association')
+            ->priority('Low')
             // ->actions([
             //     Action::make('view')
             //         ->button()

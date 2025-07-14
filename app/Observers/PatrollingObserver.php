@@ -18,24 +18,28 @@ class PatrollingObserver
     public function created(Patrolling $patrolling): void
     {
         $requiredPermissions = ['view_any_patrolling'];
-        $roles = Role::where('owner_association_id',$patrolling->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $patrolling->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $patrolling->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });//MAKE AUTH USER ID IN USER WHERENOT-----------
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            }); //MAKE AUTH USER ID IN USER WHERENOT-----------
         Notification::make()
-        ->success()
-        ->title('New Patrolling')
-        ->body('New Patrolling Details is Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(fn () => PatrollingResource::getUrl('index',[OwnerAssociation::where('id',$patrolling->owner_association_id)->first()?->slug])),
+            ->success()
+            ->title('New Patrolling')
+            ->body('New Patrolling Details is Received')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->type('patrolling')
+            ->priority('Low')
+            ->building($patrolling->building_id)
+            ->actions([
+                Action::make('View')
+                    ->button()
+                    ->markAsRead()
+                    ->url(fn() => PatrollingResource::getUrl('index', [OwnerAssociation::where('id', $patrolling->owner_association_id)->first()?->slug])),
 
-        ])
-        ->sendToDatabase($notifyTo);
+            ])
+            ->sendToDatabase($notifyTo);
     }
 
     /**

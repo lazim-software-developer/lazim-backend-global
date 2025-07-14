@@ -38,7 +38,7 @@ class CommentController extends Controller
         $comment->commentable()->associate($post);
         $comment->user_id = auth()->user()->id;
         $comment->save();
-        $notifyTo = User::where('id',$post->user_id)->get();
+        $notifyTo = User::where('id', $post->user_id)->get();
         $buildingId = DB::table('building_post')->where('post_id', $post->id)->first();
         $oam_id = DB::table('building_owner_association')->where('building_id', $buildingId?->building_id)->where('active', true)->first();
 
@@ -49,10 +49,13 @@ class CommentController extends Controller
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body(auth()->user()->first_name . ' commented on the post!')
+            ->type('comment')
+            ->priority('Low')
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$post->id])),
+                    ->markAsRead()
+                    ->url(fn() => PostResource::getUrl('edit', [OwnerAssociation::where('id', $oam_id->owner_association_id)->first()?->slug, $post->id])),
             ])
             ->sendToDatabase($notifyTo);
 

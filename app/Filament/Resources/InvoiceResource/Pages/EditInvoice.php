@@ -160,6 +160,9 @@ class EditInvoice extends EditRecord
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('We regret to inform that invoice ' . $this->record->invoice_number . ' has been rejected by Account Manager ' . auth()->user()->first_name . '.')
+                    ->type('invoice')
+                    ->priority('Low')
+                    ->building($tenant->building_id)
                     ->sendToDatabase($notify);
                 $user    = User::find($this->record->created_by);
                 $invoice = Invoice::find($this->record->id);
@@ -234,6 +237,8 @@ class EditInvoice extends EditRecord
                     ->icon('heroicon-o-document-text')
                     ->iconColor('warning')
                     ->body('We regret to inform that invoice ' . $this->record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                    ->type('invoice')
+                    ->priority('Low')
                     ->sendToDatabase($notifyoa);
                 foreach ($notifyacc as $user) {
                     Notification::make()
@@ -242,6 +247,8 @@ class EditInvoice extends EditRecord
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('We regret to inform that invoice ' . $this->record->invoice_number . ' has been rejected by MD ' . auth()->user()->first_name . '.')
+                        ->type('invoice')
+                        ->priority('Low')
                         ->sendToDatabase($user);
                 }
 
