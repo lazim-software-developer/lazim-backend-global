@@ -7,6 +7,9 @@ use Spatie\Pdf\Pdf as SpatiePdf;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\CustomResponseResource;
+use Illuminate\Contracts\Pagination\Paginator;
+use Filament\Notifications\Livewire\DatabaseNotifications;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 
 function optimizeAndUpload($image, $path, $width = 474, $height = 622)
 {
@@ -35,16 +38,20 @@ function imageUploadonS3($image, $path)
 
 function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
-    if ($file) {
+        if (!$file) {
+            Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- No file provided for upload', ['path' => $path, 'user_id' => auth()->id()]);
+            return null;
+        }
         $extension = $file->getClientOriginalExtension();
+        $extension = strtolower($extension); // Normalize the extension to lowercase
 
-        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
+        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
             $optimizedImage = Image::make($file)
-                ->resize($width, $height, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('jpg', 80);
+            ->resize($width, $height, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', 80);
 
             $filename = uniqid() . '.' . $extension;
             $fullPath = $path . '/' . $filename;
@@ -65,12 +72,10 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             return $fullPath;
         } else {
             // Unsupported file type
-            return response()->json(['error' => 'Unsupported file type.'], 422);
+            \Illuminate\Support\Facades\Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- Unsupported file type uploaded', ['file_type' => $extension, 'path' => $path, 'filename' => $file->getClientOriginalName(), 'user_id' => auth()->id()]);
+            // return response()->json(['error' => 'Unsupported file type.'], 422);
+            return null;
         }
-    } else {
-        // No file uploaded
-        return response()->json(['error' => 'No file uploaded.'], 422);
-    }
 }
 
 function createPaymentIntent($amount, $email)
@@ -119,4 +124,17 @@ function backButton(?string $url = null, string $label = 'Back', string $icon = 
         ->icon($icon)
         ->url($url ?? \Filament\Facades\Filament::getPanel()->getPath())
         ->color($color);
+}
+
+if (!function_exists('getUnreadNotifications')) {
+    function getUnreadNotifications(): DatabaseNotificationCollection | Paginator
+    {
+        $notification  = new DatabaseNotifications;
+        if (! $notification->isPaginated()) {
+            /** @phpstan-ignore-next-line */
+            return $notification->getUnreadNotificationsQuery()->get();
+        }
+
+        return $notification->getUnreadNotificationsQuery()->simplePaginate(50, pageName: 'database-notifications-page');
+    }
 }

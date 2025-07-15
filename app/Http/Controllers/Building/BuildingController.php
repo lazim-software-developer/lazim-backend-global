@@ -31,23 +31,35 @@ class BuildingController extends Controller
     public function fetchbuildings(Request $request)
     {
         $query = Building::query();
-    
+
         if ($request->has('type') && $request->type === 'globalOa') {
             $query->where('resource', 'Default');
         }
-        
+
         $buildings = $query->get();
         return BuildingsResource::collection($buildings);
     }
     public function index(Request $request)
     {
-        try {
-            $user = auth()->user();
-            $data = $this->repository->list($request);
-            return response()->json(["success"=>true,"message"=>'Data Found',"error"=>[],'data' => $data->paginate($request->per_page ?? 10)], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
+        $query = Building::query();
+
+        // if ($request->has('type')) {
+        //     $type = $request->input('type');
+        //     $query->whereHas('ownerAssociations', function($q) use ($type) {
+        //         $q->where('role', $type);
+        //     });
+        // }
+
+        // if($request->registration){
+        //     $activeBuildings = DB::table('building_owner_association')
+        //         ->whereIn('building_id', $query->pluck('id'))
+        //         ->where('active', true)
+        //         ->pluck('building_id');
+        //     $query = Building::whereIn('id',$activeBuildings);
+        // }
+
+        $buildings = $query->get();
+        return BuildingResource::collection($buildings);
     }
 
     public function store(StoreBuildingRequest $request)
@@ -104,7 +116,7 @@ class BuildingController extends Controller
     {
         try {
             $building = $this->repository->show($id);
-            
+
             // Using Resource to transform the data
             return response()->json([
                 'success' => true,
@@ -112,7 +124,7 @@ class BuildingController extends Controller
                 'data' => new BuildingResource($building),
                 'message' => 'Building details retrieved successfully'
             ], 200);
-            
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => false,
@@ -120,7 +132,7 @@ class BuildingController extends Controller
                 'error' => [],
                 'message' => 'Building Detail not found'
             ], 404);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -186,7 +198,7 @@ class BuildingController extends Controller
                     $building->cities->name ?? null,
                     $building->description,
                     $building->floors,
-                    $building->allow_postupload=== 1 ? 'TRUE' : 'FALSE', 
+                    $building->allow_postupload=== 1 ? 'TRUE' : 'FALSE',
                     $building->show_inhouse_services=== 1 ? 'TRUE' : 'FALSE',
                     $building->status=== 1 ? 'Active' : 'In-Active',
                     $building->created_at,
@@ -214,7 +226,7 @@ class BuildingController extends Controller
             $file = $request->file('file');
             $csv  = Reader::createFromPath($file->getPathname(), 'r');
             $csv->setHeaderOffset(0);
-            
+
             $records       = $csv->getRecords();
             $importedCount = 0;
             $skippedCount  = 0;
