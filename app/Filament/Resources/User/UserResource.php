@@ -62,7 +62,7 @@ class UserResource extends Resource
                         ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         // ->required()
                         ->disabledOn('edit')
-                        ->prefix('971')
+                        ->prefix('976')
                         ->unique(
                             'users',
                             'phone',

@@ -16,6 +16,7 @@ use App\Models\Master\State;
 use App\Models\MollakTenant;
 use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
+use App\Models\SubContractor;
 use App\Models\Vendor\Vendor;
 use Spatie\Sluggable\HasSlug;
 use App\Models\Accounting\WDA;
@@ -23,12 +24,13 @@ use App\Models\BuildingVendor;
 use App\Models\Community\Poll;
 use App\Models\Community\Post;
 use App\Models\CoolingAccount;
-use App\Models\Master\Country;
+use App\Models\LocationQrCode;
 use App\Models\Master\Service;
 use App\Models\OfferPromotion;
 use App\Models\OwnerCommittee;
 use App\Models\RuleRegulation;
 use App\Models\Vendor\Contact;
+use App\Models\ApartmentSafety;
 use App\Models\BuildingService;
 use App\Models\EmergencyNumber;
 use App\Models\Forms\MoveInOut;
@@ -51,7 +53,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Visitor\FlatDomesticHelp;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Master\Country;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -84,6 +86,17 @@ class Building extends Model
         'created_by',
         'updated_by',
         'deleted_at',
+        'mollak_property_id',
+        'managed_by',
+        'address',
+        'building_type',
+        'parking_count',
+        'status',
+        'created_by',
+        'updated_by',
+        'resource',
+        'floor_description',
+        'building_code',
     ];
 
     protected $casts = [
@@ -126,9 +139,17 @@ class Building extends Model
     {
         return $this->hasMany(Floor::class);
     }
+    public function LocationQrCode()
+    {
+        return $this->hasMany(LocationQrCode::class);
+    }
     public function ruleregulations()
     {
         return $this->hasMany(RuleRegulation::class);
+    }
+    public function appartmentsafety()
+    {
+        return $this->hasMany(ApartmentSafety::class);
     }
     public function saleNoc()
     {
@@ -215,6 +236,13 @@ class Building extends Model
     {
         return $this->belongsTo(OwnerAssociation::class,'owner_association_id');
     }
+
+    public function ownerAssociations()
+    {
+        return $this->belongsToMany(OwnerAssociation::class, 'building_owner_association')
+        ->withPivot(['from', 'to', 'active']);
+    }
+
     public function posts()
     {
         return $this->belongsToMany(Post::class);
@@ -327,8 +355,38 @@ class Building extends Model
     {
         return $this->hasMany(LegalNotice::class);
     }
-    public function DeleteAssociatedRecord($value)
+
+    public function subContractors()
     {
-        echo "Enter";die;
+        return $this->hasMany(SubContractor::class);
     }
+
+    public function getLocationAttribute(): array
+    {
+        return [
+            "lat" => (float)$this->lat,
+            "lng" => (float)$this->lng,
+        ];
+    }
+
+    public function setLocationAttribute(?array $location): void
+    {
+        if (is_array($location))
+        {
+            $this->attributes['lat'] = $location['lat'];
+            $this->attributes['lng'] = $location['lng'];
+            unset($this->attributes['location']);
+        }
+    }
+
+    public static function getLatLngAttributes(): array
+    {
+        return [
+            'lat' => 'lat',
+            'lng' => 'lng',
+        ];
+    }
+
+
+
 }

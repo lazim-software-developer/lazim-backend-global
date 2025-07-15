@@ -114,7 +114,7 @@ class EditProfile extends BaseEditProfile
                     ->rules($this->getPhoneValidationRules())
                     ->formatStateUsing(fn(?string $state): string => substr($state, 3))
                     ->required()
-                    ->prefix('971')
+                    ->prefix('976')
                     ->placeholder('Phone'),
                 FileUpload::make('profile_photo')
                     ->disk('s3')
@@ -278,7 +278,7 @@ class EditProfile extends BaseEditProfile
         return [
             function (Model $record) {
                 return function (string $attribute, $value, Closure $fail) use ($record) {
-                    if (DB::table('users')->whereNot('id', $record->id)->where('phone', '971' . $value)->count() > 0) {
+                    if (DB::table('users')->whereNot('id', $record->id)->where('phone', '976' . $value)->count() > 0) {
                         $fail('The phone is already taken by a User.');
                     }
                 };
@@ -341,7 +341,7 @@ class EditProfile extends BaseEditProfile
         $updateData = [
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
-            'phone' => '971' . $data['phone'],
+            'phone' => '976' . $data['phone'],
             'profile_photo' => $data['profile_photo'] ?? $user->profile_photo,
         ];
 
@@ -357,7 +357,7 @@ class EditProfile extends BaseEditProfile
         $ownerAssociation = $user->load('ownerAssociation')->first();
         if ($roleName === 'OA') {
             OwnerAssociation::find($user->owner_association_id)->update([
-                'phone' => '971' . $data['phone'],
+                'phone' => '976' . $data['phone'],
                 'profile_photo' => $data['ownerAssociation']['profile_photo'] ?? $ownerAssociation->profile_photo,
                 'trn_number' => $data['ownerAssociation']['trn_number'] ?? $ownerAssociation->trn_number,
                 'trade_license_number' => $data['ownerAssociation']['trade_license_number'] ?? $ownerAssociation->trade_license_number,

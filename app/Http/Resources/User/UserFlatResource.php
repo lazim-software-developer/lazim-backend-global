@@ -27,6 +27,8 @@ class UserFlatResource extends JsonResource
             'role' => $flat?->role,
             'oa_logo' => $flatId->ownerAssociation?->profile_photo ? env('AWS_URL').'/'.$flatId->ownerAssociation?->profile_photo : null,
             'building_logo' => $this->building->cover_photo ? env('AWS_URL').'/'.$this->building->cover_photo : null,
+            'residing_in_flat' => 1,
+            'propertymanager' => true,
         ];
     }
 }

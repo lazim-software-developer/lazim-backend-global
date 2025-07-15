@@ -1,5 +1,5 @@
 @php
-    $notifications = $this->getNotifications();
+    $notifications = getUnreadNotifications();
     $unreadNotificationsCount = $this->getUnreadNotificationsCount();
 @endphp
 
