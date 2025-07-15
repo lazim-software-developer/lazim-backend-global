@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Building;
 
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\User\User;
@@ -111,6 +110,20 @@ class ServiceBookingResource extends Resource
                             ->disabledOn('edit')
                             ->preload()
                             ->placeholder('User'),
+                        TextInput::make('user.email')
+                            ->formatStateUsing(function ($record) {
+                                return $record->user ? $record->user->email : null;
+                            })
+                            ->label('Email')
+                            ->visibleOn(['edit'])
+                            ->disabledOn(['edit']),
+                        TextInput::make('user.phone')
+                            ->formatStateUsing(function ($record) {
+                                return $record->user ? $record->user->phone : null;
+                            })
+                            ->label('Phone')
+                            ->visibleOn(['edit'])
+                            ->disabledOn(['edit']),
                         DatePicker::make('date')
                             ->rules(['date'])
                             ->required()
