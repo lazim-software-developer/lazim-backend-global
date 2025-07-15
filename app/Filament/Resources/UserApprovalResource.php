@@ -84,6 +84,7 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(),
                         FileUpload::make('emirates_document')
                             ->disk('s3')
@@ -91,12 +92,14 @@ class UserApprovalResource extends Resource
                             ->openable(true)
                             ->downloadable(true)
                             ->required()
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(),
                         FileUpload::make('passport')
                             ->disk('s3')
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->required(function (UserApproval $record) {
                                 if ($record->ownerAssociation?->resource == 'Default') {
                                     return false;
