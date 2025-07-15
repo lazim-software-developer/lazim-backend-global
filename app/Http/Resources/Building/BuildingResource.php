@@ -4,6 +4,8 @@ namespace App\Http\Resources\Building;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BuildingResource extends JsonResource
@@ -15,6 +17,11 @@ class BuildingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+//        $oaIds            = DB::table('building_owner_association')->where('building_id', $this->id)->pluck('owner_association_id');
+        $ownerAssociation = OwnerAssociation::whereIn('id', [$this->owner_association_id]);
+        // $oA               = $ownerAssociation->contains('OA');
+        // $propertyManager  = $ownerAssociation->contains('Property Manager');
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -33,8 +40,13 @@ class BuildingResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'cover_photo' => !empty($this->cover_photo) ? Storage::disk('s3')->url($this->cover_photo) : NULL,
-            'description' => $this->description
+            'cover_photo' => !empty($this->cover_photo) ? Storage::disk('s3')->url($this->cover_photo) : null,
+            'description' => $this->description,
+            'oa' => $ownerAssociation, // Assuming $oA is an object or array defined elsewhere
+            'property_manager' => null, // Assuming passed from elsewhere
+            'mollak_property_id' => $this->mollak_property_id,
+            'building_type' => $this->building_type,
+            'parking_count' => $this->parking_count,
         ];
     }
 }

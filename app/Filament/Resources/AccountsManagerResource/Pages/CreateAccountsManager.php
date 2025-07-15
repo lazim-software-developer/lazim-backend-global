@@ -20,7 +20,7 @@ class CreateAccountsManager extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
 
-        $data['phone']                = '971' . $data['phone'];
+        $data['phone']                = '976' . $data['phone'];
         $data['email_verified']       = true;
         $data['phone_verified']       = true;
         $data['role_id']              = Role::where('name', 'Accounts Manager')->first()->id;
@@ -38,7 +38,7 @@ class CreateAccountsManager extends CreateRecord
         $tenant           = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
         // $emailCredentials = OwnerAssociation::findOrFail($tenant)?->mailCredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
         $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-                            
+
         $mailCredentials = [
             'mail_host' => $credentials->host??env('MAIL_HOST'),
             'mail_port' => $credentials->port??env('MAIL_PORT'),

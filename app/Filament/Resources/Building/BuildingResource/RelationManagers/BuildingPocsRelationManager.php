@@ -70,7 +70,7 @@ class BuildingPocsRelationManager extends RelationManager
                                 ->required()
                                 ->maxLength(255),
                             TextInput::make('phone')
-                                ->rules(['regex:/^(971)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                                ->rules(['regex:/^(976)(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                                 ->required()
                                 ->maxLength(255),
                             FileUpload::make('profile_photo')
@@ -155,12 +155,12 @@ class BuildingPocsRelationManager extends RelationManager
                         TextInput::make('phone')
                             ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
                                 return function (string $attribute, $value, Closure $fail) {
-                                    if (DB::table('users')->where('phone', '971' . $value)->count() > 0) {
+                                    if (DB::table('users')->where('phone', '976' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             }])
-                            ->prefix('971')
+                            ->prefix('976')
                             ->required()
                             ->maxLength(255),
                         FileUpload::make('profile_photo')
@@ -187,7 +187,7 @@ class BuildingPocsRelationManager extends RelationManager
                             'first_name'           => $data['first_name'],
                             'last_name'            => $data['last_name'],
                             'email'                => $data['email'],
-                            'phone'                => '971' . $data['phone'],
+                            'phone'                => '976' . $data['phone'],
                             'profile_photo'        => $data['profile_photo'],
                             'active'               => $data['active'],
                             'role_id'              => Role::where('owner_association_id',$oa_id)->where('name','Security')->first()?->id,
@@ -212,7 +212,7 @@ class BuildingPocsRelationManager extends RelationManager
                             $user->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
                             $credentials = AccountCredentials::where('oa_id', $tenant)->where('active', true)->latest()->first();
-                            
+
                             $mailCredentials = [
                                 'mail_mailer'=> $credentials->mailer??env('MAIL_MAILER'),
                                 'mail_host' => $credentials->host??env('MAIL_HOST'),
@@ -259,12 +259,12 @@ class BuildingPocsRelationManager extends RelationManager
                         TextInput::make('phone')
                             ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function (Model $record) {
                                 return function (string $attribute, $value, Closure $fail) use ($record) {
-                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '971' . $value)->count() > 0) {
+                                    if (DB::table('users')->whereNot('id', $record->user_id)->where('phone', '976' . $value)->count() > 0) {
                                         $fail('The phone is already taken by a User.');
                                     }
                                 };
                             }])
-                            ->prefix('971')
+                            ->prefix('976')
                             ->required()
                             ->maxLength(255),
                         FileUpload::make('profile_photo')
@@ -332,7 +332,7 @@ class BuildingPocsRelationManager extends RelationManager
                         $record->first_name    = $data['first_name'];
                         $record->last_name     = $data['last_name'];
                         $record->email         = $data['email'];
-                        $record->phone         = '971' . $data['phone'];
+                        $record->phone         = '976' . $data['phone'];
                         $record->profile_photo = $data['profile_photo'];
                         $record->save();
                         //active of this BuildingPoc

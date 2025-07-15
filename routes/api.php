@@ -613,9 +613,9 @@ Route::post('/email-testing', [TestController::class, 'emailTriggering']);
 
 
 Route::get('fetchbuildings', [BuildingController::class, 'fetchbuildings']);
-Route::get('buildings', [BuildingController::class, 'index'])->middleware(['active']);
+Route::get('buildings', [BuildingController::class, 'index']);
 // Dilip Shekhawat [Created New APIs]
-Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
+// Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function () {
     //Owner-Association
     Route::post('/owner-associations/{id}', [OwnerAssociationController::class, 'update']);
     Route::apiResource('owner-associations', OwnerAssociationController::class);
@@ -632,4 +632,4 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
     Route::post('flatsimport', [FlatController::class, 'import']);
     Route::get('flatsexport', [FlatController::class, 'export']);
-});
+// });
