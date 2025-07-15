@@ -161,8 +161,8 @@ class AppServiceProvider extends ServiceProvider
                 ->paginationPageOptions([10, 25, 50]);
         });
 
-        Notification::configureUsing(function (Notification $notification): void {
-            $notification->view('filament.notifications.customnotification'); // yahaan aapka custom blade ka path hai
-        });
+        // Notification::configureUsing(function (Notification $notification): void {
+        //     $notification->view('filament.notifications.customnotification'); // yahaan aapka custom blade ka path hai
+        // });
     }
 }

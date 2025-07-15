@@ -17,8 +17,8 @@ class CreateMD extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        
-        $data['phone'] = '971'.$data['phone'];
+
+        $data['phone'] = '976'.$data['phone'];
         $data['email_verified'] = true;
         $data['phone_verified'] = true;
         $data['role_id'] = Role::where('name', 'MD')->first()->id;

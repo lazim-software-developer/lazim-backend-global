@@ -9,7 +9,6 @@ use App\Models\User\User;
 use Filament\Tables\Table;
 use App\Models\Notification;
 use Filament\Facades\Filament;
-use Pages\ViewNotificationList;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
