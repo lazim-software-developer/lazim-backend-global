@@ -18,21 +18,25 @@ class VendorObserver
     public function created(Vendor $vendor): void
     {
         $requiredPermissions = ['view_any_vendor::vendor'];
-        $roles = Role::where('owner_association_id',$vendor->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $vendor->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $vendor->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
-            Notification::make()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
+        Notification::make()
             ->success()
             ->title("New Vendor")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
-            ->body('New vendor created '.$vendor->name)
+            ->body('New vendor created ' . $vendor->name)
+            ->type('vendor')
+            ->priority('Low')
+            ->building($vendor->building_id)
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => VendorResource::getUrl('edit', [OwnerAssociation::where('id',$vendor->owner_association_id)->first()?->slug,$vendor->id])),
+                    ->markAsRead()
+                    ->url(fn() => VendorResource::getUrl('edit', [OwnerAssociation::where('id', $vendor->owner_association_id)->first()?->slug, $vendor->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

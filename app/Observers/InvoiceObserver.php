@@ -25,25 +25,28 @@ class InvoiceObserver
             $requiredPermissions = ['view_any_invoice'];
             $building = Building::where('id', $vendor->building_id)->first();
             $oam_id = DB::table('building_owner_association')->where('building_id', $vendor?->building_id)->where('active', true)->first();
-            $roles = Role::where('owner_association_id',$oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+            $roles = Role::where('owner_association_id', $oam_id->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
             $notifyTo = User::where('owner_association_id', $oam_id->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-            ->filter(function ($notifyTo) use ($requiredPermissions) {
-                return $notifyTo->can($requiredPermissions);
-            });
+                ->filter(function ($notifyTo) use ($requiredPermissions) {
+                    return $notifyTo->can($requiredPermissions);
+                });
             Notification::make()
                 ->success()
                 ->title("New Invoice")
                 ->icon('heroicon-o-document-text')
                 ->iconColor('warning')
                 ->body('New Invoice submitted by  ' . auth()->user()->first_name)
+                ->type('invoice')
+                ->priority('Low')
+                ->building($invoice->building_id)
                 ->actions([
                     Action::make('view')
                         ->button()
-                        ->url(fn () => InvoiceResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$invoice->id])),
+                        ->markAsRead()
+                        ->url(fn() => InvoiceResource::getUrl('edit', [OwnerAssociation::where('id', $oam_id->owner_association_id)->first()?->slug, $invoice->id])),
                 ])
                 ->sendToDatabase($notifyTo);
         }
-
     }
 
     /**
@@ -97,7 +100,6 @@ class InvoiceObserver
                     'updated_at' => now()->format('Y-m-d H:i:s'),
                 ]);
             }
-
         }
     }
 

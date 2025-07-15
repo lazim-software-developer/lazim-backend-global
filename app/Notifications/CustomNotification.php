@@ -2,20 +2,25 @@
 
 namespace App\Notifications;
 
+use Illuminate\Support\Str;
+use App\Models\NotificationType;
 use Filament\Notifications\Notification as BaseNotification;
 
 class CustomNotification extends BaseNotification
 {
     protected string $type = '';
     protected string $priority = '';
+    protected int $building = 0;
 
 
     public function toArray(): array
     {
         return [
             ...parent::toArray(),
-            'type' => $this->getType(),
+            'type' => $this->type, //  raw key (e.g. 'access_card')
+            'type_lable' => $this->getType(), // optional UI label
             'priority' => $this->getPriority(),
+            'building' => $this->getBuilding(),
         ];
     }
 
@@ -23,7 +28,8 @@ class CustomNotification extends BaseNotification
     {
         return parent::fromArray($data)
             ->type($data['type'] ?? '')
-            ->priority($data['priority'] ?? '');
+            ->priority($data['priority'] ?? '')
+            ->building($data['building'] ?? 0);
     }
 
     public function type(string $type): static
@@ -32,9 +38,10 @@ class CustomNotification extends BaseNotification
         return $this;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
-        return $this->type;
+        return NotificationType::where('key', $this->type)->value('name')
+            ?? Str::of($this->type)->replace('_', ' ')->title();
     }
 
     public function priority(string $priority): static
@@ -46,5 +53,15 @@ class CustomNotification extends BaseNotification
     public function getPriority(): string
     {
         return $this->priority;
+    }
+    public function building(int $building): static
+    {
+        $this->building = $building;
+        return $this;
+    }
+
+    public function getBuilding(): int
+    {
+        return $this->building;
     }
 }

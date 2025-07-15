@@ -18,7 +18,16 @@ class Post extends Model
     protected $connection = 'mysql';
 
     protected $fillable = [
-        'user_id', 'content', 'status', 'scheduled_at', 'building_id', 'is_announcement', 'owner_association_id','allow_comment','allow_like','active'
+        'user_id',
+        'content',
+        'status',
+        'scheduled_at',
+        'building_id',
+        'is_announcement',
+        'owner_association_id',
+        'allow_comment',
+        'allow_like',
+        'active'
     ];
     protected $casts = [
         'is_announcement' => 'boolean',

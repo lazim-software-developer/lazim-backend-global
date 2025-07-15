@@ -25,21 +25,24 @@ class ProposalObserver
         $tenders = Tender::where('id', $proposal->tender_id)->first();
         $building = Building::where('id', $tenders->building_id)->first();
         $oam_id = DB::table('building_owner_association')->where('building_id', $tenders?->building_id)->where('active', true)->first();
-        $roles = Role::where('owner_association_id',$building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $building->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $building->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
         Notification::make()
             ->success()
             ->title("New Proposal")
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New proposal by ' . auth()->user()->first_name)
+            ->type('proposal')
+            ->priority('Low')
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => ProposalResource::getUrl('edit', [OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$proposal->id])),
+                    ->markAsRead()
+                    ->url(fn() => ProposalResource::getUrl('edit', [OwnerAssociation::where('id', $oam_id->owner_association_id)->first()?->slug, $proposal->id])),
             ])
             ->sendToDatabase($notifyTo);
     }
@@ -118,7 +121,6 @@ class ProposalObserver
                     'updated_at' => now()->format('Y-m-d H:i:s'),
                 ]);
             }
-
         }
     }
 
