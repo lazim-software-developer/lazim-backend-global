@@ -115,7 +115,7 @@ class GuestController extends Controller
             'phone'                => $request->phone,
             'email'                => $request->email,
             'owner_association_id' => $ownerAssociationId,
-            'type'                 => $request->type ?:'visitor',
+            'type'                 => $request->type ?: 'visitor',
         ]);
 
         $requiredPermissions = ['view_any_visitor::form'];
@@ -129,10 +129,14 @@ class GuestController extends Controller
             ->success()
             ->title('Visitor Request')
             ->body("visitor request received for $request->start_date")
+            ->type('guest')
+            ->priority('Low')
+            ->building($visitor->building_id)
             ->actions([
                 Action::make('View')
                     ->button()
-                    ->url(fn () => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
+                    ->markAsRead()
+                    ->url(fn() => VisitorFormResource::getUrl('edit', [OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug, $visitor->id])),
             ])
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
@@ -239,15 +243,15 @@ class GuestController extends Controller
         $futureVisits = FlatVisitor::where('building_id', $building->id)
             // ->whereRaw("CONCAT(DATE(start_time), ' ', time_of_viewing) > ?", [now()])
             ->where('type', 'visitor')
-            ->where('status','approved')
+            ->where('status', 'approved')
             ->when($request->has('verified'), function ($query) use ($request) {
                 return $query->where('verified', $request->verified);
             })
-            ->when($request->has('search'),function ($query) use ($request) {
+            ->when($request->has('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
-                      ->orWhere('phone', 'like', '%' . $request->search . '%')
-                      ->orWhere('email', 'like', '%' . $request->search . '%');
+                        ->orWhere('phone', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%');
                 });
             })
             ->orderBy(DB::raw("CONCAT(DATE(start_time), ' ', time_of_viewing)"));

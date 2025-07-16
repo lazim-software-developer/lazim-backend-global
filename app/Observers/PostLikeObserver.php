@@ -19,11 +19,11 @@ class PostLikeObserver
     public function created(PostLike $postLike): void
     {
         $requiredPermissions = ['view_any_post'];
-        $post = Post::where('id',$postLike->post_id)->first();
-        $notifyTo = User::where('id',$post->user_id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
+        $post = Post::where('id', $postLike->post_id)->first();
+        $notifyTo = User::where('id', $post->user_id)->get()
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
         $building_id = DB::table('building_post')->where('post_id', $postLike->post_id)->first()->building_id;
         $oam_id = DB::table('building_owner_association')->where('building_id', $building_id)->where('active', true)->first();
         Notification::make()
@@ -32,10 +32,13 @@ class PostLikeObserver
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body(auth()->user()->first_name . ' liked the post!')
+            ->type('likes')
+            ->priority('Low')
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => PostResource::getUrl('edit',[OwnerAssociation::where('id',$oam_id->owner_association_id)->first()?->slug,$post->id])),
+                    ->markAsRead()
+                    ->url(fn() => PostResource::getUrl('edit', [OwnerAssociation::where('id', $oam_id->owner_association_id)->first()?->slug, $post->id])),
             ])
             ->sendToDatabase($notifyTo);
     }

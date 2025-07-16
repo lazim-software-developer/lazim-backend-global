@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Building\Building;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Notification extends DatabaseNotification
 {
+    // use SoftDeletes;
 
     protected $connection = 'mysql';
     protected $table = 'notifications';
@@ -22,19 +25,19 @@ class Notification extends DatabaseNotification
         'notification_type_id'
     ];
     protected $casts = [
-        // 'id' => 'string',
+        'id' => 'string',
         'data' => 'array',
     ];
 
-    // public function notificationType()
-    // {
-    //     return $this->belongsTo(NotificationType::class, 'notification_type_id');
-    // }
 
     public function ownerAssociation()
     {
         return $this->belongsTo(
             OwnerAssociation::class
         );
+    }
+    public function histories()
+    {
+        return $this->hasMany(NotificationHistory::class, 'notification_id');
     }
 }

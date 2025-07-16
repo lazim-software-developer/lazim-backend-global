@@ -132,10 +132,13 @@ class FitOutFormsController extends Controller
             ->icon('heroicon-o-document-text')
             ->iconColor('warning')
             ->body('New Contractor Fitout Request ')
+            ->type('fit_out')
+            ->priority('Low')
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(fn () => FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $fitout->owner_association_id)->first()?->slug, $fitout->id])),
+                    ->markAsRead()
+                    ->url(fn() => FitOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $fitout->owner_association_id)->first()?->slug, $fitout->id])),
             ])
             ->sendToDatabase($user);
 
@@ -147,7 +150,8 @@ class FitOutFormsController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-    public function verifyContractorRequest(FitOutForm $fitout){
+    public function verifyContractorRequest(FitOutForm $fitout)
+    {
         if ($fitout->contractorRequest) {
             return (new CustomResponseResource([
                 'title'   => 'Request already exists!',

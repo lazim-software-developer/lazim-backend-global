@@ -40,32 +40,36 @@ class MoveoutNotification extends Command
 
         // ->pluck('user_id');
         foreach ($moveouts as $moveout) {
-            $user = User::whereHas('role', function($query) {
+            $user = User::whereHas('role', function ($query) {
                 $query->where('name', 'OA');
-            })->where('owner_association_id',$moveout->owner_association_id)->first();
+            })->where('owner_association_id', $moveout->owner_association_id)->first();
             $flatTenat = FlatTenant::where('tenant_id', $moveout->user_id)->where('flat_id', $moveout->flat_id)->first();
             Notification::make()
-                    ->success()
-                    ->title("Move out Reminder")
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->body('Resident moving out on ' . $moveout->moving_date )
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->url(fn () => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug,$moveout?->id])),
-                    ])
-                    ->sendToDatabase($user);
+                ->success()
+                ->title("Move out Reminder")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body('Resident moving out on ' . $moveout->moving_date)
+                ->type('move_out')
+                ->priority('Low')
+                ->building($moveout->building_id)
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->markAsRead()
+                        ->url(fn() => MoveOutFormsDocumentResource::getUrl('edit', [OwnerAssociation::where('id', $moveout->owner_association_id)->first()?->slug, $moveout?->id])),
+                ])
+                ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
             $mailCredentials = [
-                'mail_host' => $credentials->host??env('MAIL_HOST'),
-                'mail_port' => $credentials->port??env('MAIL_PORT'),
-                'mail_username'=> $credentials->username??env('MAIL_USERNAME'),
-                'mail_password' => $credentials->password??env('MAIL_PASSWORD'),
-                'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
-                'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
+                'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
             ];
             MoveoutNotificationJob::dispatch($user, $moveout, $mailCredentials);
-        }   
+        }
     }
 }

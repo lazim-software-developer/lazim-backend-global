@@ -18,24 +18,28 @@ class UserApprovalObserver
     public function created(UserApproval $userApproval): void
     {
         $requiredPermissions = ['view_any_user::approval'];
-        $roles = Role::where('owner_association_id',$userApproval->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+        $roles = Role::where('owner_association_id', $userApproval->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
         $notifyTo = User::where('owner_association_id', $userApproval->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });//MAKE AUTH USER ID IN USER WHERENOT-----------
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            }); //MAKE AUTH USER ID IN USER WHERENOT-----------
         Notification::make()
-        ->success()
-        ->title('New Resident Approval')
-        ->body('New Resident Approval is Received')
-        ->icon('heroicon-o-document-text')
-        ->iconColor('warning')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(fn () => UserApprovalResource::getUrl('edit', [OwnerAssociation::where('id',$userApproval->owner_association_id)->first()?->slug,$userApproval->id]))
+            ->success()
+            ->title('New Resident Approval')
+            ->body('New Resident Approval is Received')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('warning')
+            ->type('user_approval')
+            ->priority('Low')
+            ->building($userApproval->building_id)
+            ->actions([
+                Action::make('View')
+                    ->button()
+                    ->markAsRead()
+                    ->url(fn() => UserApprovalResource::getUrl('edit', [OwnerAssociation::where('id', $userApproval->owner_association_id)->first()?->slug, $userApproval->id]))
 
-        ])
-        ->sendToDatabase($notifyTo);
+            ])
+            ->sendToDatabase($notifyTo);
     }
 
     /**
