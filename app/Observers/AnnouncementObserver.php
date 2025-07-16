@@ -23,7 +23,7 @@ class AnnouncementObserver
         $scheduledAt = Post::where('scheduled_at', now())->get();
         if ($post->status == 'published') {
             foreach ($scheduledAt as $notification) {
-                $roles = Role::where('owner_association_id',$post->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff'])->pluck('id');
+                $roles = Role::where('owner_association_id', $post->owner_association_id)->whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Staff'])->pluck('id');
                 $notifyTo = User::where('owner_association_id', $post->owner_association_id)->whereNotIn('role_id', $roles)->whereNot('id', auth()->user()?->id)->get();
                 if ($post->is_announcement) {
                     $requiredPermissions = ['view_any_announcement'];
@@ -36,10 +36,14 @@ class AnnouncementObserver
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('New Notice has been created.')
+                        ->type('notice')
+                        ->priority('Low')
+                        ->building($scheduledAt->building_id)
                         ->actions([
                             Action::make('view')
+                                ->markAsRead()
                                 ->button()
-                                ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug,$post->id])),
+                                ->url(fn() => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug, $post->id])),
                         ])
                         ->sendToDatabase($notifyTo);
                 } else {
@@ -53,10 +57,14 @@ class AnnouncementObserver
                         ->icon('heroicon-o-document-text')
                         ->iconColor('warning')
                         ->body('New Post has been created.')
+                        ->type('post')
+                        ->priority('Low')
+                        ->building($scheduledAt->building_id)
                         ->actions([
                             Action::make('view')
                                 ->button()
-                                ->url(fn () => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug,$post->id])),
+                                ->markAsRead()
+                                ->url(fn() => PostResource::getUrl('edit', [OwnerAssociation::where('id', $post->owner_association_id)->first()?->slug, $post->id])),
                         ])
                         ->sendToDatabase($notifyTo);
                 }

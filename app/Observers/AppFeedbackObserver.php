@@ -17,22 +17,25 @@ class AppFeedbackObserver
     public function created(AppFeedback $appFeedback): void
     {
         $requiredPermissions = ['view_any_app::feedback'];
-        $role_id = Role::where('name','Admin')->pluck('id');
+        $role_id = Role::where('name', 'Admin')->pluck('id');
         $notifyTo = User::whereIn('role_id', $role_id)->get()
-        ->filter(function ($notifyTo) use ($requiredPermissions) {
-            return $notifyTo->can($requiredPermissions);
-        });
+            ->filter(function ($notifyTo) use ($requiredPermissions) {
+                return $notifyTo->can($requiredPermissions);
+            });
         Notification::make()
-        ->success()
-        ->title('App Feedback')
-        ->body('New App Feedback Received')
-        ->icon('heroicon-s-pencil-square')
-        ->actions([
-            Action::make('View')
-            ->button()
-            ->url(url('/app/app-feedbacks/' . $appFeedback->id)),
-        ])
-        ->sendToDatabase($notifyTo);
+            ->success()
+            ->title('App Feedback')
+            ->body('New App Feedback Received')
+            ->icon('heroicon-s-pencil-square')
+            ->type('app_feedback')
+            ->priority('Low')
+            ->actions([
+                Action::make('View')
+                    ->button()
+                    ->markAsRead()
+                    ->url(url('/app/app-feedbacks/' . $appFeedback->id)),
+            ])
+            ->sendToDatabase($notifyTo);
     }
 
     /**
