@@ -18,7 +18,7 @@ class FlatPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_building::flat');
+        return $user->can('view_any_building::flat') || in_array($user->role_id,[16,43]);
     }
 
     /**
@@ -53,7 +53,7 @@ class FlatPolicy
      */
     public function update(User $user, Flat $flat): bool
     {
-        return $user->can('update_building::flat');
+        return $user->can('update_building::flat') || in_array($user->role_id,[16,43]);
     }
 
     /**
