@@ -386,6 +386,7 @@ class MollakController extends Controller
 
         $acknowledgeRef = random_int(1111111,9999999);
         $syncType = $request->input('syncType');
+        Log::info("Webhook syncType: " . $syncType);
         switch ($syncType) {
             case 'payment_receipt':
                 $parameters = [];

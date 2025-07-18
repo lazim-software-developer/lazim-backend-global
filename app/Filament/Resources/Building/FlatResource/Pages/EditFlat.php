@@ -87,7 +87,8 @@ class EditFlat extends EditRecord
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
 
-                    if ($role === 'Admin' || $role === 'OA') {
+                    // if ($role === 'Admin' || $role === 'OA' || $role === 'Customer Service Manager' ) {
+                    if (in_array($role,['Admin','OA','Customer Service Manager','Customer Service '])) {
                         return true;
                     }
                 })
