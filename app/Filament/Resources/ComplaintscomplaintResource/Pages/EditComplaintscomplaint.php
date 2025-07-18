@@ -49,7 +49,7 @@ class EditComplaintscomplaint extends EditRecord
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
 
             Remark::create([
-                'remarks' => $data['remarks'],
+                'remarks' => json_encode($data['remarks']),
                 'type' => 'Complaint',
                 'status' => $data['status'],
                 'user_id' => auth()->user()->id,

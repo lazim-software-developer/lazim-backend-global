@@ -16,6 +16,8 @@ use App\Jobs\Building\AssignFlatsToTenant;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+
 
 class FetchOwnersForFlat implements ShouldQueue
 {
@@ -30,6 +32,11 @@ class FetchOwnersForFlat implements ShouldQueue
     {
         $this->flat = $flat;
     }
+
+    public function middleware(): array
+	{
+    		return [(new WithoutOverlapping($this->flat))->releaseAfter(60)];
+	}
 
 
     public function handle()
@@ -149,6 +156,7 @@ class FetchOwnersForFlat implements ShouldQueue
                 // Attach the owners to the flat
                 if (!empty($ownerIds)) {
                     $this->flat->owners()->sync($ownerIds);
+                    Log::info('##### FetchOwnerForFlat -> owner_ids ##### ', $ownerIds);
                 }
             }
         }
