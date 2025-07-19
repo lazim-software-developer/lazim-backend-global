@@ -14,11 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 class EditOwner extends EditRecord
 {
     protected static string $resource = OwnerResource::class;
-
+    
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             //Actions\DeleteAction::make(),
         ];
     }

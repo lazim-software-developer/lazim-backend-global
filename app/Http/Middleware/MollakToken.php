@@ -19,7 +19,7 @@ class MollakToken
     {
         try {
             // Log the mollak_id header
-            Log::info("id=======>   ".$request->header('mollak_id'));
+            Log::info($request->header('mollak_id'));
 
             // Check if the request method is POST
             if (!$request->isMethod('post')) {
@@ -30,25 +30,25 @@ class MollakToken
             if ($request->header('mollak_id') != env('MOLLAK_ID')) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
-
+            
             if (empty($request->getContent())) {
                 return response()->json(['error' => 'Empty Body'], 400);
             }
-
+    
             // Manually decode JSON and check for errors
             $data = json_decode($request->getContent(), true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return response()->json(['error' => 'Invalid JSON'], 400);
             }
-
+    
             // Generate a unique identifier for the request body
             $requestHash = md5($request->getContent());
-
+    
             // Check if this request has been processed before
             if (Cache::has('processed_request:' . $requestHash)) {
                 return response()->json(['error' => 'Duplicate Request'], 400);
             }
-
+    
             // Store the request identifier in cache with a TTL (time-to-live) to prevent future duplicates
             Cache::put('processed_request:' . $requestHash, true, now()->addMinutes(5)); // Adjust TTL as needed
 

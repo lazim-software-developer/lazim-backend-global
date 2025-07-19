@@ -12,13 +12,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDocuments extends CreateRecord
 {
     protected static string $resource = DocumentsResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
-        ];
-    }
     protected function afterCreate(){
         $jsonValue = json_encode(['comments' => $this->record->remarks,'date'=>now(),
 
@@ -28,6 +21,6 @@ class CreateDocuments extends CreateRecord
             ->update([
                 'comments' => $jsonValue
             ]);
-
+        
     }
 }

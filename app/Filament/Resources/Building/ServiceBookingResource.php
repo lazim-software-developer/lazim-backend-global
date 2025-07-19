@@ -23,8 +23,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
 
 class ServiceBookingResource extends Resource
 {
@@ -155,20 +153,6 @@ class ServiceBookingResource extends Resource
                             ->disabledOn('edit')
                             ->preload()
                             ->placeholder('User'),
-                        TextInput::make('user.email')
-                            ->formatStateUsing(function ($record) {
-                                return $record->user ? $record->user->email : null;
-                            })
-                            ->label('Email')
-                            ->visibleOn(['edit'])
-                            ->disabledOn(['edit']),
-                        TextInput::make('user.phone')
-                            ->formatStateUsing(function ($record) {
-                                return $record->user ? $record->user->phone : null;
-                            })
-                            ->label('Phone')
-                            ->visibleOn(['edit'])
-                            ->disabledOn(['edit']),
 
                         Grid::make([
                             'sm' => 2,

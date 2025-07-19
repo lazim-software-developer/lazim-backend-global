@@ -27,7 +27,6 @@ class ListOwnerAssociations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Action::make('Sync Owner Association from Mollak')
             ->icon('heroicon-o-information-circle')
             ->disabled(function (): bool {

@@ -354,8 +354,7 @@ class RegistrationController extends Controller
         // $emirates = optimizeDocumentAndUpload($request->emirates_document, 'dev');
         // $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
         // $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
-        // if ($request->hasFile('emirates_document')) {
-        if ($request->hasFile('document')) { // fix for the title deed/ejari document
+        if ($request->hasFile('emirates_document')) {
             $imagePath = optimizeDocumentAndUpload($request->document, 'dev');
         } else {
             $imagePath = null;
@@ -403,7 +402,6 @@ class RegistrationController extends Controller
             'trade_license' => $tradeLicense,
             'passport' => $passport,
             'owner_association_id' => $oam?->id,
-            'status' => 'created',
         ]);
 
         // Store details to Flat tenants table
@@ -494,7 +492,6 @@ class RegistrationController extends Controller
             'trade_license' => $tradeLicense,
             'passport' => $passport,
             'owner_association_id' => $resident?->owner_association_id,
-            'status' => 'created',
         ]);
 
         return (new CustomResponseResource([
@@ -764,7 +761,6 @@ class RegistrationController extends Controller
             'emirates_document' => $userApproval->emirates_document,
             'passport' => $userApproval->passport,
             'owner_association_id' => $owner_association_id,
-            'status' => 'created',
         ]);
 
         // Store details to Flat tenants table

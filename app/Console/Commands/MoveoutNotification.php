@@ -44,49 +44,24 @@ class MoveoutNotification extends Command
                 $query->where('name', 'OA');
             })->where('owner_association_id',$moveout->owner_association_id)->first();
             $flatTenat = FlatTenant::where('tenant_id', $moveout->user_id)->where('flat_id', $moveout->flat_id)->first();
-            if($user){
-                if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $moveout->id)->exists()){
-                        $data=[];
-                        $data['notifiable_type']='App\Models\User\User';
-                        $data['notifiable_id']=$user->id;
-                        $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
-                        if($slug){
-                            $data['url']=MoveOutFormsDocumentResource::getUrl('edit', [$slug, $moveout->id]);
-                        }else{
-                            $data['url']=url('/app/move-out-forms-documents/' . $moveout->id.'/edit');
-                        }
-                        $data['title']='New Move Out Submission';
-                        $data['body']='New form submission by ' . auth()->user()->first_name;
-                        $data['building_id']=$moveout->building_id;
-                        $data['custom_json_data']=json_encode([
-                            'building_id' => $moveout->building_id,
-                            'post_id' => $moveout->id,
-                            'user_id' => auth()->user()->id ?? null,
-                            'owner_association_id' => $moveout->owner_association_id,
-                            'type' => 'Move Out',
-                            'priority' => 'Medium',
-                        ]);
-                        NotificationTable($data);
-                    }
-                }
-            // Notification::make()
-            //         ->success()
-            //         ->title("Move out Reminder")
-            //         ->icon('heroicon-o-document-text')
-            //         ->iconColor('warning')
-            //         ->body('Resident moving out on ' . $moveout->moving_date )
-            //         ->actions([
-            //             Action::make('view')
-            //                 ->button()
-            //                 ->url(function() use ($moveout){
-            //                     $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
-            //                     if($slug){
-            //                         return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveout?->id]);
-            //                     }
-            //                     return url('/app/move-out-forms-documents/' . $moveout?->id.'/edit');
-            //                 }),
-            //         ])
-            //         ->sendToDatabase($user);
+            Notification::make()
+                    ->success()
+                    ->title("Move out Reminder")
+                    ->icon('heroicon-o-document-text')
+                    ->iconColor('warning')
+                    ->body('Resident moving out on ' . $moveout->moving_date )
+                    ->actions([
+                        Action::make('view')
+                            ->button()
+                            ->url(function() use ($moveout){
+                                $slug = OwnerAssociation::where('id',$moveout->owner_association_id)->first()?->slug;
+                                if($slug){
+                                    return MoveOutFormsDocumentResource::getUrl('edit', [$slug,$moveout?->id]);
+                                }
+                                return url('/app/move-out-forms-documents/' . $moveout?->id.'/edit');
+                            }),
+                    ])
+                    ->sendToDatabase($user);
             $credentials = AccountCredentials::where('oa_id', $moveout->owner_association_id)->where('active', true)->latest()->first();
             $mailCredentials = [
                 'mail_host' => $credentials->host??env('MAIL_HOST'),

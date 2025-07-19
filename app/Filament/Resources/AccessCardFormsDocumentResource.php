@@ -70,10 +70,6 @@ class AccessCardFormsDocumentResource extends Resource
                         ->preload()
                         ->searchable()
                         ->label('User'),
-                    TextInput::make('reason')
-                        ->label('Reason')
-                        ->disabled()
-                        ->readOnly(),
                     Textarea::make('parking_details')
                         ->visible(function (callable $get) {
                             if ($get('parking_details') != "Invalid parking details format") {
@@ -138,115 +134,25 @@ class AccessCardFormsDocumentResource extends Resource
                         ->label('Passport / EID'),
                     Select::make('status')
                         ->options([
-                            'requested' => 'Requested',
                             'approved' => 'Approve',
                             'rejected' => 'Reject',
                         ])
-                        // ->disabled(function (AccessCard $record) {
-                        //     return $record->status != null;
-                        // })
+                        ->disabled(function (AccessCard $record) {
+                            return $record->status != null;
+                        })
                         ->required()
                         ->searchable()
-                        ->live()
-                        ->afterStateUpdated(function (callable $set, callable $get, ?string $state, ?Model $record) {
-                            if ($state === 'approved') {
-                                // Check if there's an existing order with payment status
-                                $order = null;
-                                if ($record) {
-                                    $order = Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->first();
-                                }
-                                
-                                if ($order && $order->payment_status) {
-                                    if($order->payment_status == 'NA'){
-                                        $set('payment_status', 'Payment Initiate');
-                                    }else{
-                                        $set('payment_status', $order->payment_status);
-                                    }
-                                } else {
-                                    $set('payment_status', 'Payment Initiate');
-                                }
-                            } else {
-                                // Reset payment status when not approved
-                                $set('payment_status', 'NA');
-                            }
-                        }),
-                    TextInput::make('payment_amount')
-                        ->label('Payment amount')
-                        ->numeric()
-                        ->required()
-                        ->readOnly(function (callable $get) {
-                            $order = Order::where(['orderable_id' => $get('id'), 'orderable_type' => AccessCard::class])->latest()->first();
-                            return $order && ($order->payment_status === 'Payment Initiate' || $order->payment_status === 'Payment Under Process' || $order->payment_status === 'Payment Failed' || $order->payment_status === 'Payment Success');
-                        })
-                        ->formatStateUsing(function (?Model $record) {
-                            return Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->latest()->value('amount');
-                        })
-                        ->rules('numeric', 'The payment amount must be a number.')
-                        ->visible(function (callable $get) {
-                            return $get('status') === 'approved';
-                        })
-                        ->reactive(),
-                    // Payment Status field with complete logic
-                    Select::make('payment_status')
-                        ->label('Payment status')
-                        ->required()
-                        ->options(function (callable $get) {
-                            $orderpayment_status = Order::where(['orderable_id' => $get('id'), 'orderable_type' => AccessCard::class])->latest()->value('payment_status');
-                            if ($orderpayment_status == 'NA') {
-                                return [
-                                    'Payment Initiate' => 'Payment Initiate',
-                                ];
-                            } elseif ($orderpayment_status == 'Payment Initiate') {
-                                return [
-                                    'Payment Initiate' => 'Payment Initiate',
-                                    'Payment Success' => 'Payment Success',
-                                    'Payment Failed' => 'Payment Failed',
-                                    'Payment Under Process' => 'Payment Under Process',
-                                ];
-                            }
-                            elseif ($orderpayment_status == 'Payment Under Process') {
-                                return [
-                                    'Payment Under Process' => 'Payment Under Process',
-                                    'Payment Success' => 'Payment Success',
-                                    'Payment Failed' => 'Payment Failed',
-                                ];
-                            }
-                            elseif ($orderpayment_status == 'Payment Success') {
-                                return [
-                                    'Payment Success' => 'Payment Success',
-                                ];
-                            }
-                            elseif ($orderpayment_status == 'Payment Failed') {
-                                return [
-                                    'Payment Failed' => 'Payment Failed',
-                                ];
-                            } else {
-                                return [
-                                    'NA' => 'NA',
-                                    'Payment Initiate' => 'Payment Initiate',
-                                    'Payment Success' => 'Payment Success',
-                                    'Payment Failed' => 'Payment Failed',
-                                    'Payment Under Process' => 'Payment Under Process',
-                                ];
-                            }
-                        })
-                        ->formatStateUsing(function (?Model $record) {
-                            return Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->latest()->value('payment_status');
-                        })
-                        ->visible(function (callable $get) {
-                            return $get('status') === 'approved';
-                        })
                         ->live(),
-                    // TextInput::make('reason')
-                    //     ->formatStateUsing(function (?Model $record, callable $get) {
-                    //         $orderpayment_status = Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->first()?->payment_status;
-                    //         if ($orderpayment_status) {
-                    //             return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
-                    //         }
-                    //         return 'NA';
-                    //     })
-                    //     ->label('Payment status')
-                    //     ->readOnly(),
+                    TextInput::make('reason')
+                        ->formatStateUsing(function (?Model $record) {
+                            $orderpayment_status = Order::where(['orderable_id' => $record->id, 'orderable_type' => AccessCard::class])->first()?->payment_status;
+                            if ($orderpayment_status) {
+                                return $orderpayment_status == 'requires_payment_method' ? 'Payment Failed' : $orderpayment_status;
+                            }
+                            return 'NA';
+                        })
+                        ->label('Payment status')
+                        ->readOnly(),
                     Textarea::make('remarks')
                         ->rules(['max:250'])
                         ->visible(function (callable $get) {
@@ -325,19 +231,8 @@ class AccessCardFormsDocumentResource extends Resource
                     ->searchable()
                     ->default('NA')
                     ->limit(50),
-                    TextColumn::make('latestOrder')
-                    ->formatStateUsing(function ($state, $record) {
-                        if (!$record) {
-                            return 'NA';
-                        }
-                        
-                        $order = Order::where('orderable_id', $record->id)
-                            ->where('orderable_type', AccessCard::class)
-                            ->latest()
-                            ->first();
-                            
-                        return $order ? $order->payment_status : 'NA';
-                    })
+                TextColumn::make('orders')
+                    ->formatStateUsing(fn($state) => json_decode($state) ? (json_decode($state)->payment_status == 'requires_payment_method' ? 'Payment Failed' : json_decode($state)->payment_status) : 'NA')
                     ->label('Payment status')
                     ->default('NA')
                     ->limit(50),

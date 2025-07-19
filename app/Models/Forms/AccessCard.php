@@ -9,11 +9,10 @@ use App\Models\OwnerAssociation;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccessCard extends Model
 {
-    use HasFactory , SoftDeletes;
+    use HasFactory;
     protected $connection = 'mysql';
     protected $fillable = [
         'mobile',
@@ -35,9 +34,7 @@ class AccessCard extends Model
         'passport',
         'title_deed',
         'ticket_number',
-        'emirate_of_registration' ,
-        'payment_amount',
-        'payment_status'
+        'emirate_of_registration' 
     ];
 
     protected $searchableFields = ['*'];
@@ -62,9 +59,5 @@ class AccessCard extends Model
     public function orders()
     {
         return $this->morphMany(Order::class, 'orderable');
-    }
-    public function latestOrder()
-    {
-        return $this->orders()->latest();
     }
 }

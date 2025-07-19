@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
 use ZipArchive;
+use Filament\Forms;
 use Filament\Tables;
 use App\Models\Floor;
 use Filament\Forms\Form;
@@ -19,11 +20,12 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Filament\Resources\RelationManagers\RelationManager;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class LocationQrCodeRelationManager extends RelationManager
 {
     protected static string $relationship = 'LocationQrCode';
-
+    
 
     public function form(Form $form): Form
     {
@@ -64,6 +66,29 @@ class LocationQrCodeRelationManager extends RelationManager
                     ->maxLength(50),
                 FloorQrCode::make('qr_code')
                     ->label('QR Code')
+                    ->formatStateUsing(function ($record) {
+                        if (!$record) {
+                            return null;
+                        }
+                        
+                        // If QR code is already stored in database, use it
+                        if ($record->qr_code) {
+                            return '<img src="data:image/png;base64,' . $record->qr_code . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
+                        }
+                        
+                        // Otherwise generate it dynamically
+                        $qrData = json_encode([
+                            'floors' => $record->floor_id,
+                            'building_id' => $record->building_id,
+                            'code' => $record->code
+                        ]);
+                        
+                        $qrCode = QrCode::size(200)->format('png')->generate($qrData);
+                        $qrCodeBase64 = base64_encode($qrCode);
+                        
+                        return '<img src="data:image/png;base64,' . $qrCodeBase64 . '" alt="QR Code" style="max-width: 200px; height: auto;" />';
+                    })
+                    ->dehydrated(fn (array $record): string => $record['qr_code'])
                     ->hidden(fn (string $operation): bool => $operation === 'create' || $operation === 'edit')
             ]);
     }
@@ -73,6 +98,17 @@ class LocationQrCodeRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('floors')
             ->columns([
+                ImageColumn::make('qr_code')
+                    ->label('QR Code')
+                    ->getStateUsing(function ($record) {
+                        $qrCodeContent = [
+                            'floors' => $record->floor_id,
+                            'building_id' => $record->building_id,
+                            'code'=>$record->code
+                        ];
+                        $qrCode = QrCode::format('png')->size(200)->generate(json_encode($qrCodeContent));
+                        return 'data:image/png;base64,' . base64_encode($qrCode);
+                    }),
                 TextColumn::make('floor_name')->searchable()->label('Location Name'),
                 TextColumn::make('building.name')->searchable()->label('Building'),
                 TextColumn::make('floor.floors')->searchable()->label('Floor'),
@@ -82,10 +118,8 @@ class LocationQrCodeRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Add Location QR Code')
-                    ->icon('heroicon-o-plus')
                     ->after(function (LocationQrCode $record) {
-                        // Update the location qr code and code after creation
+                        // Update the floor count for the building
                         $building = Building::find($record->building_id);
                         $floor = Floor::find($record->floor_id);
                         if($building->code){
@@ -98,55 +132,43 @@ class LocationQrCodeRelationManager extends RelationManager
                             }
                             $code = $buildingcode.'/'.$floor->floors.'/'.$record->floor_name;
                         }
-                        $qrCode = self::generateLocationQrCode($record, 'svg', 500, 500);
+                        $qrCodeContent = [
+                            'floor_id' => $record->floor_id,
+                            'building_id' => $record->building_id,
+                            'code' => $code
+                        ];
+                        $qrCode = QrCode::size(200)->generate(json_encode($qrCodeContent));
                         LocationQrCode::where('id', $record->id)
                             ->update(['qr_code' => $qrCode,'code'=>$code]);
                     }),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                        Tables\Actions\ViewAction::make(),
-                        Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\Action::make('download_qr')
-                            ->action(function (LocationQrCode $record) {
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('download_qr')
+                    ->label('Download QR Code')
+                    ->action(function (LocationQrCode $record) {
+                        $qrCodeContent = [
+                            'floors' => $record->floor_id,
+                            'building_id' => $record->building_id,
+                            'code' => $record->code
+                        ];
+                        // Generate QR code as PNG
+                        $qrCode = QrCode::format('png')->size(500) // Increased size for better quality
+                            ->errorCorrection('H') // High error correction
+                            ->margin(4)->generate(json_encode($qrCodeContent));
 
-                                $qrImage = $record->qr_code ? $record->qr_code : self::generateLocationQrCode($record);
-                                return response()->streamDownload(function () use ($qrImage) {
-                                    echo $qrImage;
-                                }, 'location_' . $record->floor_name . '.svg', [
-                                    'Content-Type' => 'image/svg',
-                                ]);
-                            })
-                            ->icon('heroicon-o-arrow-down-tray')
-                            ->requiresConfirmation(false)
-                            ->tooltip('Download QR Code'),
-                        Tables\Actions\Action::make('regenerate_qr')
-                            ->label('Regenerate QR Code')
-                            ->action(function (LocationQrCode $record) {
-                                try {
-                                    \Log::info('Regenerating QR Code for Location ID: ' . $record->id);
-                                    $qrImage = self::generateLocationQrCode($record);
-                                    LocationQrCode::where('id', $record->id)
-                                        ->update(['qr_code' => $qrImage]);
-                                    Notification::make()
-                                        ->title('QR Code Regenerated')
-                                        ->body('The QR code has been successfully regenerated.')
-                                        ->success()
-                                        ->send();
-                                } catch (\Exception $e) {
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Failed to regenerate QR code: ' . $e->getMessage())
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
-                            ->icon('heroicon-o-arrow-path')
-                            ->requiresConfirmation()
-                            ->tooltip('Regenerate QR Code'),
+                        // Return the QR code as a downloadable PNG
+                        return response()->streamDownload(function () use ($qrCode) {
+                            echo $qrCode;
+                        }, 'floor_' . $record->floor_id . '.png', [
+                            'Content-Type' => 'image/png',
+                        ]);
+                    })
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->requiresConfirmation(false),
                 // Tables\Actions\DeleteAction::make(),
-                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -155,8 +177,9 @@ class LocationQrCodeRelationManager extends RelationManager
                             ->label('Download All QR Codes')
                             ->action(function ($records) {
                                 try {
-                                    $locations = $records->count() ? $records : null;
-                                    if (!isset($locations) && empty($locations)) {
+                                    $floors = $records->count() ? $records : null;
+
+                                    if (!isset($floors) && empty($floors)) {
                                         Notification::make()
                                             ->title('Error')
                                             ->body('No buildings found to generate QR codes.')
@@ -166,7 +189,7 @@ class LocationQrCodeRelationManager extends RelationManager
                                     }
 
                                     // Create a temporary file for the ZIP
-                                    $buildingName = $locations->count() ? $locations->first()->building->name : 'all_buildings';
+                                    $buildingName = $floors->count() ? $floors->first()->building->name : 'all_buildings';
                                     $zipFileName = $buildingName.'_qr_codes_' . time() . '.zip';
                                     $zipFilePath = storage_path('app/temp/' . $zipFileName);
                                     $zip = new ZipArchive();
@@ -179,12 +202,22 @@ class LocationQrCodeRelationManager extends RelationManager
                                     }
 
                                     // Generate QR code for each building
-                                    foreach ($locations as $location) {
-                                        $qrImage = self::generateLocationQrCode($location);
+                                    foreach ($floors as $floor) {
+                                        $qrCodeContent = [
+                                            'floors' => $floor->floor_id,
+                                            'building_id' => $floor->building_id,
+                                            'building_name' => $buildingName,
+                                            'code' => $floor->code
+                                        ];
+                                        $qrCode = QrCode::format('png')
+                                            ->size(500)
+                                            ->errorCorrection('H')
+                                            ->margin(4)
+                                            ->generate(json_encode($qrCodeContent));
 
                                         // Add QR code to ZIP
-                                        $qrFileName = 'location_' . $location->floor_name . '.svg';
-                                        $zip->addFromString($qrFileName, $qrImage);
+                                        $qrFileName = 'floor_' . $floor->floor_id . '.png';
+                                        $zip->addFromString($qrFileName, $qrCode);
 
                                     }
 
@@ -214,69 +247,10 @@ class LocationQrCodeRelationManager extends RelationManager
                             ->icon('heroicon-o-qr-code')
                             ->requiresConfirmation()
                             ->deselectRecordsAfterCompletion(),
-                    Tables\Actions\BulkAction::make('regenerate_all_qr_codes')
-                            ->label('Regenerate All QR Codes')
-                            ->action(function ($records) {
-                                try {
-                                    $locations = $records->count() ? $records : null;
-                                    if (!isset($locations) && empty($locations)) {
-                                        Notification::make()
-                                            ->title('Error')
-                                            ->body('No buildings found to generate QR codes.')
-                                            ->danger()
-                                            ->send();
-                                        return;
-                                    }
-                                    // Generate QR code for each building
-                                    foreach ($locations as $location) {
-                                        \Log::info('Regenerating QR Code for Location ID: ' . $location->id);
-                                        $qrImage = self::generateLocationQrCode($location);
-
-                                        LocationQrCode::where('id', $location->id)
-                                            ->update(['qr_code' => $qrImage]);
-                                    }
-                                    return Notification::make()
-                                            ->title('QR Code Regenerated')
-                                            ->body('The QR code has been successfully regenerated.')
-                                            ->success()
-                                            ->send();
-                                } catch (\Exception $e) {
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Failed to Regenerate QR codes: ' . $e->getMessage())
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
-                            ->icon('heroicon-o-arrow-path')
-                            ->requiresConfirmation()
-                            ->deselectRecordsAfterCompletion(),
-
                 ]),
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
-    }
-
-    public function generateLocationQrCode(LocationQrCode $record, $type='svg', $qrCodeSize = 500, $width = 200): string
-    {
-        $qrCodeContent = [
-            'location_id' => $record->id,
-            'floors' => $record->floor_id,
-            'building_id' => $record->building_id,
-            'code' => $record->code ?? $record->floors,
-        ];
-
-        $height = $qrCodeSize + 100; // Enough space for QR code and text
-        $qrCode = QrCode::format($type)
-            ->size($qrCodeSize)
-            ->errorCorrection('H')
-            ->margin(4)
-            ->generate(json_encode($qrCodeContent));
-        $qrText[] = $qrCodeContent['code'] ?? ' ';
-
-        $qrImage = addTextToQR($qrCode, $qrText, $qrCodeSize, $width, $height);
-        return $qrImage;
     }
 }

@@ -15,7 +15,6 @@ class ViewAsset extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), # TODO: Change this to the correct association ID or condition
             Action::make('qr code')->label('Print QR Code')
             ->action(function ($record) {
                 $data = [

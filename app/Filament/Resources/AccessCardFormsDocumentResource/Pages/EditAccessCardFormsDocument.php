@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources\AccessCardFormsDocumentResource\Pages;
 
-use App\Models\Order;
-use Filament\Actions;
-use App\Traits\UtilsTrait;
-use App\Models\Configuration;
+use App\Filament\Resources\AccessCardFormsDocumentResource;
+use App\Models\ExpoPushNotification;
 use App\Models\Forms\AccessCard;
+use App\Models\Order;
+use App\Traits\UtilsTrait;
+use Filament\Actions;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\ExpoPushNotification;
-use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\AccessCardFormsDocumentResource;
 
 class EditAccessCardFormsDocument extends EditRecord
 {
@@ -52,7 +51,6 @@ class EditAccessCardFormsDocument extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -113,46 +111,20 @@ class EditAccessCardFormsDocument extends EditRecord
             // Generate payment link and save it in access_cards_table
 
             try {
-                $price = Configuration::where('key', 'access_card_price')->where('owner_association_id', $this->record->building->owner_association_id)->first()->value;
-                // $payment = createPaymentIntent($price ?? 100, $this->record->email);
+                $payment = createPaymentIntent(env('ACCESS_CARD_AMOUNT'), 'punithprachi113@gmail.com');
 
-                // if ($payment) {
-                //     $this->record->update([
-                //         'payment_link' => $payment->client_secret
-                //     ]);
-                // }
-                // Create an entry in orders table with status pending
-                $existingOrder = Order::where('orderable_id', $this->record->id)->where('orderable_type', AccessCard::class)->latest()->first();
-                if ($existingOrder) {
-                    Order::updateOrCreate(
-                        [
-                            'orderable_id' => $this->record->id,
-                            'orderable_type' => AccessCard::class,
-                            'payment_status' => $this->record->payment_status,
-                        ],
-                        [
-                            'amount' => $this->record->payment_amount ?? 0, // Get amount from record or set default
-                            'payment_intent_id' => $existingOrder->payment_intent_id, // Set appropriate value
-                        ]
-                    );
-                } else {
+                if ($payment) {
+                    $this->record->update([
+                        'payment_link' => $payment->client_secret
+                    ]);
+
+                    // Create an entry in orders table with status pending
                     Order::create([
                         'orderable_id' => $this->record->id,
                         'orderable_type' => AccessCard::class,
-                        'payment_status' => $this->record->payment_status,
-                        'amount' => $this->record->payment_amount ?? 0,
-                        'payment_intent_id' => (new class {
-                            public function generateRandomString()
-                            {
-                                $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                                $charactersLength = strlen($characters);
-                                $randomString = '';
-                                for ($i = 0; $i < 50; $i++) {
-                                    $randomString .= $characters[random_int(0, $charactersLength - 1)];
-                                }
-                                return 'lazim_' . $randomString;
-                            }
-                        })->generateRandomString()
+                        'payment_status' => 'pending',
+                        'amount' => env('ACCESS_CARD_AMOUNT'),
+                        'payment_intent_id' => $payment->id
                     ]);
                 }
             } catch (\Exception $e) {

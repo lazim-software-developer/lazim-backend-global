@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('sync:owner-associations')->daily();
+        // $schedule->command('sync:owner-associations')->daily();
         $schedule->command('telescope:clear')->daily();
         $schedule->command('app:deactivate-vendor')->daily();
         $schedule->command('budget:clean-imports')->daily();

@@ -1,16 +1,14 @@
 <?php
 namespace App\Filament\Resources\UserApprovalResource\Pages;
 
-use DB;
+use App\Filament\Resources\UserApprovalResource;
 use App\Models\Master\Role;
-use App\Models\UserApproval;
-use Filament\Facades\Filament;
 use App\Models\OwnerAssociation;
-use Illuminate\Support\Facades\Log;
-use Filament\Resources\Components\Tab;
+use DB;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\UserApprovalResource;
+use Illuminate\Support\Facades\Log;
 
 class ListUserApprovals extends ListRecords
 {
@@ -19,7 +17,6 @@ class ListUserApprovals extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\CreateAction::make(),
         ];
     }
@@ -55,37 +52,5 @@ class ListUserApprovals extends ListRecords
             return parent::getTableQuery()->whereIn('flat_id', $flats)->latest();
         }
         return parent::getTableQuery()->latest();
-    }
-
-    // public function getTabs(): array
-    // {
-    //     if (auth()->user()->owner_association_id !== 13) {
-    //         return [
-    //             'all' => Tab::make('All')
-    //                 ->modifyQueryUsing(fn (Builder $query) => $query)
-    //                 ->badge(parent::getTableQuery()->count())
-    //                 // ->badge(UserApproval::query()->count())
-    //                 ->badgeColor('success'),
-    //             'pending' => Tab::make('Pending')
-    //                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('status'))
-    //                 ->badge(parent::getTableQuery()->whereNull('status')->count())
-    //                 // ->badge(UserApproval::query()->whereNull('status')->count())
-    //                 ->badgeColor('warning'),
-    //             'active' => Tab::make('Approved')
-    //                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'approved'))
-    //                 ->badge(parent::getTableQuery()->where('status', 'approved')->count())
-    //                 // ->badge(UserApproval::query()->where('status', 'approved')->count())
-    //                 ->badgeColor('success'),
-    //             'inactive' => Tab::make('Rejected')
-    //                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'rejected'))
-    //                 ->badge(parent::getTableQuery()->where('status', 'rejected')->count())
-    //                 // ->badge(UserApproval::query()->where('status', 'rejected')->count())
-    //                 ->badgeColor('danger'),
-    //         ];
-    //     }
-    // }
-    public function getDefaultActiveTab(): string | int | null
-    {
-        return 'pending';
     }
 }

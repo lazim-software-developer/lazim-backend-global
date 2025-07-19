@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Building;
 
-use DB;
 use App\Filament\Resources\Building\FlatTenantResource\Pages;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\FamilyMembersRelationManager;
 use App\Filament\Resources\FlatTenantResource\RelationManagers\RentalDetailsRelationManager;
@@ -10,6 +9,7 @@ use App\Jobs\SendInactiveStatusToResident;
 use App\Models\Building\Building;
 use App\Models\Building\FlatTenant;
 use App\Models\Master\Role;
+use DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;

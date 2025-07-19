@@ -25,8 +25,8 @@ class FetchAndSaveInvoices implements ShouldQueue
 
     protected $building;
 
-    public $tries = 5; // Retry 3 times on failure
-    public $backoff = [10, 30, 60, 120, 300]; // Wait 60s, 120s, 180s before retries
+    public $tries = 3; // Retry 3 times on failure
+    public $backoff = [60, 120, 180]; // Wait 60s, 120s, 180s before retries
 
     public function __construct($building = null, protected $propertyGroupId = null, protected $serviceChargeGroupId = null, protected $quarterCode = null)
     {
@@ -41,7 +41,7 @@ class FetchAndSaveInvoices implements ShouldQueue
                 // Try to throttle
         if (! $this->throttleApiCall('external-api-global', 4)) {
             // Too soon, retry after delay
-            $this->release($this->backoff[$this->attempts() - 1] ?? 300); // Retry after 4 minutes
+            $this->release(4); // Retry after 4 minutes
             return;
         }
         $propertyGroupId = $this->propertyGroupId ?: $this->building->property_group_id;
@@ -63,14 +63,12 @@ class FetchAndSaveInvoices implements ShouldQueue
 
         try {
             if (!$serviceChargeGroupId) {
-                $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId; // For Latest Invoice
-                // $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;   // For Inovice according to Quater
+                $url = env("MOLLAK_API_URL") . '/sync/invoices/' . $propertyGroupId . '/all/' . $quarter;
                 // $url = env("MOLLAK_API_URL") ."/sync/invoices/". $propertyGroupId ."/all/Q1-JAN2023-DEC2023";
             } else {
                 $url = env("MOLLAK_API_URL") . "/sync/invoices/" . $propertyGroupId . "/" . $serviceChargeGroupId . "/" . $quarter;
             }
-            Log::info('##### FetchAndSaveInvoices -> callExternalApi ##### '. json_encode($url));
-            $response = Http::withoutVerifying()->withHeaders([
+            $response = Http::withoutVerifying()->retry(2, 500)->timeout(60)->withHeaders([
                 'content-type' => 'application/json',
                 'consumer-id' => env("MOLLAK_CONSUMER_ID"),
             ])->get($url);
@@ -200,12 +198,11 @@ class FetchAndSaveInvoices implements ShouldQueue
         } catch (\Exception $e) {
             Log::error("##### FetchAndSaveInvoices -> callExternalApi #####  Invoice Fetch Failed File: " . $e->getFile() . " Line: " . $e->getLine() . " Message: " . $e->getMessage());
             Log::error("##### FetchAndSaveInvoices -> callExternalApi ##### Failed to fetch or save invoices for building property group id: " . $this->building->property_group_id);
-            $this->release($this->backoff[$this->attempts() - 1] ?? 300);
         }
 
     }
     public function backoff()
     {
-        return [10, 30, 60, 120, 300]; // Retry delays in seconds
+        return [1, 3, 5, 10, 30]; // Retry delays in seconds
     }
 }

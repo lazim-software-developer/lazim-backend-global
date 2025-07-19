@@ -15,7 +15,6 @@ class ViewAssetMaintenance extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), # TODO: Change this to the correct association ID or condition
             // Actions\EditAction::make(),
         ];
     }
@@ -25,13 +24,13 @@ class ViewAssetMaintenance extends ViewRecord
         // dd($data);
         $user = User::find($data['maintained_by']);
         $technicianAsset = TechnicianAssets::find($data['technician_asset_id']);
-
+        
         $data['maintained_by'] = $user->first_name;
         $data['asset'] = $technicianAsset->asset->name;
         $data['technician'] = $technicianAsset->user->first_name;
         $data['vendor'] = $technicianAsset->vendor->name;
         // dd($data);
-
+     
         return $data;
     }
 }
