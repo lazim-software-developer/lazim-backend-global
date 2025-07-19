@@ -147,6 +147,7 @@ class GuestController extends Controller
                                 $data=[];
                                 $data['notifiable_type']='App\Models\User\User';
                                 $data['notifiable_id']=$value->id;
+
                                 $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
                                 if($slug){
                                     $data['url']=GuestFormResource::getUrl('edit', [$slug, $visitor->id]);
@@ -163,6 +164,7 @@ class GuestController extends Controller
                                     'owner_association_id' => $visitor->owner_association_id,
                                     'type' => 'Visitor',
                                     'priority' => 'Medium',
+
                                 ]);
                                 NotificationTable($data);
                             }
