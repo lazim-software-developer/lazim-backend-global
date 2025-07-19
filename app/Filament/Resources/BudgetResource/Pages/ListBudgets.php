@@ -39,6 +39,7 @@ class ListBudgets extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Action::make('feature')
                 ->label('Upload Budget') // Set a label for your action
                 ->modalHeading('Upload Budget for Period') // Modal heading

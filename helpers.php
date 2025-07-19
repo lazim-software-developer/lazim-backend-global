@@ -2,6 +2,7 @@
 
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Filament\Actions\Action;
 use Spatie\Pdf\Pdf as SpatiePdf;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
@@ -35,11 +36,14 @@ function imageUploadonS3($image, $path)
 
 function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height = 622)
 {
-    if ($file) {
+        if (!$file) {
+            Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- No file provided for upload', ['path' => $path, 'user_id' => auth()->id()]);
+            return null;
+        }
         $extension = $file->getClientOriginalExtension();
-        Log::info($extension);
+        $extension = strtolower($extension); // Normalize the extension to lowercase
 
-        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg' || $extension == 'JPG') {
+        if ($extension == 'jpg' || $extension == 'png' || $extension == 'jpeg') {
             $optimizedImage = Image::make($file)
             ->resize($width, $height, function ($constraint) {
                 $constraint->aspectRatio();
@@ -66,24 +70,20 @@ function optimizeDocumentAndUpload($file, $path = 'dev', $width = 474, $height =
             return $fullPath;
         } else {
             // Unsupported file type
-            return response()->json(['error' => 'Unsupported file type.'], 422);
+            \Illuminate\Support\Facades\Log::error('##### Helper -> optimizeDocumentAndUpload ##### :- Unsupported file type uploaded', ['file_type' => $extension, 'path' => $path, 'filename' => $file->getClientOriginalName(), 'user_id' => auth()->id()]);
+            // return response()->json(['error' => 'Unsupported file type.'], 422);
+            return null;
         }
-    } else {
-        // No file uploaded
-        return response()->json(['error' => 'No file uploaded.'], 422);
-    }
 }
 
 function createPaymentIntent($amount, $email) {
     Stripe::setApiKey(env('STRIPE_SECRET'));
-
     try {
         $paymentIntent = PaymentIntent::create([
             'amount' => $amount,
             'currency' => 'aed',
             'receipt_email' => $email,
         ]);
-
         return $paymentIntent;
     } catch (\Exception $e) {
         return (new CustomResponseResource([
@@ -119,7 +119,7 @@ function NotificationTable($data){
             'updated_at' => now()->format('Y-m-d H:i:s'),
         ]);
     }
-    
+
     DB::table('notifications')->insert([
         'id' => (string) \Ramsey\Uuid\Uuid::uuid4(),
         'type' => 'Filament\Notifications\DatabaseNotification',
@@ -152,4 +152,61 @@ function NotificationTable($data){
         'updated_at' => now()->format('Y-m-d H:i:s'),
         'custom_json_data' => $data['custom_json_data'] ?? null,
     ]);
+}
+
+if (! function_exists('backButton')) {
+    /**
+     * Generate a Filament back button action.
+     *
+     * @param string|null $url The URL to redirect to. Defaults to the dashboard.
+     * @param string $label The button label. Defaults to 'Back'.
+     * @param string $icon The button icon. Defaults to 'heroicon-o-arrow-left'.
+     * @param string $color The button color. Defaults to 'gray'.
+     * @return Action
+     */
+    function backButton(?string $url = null, string $label = 'Back', string $icon = 'heroicon-o-arrow-left', string $color = 'gray'): Action
+    {
+        return Action::make('back')
+            ->label($label)
+            ->icon($icon)
+            ->url($url ?? \Filament\Facades\Filament::getPanel()->getPath())
+            ->color($color);
+    }
+}
+
+if (! function_exists('addTextToQR')) {
+    /**
+     * Generate a unique identifier.
+     *
+     * @return string
+     */
+    function addTextToQR($qrCode, $qrText = [], $qrCodeSize = 300, $width = 300, $height = 400): string
+    {
+        // Calculate dynamic font size (5% of QR size, clamped between 10 and 20)
+        $fontSize = max(10, min(20, $qrCodeSize * 0.05));
+
+        // Calculate text positioning
+        $textY = $qrCodeSize + ($qrCodeSize * 0.1); // Start text 10% below QR code
+        $lineSpacing = $fontSize * 1.5;
+
+        // Create SVG text elements
+        $svgText = '';
+        foreach ($qrText as $line) {
+            // Center text horizontally (approximate, as SVG text alignment is simpler)
+            $svgText .= "<text x='50%' y='{$textY}' font-size='{$fontSize}' font-family='Arial, sans-serif' text-anchor='middle'>{$line}</text>";
+            $textY += $lineSpacing;
+        }
+
+        // Append text to SVG
+        $svg = str_replace('</svg>', $svgText . '</svg>', $qrCode);
+
+        // Update SVG viewBox to accommodate text
+        $height = $qrCodeSize + ($qrCodeSize * 0.1) + (count($qrText) * $lineSpacing);
+        $svg = preg_replace(
+            '/viewBox="0 0 (\d+) (\d+)"/',
+            "viewBox='0 0 $qrCodeSize $height'",
+            $svg
+        );
+        return $svg;
+    }
 }

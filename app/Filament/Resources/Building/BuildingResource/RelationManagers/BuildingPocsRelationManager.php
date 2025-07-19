@@ -211,7 +211,8 @@ class BuildingPocsRelationManager extends RelationManager
 
                         ]);
                         if ($user && $security) {
-                            $password       = Str::random(12);
+                            // $password       = Str::random(12);
+                            $password       = 'test1234';
                             $user->password = Hash::make($password);
                             $user->save();
                             $tenant = Filament::getTenant()?->id ?? auth()->user()?->owner_association_id;
