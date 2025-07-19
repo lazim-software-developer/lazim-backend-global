@@ -149,9 +149,9 @@ class GuestController extends Controller
                                 $data['notifiable_id']=$value->id;
                                 $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
                                 if($slug){
-                                    $data['url']=GuestFormResource::getUrl('edit', [$slug, $visitor->id]);
+                                    $data['url']=VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
                                 }else{
-                                    $data['url']=url('/app/guest-forms/' . $visitor->id.'/edit');
+                                    $data['url']=url('/app/visitor-forms/' . $visitor?->id.'/edit');
                                 }
                                 $data['title']='Visitor Request';
                                 $data['body']='New visitor request received for ' . $visitor->start_date;
