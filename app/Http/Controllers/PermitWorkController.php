@@ -79,51 +79,26 @@ class PermitWorkController extends Controller
             ->first();
 
         // Create and send notification
-        if($user){
-            if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->post_id', $workPermit->id)->exists()){
-                    $data=[];
-                    $data['notifiable_type']='App\Models\User\User';
-                    $data['notifiable_id']=$user->id;
-                    $slug = OwnerAssociation::where('id',$user->owner_association_id)->first()?->slug;
-                    if($slug){
-                        $data['url']=FacilityBookingResource::getUrl('edit', [$slug, $workPermit->id]);
-                    }else{
-                        $data['url']=url('/app/facility-bookings/' . $workPermit->id.'/edit');
-                    }
-                    $data['title']='Work permit Request';
-                    $data['body']='Please approve the Permit to work request.';
-                    $data['building_id']=$workPermit->building_id;
-                    $data['custom_json_data']=json_encode([
-                        'building_id' => $workPermit->building_id,
-                        'post_id' => $workPermit->id,
-                        'user_id' => auth()->user()->id ?? null,
-                        'owner_association_id' => $workPermit->owner_association_id,
-                        'type' => 'Work Permit',
-                        'priority' => 'Medium',
-                    ]);
-                    NotificationTable($data);
-                }
-            }
-        // if ($user) {
-        //     Notification::make()
-        //         ->success()
-        //         ->title("Work permit Request")
-        //         ->icon('heroicon-o-document-text')
-        //         ->iconColor('warning')
-        //         ->body("Please approve the Permit to work request.")
-        //         ->actions([
-        //             Action::make('view')
-        //                 ->button()
-        //                 ->url(function () use ($user, $workPermit) {
-        //                     $slug = OwnerAssociation::where('id', $user->owner_association_id)->first()?->slug;
-        //                     if ($slug) {
-        //                         return FacilityBookingResource::getUrl('edit', [$slug, $workPermit?->id]);
-        //                     }
-        //                     return url('/app/facility-bookings/' . $workPermit?->id . '/edit');
-        //                 }),
-        //         ])
-        //         ->sendToDatabase($user);
-        // }
+        if ($user) {
+            Notification::make()
+                ->success()
+                ->title("Work permit Request")
+                ->icon('heroicon-o-document-text')
+                ->iconColor('warning')
+                ->body("Please approve the Permit to work request.")
+                ->actions([
+                    Action::make('view')
+                        ->button()
+                        ->url(function () use ($user, $workPermit) {
+                            $slug = OwnerAssociation::where('id', $user->owner_association_id)->first()?->slug;
+                            if ($slug) {
+                                return FacilityBookingResource::getUrl('edit', [$slug, $workPermit?->id]);
+                            }
+                            return url('/app/facility-bookings/' . $workPermit?->id . '/edit');
+                        }),
+                ])
+                ->sendToDatabase($user);
+        }
 
         return new CustomResponseResource([
             'title'   => 'Booking Successful',

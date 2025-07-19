@@ -149,7 +149,7 @@ class MollakController extends Controller
         if(env('APP_ENV') == 'production'){
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=4&exptime=60");
+        ])->post(env("SMS_LINK") . "otpgenerate?username=" . env("SMS_USERNAME") . "&password=" . env("SMS_PASSWORD") . "&msisdn=" . $request->phone . "&msg=Your%20one%20time%20OTP%20is%20%25m&source=ILAJ-LAZIM&tagname=" . env("SMS_TAG") . "&otplen=5&exptime=60");
 
         Log::info('RESPONSEEE:-' . $response);
 
@@ -386,7 +386,6 @@ class MollakController extends Controller
 
         $acknowledgeRef = random_int(1111111,9999999);
         $syncType = $request->input('syncType');
-        Log::info("Webhook syncType: " . $syncType);
         switch ($syncType) {
             case 'payment_receipt':
                 $parameters = [];

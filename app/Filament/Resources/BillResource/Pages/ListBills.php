@@ -30,7 +30,6 @@ class ListBills extends ListRecords
     {
         return [
             // Actions\CreateAction::make()->label('New Bill'),
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
 
             Action::make('upload')
                 ->slideOver()

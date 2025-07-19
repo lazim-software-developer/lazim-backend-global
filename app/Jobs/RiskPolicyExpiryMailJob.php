@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Log;
-use Snowfire\Beautymail\Beautymail;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
+use Snowfire\Beautymail\Beautymail;
 
 class RiskPolicyExpiryMailJob implements ShouldQueue
 {
@@ -36,18 +36,15 @@ class RiskPolicyExpiryMailJob implements ShouldQueue
         Config::set('mail.mailers.smtp.password', $this->mailCredentials['mail_password']);
         Config::set('mail.mailers.smtp.encryption', $this->mailCredentials['mail_encryption']);
         Config::set('mail.mailers.smtp.email', $this->mailCredentials['mail_from_address']);
-        if ($this?->user?->email){
-            $beautymail = app()->make(Beautymail::class);
-            $beautymail->send('emails.risk_policy_expiry_mail', ['user' => $this->user,'document' => $this->document], function($message) {
-                $message
-                    ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
-                    ->to($this->user->email, $this->user->first_name)
-                    ->subject('Reminder: Risk Policy Expiry');
-            });
+        $expiry_date = Carbon::parse($this->document->expiry_date)->format('d-m-Y');
+        $beautymail = app()->make(Beautymail::class);
+        $beautymail->send('emails.risk_policy_expiry_mail', ['user' => $this->user,'document' => $this->document,'expiry_date' => $expiry_date], function($message) {
+            $message
+                ->from($this->mailCredentials['mail_from_address'],env('MAIL_FROM_NAME'))
+                ->to($this->user->email, $this->user->first_name)
+                ->subject('Action Required: Risk Policy Certificate Expiring on Lazim Portal');
+        });
 
-            Artisan::call('queue:restart');
-        }else{
-            Log::info('##### RiskPolicyExpiryMailJob -> handle ##### :- No email Provided for user ', ['user_id' => $this->user->id]);
-        }
+        Artisan::call('queue:restart');
     }
 }

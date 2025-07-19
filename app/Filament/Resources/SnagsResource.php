@@ -1,40 +1,37 @@
 <?php
 namespace App\Filament\Resources;
 
-use Closure;
-use Carbon\Carbon;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use App\Models\Vendor\Vendor;
-use Filament\Facades\Filament;
-use App\Models\TechnicianVendor;
-use Filament\Resources\Resource;
+use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\SnagsResource\Pages;
 use App\Models\Building\Building;
 use App\Models\Building\Complaint;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
+use App\Models\Master\Role;
+use App\Models\TechnicianVendor;
+use App\Models\User\User;
 use App\Models\Vendor\ServiceVendor;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Enums\FiltersLayout;
+use App\Models\Vendor\Vendor;
+use Carbon\Carbon;
+use Closure;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
-use App\Filament\Resources\SnagsResource\Pages;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use App\Filament\Resources\ComplaintResource\RelationManagers\CommentsRelationManager;
 
 class SnagsResource extends Resource
 {
@@ -344,22 +341,7 @@ class SnagsResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                SelectFilter::make('building_id')
-                    ->relationship('building', 'name', function (Builder $query) {
-                        if (Role::where('id', auth()->user()->role_id)->first()->name != 'Admin') {
-                            $query->where('owner_association_id', Filament::getTenant()?->id);
-                        }
-                    })
-                    ->searchable()
-                    ->label('Building')
-                    ->preload(),
-                SelectFilter::make('status')
-                    ->options([
-                        'open'        => 'Open',
-                        'in-progress' => 'In-Progress',
-                        'closed'      => 'Closed',
-                    ])
-                    ->multiple(),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

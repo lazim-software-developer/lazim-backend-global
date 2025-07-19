@@ -24,8 +24,7 @@ trait UtilsTrait
         } catch (GuzzleException $e) {
             Log::error('ExpoFailed', [
                 'error' => $e->getMessage(),
-                'status' => $e->getCode(),
-                'message' => json_encode($message)
+                'status' => $e->getCode()
             ]);
             return $e->getMessage();
         }

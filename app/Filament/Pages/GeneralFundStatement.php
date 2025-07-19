@@ -43,11 +43,11 @@ class GeneralFundStatement extends Page
             "message" => "Please Select a building and Year",
         ];
     }
-
+    
     protected function getHeaderActions(): array
     {
         return [
-        backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+
                 Action::make('upload')
                     ->slideOver()
                     ->color("primary")
@@ -63,7 +63,7 @@ class GeneralFundStatement extends Page
                                 else{
                                     return Building::where('owner_association_id', auth()->user()?->owner_association_id)
                                     ->pluck('name', 'id');
-                                }
+                                } 
                             })
                             ->searchable()
                             ->label('Building Name'),
@@ -81,11 +81,11 @@ class GeneralFundStatement extends Page
                     $buildingId= $data['building_id'];
                     $date = $data['statement_date'];
                     $filePath = $data['excel_file'];
-                    // dd($data);
+                    // dd($data); 
                     // This is likely just a file path or name
                     // Assuming the file is stored in the local disk in a 'budget_imports' directory
                     $fullPath = storage_path('app/public/' . $filePath);
-
+                    
                     if (!file_exists($fullPath)) {
                         Log::error("File not found at path: ", [$fullPath]);
                         // Handle the error appropriately

@@ -63,7 +63,7 @@ class ContractChangedWebhookJob implements ShouldQueue
             ]);
         }
         } catch (\Exception $e) {
-            Log::error('Failed to fetch contract changed: ' . $e->getMessage());
+            Log::error('Failed to fetch contract changed ');
         }
     }
 }

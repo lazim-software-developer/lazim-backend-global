@@ -14,13 +14,6 @@ class CreateRole extends CreateRecord
 
     public Collection $permissions;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
-        ];
-    }
-
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $this->permissions = collect($data)
@@ -29,7 +22,7 @@ class CreateRole extends CreateRecord
             })
             ->values()
             ->flatten();
-
+        
             $data['owner_association_id'] = auth()->user()?->owner_association_id;
         return Arr::only($data, ['name', 'guard_name','owner_association_id']);
     }

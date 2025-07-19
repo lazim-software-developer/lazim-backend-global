@@ -14,7 +14,6 @@ class ViewNotificationSent extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Actions\Action::make('viewSource')
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->label('View Source')
@@ -23,7 +22,7 @@ class ViewNotificationSent extends ViewRecord
                 ->openUrlInNewTab(), // Open the URL in a new tab
         ];
     }
-
+    
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Extract data from JSON columns to make them available to the form
@@ -33,17 +32,17 @@ class ViewNotificationSent extends ViewRecord
                 $data['custom_json_data'][$key] = $value;
             }
         }
-
+        
         if (isset($data['data']) && is_string($data['data'])) {
             $jsonData = json_decode($data['data'], true);
             foreach ($jsonData as $key => $value) {
                 $data['data'][$key] = $value;
             }
         }
-
+        
         return $data;
     }
-
+    
     protected function beforeFill(): void
     {
         $record = $this->getRecord();

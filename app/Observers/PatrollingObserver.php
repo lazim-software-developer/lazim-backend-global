@@ -51,7 +51,7 @@ class PatrollingObserver
                             'type' => 'Patrolling',
                             'priority' => 'Medium',
                         ]);
-                        // NotificationTable($data);
+                        NotificationTable($data);
                     }
                 }
             }

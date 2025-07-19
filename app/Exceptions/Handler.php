@@ -68,9 +68,6 @@ class Handler extends ExceptionHandler
             // For web requests, return custom error page
             return response()->view('errors.403', [], 403);
         }
-        if ($exception instanceof TokenMismatchException) {
-            return redirect()->route('login')->with('error', 'Your session has expired. Please log in again.');
-        }
 
         return parent::render($request, $exception);
     }

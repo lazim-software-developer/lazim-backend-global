@@ -104,6 +104,7 @@ class UserApprovalResource extends Resource
                             ->directory('dev')
                             ->openable(true)
                             ->downloadable(true)
+                            ->required()
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/JPG', 'application/doc', 'application/docx'])
                             ->disabled(!(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin' || Role::where('id', auth()->user()->role_id)->first()->name == 'OA' || $user->can('update_user::approval'))),
                         FileUpload::make('document')

@@ -28,7 +28,6 @@ class EditOwnerAssociation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             Action::make('Sync Buildings from Mollak')
             ->label('Sync Buildings from Mollak')
             ->icon('heroicon-o-information-circle')
@@ -40,26 +39,26 @@ class EditOwnerAssociation extends EditRecord
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('created_at', 'DESC')
                     ->first();
-
+                
                 // If no record exists, enable the button (return false for disabled)
                 if (!$lastSync) {
                     return false;
                 }
-
+                
                 // If record exists, check if it's less than 30 minutes old
                 return now()->diffInMinutes(Carbon::parse($lastSync->created_at)) < 30;
             })
             ->extraAttributes(function () {
                 // Get the last sync time from database
                 $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Building')->where('job_name', 'FetchBuildingsJob')->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
-
+                
                 // Default value if no sync history exists
                 $lastSyncDisplay = 'Never synced';
                 $lastSyncTime = now()->format('Y-m-d H:i:s');
-
+                
                 if ($lastSync) {
                     $lastSyncTime = $lastSync->created_at;
-
+                    
                     // Format the display text based on time difference
                     $diffInMinutes = now()->diffInMinutes($lastSyncTime);
                     if ($diffInMinutes < 60) {
@@ -73,7 +72,7 @@ class EditOwnerAssociation extends EditRecord
                         }
                     }
                 }
-
+                
                 return [
                     'title' => 'Last Sync: ' . $lastSyncDisplay,
                     'class' => 'relative',
@@ -88,7 +87,7 @@ class EditOwnerAssociation extends EditRecord
             ->visible(function () {
                 $auth_user = auth()->user();
                 $role      = Role::where('id', $auth_user->role_id)->first()?->name;
-
+        
                 if ($role === 'Admin' || $role === 'Property Manager' || $role === 'OA') {
                     return true;
                 }

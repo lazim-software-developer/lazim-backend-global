@@ -17,8 +17,6 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\DB;
-use Filament\View\PanelsRenderHook;
-use Filament\Support\Enums\MaxWidth;
 use App\Filament\Resources\WDAResource;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
@@ -62,6 +60,7 @@ use App\Filament\Resources\OwnerAssociationReceiptResource;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use App\Filament\Resources\PersonalServiceNotifictionResource;
+use Filament\Support\Enums\MaxWidth;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -835,12 +834,12 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
-                                NavigationItem::make('Snags')
-                                    ->url('/admin/snags')
-                                    ->hidden(!$user->can('view_any_snags'))
-                                    ->icon('heroicon-s-swatch')
-                                    ->activeIcon('heroicon-s-swatch')
-                                    ->sort(1),
+                                // NavigationItem::make('Snags')
+                                //     ->url('/admin/snags')
+                                //     ->hidden(!$user->can('view_any_snags'))
+                                //     ->icon('heroicon-s-swatch')
+                                //     ->activeIcon('heroicon-s-swatch')
+                                //     ->sort(1),
                                 NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))
@@ -884,10 +883,6 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::footer',
                 fn(): View => view('filament.hooks.footer'),
-            )
-            ->renderHook(
-                PanelsRenderHook::TOPBAR_START,
-                fn (): string => view('filament.hooks.topbar-logo')->render()
             )
             ->middleware([
                 EncryptCookies::class,

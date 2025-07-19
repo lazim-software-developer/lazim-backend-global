@@ -32,7 +32,7 @@ class CreateAccessCardFormsRequest extends FormRequest
             'vehicle_registration' => 'nullable|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'title_deed' => 'file|mimes:pdf,jpeg,png,doc,docx|max:2048',
             'passport' => 'required|file|mimes:pdf,jpeg,png,doc,docx|max:2048',
-            'emirate_of_registration' => 'nullable|integer|exists:emirate_of_registrations,id',
+            'emirate_of_registration' => 'required|integer|exists:emirate_of_registrations,id',
         ];
     }
 

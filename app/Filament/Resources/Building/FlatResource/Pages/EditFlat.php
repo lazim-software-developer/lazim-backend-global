@@ -20,7 +20,6 @@ class EditFlat extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), # TODO: Change this to the correct association ID or condition
             Action::make('Sync Owner from Mollak')
             ->icon('heroicon-o-information-circle')
             ->disabled(function (): bool {
@@ -87,8 +86,7 @@ class EditFlat extends EditRecord
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
 
-                    // if ($role === 'Admin' || $role === 'OA' || $role === 'Customer Service Manager' ) {
-                    if (in_array($role,['Admin','OA','Customer Service Manager','Customer Service '])) {
+                    if ($role === 'Admin' || $role === 'OA') {
                         return true;
                     }
                 })
