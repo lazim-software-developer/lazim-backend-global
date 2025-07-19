@@ -402,6 +402,14 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::get('/flat/{flat}/owners', [FlatController::class, 'fetchFlatOwners']);
 });
 
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('access-card')->group(function () {
+    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
+    Route::post('/listing', [AccessCardController::class, 'listing']);
+    Route::get('/{accessCard}', [AccessCardController::class, 'show']);
+    Route::post('/{accessCard}/update', [AccessCardController::class, 'update']);
+    Route::delete('/{accessCard}', [AccessCardController::class, 'delete']);
+
+});
 /**
  * Forms related APIs
  */
@@ -620,10 +628,6 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function 
 
 
 //Access Card APIs
-Route::middleware(['auth:sanctum', 'active'])->prefix('access-card')->group(function () {
-    // Registration
-    Route::get('/emirate-of-registration', [AccessCardCommanController::class, 'emirateOfRegistration']);
-});
 
 // Technician Related APIs
 Route::middleware(['auth:sanctum', 'active'])->prefix('technician')->group(function () {
@@ -675,7 +679,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
 
-    Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::get('floors/{building}', [PatrollingController::class, 'featchAllFloors']);
+    Route::post('start-patrolling/{building}', [PatrollingController::class, 'createPatrolling']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
     // List all residents for an

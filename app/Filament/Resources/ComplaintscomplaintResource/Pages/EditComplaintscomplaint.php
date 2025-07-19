@@ -25,6 +25,7 @@ class EditComplaintscomplaint extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             // Actions\DeleteAction::make(),
         ];
     }
@@ -48,7 +49,7 @@ class EditComplaintscomplaint extends EditRecord
         if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
 
             Remark::create([
-                'remarks' => $data['remarks'],
+                'remarks' => json_encode($data['remarks']),
                 'type' => 'Complaint',
                 'status' => $data['status'],
                 'user_id' => auth()->user()->id,

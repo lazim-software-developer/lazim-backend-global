@@ -140,24 +140,79 @@ class GuestController extends Controller
                     ->filter(function ($notifyTo) use ($requiredPermissions) {
                         return $notifyTo->can($requiredPermissions);
                     });
-                Notification::make()
-                    ->success()
-                    ->title('Visitor Request')
-                    ->body("Visitor request received for $request->start_date")
-                    ->actions([
-                        Action::make('View')
-                            ->button()
-                            ->url(function() use ($oa,$visitor){
-                                $slug = $oa?->slug;
+
+                    foreach ($user as $key=>$value){
+                        if($value){
+                            if(!DB::table('notifications')->where('notifiable_id', $value->id)->where('custom_json_data->post_id', $visitor->id)->exists()){
+                                $data=[];
+                                $data['notifiable_type']='App\Models\User\User';
+                                $data['notifiable_id']=$value->id;
+
+                                $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
                                 if($slug){
-                                    return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                                    $data['url']=VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                                }else{
+                                    $data['url']=url('/app/visitor-forms/' . $visitor?->id.'/edit');
                                 }
-                                return url('/app/visitor-forms/' . $visitor?->id.'/edit');
-                            }),
-                    ])
-                    ->icon('heroicon-o-document-text')
-                    ->iconColor('warning')
-                    ->sendToDatabase($user);
+                                $data['title']='Visitor Request';
+                                $data['body']='New visitor request received for ' . $visitor->start_date;
+                                $data['building_id']=$visitor->building_id;
+                                $data['custom_json_data']=json_encode([
+                                    'building_id' => $visitor->building_id,
+                                    'post_id' => $visitor->id,
+                                    'user_id' => auth()->user()->id ?? null,
+                                    'owner_association_id' => $visitor->owner_association_id,
+                                    'type' => 'Visitor',
+                                    'priority' => 'Medium',
+
+                                ]);
+                                NotificationTable($data);
+                            }
+                        }
+                    }
+                //     if ()
+                // if(!DB::table('notifications')->where('notifiable_id', $user->id)->where('custom_json_data->visitor_id', $visitor?->id)->exists()){
+                //         $data=[];
+                //         $data['notifiable_type']='App\Models\User\User';
+                //         $data['notifiable_id']=$user->id;
+                //         $slug = OwnerAssociation::where('id',$oa_id)->first()?->slug;
+                //         if($slug){
+                //             $data['url']=VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                //         }else{
+                //             $data['url']=url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                //         }
+                //         $data['title']='Visitor Request';
+                //         $data['body']='Visitor request received for ' . $request->start_date . ' by ' . auth()->user()->first_name;
+                //         $data['building_id']=$visitor->building_id;
+                //         $data['custom_json_data']=json_encode([
+                //             'building_id' => $visitor->building_id,
+                //             'visitor_id' => $visitor->id,
+                //             'user_id' => auth()->user()->id ?? null,
+                //             'owner_association_id' => $visitor->owner_association_id,
+                //             'type' => 'VisitorForm',
+                //             'priority' => 'Medium',
+                //         ]);
+                //         NotificationTable($data);
+                //     }
+                // }
+                // Notification::make()
+                //     ->success()
+                //     ->title('Visitor Request')
+                //     ->body("Visitor request received for $request->start_date")
+                //     ->actions([
+                //         Action::make('View')
+                //             ->button()
+                //             ->url(function() use ($oa,$visitor){
+                //                 $slug = $oa?->slug;
+                //                 if($slug){
+                //                     return VisitorFormResource::getUrl('edit', [$slug,$visitor?->id]);
+                //                 }
+                //                 return url('/app/visitor-forms/' . $visitor?->id.'/edit');
+                //             }),
+                //     ])
+                //     ->icon('heroicon-o-document-text')
+                //     ->iconColor('warning')
+                //     ->sendToDatabase($user);
             }
         }
 
