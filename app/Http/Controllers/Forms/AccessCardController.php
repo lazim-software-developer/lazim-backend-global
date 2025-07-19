@@ -9,6 +9,7 @@ use App\Models\WorkPermit;
 use App\Traits\UtilsTrait;
 use App\Models\Forms\Guest;
 use Illuminate\Http\Request;
+use App\Models\Configuration;
 use App\Models\Vendor\Vendor;
 use Filament\Facades\Filament;
 use App\Models\Forms\MoveInOut;
@@ -67,12 +68,15 @@ class AccessCardController extends Controller
                 $data[$document] = null;
             }
         }
-
+        $price = Configuration::where('key', 'access_card_price')->where('owner_association_id', $ownerAssociationId)->first()->value;
         $data['user_id']              = auth()->user()->id;
         $data['mobile']               = auth()->user()->phone;
         $data['email']                = auth()->user()->email;
         $data['owner_association_id'] = $ownerAssociationId;
         $data['ticket_number']        = generate_ticket_number("AC");
+        $data['status']               = 'requested';
+        $data['payment_amount']       = $price;
+        $data['payment_status']       = 'NA';
         $accessCard       = AccessCard::create($data);
         ServiceRequestHistory::create([
             'record_id' => $accessCard->id,
@@ -81,6 +85,25 @@ class AccessCardController extends Controller
             'user_id' => auth()->user()->id,
             'action_at' => now(),
             'request_json' => json_encode($data),
+        ]);
+        // $payment = createPaymentIntent($price ?? 100, auth()->user()->email);
+        $order = Order::create([    
+            'orderable_id' => $accessCard->id,
+            'orderable_type' => AccessCard::class,
+            'payment_status' => 'NA',
+            'amount' => $price ?? 100,
+            'payment_intent_id' => (new class {
+                public function generateRandomString()
+                {
+                    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    $charactersLength = strlen($characters);
+                    $randomString = '';
+                    for ($i = 0; $i < 50; $i++) {
+                        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+                    }
+                    return 'lazim_' . $randomString;
+                }
+            })->generateRandomString(),
         ]);
         $tenant           = Filament::getTenant()?->id ?? $ownerAssociationId;
         // $emailCredentials = OwnerAssociation::find($tenant)?->accountcredentials()->where('active', true)->latest()->first()?->email ?? env('MAIL_FROM_ADDRESS');
@@ -196,6 +219,20 @@ class AccessCardController extends Controller
             'action_at' => now(),
             'request_json' => json_encode($accessCard),
         ]);
+        $existingOrder = Order::where('orderable_id', $accessCard->id)->where('orderable_type', AccessCard::class)->latest()->first();
+            if ($existingOrder) {
+                Order::updateOrCreate(
+                    [
+                        'orderable_id' => $accessCard->id,
+                        'orderable_type' => AccessCard::class,
+                        'payment_status' => 'Payment Failed',
+                    ],
+                    [
+                        'amount' => $accessCard->payment_amount ?? 0, // Get amount from record or set default
+                        'payment_intent_id' => $existingOrder->payment_intent_id, // Set appropriate value
+                    ]
+                );
+            }
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => 'Access card deleted successfully!',
