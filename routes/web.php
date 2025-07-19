@@ -20,6 +20,10 @@ use App\Http\Controllers\BuildingImportController;
 use App\Http\Controllers\OwnerAssociationReceipts;
 use App\Http\Controllers\Vendor\DelinquentController;
 
+
+
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,6 +34,177 @@ use App\Http\Controllers\Vendor\DelinquentController;
 | contains the "web" middleware group. Now create something great!
 |
  */
+Route::get('/ping', function () {
+    dd("data");
+
+})->name('api.ping');
+
+ Route::get('/QR-test', function () {
+    try {
+        // Define QR code content
+        $qrCodeContent = [
+            'floors' => 1,
+            'building_id' => 1,
+            'code' => 'MX-1234',
+        ];
+
+        // Generate QR code
+        $qrCodeSize = 1000; // Match the destination image width
+        $width = 1000;
+        $height = $qrCodeSize + 100; // Enough space for QR code and text
+        $qrCode = QrCode::format('png')
+            ->size($qrCodeSize)
+            ->errorCorrection('H')
+            ->margin(4)
+            ->generate(json_encode($qrCodeContent));
+        $qrText = "SU/GF/MX-1234";
+
+        $qrImage = addTextToQR($qrCode, $qrText, $qrCodeSize, $width, $height);
+
+        // // Create a blank image with white background
+        // $image = imagecreatetruecolor($width, $height);
+        // if (!$image) {
+        //     throw new \Exception('Failed to create image with imagecreatetruecolor.');
+        // }
+
+        // // Load the QR code into a GD resource
+        // $qrImage = imagecreatefromstring($qrCode);
+        // if (!$qrImage) {
+        //     throw new \Exception('Failed to create image from QR code string.');
+        // }
+
+        // // Allocate colors
+        // $white = imagecolorallocate($image, 255, 255, 255);
+        // $black = imagecolorallocate($image, 0, 0, 0);
+
+        // // Fill the background
+        // imagefill($image, 0, 0, $white);
+
+        // // Copy QR code onto the image
+        // imagecopy($image, $qrImage, 0, 0, 0, 0, $qrCodeSize, $qrCodeSize);
+
+        // // Define font path
+        // $fontPath = storage_path('app/fonts/arial.ttf');
+        // if (!file_exists($fontPath)) {
+        //     throw new \Exception('Font file not found at: ' . $fontPath);
+        // }
+
+        // // Add text below the QR code
+        // $text = "MX-1234";
+        // $fontSize = 16;
+        // $textY = $qrCodeSize + 30; // Start text below QR code
+
+        // // Split text into lines
+        // $lines = explode("\n", $text);
+        // foreach ($lines as $line) {
+        //     $bbox = imagettfbbox($fontSize, 0, $fontPath, $line);
+        //     if ($bbox === false) {
+        //         throw new \Exception('Failed to calculate text bounding box for: ' . $line);
+        //     }
+        //     $textWidth = $bbox[2] - $bbox[0];
+        //     $textX = ($width - $textWidth) / 2; // Center text
+        //     if (!imagettftext($image, $fontSize, 0, $textX, $textY, $black, $fontPath, $line)) {
+        //         throw new \Exception('Failed to render text: ' . $line);
+        //     }
+        //     $textY += 25; // Line spacing
+        // }
+
+        // // Output the image to a string
+        // ob_start();
+        // imagepng($image);
+        // $imageData = ob_get_clean();
+        // if (empty($imageData)) {
+        //     throw new \Exception('Failed to generate PNG image data.');
+        // }
+
+        // // Clean up
+        // imagedestroy($qrImage);
+        // imagedestroy($image);
+
+        // Output the image as base64 in an HTML img tag
+        // return '<img src="data:image/png;base64,' . base64_encode($imageData) . '" alt="QR Code" />';
+        return '<img src="data:image/png;base64,' . base64_encode($qrImage) . '" alt="QR Code" />';
+    } catch (\Exception $e) {
+        // Output error message for debugging
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+// Route::get('/QR-test', function () {
+//     // $text='test@example.com';
+//     // $string = $text;
+//     // $font   = 3;
+//     // $width  = ImageFontWidth($font) * strlen($string);
+//     // $height = ImageFontHeight($font);
+//     // $im = @imagecreate ($width,$height);
+//     // $background_color = imagecolorallocate ($im, 255, 255, 255); //white background
+//     // $text_color = imagecolorallocate ($im, 0, 0,0);//black text
+//     // imagestring ($im, $font, 0, 0, $string, $text_color);
+//     // ob_start();
+//     // imagepng($im);
+//     // $imstr = base64_encode(ob_get_clean());
+//     // imagedestroy($im);
+//     // Generate QR code as PNG
+//      $qrCodeContent = [
+//             'floors' => 1,
+//             'building_id' => 1,
+//             'code'=>'MX-1234',
+//         ];
+//         $qrCodeSize = 500;
+//         $width = 300;
+//         $height = 400;
+//         $qrCode = QrCode::format('png')->size(300)->errorCorrection('H')->margin(4)->generate(json_encode($qrCodeContent));
+
+//         // Create a blank image with white background
+//         $image = imagecreatetruecolor($width, $height);
+//         // Load the QR code into a GD resource
+//         $qrImage = imagecreatefromstring($qrCode);
+//         // $imageWidth = imagesx($qrImage);
+//         // $imageHeight = imagesy($qrImage);
+
+//         // Allocate colors
+//         $white = imagecolorallocate($image, 255, 255, 255);
+//         $black = imagecolorallocate($image, 0, 0, 0);
+
+//         // Fill the background
+//         imagefill($image, 0, 0, $white);
+
+//         // Copy QR code onto the image, centered
+//         // imagecopy($image, $qrImage, ($width - $imageWidth) / 2, 50, 0, 0, $imageWidth, $imageHeight);
+//         imagecopy($image, $qrImage, 0, 0, 0, 0, $qrCodeSize, $qrCodeSize);
+
+//         // Define font path (adjust to your font file location)
+//         $fontPath = storage_path('app/fonts/arial.ttf');
+
+//         // Add text below the QR code
+//         $text = "Building: 1 \nFloor: 1 \nLocation: MX-1234";
+//         $fontSize = 16;
+//         $textY = $qrCodeSize + 30; // Start text below QR code
+
+//         // Split text into lines
+//         $lines = explode("\n", $text);
+//         foreach ($lines as $line) {
+//             $bbox = imagettfbbox($fontSize, 0, $fontPath, $line);
+//             $textWidth = $bbox[2] - $bbox[0];
+//             $textX = ($width - $textWidth) / 2; // Center text
+//             imagettftext($image, $fontSize, 0, $textX, $textY, $black, $fontPath, $line);
+//             $textY += 25; // Line spacing
+//         }
+
+//         // Output the image to a string
+//         ob_start();
+//         imagepng($image);
+//         $imageData = ob_get_clean();
+//         // Clean up
+//         imagedestroy($qrImage);
+//         imagedestroy($image);
+
+//         //  'data:image/png;base64,' . base64_encode($imageData);
+//     echo '<img src="data:image/png;base64,' . base64_encode($imageData).'" alt="QR Code" />';
+//     // return view('index',array('data'=>$imstr));
+// dd("hello");
+// });
+
 
 Livewire::setUpdateRoute(function ($handle) {
     return Route::post('GIT/lazim-backend/public/livewire/update', $handle);

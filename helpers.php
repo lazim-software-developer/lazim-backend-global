@@ -210,3 +210,42 @@ if (! function_exists('addTextToQR')) {
         return $svg;
     }
 }
+
+
+
+if (! function_exists('convertSvgToPng')) {
+    /**
+     * Convert SVG to PNG.
+     *
+     * @param string $svgContent
+     * @param string $output
+     * @param int $size
+     * @return string
+     */
+    function convertSvgToPng($svgContent, $outputPath, $size = 200)
+    {
+        // Sanitize SVG to prevent XSS
+        $cleanSvgContent = preg_replace('/<\?xml[^>]*\?>\s*/i', '', $svgContent);
+
+        if (!$cleanSvgContent) {
+            throw new \Exception('Invalid SVG content');
+        }
+
+        // Create an image instance with Imagick
+        $image = Image::make($cleanSvgContent);
+
+        // Resize to ensure consistent output (optional)
+        $image->resize($size, $size, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+
+        // Set the format to PNG
+        $image->encode('png');
+
+        // Save the PNG to the output path
+        $image->save($outputPath);
+
+        return $outputPath;
+    }
+}
+
