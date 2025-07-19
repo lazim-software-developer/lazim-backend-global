@@ -14,10 +14,13 @@ use Filament\Facades\Filament;
 use Illuminate\Support\Carbon;
 use App\Models\Building\Building;
 use App\Models\Building\Document;
+use App\Models\Building\Complaint;
 use App\Models\Building\FlatTenant;
 use App\Models\Building\BuildingPoc;
 use Illuminate\Support\Facades\View;
 use App\Filament\Resources\WDAResource;
+use Filament\Support\Enums\IconPosition;
+use App\Filament\Resources\SnagsResource;
 use App\Filament\Resources\User\OwnerResource;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Filament\Resources\User\TenantResource;
@@ -25,6 +28,7 @@ use App\Filament\Resources\UserApprovalResource;
 use App\Filament\Resources\Vendor\VendorResource;
 use App\Filament\Resources\TenantDocumentResource;
 use App\Filament\Resources\Building\BuildingResource;
+use App\Filament\Resources\ComplaintscomplaintResource;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
@@ -72,6 +76,13 @@ class StatsOverview extends BaseWidget
                     ->where('name', '!=', 'Makani number');
             });
 
+        $pendingComplaintsQuery = Complaint::where('owner_association_id', Filament::getTenant()->id)
+            ->whereNotIn('complaint_type', ['enquiries','suggestions','incident'])
+            ->whereIn('status', ['open','in-progress']);
+        $pendingSnagsQuery = Complaint::where('owner_association_id', Filament::getTenant()->id)
+            ->whereIn('complaint_type', ['snag'])
+            ->whereIn('status', ['open','in-progress']);
+
         // Apply filters
         if ($buildingId) {
             $ownerQuery->where('building_id', $buildingId);
@@ -87,6 +98,8 @@ class StatsOverview extends BaseWidget
             $documentApprovalQuery->whereHas('building', function ($q) use ($buildingId) {
                 $q->where('id', $buildingId);
             });
+            $pendingSnagsQuery->where('building_id', $buildingId);
+            $pendingComplaintsQuery->where('building_id', $buildingId);
         }
 
         if ($startDate) {
@@ -97,6 +110,8 @@ class StatsOverview extends BaseWidget
             $vendorsQuery->where('created_at', '>=', $startOfDay);
             $userApprovalQuery->where('created_at', '>=', $startOfDay);
             $documentApprovalQuery->where('created_at', '>=', $startOfDay);
+            $pendingSnagsQuery->where('created_at','>=', $startOfDay);
+            $pendingComplaintsQuery->where('created_at','>=', $startOfDay);
         }
 
         if ($endDate) {
@@ -107,6 +122,8 @@ class StatsOverview extends BaseWidget
             $vendorsQuery->where('created_at', '<=', $endOfDay);
             $userApprovalQuery->where('created_at', '<=', $endOfDay);
             $documentApprovalQuery->where('created_at', '<=', $endOfDay);
+            $pendingSnagsQuery->where('created_at', '<=', $endOfDay);
+            $pendingComplaintsQuery->where('created_at', '<=', $endOfDay);
         }
 
         // Get the counts
@@ -117,6 +134,8 @@ class StatsOverview extends BaseWidget
         $vendorsCount = $vendorsQuery->count();
         $pendingUserApprovalCount = $userApprovalQuery->count();
         $pendingDocumentApprovalCount = $documentApprovalQuery->count();
+        $pendingSnagsCount = $pendingSnagsQuery->count();
+        $pendingComplaintsCount = $pendingComplaintsQuery->count();
 
         $role = Role::where('owner_association_id', Filament::getTenant()->id);
         $technicianCount = User::where('role_id', $role->where('name', 'Technician')->value('id'))->count();
@@ -212,7 +231,7 @@ class StatsOverview extends BaseWidget
         if ($user->can('view_any_user::approval')) {
             $stats[] = Stat::make('Document Approvals', $pendingDocumentApprovalCount)
                 ->description('Pending Document Approvals')
-                ->icon('heroicon-o-user')
+                ->icon('heroicon-o-document')
                 ->url(TenantDocumentResource::getUrl('index',[
                     'tableFilters' => [
                         'status' => [
@@ -223,6 +242,36 @@ class StatsOverview extends BaseWidget
                 ->color('orange-200')
                 ->chart([5, 15, 25, 35, 45])
                 ->extraAttributes(['style' => 'background-color:#FFF7E0; rgba(78, 55, 8, 0.89);']);
+        }
+        if ($user->can('view_any_complaintscomplaint')) {
+            $stats[] = Stat::make('Pending Complaints', $pendingComplaintsCount)
+                ->description('Pending Complaints')
+                ->icon('heroicon-m-clipboard-document-list')
+                ->url(ComplaintscomplaintResource::getUrl('index',[
+                    'tableFilters' => [
+                        'status' => [
+                            'values' => ['open', 'in-progress']
+                        ],
+                    ],
+                    ]))
+                ->color('orange-200')
+                ->chart([5, 15, 25, 35, 45])
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #EDE9FE, #C4B5FD);color: #8B5CF6;']);
+        }
+        if ($user->can('view_any_user::approval')) {
+            $stats[] = Stat::make('Pending Snags', $pendingSnagsCount)
+                ->description('Pending Snags')
+                ->icon('heroicon-s-swatch')
+                ->url(SnagsResource::getUrl('index',[
+                        'tableFilters' => [
+                                'status' => [
+                                        'values' => ['open', 'in-progress'], // Array of values for multi-select
+                                ],
+                        ],
+                ]))
+                ->color('orange-200')
+                ->chart([5, 15, 25, 35, 45])
+                ->extraAttributes(['style' => 'background: linear-gradient(135deg, #E0F2FF, #90CDF4); color: #1D4ED8;']);
         }
 
         return $stats;

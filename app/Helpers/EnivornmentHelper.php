@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class EnvironmentHelper
+class EnivornmentHelper
 {
 
     // Add the helper method before this provider logic
