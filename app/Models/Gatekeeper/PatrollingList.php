@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PatrollingList extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    // use SoftDeletes;
 
     protected $table = 'patrollings';
     protected $connection = 'mysql';

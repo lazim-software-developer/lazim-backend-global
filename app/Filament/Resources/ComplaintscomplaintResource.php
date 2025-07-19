@@ -84,7 +84,7 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->required()
+                            ->required(fn(Complaint $record)=> $record->category !== 'Other')
                             ->options(function (Complaint $record, Get $get) {
 
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
@@ -398,6 +398,7 @@ class ComplaintscomplaintResource extends Resource
                     ->label('Building')
                     ->preload(),
                 SelectFilter::make('status')
+                    ->multiple()
                     ->options([
                         'open'        => 'Open',
                         'in-progress' => 'In-Progress',

@@ -155,7 +155,7 @@ class AppServiceProvider extends ServiceProvider
         //Global settings for Admin module (for all table per page options)
         Table::configureUsing(function (Table $table): void {
             $table
-                ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+                ->filtersLayout(FiltersLayout::AboveContent)
                 ->paginationPageOptions([10, 25, 50]);
         });
 

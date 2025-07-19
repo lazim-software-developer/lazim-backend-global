@@ -13,9 +13,13 @@ class FetchInvoicesCommand extends Command
 
     public function handle()
     {
-        Building::where('managed_by','OA')->chunk(100, function ($buildings) {
+        $delaySeconds = 0;
+        $requestsPerMinute = 8;
+        $delayPerRequest = 60 / $requestsPerMinute; // 7.5 seconds
+        Building::where('managed_by','OA')->chunk(100, function ($buildings) use (&$delaySeconds, $delayPerRequest) {
             foreach ($buildings as $building) {
-                dispatch(new FetchAndSaveInvoices($building));
+                dispatch(new FetchAndSaveInvoices($building))->delay(now()->addSeconds($delaySeconds));
+                $delaySeconds += $delayPerRequest; // Increment delay by 3 seconds for the next job
             }
         });
 

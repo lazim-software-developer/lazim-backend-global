@@ -835,12 +835,12 @@ class AdminPanelProvider extends PanelProvider
                     $builder->groups([
                         NavigationGroup::make('Security')
                             ->items([
-                                // NavigationItem::make('Snags')
-                                //     ->url('/admin/snags')
-                                //     ->hidden(!$user->can('view_any_snags'))
-                                //     ->icon('heroicon-s-swatch')
-                                //     ->activeIcon('heroicon-s-swatch')
-                                //     ->sort(1),
+                                NavigationItem::make('Snags')
+                                    ->url('/admin/snags')
+                                    ->hidden(!$user->can('view_any_snags'))
+                                    ->icon('heroicon-s-swatch')
+                                    ->activeIcon('heroicon-s-swatch')
+                                    ->sort(1),
                                 NavigationItem::make('Incidents')
                                     ->url(IncidentResource::getUrl('index'))
                                     ->hidden(!$user->can('view_any_incident'))
