@@ -28,6 +28,7 @@ class ComplaintResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Incident Reports';
     protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $modelLabel = 'Building Complaints';
     protected static ?string $navigationGroup = 'Property Management';
     public static function form(Form $form): Form
     {
@@ -112,9 +113,7 @@ class ComplaintResource extends Resource
                     ->limit(50),
             ])
             ->defaultSort('created_at', 'desc')
-            ->filters([
-
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -130,9 +129,7 @@ class ComplaintResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     public static function getPages(): array

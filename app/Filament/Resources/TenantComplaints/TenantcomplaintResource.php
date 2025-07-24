@@ -26,6 +26,7 @@ class TenantcomplaintResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Complaints';
     protected static ?string $navigationGroup = 'Flat Management';
+    protected static ?string $modelLabel = 'Tenant Complaints';
     protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
