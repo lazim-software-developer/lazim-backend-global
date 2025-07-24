@@ -27,7 +27,8 @@ class BuildingDocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
-    protected static ?string $navigationLabel = 'Building';
+    protected static ?string $navigationLabel = 'Building Document';
+    protected static ?string $modelLabel = 'Building Document';
 
     public static function form(Form $form): Form
     {
@@ -39,63 +40,63 @@ class BuildingDocumentResource extends Resource
                     'lg' => 2,
                 ])->schema([
 
-                            Select::make('document_library_id')
-                                ->rules(['exists:document_libraries,id'])
-                                ->required()
-                                ->preload()
-                                ->relationship('documentLibrary', 'name')
-                                ->searchable()
-                                ->placeholder('Document Library'),
+                    Select::make('document_library_id')
+                        ->rules(['exists:document_libraries,id'])
+                        ->required()
+                        ->preload()
+                        ->relationship('documentLibrary', 'name')
+                        ->searchable()
+                        ->placeholder('Document Library'),
 
-                            FileUpload::make('url')
-                                ->disk('s3')
-                                ->directory('dev')
-                                ->label('Document')
-                                ->required(),
-                            TextInput::make('name'),
-                            DatePicker::make('expiry_date')
-                                ->rules(['date'])
-                                ->required()
-                                ->placeholder('Expiry Date'),
+                    FileUpload::make('url')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->label('Document')
+                        ->required(),
+                    TextInput::make('name'),
+                    DatePicker::make('expiry_date')
+                        ->rules(['date'])
+                        ->required()
+                        ->placeholder('Expiry Date'),
 
-                            Hidden::make('owner_association_id')
-                                ->default(auth()->user()?->owner_association_id),
+                    Hidden::make('owner_association_id')
+                        ->default(auth()->user()?->owner_association_id),
 
-                            Hidden::make('documentable_type')
-                                ->default('App\Models\Building\Building'),
+                    Hidden::make('documentable_type')
+                        ->default('App\Models\Building\Building'),
 
-                            Select::make('documentable_id')
-                                ->options(
-                                    DB::table('buildings')->pluck('name', 'id')->toArray()
-                                )
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->label('Building')
-                                ->placeholder('Documentable Id'),
-                            Select::make('status')
-                                ->options([
-                                    'approved' => 'Approved',
-                                    'rejected' => 'Rejected',
-                                ])
-                                ->disabled(function (Document $record) {
-                                    return $record->status != null;
-                                })
-                                ->searchable()
-                                ->live(),
-                            TextInput::make('remarks')
-                                ->rules(['max:150'])
-                                ->visible(function (callable $get) {
-                                    if ($get('status') == 'rejected') {
-                                        return true;
-                                    }
-                                    return false;
-                                })
-                                ->disabled(function (Document $record) {
-                                    return $record->status != null;
-                                })
-                                ->required(),
-                        ]),
+                    Select::make('documentable_id')
+                        ->options(
+                            DB::table('buildings')->pluck('name', 'id')->toArray()
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Building')
+                        ->placeholder('Documentable Id'),
+                    Select::make('status')
+                        ->options([
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->disabled(function (Document $record) {
+                            return $record->status != null;
+                        })
+                        ->searchable()
+                        ->live(),
+                    TextInput::make('remarks')
+                        ->rules(['max:150'])
+                        ->visible(function (callable $get) {
+                            if ($get('status') == 'rejected') {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ->disabled(function (Document $record) {
+                            return $record->status != null;
+                        })
+                        ->required(),
+                ]),
 
             ]);
     }
@@ -126,9 +127,7 @@ class BuildingDocumentResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
-            ])->actions([
-                    
-                ]);
+            ])->actions([]);
     }
 
     public static function getRelations(): array

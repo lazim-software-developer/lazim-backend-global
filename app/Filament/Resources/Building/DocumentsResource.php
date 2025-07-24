@@ -38,6 +38,7 @@ class DocumentsResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Document Management';
     protected static ?string $navigationLabel = 'Vendor';
+    protected static ?string $modelLabel = 'Vendor Document';
     protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
@@ -56,7 +57,8 @@ class DocumentsResource extends Resource
                         ->relationship('documentLibrary', 'name')
                         ->searchable()
                         ->placeholder('Document Library')
-                        ->getSearchResultsUsing(fn(string $search) => DB::table('document_libraries')
+                        ->getSearchResultsUsing(
+                            fn(string $search) => DB::table('document_libraries')
                                 ->join('building_documentlibraries', function (JoinClause $join) {
                                     $join->on('document_libraries.id', '=', 'building_documentlibraries.documentlibrary_id')
                                         ->where([

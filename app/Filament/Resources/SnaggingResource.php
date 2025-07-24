@@ -26,8 +26,8 @@ class SnaggingResource extends Resource
 
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Snags';
-
     protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $modelLabel = 'Snagging Complaint';
     protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
@@ -81,7 +81,7 @@ class SnaggingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('complaintable_type', 'App\Models\Building\Building')->withoutGlobalScopes())
             ->poll('60s')
             ->columns([
                 Tables\Columns\TextColumn::make('complaintable_type')
