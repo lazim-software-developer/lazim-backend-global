@@ -5,6 +5,7 @@ namespace App\Jobs;
 use Log;
 use App\Models\Building\Flat;
 use Illuminate\Bus\Queueable;
+use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Traits\ThrottlesApiCalls;
 use Illuminate\Support\Facades\DB;
