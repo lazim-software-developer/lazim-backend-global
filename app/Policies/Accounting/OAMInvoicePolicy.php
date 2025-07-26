@@ -18,6 +18,7 @@ class OAMInvoicePolicy
      */
     public function viewAny(User $user): bool
     {
+        return true; // Allow all users to view any OAMInvoice
         return  $user->can('view_any_ledgers') || $user->can('view_any_o::a::m::invoice');
     }
 
@@ -30,6 +31,7 @@ class OAMInvoicePolicy
      */
     public function view(User $user, OAMInvoice $oAMInvoice): bool
     {
+        return true; // Allow all users to view any OAMInvoice
         return $user->can('view_o::a::m::invoice');
     }
 

@@ -93,11 +93,14 @@ class Building extends Model
         'resource',
         'floor_description',
         'building_code',
+        'merchant_code',
+        'common_area_details',
     ];
 
     protected $casts = [
         'allow_postupload' => 'boolean',
-        'show_inhouse_services' => 'boolean'
+        'show_inhouse_services' => 'boolean',
+        'common_area_details' => 'json'
     ];
 
     protected $searchableFields = ['*'];

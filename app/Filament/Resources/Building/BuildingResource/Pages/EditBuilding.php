@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Floor;
 use App\Models\Master\Role;
 use Filament\Actions\Action;
+use App\Jobs\FetchAllUnitOwner;
 use App\Models\Building\Building;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -97,10 +98,20 @@ class EditBuilding extends EditRecord
                     $building = Building::where('id', $this->record->id)->first();
                     if (!empty($building->property_group_id)) {
                     FetchFlatsAndOwnersForBuilding::dispatch($building, 'Manual');
+                    FetchAllUnitOwner::dispatch($building);
                     DB::table('mollak_api_call_histories')->insert([
                         'api_url'     => '/sync/propertygroups/' . $building->property_group_id . '/units',
                         'module'      => 'Unit',
                         'job_name'    => 'FetchFlatsAndOwnersForBuilding',
+                        'record_id'   => $building->id,
+                        'user_id'     => auth()->user()->id,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]);
+                    DB::table('mollak_api_call_histories')->insert([
+                        'api_url'     => '/sync/owners/' . $building->property_group_id,
+                        'module'      => 'Unit',
+                        'job_name'    => 'FetchAllUnitOwner',
                         'record_id'   => $building->id,
                         'user_id'     => auth()->user()->id,
                         'created_at'  => now(),

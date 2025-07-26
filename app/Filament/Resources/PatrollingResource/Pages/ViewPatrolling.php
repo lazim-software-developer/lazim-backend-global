@@ -38,29 +38,27 @@ class ViewPatrolling extends ViewRecord
                             })
                             ->icon('heroicon-o-user')
                             ->iconColor('primary'),
-                        Components\IconEntry::make('is_completed')
-                            ->label('Active')
-                            ->boolean()
-                            ->icon(fn ($state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
-                            ->color(fn ($state) => $state ? 'success' : 'danger'),
-                        Components\TextEntry::make('ended_at')
+                        Components\TextEntry::make('is_completed')
                             ->label('Status')
                             ->badge()
+                            ->icon(fn ($state) => match ($state) {
+                                0 => 'heroicon-o-clock',
+                                1 => 'heroicon-o-check-circle',
+                                default => 'heroicon-o-x-circle',
+                            })
                             ->formatStateUsing(fn ($state) => match ($state) {
-                                0 => 'Pending',
-                                1 => 'Approved',
-                                2 => 'Rejected',
-                                default => 'Unknown',
+                                0 => 'In-Progress',
+                                1 => 'Completed',
+                                default => 'In-complete',
                             })
                             ->color(fn ($state) => match ($state) {
-                                0 => 'warning',
                                 1 => 'success',
-                                2 => 'danger',
-                                default => 'gray',
+                                0 => 'warning',
+                                default => 'danger',
                             }),
                     ])
-                    ->columns(2)
-                    ->collapsible(),
+                    ->columns(2),
+                    // ->collapsible(),
             ]);
     }
 

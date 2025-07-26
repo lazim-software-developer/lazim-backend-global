@@ -249,3 +249,28 @@ if (! function_exists('convertSvgToPng')) {
     }
 }
 
+
+if (! function_exists('fetchAndSaveInvoicePdf')) {
+    /**
+     * Fetch and save the invoice PDF from a given URL.
+     *
+     * @param string $url The URL to fetch the PDF from.
+     * @param string $path The path to save the PDF.
+     * @return string|null The path of the saved PDF or null if the fetch failed.
+     */
+    function fetchAndSaveInvoicePDF(string $url, string $path): ?string
+    {
+        try {
+            $response = Http::withoutVerifying()->get($url);
+            if ($response->successful()) {
+                $filename = uniqid() . '.pdf';
+                Storage::disk('s3')->put($path . '/' . $filename, $response->body(), 'public');
+                return $path . '/' . $filename;
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error fetching invoice PDF', ['url' => $url, 'error' => $e->getMessage()]);
+        }
+        return null;
+    }
+
+}
