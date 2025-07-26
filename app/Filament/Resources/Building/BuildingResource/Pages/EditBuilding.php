@@ -85,6 +85,32 @@ class EditBuilding extends EditRecord
                     }`
                 ];
             })
+            ->tooltip(function () {
+                // Get the last sync time from database
+                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Unit')->where('job_name', 'FetchFlatsAndOwnersForBuilding')->where('record_id', $this->record->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
+
+                // Default value if no sync history exists
+                $lastSyncDisplay = 'Never synced';
+                $lastSyncTime = now()->format('Y-m-d H:i:s');
+
+                if ($lastSync) {
+                    $lastSyncTime = $lastSync->created_at;
+
+                    // Format the display text based on time difference
+                    $diffInMinutes = now()->diffInMinutes($lastSyncTime);
+                    if ($diffInMinutes < 60) {
+                        $lastSyncDisplay = $diffInMinutes . ' minutes ago';
+                    } else {
+                        $diffInHours = now()->diffInHours($lastSyncTime);
+                        if ($diffInHours < 24) {
+                            $lastSyncDisplay = $diffInHours . ' hours ago';
+                        } else {
+                            $lastSyncDisplay = Carbon::parse($lastSyncTime)->format('Y-m-d H:i:s');
+                        }
+                    }
+                }
+                return "Sync Unit from Mollak Last Sync: " . $lastSyncDisplay;
+            })
                 ->visible(function () {
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
