@@ -440,6 +440,10 @@ class ComplaintscomplaintResource extends Resource
             'edit'  => Pages\EditComplaintscomplaint::route('/{record}/edit'),
         ];
     }
+    protected function shouldPersistTableFiltersInSession(): bool
+    {
+        return true;
+    }
 
     public static function canViewAny(): bool
     {

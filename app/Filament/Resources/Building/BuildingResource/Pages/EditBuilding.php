@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Floor;
 use App\Models\Master\Role;
 use Filament\Actions\Action;
+use App\Jobs\FetchAllUnitOwner;
 use App\Models\Building\Building;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -85,6 +86,32 @@ class EditBuilding extends EditRecord
                     }`
                 ];
             })
+            ->tooltip(function () {
+                // Get the last sync time from database
+                $lastSync = DB::table('mollak_api_call_histories')->where('module', 'Unit')->where('job_name', 'FetchFlatsAndOwnersForBuilding')->where('record_id', $this->record->id)->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->first();
+
+                // Default value if no sync history exists
+                $lastSyncDisplay = 'Never synced';
+                $lastSyncTime = now()->format('Y-m-d H:i:s');
+
+                if ($lastSync) {
+                    $lastSyncTime = $lastSync->created_at;
+
+                    // Format the display text based on time difference
+                    $diffInMinutes = now()->diffInMinutes($lastSyncTime);
+                    if ($diffInMinutes < 60) {
+                        $lastSyncDisplay = $diffInMinutes . ' minutes ago';
+                    } else {
+                        $diffInHours = now()->diffInHours($lastSyncTime);
+                        if ($diffInHours < 24) {
+                            $lastSyncDisplay = $diffInHours . ' hours ago';
+                        } else {
+                            $lastSyncDisplay = Carbon::parse($lastSyncTime)->format('Y-m-d H:i:s');
+                        }
+                    }
+                }
+                return "Sync Unit from Mollak Last Sync: " . $lastSyncDisplay;
+            })
                 ->visible(function () {
                     $auth_user = auth()->user();
                     $role      = Role::where('id', $auth_user->role_id)->first()?->name;
@@ -97,10 +124,20 @@ class EditBuilding extends EditRecord
                     $building = Building::where('id', $this->record->id)->first();
                     if (!empty($building->property_group_id)) {
                     FetchFlatsAndOwnersForBuilding::dispatch($building, 'Manual');
+                    FetchAllUnitOwner::dispatch($building);
                     DB::table('mollak_api_call_histories')->insert([
                         'api_url'     => '/sync/propertygroups/' . $building->property_group_id . '/units',
                         'module'      => 'Unit',
                         'job_name'    => 'FetchFlatsAndOwnersForBuilding',
+                        'record_id'   => $building->id,
+                        'user_id'     => auth()->user()->id,
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]);
+                    DB::table('mollak_api_call_histories')->insert([
+                        'api_url'     => '/sync/owners/' . $building->property_group_id,
+                        'module'      => 'Unit',
+                        'job_name'    => 'FetchAllUnitOwner',
                         'record_id'   => $building->id,
                         'user_id'     => auth()->user()->id,
                         'created_at'  => now(),
