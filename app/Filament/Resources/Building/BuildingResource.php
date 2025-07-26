@@ -1050,7 +1050,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
-            LocationQrCodeRelationManager::class,
+            // LocationQrCodeRelationManager::class,
             RuleregulationsRelationManager::class,
             // AppartmentsafetyRelationManager::class,
             EmergencyNumbersRelationManager::class,
