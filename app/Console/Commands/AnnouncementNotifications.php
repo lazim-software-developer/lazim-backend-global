@@ -72,8 +72,8 @@ class AnnouncementNotifications extends Command
                             'notifiable_type' => 'App\Models\User\User',
                             'notifiable_id' => $user,
                             'custom_json_data' => json_encode([
-                                'owner_association_id' => $post->building->owner_association_id ?? 1,
-                                'building_id' => $post->building_id,
+                                'owner_association_id' => $post?->building?->owner_association_id ?? 1,
+                                'building_id' => $post?->building_id,
                                 'post_id' => $post->id,
                                 'user_id' => auth()->user()->id ?? null,
                                 'type' => $post->is_announcement ? 'Notice' : 'Post',
