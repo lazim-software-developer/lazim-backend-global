@@ -44,6 +44,7 @@ class UsersRelationManager extends RelationManager
                             ->label('Select Role')
                             ->options(
                                 fn() => Role::where('owner_association_id', auth()->user()->owner_association_id)
+                                    ->whereNotIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'OA', 'Owner', 'Managing Director', 'Vendor'])
                                     ->pluck('name', 'id')
                             )
                             ->reactive()
