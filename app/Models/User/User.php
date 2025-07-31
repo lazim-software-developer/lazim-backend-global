@@ -65,6 +65,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     use TwoFactorAuthenticatable;
 
     protected $connection = 'mysql';
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'first_name',
@@ -195,17 +196,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        $allowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor'];
+        $allowedRoles = ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor'];
 
         // Retrieve the role name using the provided method
         $userRoleName = Role::find($this->role_id)->name;
         if ($panel->getId() === 'app' && $userRoleName == 'Admin' && $this->active) {
             return true;
-        }
-        else if($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
+        } else if ($panel->getId() === 'admin' && !in_array($userRoleName, $allowedRoles) && $this->active) {
             return true;
-        }
-        else{
+        } else {
             Filament::auth()->logout();
             throw ValidationException::withMessages([
                 'data.email' => __('Unautorized access'),
@@ -232,7 +231,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     public function residences()
     {
         return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id')
-        ->wherePivot('active', true);
+            ->wherePivot('active', true);
     }
 
     public function likedPosts()
@@ -334,8 +333,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     {
         return $this->hasMany(ItemInventory::class);
     }
-      public function mailCredentials()
+    public function mailCredentials()
     {
-        return $this->hasMany(AccountCredentials::class,'created_by');
+        return $this->hasMany(AccountCredentials::class, 'created_by');
     }
 }
