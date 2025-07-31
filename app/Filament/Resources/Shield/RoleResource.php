@@ -60,7 +60,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->rules([
                                         function (?Model $record) {
                                             return function (string $attribute, $value, Closure $fail) use ($record) {
-                                                if (DB::table('roles')->whereNot('id', $record?->id)->where('name', $value)
+                                                if (
+                                                    DB::table('roles')->whereNot('id', $record?->id)->where('name', $value)
                                                     ->where('owner_association_id', auth()->user()?->owner_association_id)
                                                     ->count() > 0
                                                 ) {
