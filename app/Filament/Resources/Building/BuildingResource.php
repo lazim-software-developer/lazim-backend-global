@@ -44,6 +44,7 @@ use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers;
 use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
@@ -581,6 +582,7 @@ class BuildingResource extends Resource
     public static function getRelations(): array
     {
         return [
+            UsersRelationManager::class,
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
