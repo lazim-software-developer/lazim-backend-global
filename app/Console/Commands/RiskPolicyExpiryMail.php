@@ -2,15 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\RiskPolicyExpiryMailJob;
-use App\Models\AccountCredentials;
-use App\Models\Building\Document;
-use App\Models\OwnerAssociation;
+use Carbon\Carbon;
 use App\Models\User\User;
 use App\Models\Vendor\Vendor;
-use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
+// use App\Models\OwnerAssociation;
+use App\Models\Building\Document;
+use App\Models\AccountCredentials;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\RiskPolicyExpiryMailJob;
 
 class RiskPolicyExpiryMail extends Command
 {
@@ -49,6 +50,11 @@ class RiskPolicyExpiryMail extends Command
                 'mail_encryption' => $credentials->encryption??env('MAIL_ENCRYPTION'),
                 'mail_from_address' => $credentials->email??env('MAIL_FROM_ADDRESS'),
             ];
+            if (!$user) {
+                $this->error('User not found for vendor ID: ' . $vendor?->id);
+                Log::error('User not found for vendor ID: ' . $vendor?->id);
+                continue;
+            }
             RiskPolicyExpiryMailJob::dispatch($user, $document, $mailCredentials);
         }
     }
