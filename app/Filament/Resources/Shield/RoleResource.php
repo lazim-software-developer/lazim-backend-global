@@ -231,13 +231,14 @@ class RoleResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable()
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
                     ->badge()
                     ->label(__('filament-shield::filament-shield.column.name'))
                     ->formatStateUsing(fn($state): string => Str::headline($state))
                     ->sortable()
-                    ->colors(['primary'])
-                    ->searchable(),
+                    ->colors(['primary']),
+
                 // Tables\Columns\TextColumn::make('guard_name')
                 //     ->badge()
                 //     ->label(__('filament-shield::filament-shield.column.guard_name')),
@@ -276,6 +277,13 @@ class RoleResource extends Resource implements HasShieldPermissions
             //
         ];
     }
+    public static function getResourcePermissionOptionsList(): array
+    {
+        return collect(FilamentShield::getResources())
+            ->flatMap(fn($entity) => static::getResourcePermissionOptions($entity))
+            ->toArray();
+    }
+
 
     public static function getPages(): array
     {
