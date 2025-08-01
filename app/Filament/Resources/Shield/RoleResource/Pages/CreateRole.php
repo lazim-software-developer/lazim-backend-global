@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Shield\RoleResource\Pages;
 
-use App\Filament\Resources\Shield\RoleResource;
-use BezhanSalleh\FilamentShield\Support\Utils;
-use Filament\Resources\Pages\CreateRecord;
+use Log;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use Filament\Resources\Pages\CreateRecord;
+use BezhanSalleh\FilamentShield\Support\Utils;
+use App\Filament\Resources\Shield\RoleResource;
 
 class CreateRole extends CreateRecord
 {
@@ -39,6 +41,25 @@ class CreateRole extends CreateRecord
         });
 
         $this->record->syncPermissions($permissionModels);
+
+        $this->syncRoleToAccounting($this->record, $permissionModels);
+    }
+
+    protected function syncRoleToAccounting($role, $permissions): void
+    {
+        try {
+            $url = config('services.accounting.url') . '/api/sync-role';
+
+            Http::post($url, [
+                'oa_role_id' => $role->id,
+                'name' => $role->name,
+                'guard_name' => $role->guard_name,
+                'permissions' => $permissions->pluck('name')->toArray(),
+            ]);
+        } catch (\Exception $e) {
+
+            \Log::error('Failed to sync role to accounting: ' . $e->getMessage());
+        }
     }
 
     protected function getRedirectUrl(): string

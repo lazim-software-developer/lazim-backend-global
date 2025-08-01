@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\Shield\RoleResource\Pages;
 
-use App\Filament\Resources\Shield\RoleResource;
-use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use Filament\Resources\Pages\EditRecord;
+use BezhanSalleh\FilamentShield\Support\Utils;
+use App\Filament\Resources\Shield\RoleResource;
 
 class EditRole extends EditRecord
 {
@@ -38,7 +39,7 @@ class EditRole extends EditRecord
     protected function afterSave(): void
     {
         $permissionModels = collect();
-        $this->permissions->each(function ($permission) use ($permissionModels) {
+        $this->permissions?->each(function ($permission) use ($permissionModels) {
             $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => $this->data['guard_name'],
@@ -46,6 +47,24 @@ class EditRole extends EditRecord
         });
 
         $this->record->syncPermissions($permissionModels);
+
+        $this->syncRoleToAccounting($this->record, $permissionModels);
+    }
+
+    protected function syncRoleToAccounting($role,  $permissions): void
+    {
+        try {
+            $url = config('services.accounting.url') . '/api/sync-role';
+
+            Http::post($url, [
+
+                'name' => $role->name,
+                'guard_name' => $role->guard_name,
+                'permissions' => $permissions->pluck('name')->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to sync role to accounting: ' . $e->getMessage());
+        }
     }
 
     protected function getRedirectUrl(): string
