@@ -32,7 +32,7 @@ class FacilityServiceBookingObserver
         $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
         #TODO Make Necessary Changes
         // Send email notification
-        if ($facilityBooking->bookable_type == 'App\Models\Master\Service') Mail::to('dev@ilaz.ae')->send(new NewServiceBookingNotification($facilityBooking));
+        if ($facilityBooking->bookable_type == 'App\Models\Master\Service') Mail::to('support@ilaz.ae')->send(new NewServiceBookingNotification($facilityBooking));
         foreach ($oam_ids as $oam_id) {
             $oa = OwnerAssociation::find($oam_id);
             $flatexists = DB::table('property_manager_flats')
