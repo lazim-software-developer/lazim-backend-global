@@ -41,8 +41,9 @@ class CreateUser extends CreateRecord
         // return $data;
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
+        \Log::info("data is ", $data);
         $this->permissions = collect($data)
             ->filter(function ($permission, $key) {
                 return ! in_array($key, ['name', 'guard_name', 'select_all']);
@@ -56,6 +57,7 @@ class CreateUser extends CreateRecord
     {
         // dd($this->data);
         $user = User::find($this->record->id);
+        // \Log::info("first name is ", $user);
         OwnerAssociationUser::create([
             'owner_association_id' => $this->record->owner_association_id,
             'user_id'              => $this->record->id,
@@ -154,6 +156,7 @@ class CreateUser extends CreateRecord
         }
 
         $permissionModels = collect();
+        $this->permissions = collect();
         $this->permissions->each(function ($permission) use ($permissionModels) {
             $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
                 'name' => $permission,
