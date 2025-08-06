@@ -27,6 +27,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use App\Models\GlobalAccount\AccountPermission;
 use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
@@ -190,14 +191,11 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(FilamentShieldPlugin::get()->getCheckboxListColumnSpan()),
                             ]),
                         Tab::make('Accounts')
-                            ->badge(fn() => Permission::count())
+                            ->badge(fn() => AccountPermission::count())
                             ->schema([
                                 CheckboxList::make('accounts_permission')
                                     ->label('')
-                                    ->options(fn() => Permission::all()->pluck('name', 'name'))
-                                    ->default(function ($record) {
-                                        return $record?->permissions?->pluck('name')->toArray();
-                                    })
+                                    ->options(fn() => AccountPermission::all()->pluck('name', 'name'))
                                     ->columns(4)
                                     ->dehydrated(true),
                             ]),
@@ -260,11 +258,46 @@ class RoleResource extends Resource implements HasShieldPermissions
                 // Tables\Columns\TextColumn::make('guard_name')
                 //     ->badge()
                 //     ->label(__('filament-shield::filament-shield.column.guard_name')),
-                Tables\Columns\TextColumn::make('permissions_count')
-                    ->badge()
+
+                // Tables\Columns\TextColumn::make('permissions_count')
+                //     ->badge()
+                //     ->label(__('filament-shield::filament-shield.column.permissions'))
+                //     ->counts('permissions')
+                //     ->colors(['success']),
+
+
+                Tables\Columns\TextColumn::make('total_permissions_count')
                     ->label(__('filament-shield::filament-shield.column.permissions'))
-                    ->counts('permissions')
-                    ->colors(['success']),
+                    ->badge()
+                    ->colors(['success'])
+                    ->getStateUsing(function ($record) {
+                        // ---------- 1. Count NON-ACCOUNTS permissions from local DB ----------
+                        $localPermissionCount = $record->permissions()->count();
+
+                        // ---------- 2. Count ACCOUNTS permissions from lazim_accounts DB ----------
+                        $accountPermissionCount = 0;
+
+                        try {
+                            $conn = DB::connection(env('SECOND_DB_CONNECTION', 'lazim_accounts'));
+
+                            $remoteRole = $conn->table('roles')
+                                ->where('oa_role_id', $record->id)
+                                ->where('guard_name', $record->guard_name)
+                                ->first();
+
+                            if ($remoteRole) {
+                                $accountPermissionCount = $conn->table('role_has_permissions')
+                                    ->where('role_id', $remoteRole->id)
+                                    ->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to fetch account permissions count: ' . $e->getMessage());
+                        }
+
+                        // ---------- 3. Return total count ----------
+                        return $localPermissionCount + $accountPermissionCount;
+                    }),
+
                 // Tables\Columns\TextColumn::make('updated_at')
                 //     ->label(__('filament-shield::filament-shield.column.updated_at'))
                 //     ->dateTime(),
