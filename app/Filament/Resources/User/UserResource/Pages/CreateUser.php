@@ -18,6 +18,7 @@ use Spatie\Permission\Models\Permission;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\User\UserResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use PHPUnit\TestRunner\TestResult\Collector;
 
 class CreateUser extends CreateRecord
 {
@@ -25,6 +26,8 @@ class CreateUser extends CreateRecord
 
     public Collection $permissions;
     public Collection $nonAccountPermissions;
+
+    public Collection $accountPermissions;
 
 
 
@@ -42,11 +45,13 @@ class CreateUser extends CreateRecord
         // return $data;
     }
 
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
 
+        // dd($data);
         $excludeKeys = ['first_name', 'last_name', 'email', 'phone', 'roles', 'active', 'guard_name', 'accounts_permission'];
-
+        $this->accountPermissions = collect($data['accounts_permission'] ?? [])->flatten();
         $this->nonAccountPermissions = collect($data)
             ->reject(fn($value, $key) => in_array($key, $excludeKeys)) // sirf permissions ka data chhodo
             ->flatMap(fn($permissions) => is_array($permissions) ? $permissions : []) // flatten to one-level array
@@ -110,6 +115,7 @@ class CreateUser extends CreateRecord
             'plan'                 => 1,
             'owner_association_id' => $user?->owner_association_id,
             'building_id'          => $building_id,
+            'oa_user_id'            => $user->id,
             'created_at'           => now(),
             'updated_at'           => now(),
         ]);
@@ -167,5 +173,60 @@ class CreateUser extends CreateRecord
 
         // Role ke sath sirf non-accounts permissions sync karo
         $this->record->syncPermissions($nonAccountPermissionModels);
+        // dd($this->record, $this->accountPermissions);
+        $this->syncPermissionsToAccounting($this->record, $this->accountPermissions);
+    }
+
+    protected function syncPermissionsToAccounting($user, $permissions): void
+    {
+        // dd($user, $permissions);
+        // dd($permissions);
+        try {
+            $connection = DB::connection('lazim_accounts');
+
+            // Accounting side ka user dhundo using oa_user_id
+            $accountingUser = $connection->table('users')
+                ->where('oa_user_id', $user->id)
+                ->first();
+
+            if (!$accountingUser) {
+                \Log::warning('Accounting user not found for OA user ID: ' . $user->id);
+                return;
+            }
+
+            // Pehle se jo permissions assigned hai unki list le lo
+            $existingPermissionIds = $connection->table('model_has_permissions')
+                ->where('model_id', $accountingUser->id)
+                ->where('model_type', 'App\\Models\\User')
+                ->pluck('permission_id')
+                ->toArray();
+
+            \Log::info("Fetched existing permission IDs for user ID {$accountingUser->id}: ", $existingPermissionIds);
+
+
+            foreach ($permissions as $permissionName) {
+                \Log::info("Processing permission: {$permissionName}");
+                $permission = $connection->table('permissions')
+                    ->where('name', $permissionName)
+                    ->where('guard_name', $user->guard_name ?? 'web')
+                    ->first();
+
+                if ($permission && !in_array($permission->id, $existingPermissionIds)) {
+                    $connection->table('model_has_permissions')->insert([
+                        'permission_id' => $permission->id,
+                        'model_type'    => 'App\\Models\\User',
+                        'model_id'      => $accountingUser->id,
+                    ]);
+
+                    \Log::info("Assigned permission '{$permissionName}' to user ID {$accountingUser->id}");
+                } elseif (!$permission) {
+                    \Log::warning("Permission '{$permissionName}' not found in accounts DB.");
+                }
+            }
+
+            \Log::info("Permissions synced to accounting for user ID {$accountingUser->id}");
+        } catch (\Exception $e) {
+            \Log::error('Error syncing permissions to accounting: ' . $e->getMessage());
+        }
     }
 }
