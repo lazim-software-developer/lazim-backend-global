@@ -24,6 +24,7 @@ class CreateUser extends CreateRecord
     protected static string $resource = UserResource::class;
 
     public Collection $permissions;
+    public Collection $nonAccountPermissions;
 
 
 
@@ -43,15 +44,15 @@ class CreateUser extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        \Log::info("data is ", $data);
-        $this->permissions = collect($data)
-            ->filter(function ($permission, $key) {
-                return ! in_array($key, ['name', 'guard_name', 'select_all']);
-            })
-            ->values()
-            ->flatten();
 
-        return Arr::only($data, ['name', 'guard_name']);
+        $excludeKeys = ['first_name', 'last_name', 'email', 'phone', 'roles', 'active', 'guard_name', 'accounts_permission'];
+
+        $this->nonAccountPermissions = collect($data)
+            ->reject(fn($value, $key) => in_array($key, $excludeKeys)) // sirf permissions ka data chhodo
+            ->flatMap(fn($permissions) => is_array($permissions) ? $permissions : []) // flatten to one-level array
+            ->filter();
+
+        return Arr::only($data, ['first_name', 'last_name', 'email', 'phone', 'roles', 'active', 'guard_name']);
     }
     protected function afterCreate()
     {
@@ -155,16 +156,16 @@ class CreateUser extends CreateRecord
             MdCreateJob::dispatch($user, $password, $mailCredentials);
         }
 
-        $permissionModels = collect();
-        $this->permissions = collect();
-        $this->permissions->each(function ($permission) use ($permissionModels) {
-            $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
+
+        $nonAccountPermissionModels = collect();
+        $this->nonAccountPermissions->each(function ($permission) use ($nonAccountPermissionModels) {
+            $nonAccountPermissionModels->push(Utils::getPermissionModel()::firstOrCreate([
                 'name' => $permission,
-                // 'guard_name' => $this->data['guard_name'],
-                'guard_name' => !is_null($this->data['guard_name']) ?  $this->data['guard_name'] : 'web', //TODO check why we are not able to get guard name from the auth
+                'guard_name' => !is_null($this->data['guard_name']) ?  $this->data['guard_name'] : 'web',
             ]));
         });
 
-        $this->record->syncPermissions($permissionModels);
+        // Role ke sath sirf non-accounts permissions sync karo
+        $this->record->syncPermissions($nonAccountPermissionModels);
     }
 }
