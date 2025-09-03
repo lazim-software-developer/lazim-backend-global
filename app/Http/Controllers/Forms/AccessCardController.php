@@ -41,7 +41,7 @@ class AccessCardController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Http\Requests\Forms\CreateAccessCardFormsRequest  $request  The request containing the updated data.
-     * 
+     *
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 201  CustomResponseResource Response on success.
@@ -87,7 +87,7 @@ class AccessCardController extends Controller
             'request_json' => json_encode($data),
         ]);
         // $payment = createPaymentIntent($price ?? 100, auth()->user()->email);
-        $order = Order::create([    
+        $order = Order::create([
             'orderable_id' => $accessCard->id,
             'orderable_type' => AccessCard::class,
             'payment_status' => 'NA',
@@ -122,16 +122,17 @@ class AccessCardController extends Controller
             'title'   => 'Success',
             'message' => 'Access card submitted successfully!',
             'code'    => 201,
+            'data'    => $accessCard
         ]))->response()->setStatusCode(201);
     }
-    
+
     /**
      * Update an access card form.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to update.
      * @param  \App\Http\Requests\Forms\UpdateAccessCardFormsRequest  $request  The request containing the updated data.
-     * 
+     *
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 200  Access card updated successfully.
@@ -165,13 +166,14 @@ class AccessCardController extends Controller
             'title'   => 'Success',
             'message' => 'Access card updated successfully!',
             'code'    => 200,
+            'data'    => $accessCard
         ]))->response()->setStatusCode(200);
     }
     /**
      * List all access card forms.
      *
      * @param  \Illuminate\Http\Request  $request
-     * 
+     *
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 200  Access card listing successfully.
@@ -196,13 +198,13 @@ class AccessCardController extends Controller
         $accessCards = $accessCards->paginate($request->paginate ?? 10);
         return AccessCardDetailResource::collection($accessCards);
     }
-    
+
     /**
      * Delete an access card form.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Forms\AccessCard  $accessCard  The access card to delete.
-     * 
+     *
      *
      * @return \Illuminate\Http\JsonResponse
      * @return 200  Access card deleted successfully.
@@ -239,7 +241,7 @@ class AccessCardController extends Controller
             'code'    => 200,
         ]))->response()->setStatusCode(200);
     }
-    
+
     public function fetchFormStatus(Building $building, FetchFormStatusRequest $request)
     {
         $flat_id = $request->input('flat_id');

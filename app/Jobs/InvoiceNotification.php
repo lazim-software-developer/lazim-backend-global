@@ -29,7 +29,9 @@ class InvoiceNotification implements ShouldQueue
         public string $due_date,
         public string $due_amount,
         array $mailCredentials,
-        public string $OaName
+        public string $OaName,
+        public ?array $flat = null,
+        public ?array $building = null
     ) {
         $this->mailCredentials = $mailCredentials;
     }
@@ -40,7 +42,7 @@ class InvoiceNotification implements ShouldQueue
     public function handle()
     {
         // Add validation to ensure mailCredentials exists
-        if (!is_array($this->mailCredentials) || 
+        if (!is_array($this->mailCredentials) ||
         !isset($this->mailCredentials['mail_from_address'])) {
         throw new \Exception('Mail credentials are missing or invalid');
         }
@@ -54,19 +56,21 @@ class InvoiceNotification implements ShouldQueue
 
         try {
             $beautymail = app()->make(Beautymail::class);
-            $beautymail->send('emails.InvoiceNotification', 
+            $beautymail->send('emails.InvoiceNotification',
                 [
                     'name' => $this->name,
                     'invoice_number' => $this->invoice_number,
                     'issue_date' => $this->issue_date,
                     'due_date' => $this->due_date,
                     'due_amount' => $this->due_amount,
-                    'pm_oa' => $this->OaName
-                ], 
+                    'pm_oa' => $this->OaName,
+                    'flat' => $this->flat,
+                    'building' => $this->building
+                ],
                 function ($message) {
                     $fromAddress = $this->mailCredentials['mail_from_address'] ?? config('mail.from.address');
                     $fromName = env('MAIL_FROM_NAME', 'Lazim');
-                    
+
                     $message
                         ->from($fromAddress, $fromName)
                         ->to($this->email, $this->name)
