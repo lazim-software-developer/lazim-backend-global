@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class NewServiceBookingNotification extends Mailable
 {
@@ -37,6 +38,9 @@ class NewServiceBookingNotification extends Mailable
      */
     public function content(): Content
     {
+        Log::info('Sending New Service Booking Notification', [
+            'facilityBooking' => $this->facilityBooking,
+        ]);
         return new Content(
             view: 'emails.newServiceBooking',
             with: [

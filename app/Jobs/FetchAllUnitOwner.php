@@ -58,6 +58,7 @@ class FetchAllUnitOwner implements ShouldQueue
         if ($ownerData['response'] != null) {
             foreach ($ownerData['response']['properties'] as $property) {
                 // Update property_type for a building
+                Log::info('###### FetchAllUnitOwner -- 61 -- ######  Property: ' . json_encode(['propertyNumber' => $property['propertyNumber']]));
                 if ($property['propertyType'] == "LAND") {
                     $building->update(['common_area_details' => json_encode($property)]);
                 }else{

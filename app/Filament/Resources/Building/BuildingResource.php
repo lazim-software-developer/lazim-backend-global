@@ -67,6 +67,13 @@ class BuildingResource extends Resource
     protected static ?string $navigationGroup       = 'Property Management';
     protected static bool $shouldRegisterNavigation = true;
     protected static ?string $modelLabel            = 'Buildings';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return BuildingResource::getUrl('edit', ['record' => $record]);
+    }
     public static function form(Form $form): Form
     {
         return $form
