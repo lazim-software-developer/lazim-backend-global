@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
 use Filament\Tables\Filters\Filter;
+use App\Models\Gatekeeper\Patrolling;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Database\Query\Builder;
