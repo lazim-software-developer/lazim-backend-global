@@ -2,14 +2,15 @@
 
 namespace App\Models\Gatekeeper;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Building\Building;
-use App\Models\Floor;
-use App\Models\OwnerAssociation;
-use App\Models\User\User;
 use Carbon\Carbon;
+use App\Models\Floor;
+use App\Models\User\User;
+use App\Models\LocationQrCode;
+use App\Models\OwnerAssociation;
+use App\Models\Building\Building;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Patrolling extends Model
 {
@@ -55,5 +56,9 @@ class Patrolling extends Model
 
     public function patrollingList() {
         return $this->hasMany(PatrollingList::class, 'patrolling_record_id', 'id');
+    }
+
+    public function location() {
+        return $this->hasMany(LocationQrCode::class, 'location_id', 'id');
     }
 }

@@ -210,3 +210,67 @@ if (! function_exists('addTextToQR')) {
         return $svg;
     }
 }
+
+
+
+if (! function_exists('convertSvgToPng')) {
+    /**
+     * Convert SVG to PNG.
+     *
+     * @param string $svgContent
+     * @param string $output
+     * @param int $size
+     * @return string
+     */
+    function convertSvgToPng($svgContent, $outputPath, $size = 200)
+    {
+        // Sanitize SVG to prevent XSS
+        $cleanSvgContent = preg_replace('/<\?xml[^>]*\?>\s*/i', '', $svgContent);
+
+        if (!$cleanSvgContent) {
+            throw new \Exception('Invalid SVG content');
+        }
+
+        // Create an image instance with Imagick
+        $image = Image::make($cleanSvgContent);
+
+        // Resize to ensure consistent output (optional)
+        $image->resize($size, $size, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+
+        // Set the format to PNG
+        $image->encode('png');
+
+        // Save the PNG to the output path
+        $image->save($outputPath);
+
+        return $outputPath;
+    }
+}
+
+
+if (! function_exists('fetchAndSaveInvoicePdf')) {
+    /**
+     * Fetch and save the invoice PDF from a given URL.
+     *
+     * @param string $url The URL to fetch the PDF from.
+     * @param string $path The path to save the PDF.
+     * @return string|null The path of the saved PDF or null if the fetch failed.
+     */
+    function fetchAndSaveInvoicePDF(string $url, string $path): ?string
+    {
+        try {
+            $response = Http::withoutVerifying()->get($url);
+            if ($response->successful()) {
+                $filename = uniqid() . '.pdf';
+                Storage::disk('s3')->put($path . '/' . $filename, $response->body(), 'public');
+                return $path . '/' . $filename;
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error fetching invoice PDF', ['url' => $url, 'error' => $e->getMessage()]);
+        }
+        return null;
+    }
+
+}

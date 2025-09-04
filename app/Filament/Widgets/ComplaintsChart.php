@@ -1,12 +1,12 @@
 <?php
 namespace App\Filament\Widgets;
 
-use App\Models\Building\Building;
-use App\Models\Building\Complaint;
-use App\Models\User\User;
-use Filament\Widgets\ChartWidget;
-use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Carbon\Carbon;
+use App\Models\User\User;
+use App\Models\Building\Building;
+use Filament\Widgets\ChartWidget;
+use App\Models\Building\Complaint;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class ComplaintsChart extends ChartWidget
 {
@@ -26,12 +26,18 @@ class ComplaintsChart extends ChartWidget
 
     protected function getData(): array
     {
-        
+
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
 
+        \Illuminate\Support\Facades\Log::info('Fetching complaints data', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'userId' => auth()->user()->id,
+            'filter' => json_encode($this->filters, JSON_PRETTY_PRINT),
+        ]);
         // Fetch all buildings related to the current user's OA
-        $buildings = Building::where('owner_association_id', auth()->user()->owner_association_id)->get();
+        $buildings = (is_null($this->filters['building'])) ? Building::where('owner_association_id', auth()->user()->owner_association_id)->get() : Building::where('id', $this->filters['building'])->where('owner_association_id', auth()->user()->owner_association_id)->get();
 
         // Initialize arrays to hold data
         $buildingNames = [];
@@ -92,10 +98,10 @@ class ComplaintsChart extends ChartWidget
         return [
             'scales' => [
                 'x' => [
-                    'stacked' => true, 
+                    'stacked' => true,
                 ],
                 'y' => [
-                    'stacked' => true, 
+                    'stacked' => true,
                 ],
             ],
             'plugins' => [

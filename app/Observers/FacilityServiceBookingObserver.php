@@ -2,20 +2,22 @@
 
 namespace App\Observers;
 
-use App\Filament\Resources\Building\BuildingResource;
-use App\Filament\Resources\Building\BuildingResource\RelationManagers\ServiceBookingsRelationManager;
-use App\Filament\Resources\Building\FacilityBookingResource;
-use App\Filament\Resources\Building\ServiceBookingResource;
-use App\Models\Building\Building;
-use App\Models\Building\FacilityBooking;
-use App\Models\Master\Facility;
+use App\Models\User\User;
 use App\Models\Master\Role;
 use App\Models\Master\Service;
+use App\Models\Master\Facility;
 use App\Models\OwnerAssociation;
-use App\Models\User\User;
-use Filament\Notifications\Actions\Action;
-use Filament\Notifications\Notification;
+use App\Models\Building\Building;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Models\Building\FacilityBooking;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Mail\NewServiceBookingNotification;
+use App\Filament\Resources\Building\BuildingResource;
+use App\Filament\Resources\Building\ServiceBookingResource;
+use App\Filament\Resources\Building\FacilityBookingResource;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\ServiceBookingsRelationManager;
 
 class FacilityServiceBookingObserver
 {
@@ -23,11 +25,14 @@ class FacilityServiceBookingObserver
      * Handle the FacilityBooking "created" event.
      */
     public function created(FacilityBooking $facilityBooking): void
-    { 
+    {
        $requiredPermissions = ['view_any_contract'];
         $oam_ids = DB::table('building_owner_association')->where('building_id', $facilityBooking?->building_id)->where('active', true)->pluck('owner_association_id');
         $pm = OwnerAssociation::whereIn('id', $oam_ids)->where('role', 'Property Manager')->first();
         $roles = Role::whereIn('name', ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor','Staff', 'Facility Manager'])->pluck('id');
+        #TODO Make Necessary Changes
+        // Send email notification
+        if ($facilityBooking->bookable_type == 'App\Models\Master\Service') Mail::to('support@ilaz.ae')->send(new NewServiceBookingNotification($facilityBooking));
         foreach ($oam_ids as $oam_id) {
             $oa = OwnerAssociation::find($oam_id);
             $flatexists = DB::table('property_manager_flats')

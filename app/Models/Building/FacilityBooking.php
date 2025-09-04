@@ -77,4 +77,8 @@ class FacilityBooking extends Model
     {
         return $this->morphTo();
     }
+    public function flat()
+    {
+        return $this->belongsTo(Flat::class);
+    }
 }
