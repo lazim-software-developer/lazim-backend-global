@@ -330,16 +330,13 @@ class SnagsResource extends Resource
                     ->searchable()
                     ->default('--')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'open'                                       => 'Open',
-                        'closed'                                     => 'Closed',
-                        '--'                                         => '--',
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'open'                            => 'primary',
-                        'closed'                          => 'success',
-                        '--'                              => 'muted',
-                    }),
+                    ->colors([
+                        'success' => 'open',
+                        'danger'  => 'closed',
+                        'primary' => fn($state) => $state === null || $state === 'in-progress',
+
+                    ])
+                    ->formatStateUsing(fn($state) => $state === null || $state === 'in-progress' ? 'Pending' : ucfirst($state)),
 
             ])
             ->defaultSort('created_at', 'desc')

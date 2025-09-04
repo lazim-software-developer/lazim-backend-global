@@ -2,17 +2,19 @@
 
 namespace App\Jobs;
 
+use Log;
 use App\Models\Building\Flat;
 use Illuminate\Bus\Queueable;
+use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
 use App\Traits\ThrottlesApiCalls;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Jobs\Building\AssignFlatsToTenant;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Log;
 
 class FetchAllUnitOwner implements ShouldQueue
 {
