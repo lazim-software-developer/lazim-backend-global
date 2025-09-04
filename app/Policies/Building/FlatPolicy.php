@@ -41,7 +41,7 @@ class FlatPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_building::flat');
+        return $user->can('create_building::flat') || in_array($user->role_id,[16,43]);
     }
 
     /**
