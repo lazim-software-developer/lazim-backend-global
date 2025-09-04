@@ -22,6 +22,7 @@ class FormsChart extends ChartWidget
     protected static ?string $heading = 'Forms';
     protected static ?string $maxHeight = '300px';
     protected static ?int $sort = 3;
+    public ?string $filter = 'today';
 
     public static function canView(): bool
     {
@@ -43,10 +44,24 @@ class FormsChart extends ChartWidget
         }
     }
 
+    protected function getFilters(): ?array
+    {
+        return [
+            'today' => 'Today',
+            'week' => 'Last week',
+            'month' => 'Last month',
+            'year' => 'This year',
+        ];
+    }
+
     protected function getData(): array
     {
+        $activeFilter = $this->filter;
+        \Log::info('Active filter: ' . $activeFilter);
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
+        // $startDate = $this->filters['startDate'] ?? $this->filter;
+        // $endDate = $this->filters['endDate'] ?? $this->filter;
         $buildingId = $this->filters['building'] ?? null;
 
         // Initialize queries for each model with optional building filter
@@ -111,7 +126,7 @@ class FormsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Forms',
+                    'label' => 'Request Forms',
                     'data' => [
                         $accessCardCount,
                         $saleNocCount,

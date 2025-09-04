@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Building\BuildingResource\RelationManagers;
 
+use Log;
 use ZipArchive;
 use Filament\Tables;
 use App\Models\Floor;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LocationQrCode;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Building\Building;
 use App\Forms\Components\FloorQrCode;
 use Filament\Forms\Components\Hidden;
@@ -125,7 +127,6 @@ class LocationQrCodeRelationManager extends RelationManager
                             ->label('Regenerate QR Code')
                             ->action(function (LocationQrCode $record) {
                                 try {
-                                    \Log::info('Regenerating QR Code for Location ID: ' . $record->id);
                                     $qrImage = self::generateLocationQrCode($record);
                                     LocationQrCode::where('id', $record->id)
                                         ->update(['qr_code' => $qrImage]);
@@ -214,6 +215,16 @@ class LocationQrCodeRelationManager extends RelationManager
                             ->icon('heroicon-o-qr-code')
                             ->requiresConfirmation()
                             ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('generate_qr_codes_in_pdf')->label('Download PDF')
+                            ->action(function($records) {
+                                // Log::info('Generating PDF for QR Codes', ['data' => $records]);
+                                $pdf = Pdf::loadView('filament.custom.location-qr-pdf', compact('records'));
+                                    return response()->streamDownload(
+                                        fn() => print($pdf->output()),
+                                        'Qr_Codes_' . $records->first()->building->name .'.pdf'
+                                    );
+                            })
+                            ->icon('heroicon-o-document-arrow-down'),
                     Tables\Actions\BulkAction::make('regenerate_all_qr_codes')
                             ->label('Regenerate All QR Codes')
                             ->action(function ($records) {
@@ -277,6 +288,11 @@ class LocationQrCodeRelationManager extends RelationManager
         $qrText[] = $qrCodeContent['code'] ?? ' ';
 
         $qrImage = addTextToQR($qrCode, $qrText, $qrCodeSize, $width, $height);
-        return $qrImage;
+                // Convert SVG to PNG
+        $pngPath = storage_path('app/public/qr_codes/' . $record->floor_name . '-' . $record->code . '-' . uniqid() . '.png');
+        $pngRelativePath = str_replace(storage_path('app/public'), '/storage', $pngPath);
+        convertSvgToPng($qrImage->toHtml(), $pngPath, 500);
+
+        return $pngRelativePath;
     }
 }
