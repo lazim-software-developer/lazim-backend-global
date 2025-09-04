@@ -28,6 +28,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationBuilder;
 use App\Filament\Resources\VehicleResource;
 use App\Filament\Resources\ActivityResource;
+use App\Filament\Resources\AllUsersResource;
 use App\Filament\Resources\IncidentResource;
 use App\Filament\Resources\User\UserResource;
 use App\Filament\Resources\PatrollingResource;
@@ -40,8 +41,8 @@ use App\Filament\Resources\NotificationResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\MollakInvoiceResource;
 use App\Filament\Components\NavigationItemExtended;
-use App\Filament\Resources\AllUsersResource;
 use App\Filament\Resources\DelinquentOwnerResource;
 use App\Filament\Resources\PersonalServiceResource;
 use App\Filament\Resources\AssetMaintenanceResource;
@@ -52,8 +53,8 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
 // use Filament\Pages\Dashboard;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -493,6 +494,7 @@ class AdminPanelProvider extends PanelProvider
                     $user->can('view_any_aging::report') ||
                     $user->can('view_any_bank::statement') ||
                     $user->can('page_GeneralFundStatement') ||
+                    $user->can('view_any_o::a::m::invoice') ||
                     $user->can('page_ReserveFundStatement') ||
                     $user->can('view_any_owner::association::invoice') ||
                     $user->can('view_any_owner::association::receipt') ||
@@ -527,54 +529,60 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-document')
                                     ->activeIcon('heroicon-o-document')
                                     ->sort(4),
-                                NavigationItem::make('Receivables')
-                                    ->url(BankStatementResource::getUrl('index'))
-                                    ->hidden(!$user->can('view_any_bank::statement'))
-                                    ->icon('heroicon-s-document-text')
-                                    ->activeIcon('heroicon-s-document-text')
-                                    ->sort(5),
-                                NavigationItem::make('General Fund Statement')
-                                    ->url('/admin/general-fund-statement')
-                                    ->hidden(!$user->can('page_GeneralFundStatement'))
-                                    ->icon('heroicon-m-clipboard-document-check')
-                                    ->activeIcon('heroicon-m-clipboard-document-check')
-                                    ->sort(6),
-                                NavigationItem::make('Reserve Fund Statement')
-                                    ->url('/admin/reserve-fund-statement')
-                                    ->hidden(!$user->can('page_ReserveFundStatement'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(7),
-                                NavigationItem::make('Generate Invoice')
-                                    ->url(OwnerAssociationInvoiceResource::getUrl('index'))
-                                    ->hidden(!$user->can('view_any_owner::association::invoice'))
+                                NavigationItem::make('Mollak Invoices')
+                                    ->url(MollakInvoiceResource::getUrl())
+                                    ->hidden(!$user->can('view_any_o::a::m::invoice'))
                                     ->icon('heroicon-s-document-arrow-up')
                                     ->activeIcon('heroicon-s-document-arrow-up')
-                                    ->sort(8),
-                                NavigationItem::make('Generate Receipt')
-                                    ->url(OwnerAssociationReceiptResource::getUrl('index'))
-                                    ->hidden(!$user->can('view_any_owner::association::receipt'))
+                                    ->sort(1),
+                                NavigationItem::make('Mollak Receipts')
+                                    ->url(BankStatementResource::getUrl('index'))
+                                    ->hidden(!$user->can('view_any_bank::statement'))
                                     ->icon('heroicon-s-document-arrow-down')
                                     ->activeIcon('heroicon-s-document-arrow-down')
-                                    ->sort(9),
-                                NavigationItem::make('Trial Balance')
-                                    ->url('/admin/trial-balance')
-                                    ->hidden(!$user->can('page_TrialBalance'))
-                                    ->icon('heroicon-s-clipboard-document')
-                                    ->activeIcon('heroicon-s-clipboard-document')
-                                    ->sort(10),
-                                NavigationItem::make('General Fund Statement Bank Book')
-                                    ->url('/admin/mollak-general-fund-statement')
-                                    ->hidden(!$user->can('page_GeneralFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-check')
-                                    ->activeIcon('heroicon-m-clipboard-document-check')
-                                    ->sort(11),
-                                NavigationItem::make('Reserve Fund Statement Bank Book')
-                                    ->url('/admin/mollak-reserve-fund-statement')
-                                    ->hidden(!$user->can('page_ReserveFundStatementMollak'))
-                                    ->icon('heroicon-m-clipboard-document-list')
-                                    ->activeIcon('heroicon-m-clipboard-document-list')
-                                    ->sort(12),
+                                    ->sort(5),
+                                // NavigationItem::make('General Fund Statement')
+                                //     ->url('/admin/general-fund-statement')
+                                //     ->hidden(!$user->can('page_GeneralFundStatement'))
+                                //     ->icon('heroicon-m-clipboard-document-check')
+                                //     ->activeIcon('heroicon-m-clipboard-document-check')
+                                //     ->sort(6),
+                                // NavigationItem::make('Reserve Fund Statement')
+                                //     ->url('/admin/reserve-fund-statement')
+                                //     ->hidden(!$user->can('page_ReserveFundStatement'))
+                                //     ->icon('heroicon-m-clipboard-document-list')
+                                //     ->activeIcon('heroicon-m-clipboard-document-list')
+                                //     ->sort(7),
+                                // NavigationItem::make('Generate Invoice')
+                                //     ->url(OwnerAssociationInvoiceResource::getUrl('index'))
+                                //     ->hidden(!$user->can('view_any_owner::association::invoice'))
+                                //     ->icon('heroicon-s-document-arrow-up')
+                                //     ->activeIcon('heroicon-s-document-arrow-up')
+                                //     ->sort(8),
+                                // NavigationItem::make('Generate Receipt')
+                                //     ->url(OwnerAssociationReceiptResource::getUrl('index'))
+                                //     ->hidden(!$user->can('view_any_owner::association::receipt'))
+                                //     ->icon('heroicon-s-document-arrow-down')
+                                //     ->activeIcon('heroicon-s-document-arrow-down')
+                                //     ->sort(9),
+                                // NavigationItem::make('Trial Balance')
+                                //     ->url('/admin/trial-balance')
+                                //     ->hidden(!$user->can('page_TrialBalance'))
+                                //     ->icon('heroicon-s-clipboard-document')
+                                //     ->activeIcon('heroicon-s-clipboard-document')
+                                //     ->sort(10),
+                                // NavigationItem::make('General Fund Statement Bank Book')
+                                //     ->url('/admin/mollak-general-fund-statement')
+                                //     ->hidden(!$user->can('page_GeneralFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-check')
+                                //     ->activeIcon('heroicon-m-clipboard-document-check')
+                                //     ->sort(11),
+                                // NavigationItem::make('Reserve Fund Statement Bank Book')
+                                //     ->url('/admin/mollak-reserve-fund-statement')
+                                //     ->hidden(!$user->can('page_ReserveFundStatementMollak'))
+                                //     ->icon('heroicon-m-clipboard-document-list')
+                                //     ->activeIcon('heroicon-m-clipboard-document-list')
+                                //     ->sort(12),
 
                             ])
                             ->collapsed(true),

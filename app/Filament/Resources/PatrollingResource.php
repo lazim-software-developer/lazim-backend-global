@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -13,11 +12,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Gatekeeper\Patrolling;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+// use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PatrollingResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\PatrollingResource\RelationManagers;
+use App\Filament\Resources\PatrollingResource\RelationManagers\PatrollingListRelationManager;
 
 class PatrollingResource extends Resource
 {
@@ -30,29 +29,53 @@ class PatrollingResource extends Resource
     {
         return $form
             ->schema([
-                //
+
             ]);
     }
 
+    // public static function infolist(Infolist $infolist): Infolist
+    // {
+    //     return $infolist
+    //         ->schema([
+    //             Infolists\Components\TextEntry::make('building_id'),
+    //             Infolists\Components\TextEntry::make('patrolled_by'),
+    //             Infolists\Components\TextEntry::make('started_at'),
+    //             Infolists\Components\TextEntry::make('ended_at'),
+    //             Infolists\Components\TextEntry::make('total_count'),
+    //             Infolists\Components\TextEntry::make('completed_count'),
+    //             Infolists\Components\TextEntry::make('pending_count'),
+    //         ]);
+    // }
+
     public static function table(Table $table): Table
     {
-        $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
+        // $buildings = Building::where('owner_association_id', auth()->user()?->owner_association_id)->pluck('id');
         return $table
             // ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('building_id', $buildings)->orderBy('patrolled_at','desc')->withoutGlobalScopes())
             ->columns([
-                TextColumn::make('building.name')
-                    // ->sortable()
-                    ->label('Building'),
-                TextColumn::make('floor.floors')
-                    // ->sortable()
-                    ->label('Floor'),
-                TextColumn::make('user.first_name')->label('Patrolled By')
-                    // ->sortable()
-                    ->label('Patrolled By'),
-                TextColumn::make('patrolled_at')
-                    // ->sortable()
-                    ->label('Patrolled At'),
-
+                TextColumn::make('building.name')->label('Building'),
+                TextColumn::make('started_at')->label('Started At'),
+                TextColumn::make('ended_at')->label('Ended At'),
+                TextColumn::make('total_count')->label('Total'),
+                TextColumn::make('completed_count')->label('Completed'),
+                TextColumn::make('pending_count')->label('Pending'),
+                // TextColumn::make('is_completed')->label('Status')->formatStateUsing(fn ($state) => $state == 1 ? 'Completed' : (($state == 0) ? 'In-Progress' : 'In-complete'))
+                TextColumn::make('is_completed')->label('Status')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        1 => 'Completed',
+                        0 => 'In-Progress',
+                        default => 'In-complete',
+                    })
+                    ->color(fn ($state) => match ($state) {
+                        1 => 'success',
+                        0 => 'warning',
+                        default => 'danger',
+                    })
+                    ->icon(fn ($state) => match ($state) {
+                        1 => 'heroicon-o-check-circle',
+                        0 => 'heroicon-o-minus-circle',
+                        default => 'heroicon-o-x-circle',
+                    }),
             ])
             ->filters([
                 SelectFilter::make('building_id')
@@ -75,7 +98,8 @@ class PatrollingResource extends Resource
                     ->label('Building'),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
@@ -91,15 +115,17 @@ class PatrollingResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PatrollingListRelationManager::class, // Relation manager for patrollingList
         ];
     }
+
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListPatrollings::route('/'),
             // 'create' => Pages\CreatePatrolling::route('/create'),
+            'view' => Pages\ViewPatrolling::route('/{record}'),
             // 'edit' => Pages\EditPatrolling::route('/{record}/edit'),
         ];
     }
