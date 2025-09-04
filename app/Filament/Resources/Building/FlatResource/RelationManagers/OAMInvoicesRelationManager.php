@@ -10,6 +10,10 @@ use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\RelationManagers\RelationManager;
 
+use App\Models\Accounting\OAMInvoice;
+use Filament\Notifications\Notification;
+use App\Http\Controllers\User\PaymentController;
+
 
 class OAMInvoicesRelationManager extends RelationManager
 {
@@ -35,8 +39,12 @@ class OAMInvoicesRelationManager extends RelationManager
                 // TextColumn::make('invoice_pdf_link')
                 //     ->limit(20),
                 TextColumn::make('payment_url')
-                    ->limit(20),
+                ->limit(20)
+		->copyable()
+    		->copyMessage('Link copied!')
+    		->copyMessageDuration(1500),
             ])
+            ->defaultSort('invoice_date', 'desc')
             ->filters([
 
                 Filter::make('invoice_date')
@@ -71,6 +79,38 @@ class OAMInvoicesRelationManager extends RelationManager
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\DeleteAction::make(),
+		Tables\Actions\Action::make('download_pdf')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(function (OAMInvoice $record) {
+                        try {
+                            $controller = app(PaymentController::class);
+                            $response = $controller->fetchServiceChargePDF($record);
+                            return redirect($response['url']);
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body('Failed to download PDF: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                     })
+//                    ->url(function (OAMInvoice $record) {
+//                        try {
+//                            $controller = app(PaymentController::class);
+//                            $response = $controller->fetchServiceChargePDF($record);
+//                            return $response['url'];
+//                        } catch (\Exception $e) {
+//                            Notification::make()
+//                                ->title('Error')
+//                                ->body('Failed to download PDF: ' . $e->getMessage())
+//                                ->danger()
+//                                ->send();
+//                            return null; // Prevent action from proceeding
+//                        }
+//                    })
+//                    ->openUrlInNewTab()
+                    ->color('success'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

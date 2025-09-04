@@ -5,10 +5,18 @@
 
 <p>Dear {{ $name }},</p>
 
-<p>We have generated a new invoice for your account.</p>
+<p>We hope this message finds you well.</p>
+
+<p>We are writing to inform you that a new invoice has been found for your account. Please find the details below:</p>
 
 <div class="title">Invoice Details:</div>
 <p>
+    @if ($flat)
+        <strong>Flat:</strong> {{ $flat['name'] }}<br>
+    @endif
+    @if ($building)
+        <strong>Building:</strong> {{ $building['name'] }}<br>
+    @endif
     <strong>Invoice Number:</strong> {{ $invoice_number }}<br>
     <strong>Date of Issue:</strong> {{ $issue_date }}<br>
     <strong>Due Date:</strong> {{ $due_date }}<br>
@@ -18,6 +26,8 @@
 <p>Please ensure the payment is completed by the due date to avoid any late fees or service interruptions.</p>
 
 <p>If you have any questions or require further assistance, feel free to reach out to us.</p>
+
+<p>Ignore this message if you have already made the payment.</p>
 
 <p>Thank you for your cooperation.</p>
 

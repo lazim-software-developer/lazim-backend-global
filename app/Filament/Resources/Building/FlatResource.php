@@ -43,6 +43,25 @@ class FlatResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-rectangle-stack';
     protected static ?string $modelLabel      = 'Units';
     protected static ?string $navigationGroup = 'Flat Management';
+    protected static ?string $recordTitleAttribute = 'property_number';
+    protected static ?string $navigationLabel = 'Units';
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return FlatResource::getUrl('edit', ['record' => $record]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['property_number', 'building.name'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Building' => $record->building->name,
+            'Unit' => $record->property_number,
+        ];
+    }
 
     public static function form(Form $form): Form
     {

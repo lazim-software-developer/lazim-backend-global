@@ -11,6 +11,7 @@ use App\Models\OwnerAssociation;
 use App\Jobs\InvoiceNotification;
 use App\Jobs\UpdateLegalNoticeJob;
 use App\Models\AccountCredentials;
+use Illuminate\Support\Facades\DB;
 use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
 use App\Models\Accounting\OAMInvoice;
@@ -38,12 +39,26 @@ class SendInvoiceOverDue extends Command
      */
     public function handle()
     {
-        
+#TODO Need to re-evaluate compl
         $globalSetting = GlobalSetting::first()->toArray();
-        // die($overdue_date);
         // Get the invoices that are overdue
-        $invoices = OAMInvoice::select('id','building_id','flat_id','invoice_due_date','invoice_number','due_amount','invoice_pdf_link','invoice_date')
-            ->get()->toArray();
+        // $invoicesData = OAMInvoice::with('flat:id,property_number,mollak_property_id,building_id','building:id,name')
+        // ->select('id','building_id','flat_id','invoice_due_date','invoice_number','due_amount','invoice_pdf_link','invoice_date')
+        // ->where('invoice_date', '<', date('Y-01-01'))
+        // ->where('invoice_due_date', '<', now())
+        // ->get();
+        $invoicesData = OAMInvoice::with('flat:id,property_number,mollak_property_id,building_id', 'building:id,name')
+        ->select('id', 'building_id', 'flat_id', 'invoice_due_date', 'invoice_number', 'due_amount', 'invoice_pdf_link', 'invoice_date')
+        ->whereIn('id', function ($query) {
+            $query->select(DB::raw('MAX(id)'))
+                ->from('oam_invoices')
+                ->where('invoice_date', '<', date('Y-01-01'))
+                ->where('invoice_due_date', '<', now())
+                ->groupBy('flat_id');
+        })
+        ->get();
+        // dd($invoicesData);
+        $invoices = $invoicesData->toArray();
         // Send notifications for overdue invoices
         foreach ($invoices as $invoice) {
             $totalPaid = OAMReceipts::where('building_id', $invoice['building_id'])
@@ -55,7 +70,7 @@ class SendInvoiceOverDue extends Command
                 $owner = FlatTenant::where('flat_id', $invoice['flat_id'])->where('building_id', $invoice['building_id'])
                 ->where('role', 'Owner')
                 ->first();
-            
+
                 $owner = $owner ? $owner->toArray() : null;
                 if ($owner) {
                     try {
@@ -70,6 +85,8 @@ class SendInvoiceOverDue extends Command
                         ];
                         $ownerAssociation=OwnerAssociation::where('id',$owner['owner_association_id'])->value('name');
                         $OaName = $ownerAssociation ?: 'Admin';
+                        $flat = $invoice['flat'] ? $invoice['flat'] : null;
+                        $building = $invoice['building'] ? $invoice['building'] : null;
                         $UserDetail=User::where('id',$owner['tenant_id'])->first()->toArray();
                         $PaymentDate=\Carbon\Carbon::parse($invoice['invoice_date'])->addDays($globalSetting['payment_day'])->format('Y-m-d');
                         $FollowUpDate=\Carbon\Carbon::parse($invoice['invoice_date'])->addDays($globalSetting['follow_up_day'])->format('Y-m-d');
@@ -85,14 +102,20 @@ class SendInvoiceOverDue extends Command
                             'created_at'=>date('Y-m-d'),
                             'updated_at'=>date('Y-m-d')
                         ];
-                        if($PaymentDate==date('Y-m-d')){
+
+                        // if($PaymentDate==date('Y-m-d')){
+                        //     InvoiceReminderTracking::create($InvoiceData);
+                        //     InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName);
+                        //     echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
+                        // }
+                        // if($FollowUpDate==date('Y-m-d')){
+                        //     InvoiceReminderTracking::create($InvoiceData);
+                        //     InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName);
+                        //     echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
+                        // }
+                        if($PaymentDate==date('Y-m-d') || $FollowUpDate==date('Y-m-d')){
                             InvoiceReminderTracking::create($InvoiceData);
-                            InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName);
-                            echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
-                        }
-                        if($FollowUpDate==date('Y-m-d')){
-                            InvoiceReminderTracking::create($InvoiceData);
-                            InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName);
+                            InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName,$flat, $building);
                             echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
                         }
                     } catch (\Exception $e) {
