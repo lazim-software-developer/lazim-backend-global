@@ -3,16 +3,21 @@
 namespace App\Filament\Resources;
 
 use Filament\Tables;
+use App\Models\Floor;
 use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Master\Role;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 // use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Building\Building;
+use Illuminate\Support\Facades\DB;
+use Filament\Tables\Filters\Filter;
+use App\Models\Gatekeeper\Patrolling;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Contracts\Database\Query\Builder;
 use App\Filament\Resources\PatrollingResource\Pages;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use App\Filament\Resources\PatrollingResource\RelationManagers;
 use App\Filament\Resources\PatrollingResource\RelationManagers\PatrollingListRelationManager;
 
 class PatrollingResource extends Resource
