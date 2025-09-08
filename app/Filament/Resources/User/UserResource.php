@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\User;
 
-use App\Models\Scopes\Searchable;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -12,6 +11,7 @@ use Filament\Tables\Table;
 use App\Models\Master\Role;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use App\Models\Scopes\Searchable;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use App\Filament\Resources\Shield\RoleResource;
+use App\Models\GlobalAccount\AccountPermission;
 use App\Filament\Resources\User\UserResource\Pages;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
@@ -227,6 +228,15 @@ class UserResource extends Resource
                                         ->gridDirection('row')
                                         ->columns(FilamentShieldPlugin::get()->getCheckboxListColumns())
                                         ->columnSpan(FilamentShieldPlugin::get()->getCheckboxListColumnSpan()),
+                                ]),
+                            Tab::make('Accounts')
+                                ->badge(fn() => AccountPermission::count())
+                                ->schema([
+                                    CheckboxList::make('accounts_permission')
+                                        ->label('')
+                                        ->options(fn() => AccountPermission::all()->pluck('name', 'name'))
+                                        ->columns(4)
+                                        ->dehydrated(true),
                                 ]),
 
                         ])

@@ -37,4 +37,7 @@ return [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
+    'accounting' => [
+        'url' => env('ACCOUNTING_URL', 'http://lazim-global-accounting.local'),
+    ],
 ];

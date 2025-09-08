@@ -19,7 +19,7 @@ class Role extends ModelsRole
 
     protected $connection = 'mysql';
 
-    protected $fillable = ['name','is_active', 'owner_association_id','guard_name'];
+    protected $fillable = ['name', 'is_active', 'owner_association_id', 'guard_name'];
 
     protected $searchableFields = ['*'];
 
@@ -34,12 +34,11 @@ class Role extends ModelsRole
     }
     public function building()
     {
-        return $this->belongsToMany(Building::class, 'building_roles','role_id','building_id');
+        return $this->belongsToMany(Building::class, 'building_roles', 'role_id', 'building_id');
     }
 
-     public function oaUserRegistration()
+    public function oaUserRegistration()
     {
         return $this->belongsTo(OaUserRegistration::class);
     }
-
 }
