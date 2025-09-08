@@ -15,13 +15,19 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\GlobalAccount\Permission;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\CheckboxList;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use App\Models\GlobalAccount\AccountPermission;
 use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
@@ -96,10 +102,10 @@ class RoleResource extends Resource implements HasShieldPermissions
                                 'lg' => 3,
                             ]),
                     ]),
-                Forms\Components\Tabs::make('Permissions')
+                Tabs::make('Permissions')
                     ->contained()
                     ->tabs([
-                        Forms\Components\Tabs\Tab::make(__('filament-shield::filament-shield.resources'))
+                        Tab::make(__('filament-shield::filament-shield.resources'))
                             ->visible(fn(): bool => (bool) Utils::isResourceEntityEnabled())
                             ->badge(static::getResourceTabBadgeCount())
                             ->schema([
@@ -107,7 +113,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->schema(fn(Get $get) => static::getResourceEntitiesSchema($get))
                                     ->columns(FilamentShieldPlugin::get()->getGridColumns()),
                             ]),
-                        Forms\Components\Tabs\Tab::make(__('filament-shield::filament-shield.pages'))
+                        Tab::make(__('filament-shield::filament-shield.pages'))
                             ->visible(fn(): bool => (bool) Utils::isPageEntityEnabled() && (count(FilamentShield::getPages()) > 0 ? true : false))
                             ->badge(count(static::getPageOptions()))
                             ->schema([
@@ -145,11 +151,11 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->columns(FilamentShieldPlugin::get()->getCheckboxListColumns())
                                     ->columnSpan(FilamentShieldPlugin::get()->getCheckboxListColumnSpan()),
                             ]),
-                        Forms\Components\Tabs\Tab::make(__('filament-shield::filament-shield.widgets'))
+                        Tab::make(__('filament-shield::filament-shield.widgets'))
                             ->visible(fn(): bool => (bool) Utils::isWidgetEntityEnabled() && (count(FilamentShield::getWidgets()) > 0 ? true : false))
                             ->badge(count(static::getWidgetOptions()))
                             ->schema([
-                                Forms\Components\CheckboxList::make('widgets_tab')
+                                CheckboxList::make('widgets_tab')
                                     ->label('')
                                     ->options(fn(): array => static::getWidgetOptions())
                                     ->searchable()
@@ -184,7 +190,17 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->columns(FilamentShieldPlugin::get()->getCheckboxListColumns())
                                     ->columnSpan(FilamentShieldPlugin::get()->getCheckboxListColumnSpan()),
                             ]),
-                        Forms\Components\Tabs\Tab::make(__('filament-shield::filament-shield.custom'))
+                        Tab::make('Accounts')
+                            ->badge(fn() => AccountPermission::count())
+                            ->schema([
+                                CheckboxList::make('accounts_permission')
+                                    ->label('')
+                                    ->options(fn() => AccountPermission::all()->pluck('name', 'name'))
+                                    ->columns(4)
+                                    ->dehydrated(true),
+                            ]),
+
+                        Tab::make(__('filament-shield::filament-shield.custom'))
                             ->visible(fn(): bool => (bool) Utils::isCustomPermissionEntityEnabled() && (count(static::getCustomEntities()) > 0 ? true : false))
                             ->badge(count(static::getCustomPermissionOptions()))
                             ->schema([
@@ -242,11 +258,46 @@ class RoleResource extends Resource implements HasShieldPermissions
                 // Tables\Columns\TextColumn::make('guard_name')
                 //     ->badge()
                 //     ->label(__('filament-shield::filament-shield.column.guard_name')),
-                Tables\Columns\TextColumn::make('permissions_count')
-                    ->badge()
+
+                // Tables\Columns\TextColumn::make('permissions_count')
+                //     ->badge()
+                //     ->label(__('filament-shield::filament-shield.column.permissions'))
+                //     ->counts('permissions')
+                //     ->colors(['success']),
+
+
+                Tables\Columns\TextColumn::make('total_permissions_count')
                     ->label(__('filament-shield::filament-shield.column.permissions'))
-                    ->counts('permissions')
-                    ->colors(['success']),
+                    ->badge()
+                    ->colors(['success'])
+                    ->getStateUsing(function ($record) {
+                        // ---------- 1. Count NON-ACCOUNTS permissions from local DB ----------
+                        $localPermissionCount = $record->permissions()->count();
+
+                        // ---------- 2. Count ACCOUNTS permissions from lazim_accounts DB ----------
+                        $accountPermissionCount = 0;
+
+                        try {
+                            $conn = DB::connection(env('SECOND_DB_CONNECTION', 'lazim_accounts'));
+
+                            $remoteRole = $conn->table('roles')
+                                ->where('oa_role_id', $record->id)
+                                ->where('guard_name', $record->guard_name)
+                                ->first();
+
+                            if ($remoteRole) {
+                                $accountPermissionCount = $conn->table('role_has_permissions')
+                                    ->where('role_id', $remoteRole->id)
+                                    ->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to fetch account permissions count: ' . $e->getMessage());
+                        }
+
+                        // ---------- 3. Return total count ----------
+                        return $localPermissionCount + $accountPermissionCount;
+                    }),
+
                 // Tables\Columns\TextColumn::make('updated_at')
                 //     ->label(__('filament-shield::filament-shield.column.updated_at'))
                 //     ->dateTime(),
@@ -466,6 +517,11 @@ class RoleResource extends Resource implements HasShieldPermissions
                 );
             }
         }
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('permissions');
     }
 
     public static function toggleEntitiesViaSelectAll($livewire, Forms\Set $set, bool $state): void

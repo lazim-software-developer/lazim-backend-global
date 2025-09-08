@@ -18,12 +18,16 @@ use Spatie\Permission\Models\Permission;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\User\UserResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use PHPUnit\TestRunner\TestResult\Collector;
 
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
     public Collection $permissions;
+    public Collection $nonAccountPermissions;
+
+    public Collection $accountPermissions;
 
 
 
@@ -41,21 +45,25 @@ class CreateUser extends CreateRecord
         // return $data;
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        $this->permissions = collect($data)
-            ->filter(function ($permission, $key) {
-                return ! in_array($key, ['name', 'guard_name', 'select_all']);
-            })
-            ->values()
-            ->flatten();
 
-        return Arr::only($data, ['name', 'guard_name']);
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+
+        // dd($data);
+        $excludeKeys = ['first_name', 'last_name', 'email', 'phone', 'roles', 'active', 'guard_name', 'accounts_permission'];
+        $this->accountPermissions = collect($data['accounts_permission'] ?? [])->flatten();
+        $this->nonAccountPermissions = collect($data)
+            ->reject(fn($value, $key) => in_array($key, $excludeKeys)) // sirf permissions ka data chhodo
+            ->flatMap(fn($permissions) => is_array($permissions) ? $permissions : []) // flatten to one-level array
+            ->filter();
+
+        return Arr::only($data, ['first_name', 'last_name', 'email', 'phone', 'roles', 'active', 'guard_name']);
     }
     protected function afterCreate()
     {
         // dd($this->data);
         $user = User::find($this->record->id);
+        // \Log::info("first name is ", $user);
         OwnerAssociationUser::create([
             'owner_association_id' => $this->record->owner_association_id,
             'user_id'              => $this->record->id,
@@ -91,32 +99,34 @@ class CreateUser extends CreateRecord
         $user->role_id              = $this->data['roles'];
         $user->save();
 
-        if ($user->role?->name === 'Accounts Manager') {
-            $building_id = DB::table('building_owner_association')->where('owner_association_id', $user?->owner_association_id)->first()?->building_id;
-            $connection  = DB::connection('lazim_accounts');
-            $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $building_id])->first();
-            $connection->table('users')->insert([
-                'name'                 => $user->first_name,
-                'email'                => $user->email,
-                'email_verified_at'    => now(),
-                'password'             => Hash::make($password),
-                'type'                 => 'accountant',
-                'lang'                 => 'en',
-                'created_by'           => $creator->id,
-                'plan'                 => 1,
-                'owner_association_id' => $user?->owner_association_id,
-                'building_id'          => $building_id,
-                'created_at'           => now(),
-                'updated_at'           => now(),
-            ]);
-            $accountUser = $connection->table('users')->where('email', $user->email)->where('owner_association_id', $user->owner_association_id)->first();
-            $role        = $connection->table('roles')->where('name', 'accountant')->first();
-            $connection->table('model_has_roles')->insert([
-                'role_id'    => $role?->id,
-                'model_type' => 'App\Models\User',
-                'model_id'   => $accountUser?->id,
-            ]);
-        }
+        $roleName = $user->role?->name ?? 'staff';
+
+        $building_id = DB::table('building_owner_association')->where('owner_association_id', $user?->owner_association_id)->first()?->building_id;
+        $connection  = DB::connection('lazim_accounts');
+        $creator = $connection->table('users')->where(['type' => 'building', 'building_id' => $building_id])->first();
+        $connection->table('users')->insert([
+            'name'                 => $user->first_name,
+            'email'                => $user->email,
+            'email_verified_at'    => now(),
+            'password'             => Hash::make($password),
+            'type'                 => $roleName,
+            'lang'                 => 'en',
+            'created_by'           => $creator->id,
+            'plan'                 => 1,
+            'owner_association_id' => $user?->owner_association_id,
+            'building_id'          => $building_id,
+            'oa_user_id'            => $user->id,
+            'created_at'           => now(),
+            'updated_at'           => now(),
+        ]);
+        $accountUser = $connection->table('users')->where('email', $user->email)->where('owner_association_id', $user->owner_association_id)->first();
+        $role        = $connection->table('roles')->where('name', 'accountant')->first();
+        $connection->table('model_has_roles')->insert([
+            'role_id'    => $role?->id,
+            'model_type' => 'App\Models\User',
+            'model_id'   => $accountUser?->id,
+        ]);
+
         // Dispatch the appropriate job based on the role
         if (array_key_exists($this->record->role?->name, $roleJobMap)) {
             $jobClass         = $roleJobMap[$this->record->role?->name];
@@ -152,15 +162,71 @@ class CreateUser extends CreateRecord
             MdCreateJob::dispatch($user, $password, $mailCredentials);
         }
 
-        $permissionModels = collect();
-        $this->permissions->each(function ($permission) use ($permissionModels) {
-            $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
+
+        $nonAccountPermissionModels = collect();
+        $this->nonAccountPermissions->each(function ($permission) use ($nonAccountPermissionModels) {
+            $nonAccountPermissionModels->push(Utils::getPermissionModel()::firstOrCreate([
                 'name' => $permission,
-                // 'guard_name' => $this->data['guard_name'],
-                'guard_name' => !is_null($this->data['guard_name']) ?  $this->data['guard_name'] : 'web', //TODO check why we are not able to get guard name from the auth
+                'guard_name' => !is_null($this->data['guard_name']) ?  $this->data['guard_name'] : 'web',
             ]));
         });
 
-        $this->record->syncPermissions($permissionModels);
+        // Role ke sath sirf non-accounts permissions sync karo
+        $this->record->syncPermissions($nonAccountPermissionModels);
+        // dd($this->record, $this->accountPermissions);
+        $this->syncPermissionsToAccounting($this->record, $this->accountPermissions);
+    }
+
+    protected function syncPermissionsToAccounting($user, $permissions): void
+    {
+        // dd($user, $permissions);
+        // dd($permissions);
+        try {
+            $connection = DB::connection('lazim_accounts');
+
+            // Accounting side ka user dhundo using oa_user_id
+            $accountingUser = $connection->table('users')
+                ->where('oa_user_id', $user->id)
+                ->first();
+
+            if (!$accountingUser) {
+                \Log::warning('Accounting user not found for OA user ID: ' . $user->id);
+                return;
+            }
+
+            // Pehle se jo permissions assigned hai unki list le lo
+            $existingPermissionIds = $connection->table('model_has_permissions')
+                ->where('model_id', $accountingUser->id)
+                ->where('model_type', 'App\\Models\\User')
+                ->pluck('permission_id')
+                ->toArray();
+
+            \Log::info("Fetched existing permission IDs for user ID {$accountingUser->id}: ", $existingPermissionIds);
+
+
+            foreach ($permissions as $permissionName) {
+                \Log::info("Processing permission: {$permissionName}");
+                $permission = $connection->table('permissions')
+                    ->where('name', $permissionName)
+                    ->where('guard_name', $user->guard_name ?? 'web')
+                    ->first();
+
+                if ($permission && !in_array($permission->id, $existingPermissionIds)) {
+                    $connection->table('model_has_permissions')->insert([
+                        'permission_id' => $permission->id,
+                        'model_type'    => 'App\\Models\\User',
+                        'model_id'      => $accountingUser->id,
+                    ]);
+
+                    \Log::info("Assigned permission '{$permissionName}' to user ID {$accountingUser->id}");
+                } elseif (!$permission) {
+                    \Log::warning("Permission '{$permissionName}' not found in accounts DB.");
+                }
+            }
+
+            \Log::info("Permissions synced to accounting for user ID {$accountingUser->id}");
+        } catch (\Exception $e) {
+            \Log::error('Error syncing permissions to accounting: ' . $e->getMessage());
+        }
     }
 }
