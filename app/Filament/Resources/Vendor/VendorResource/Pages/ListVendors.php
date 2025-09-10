@@ -8,21 +8,25 @@ use Filament\Actions;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ListVendors extends ListRecords
 {
     protected static string $resource = VendorResource::class;
     protected function getTableQuery(): Builder
     {
-        // if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
-        return parent::getTableQuery();
-        // }
-        // return parent::getTableQuery()->where('owner_association_id', Filament::getTenant()?->id);
+        $vendors = DB::table('owner_association_vendor')
+            ->where('owner_association_id', Filament::getTenant()?->id ?? auth()->user()->owner_association_id)
+            ->pluck('vendor_id');
+        if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+            return parent::getTableQuery();
+        }
+        return parent::getTableQuery()->whereIn('id', $vendors);
     }
     protected function getHeaderActions(): array
     {
         return [
-            backButton(url: url()->previous())->visible(fn() => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
+            backButton(url: url()->previous())->visible(fn () => auth()->user()?->owner_association_id === 1), // TODO: Change this to the correct association ID or condition
             //Actions\CreateAction::make(),
         ];
     }

@@ -7,6 +7,7 @@ use App\Models\Accounting\Budgetitem;
 use App\Models\Building\Building;
 use App\Models\Master\Service;
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
@@ -40,7 +41,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
                 ->send();
             return 'failure';
         }
- 
+
         // Extract the headings from the first row
         if ($rows->first()->filter()->isEmpty()) {
             Notification::make()
@@ -88,7 +89,7 @@ class BudgetImport implements ToCollection, WithHeadingRow
 
         $budget = Budget::create([
             'building_id'          => $this->buildingId,
-            'owner_association_id' => $building->owner_association_id,
+            'owner_association_id' => Filament::getTenant()?->id ?? auth()->user()?->owner_association_id,
             'budget_period'        => $this->budgetPeriod,
             'budget_from'          => $startDate->toDateString(),
             'budget_to'            => $endDate->toDateString(),

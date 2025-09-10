@@ -2,41 +2,26 @@
 
 namespace App\Filament\Resources\Vendor;
 
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use App\Models\User\User;
-use Filament\Tables\Table;
-use App\Models\Master\Role;
-use Illuminate\Support\Str;
-use App\Models\Vendor\Vendor;
-use Filament\Facades\Filament;
-use App\Jobs\AccountCreationJob;
-use App\Jobs\VendorRejectionJob;
-use Filament\Resources\Resource;
-use App\Models\Building\Building;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Hash;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use App\Jobs\VendorAccountCreationJob;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Vendor\VendorResource\Pages;
 use App\Filament\Resources\Vendor\VendorResource\RelationManagers\BuildingvendorRelationManager;
+use App\Models\Master\Role;
+use App\Models\User\User;
+use App\Models\Vendor\Vendor;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class VendorResource extends Resource
 {
@@ -44,7 +29,7 @@ class VendorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Vendor Management';
+    protected static ?string $navigationGroup       = 'Vendor Management';
     protected static bool $shouldRegisterNavigation = true;
     public static function form(Form $form): Form
     {
@@ -66,7 +51,7 @@ class VendorResource extends Resource
                         ->preload()
                         ->relationship('user', 'first_name')
                         ->searchable()
-                        ->getSearchResultsUsing(fn(string $search): array => User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
+                        ->getSearchResultsUsing(fn(string $search): array=> User::where('role_id', 2, "%{$search}%")->limit(50)->pluck('first_name', 'id')->toArray())
                         ->getOptionLabelUsing(fn($value): ?string => User::find($value)?->first_name)
                         ->placeholder('Vendor Name'),
                     TextInput::make('tl_number')->label('Trade license number')
@@ -111,8 +96,8 @@ class VendorResource extends Resource
                             'approved' => 'Approve',
                             'rejected' => 'Reject',
                         ])->hidden(function () {
-                            return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
-                        })
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
                         ->visible(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id', Filament::getTenant()?->id)->first()?->pivot->status === null && $record->documents()->count() > 0 && $record->services()->count() > 0 && $record->managers()->count() > 0)
                         ->searchable()
                         ->live(),
@@ -130,8 +115,8 @@ class VendorResource extends Resource
                             }
                             return false;
                         })->hidden(function () {
-                            return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
-                        })
+                        return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
+                    })
                         ->disabled(fn($record) => $record->ownerAssociation?->where('pivot.owner_association_id', Filament::getTenant()?->id)->first()?->pivot->status !== null),
                     Toggle::make('active')
                         ->rules(['boolean'])
@@ -154,7 +139,6 @@ class VendorResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->searchable()
-                    ->sortable()
                     ->default('NA')
                     ->label('Vendor Name'),
                 Tables\Columns\TextColumn::make('tl_number')
@@ -163,8 +147,7 @@ class VendorResource extends Resource
                     ->label('TL Number'),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
-                    ->sortable()
-                    ->default('pending')
+                    ->default('NA')
                     ->label('Status')
                     ->hidden(function () {
                         return Role::where('id', auth()->user()?->role_id)->first()?->name == 'Admin';
@@ -195,41 +178,33 @@ class VendorResource extends Resource
 
             ])
             ->filters([
-                Filter::make('status')
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                                'NA' => 'Pending'
-                            ])
-                            ->label('Status')
-                            ->placeholder('Select Status'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if (isset($data['status'])) {
-                            // Handling 'Pending' (NA) case
-                            if ($data['status'] === 'NA') {
-                                $query->whereHas('ownerAssociation', function ($query) {
-                                    $query->where(function ($query) {
-                                        $query->whereNull('owner_association_vendor.status') // Fetch records where status is null
-                                            ->orWhereNotIn('owner_association_vendor.status', ['approved', 'rejected']); // Fetch records where status is neither approved nor rejected
-                                    })
-                                        ->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id);
-                                });
-                            } else {
-                                // Otherwise, fetch records based on the selected status (approved/rejected)
-                                $query->whereHas('ownerAssociation', function ($query) use ($data) {
-                                    $query->where('owner_association_vendor.status', $data['status'])
-                                        ->where('owner_association_vendor.owner_association_id', Filament::getTenant()?->id);
-                                });
-                            }
-                        }
-                        return $query;
-                    }),
+                // Filter::make('vendorByBuilding')
+                // ->form([
+                //     Select::make('Building')
+                //     ->searchable()
+                //     ->options(function () {
+                //         if(Role::where('id', auth()->user()->role_id)->first()->name == 'Admin'){
+                //             return Building::all()->pluck('name', 'id');
+                //         }
+                //         else{
+                //             return Building::where('owner_association_id', auth()->user()?->owner_association_id)
+                //             ->pluck('name', 'id');
+                //         }
+
+                //     }),
+                // ])
+                // ->query(function (Builder $query, array $data): Builder {
+                //     return $query->when(
+                //         isset($data['Building']),
+                //         function ($query) use ($data) {
+                //             $query->whereHas('buildings', function ($query) use ($data) {
+                //                 $query->where('buildings.id', $data['Building']);
+                //             });
+                //         }
+                //     );
+                // })
 
             ])
-
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -268,8 +243,8 @@ class VendorResource extends Resource
         return [
             'index' => Pages\ListVendors::route('/'),
             //'create' => Pages\CreateVendor::route('/create'),
-            'edit' => Pages\EditVendor::route('/{record}/edit'),
-            'view' => Pages\ViewVendor::route('/{record}'),
+            'edit'  => Pages\EditVendor::route('/{record}/edit'),
+            'view'  => Pages\ViewVendor::route('/{record}'),
         ];
     }
 }
