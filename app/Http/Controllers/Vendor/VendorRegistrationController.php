@@ -96,7 +96,7 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
-            if($vendor){
+            if ($vendor) {
                 $isAttached = $vendor->ownerAssociation()->wherePivot('owner_association_id', $request->owner_association_id)->exists();
                 $ownerAssociation = OwnerAssociation::where('id', $request->owner_association_id)->first();
 
@@ -109,7 +109,7 @@ class VendorRegistrationController extends Controller
                     ]))->response()->setStatusCode(403);
                 }
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(),'active' =>false]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(), 'active' => false]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
                     'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
@@ -118,7 +118,6 @@ class VendorRegistrationController extends Controller
                     'data' => $vendor,
                 ]))->response()->setStatusCode(200);
             }
-
         } else {
             $existingEmail = User::where(['email' => $request->email])->first();
             $existingPhone = User::where(['phone' => $request->phone])->first();
@@ -170,11 +169,12 @@ class VendorRegistrationController extends Controller
 
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         $request->merge(['email' => trim(strtolower($request->email))]);
-        $request->merge(['phone' => str_replace(' ', '', trim($request->mobile))]);
+        $request->merge(['phone' => str_replace(' ', '', trim($request->phone))]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
+        // dd($user);
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
@@ -350,7 +350,7 @@ class VendorRegistrationController extends Controller
         ]))->response()->setStatusCode(201);
     }
 
-        public function getVendorStatus(Request $request)
+    public function getVendorStatus(Request $request)
     {
         // Check if user exists
         $user = User::where('id', $request->owner_id)->first();
@@ -476,7 +476,7 @@ class VendorRegistrationController extends Controller
         return ListOAResource::collection($OwnerAssociations);
     }
 
-        public function loginAsOptions(Request $request)
+    public function loginAsOptions(Request $request)
     {
         $request->validate([
             'email' => 'required',
@@ -499,7 +499,7 @@ class VendorRegistrationController extends Controller
             ->exists();
         return [
             //'registered_with' =>($oaIds === 11)? 'OA' : OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique(),
-'registered_with' => "OA",
+            'registered_with' => "OA",
             're_upload_documents' => $reUploadDocuments ? true : false,
             'vendor_id' => $vendor,
         ];
