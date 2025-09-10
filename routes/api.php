@@ -391,6 +391,7 @@ Route::middleware([])->group(function () {
 Route::middleware([])->prefix('vendor')->group(function () {
     Route::post('/registration', [VendorRegistrationController::class, 'registration']);
     Route::post('/company-detail', [VendorRegistrationController::class, 'companyDetails']);
+    Route::get('/vendor-status', [VendorRegistrationController::class, 'getVendorStatus']);
     Route::post('/managers/{vendor}', [VendorRegistrationController::class, 'managerDetails']);
     // Add a new custom service and attch to vendor
     Route::post('/add-service/{vendor}', [SelectServicesController::class, 'addService']);
@@ -405,6 +406,7 @@ Route::middleware([])->prefix('vendor')->group(function () {
 // Vendor APIs after logging in
 Route::middleware(['auth:sanctum', 'active'])->prefix('vendor')->group(function () {
     // List vendor details of logged in user
+    Route::get('/registered_with', [VendorRegistrationController::class, 'registeredWith']);
     Route::get('/details', [VendorRegistrationController::class, 'showVendorDetails']);
     Route::post('/{vendor}/edit-details', [VendorRegistrationController::class, 'editVendorDetails']);
     Route::get('/{vendor}/view-manager', [VendorRegistrationController::class, 'showManagerDetails']);

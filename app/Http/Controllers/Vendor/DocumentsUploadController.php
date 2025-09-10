@@ -10,11 +10,17 @@ use App\Models\Building\Document;
 use App\Models\Master\DocumentLibrary;
 use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DocumentsUploadController extends Controller
 {
     public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
+\Log::info("  requestdata start   ". json_encode($request->all()));
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
         $status = 0;
         foreach($request->docs as $key => $value) {
             $path = optimizeDocumentAndUpload($value);
@@ -27,6 +33,7 @@ class DocumentsUploadController extends Controller
                 'url' => $path,
                 'owner_association_id' => $vendor->owner_association_id,
             ]);
+\Log::info("  requestdata    ". json_encode($request->all()));
             $docs = Document::where('documentable_id',$vendor->id)->where('document_library_id',DocumentLibrary::where('label', $key)->value('id'))
                     ->where('owner_association_id',$vendor->owner_association_id)->where('name',$key);
             if(!$docs->exists()) {
@@ -39,10 +46,10 @@ class DocumentsUploadController extends Controller
         }
         if ($status == 1){
             $vendor->update(['status' => null, 'remarks' => null]);
-            $vendor->ownerAssociation()->updateExistingPivot($vendor->owner_association_id, [
-                'status' => null,
-                'remarks' => null,
-            ]);
+            DB::table('owner_association_vendor')
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'rejected')
+                ->update(['status' => null, 'remarks' => null]);
         }
 
         return (new CustomResponseResource([
@@ -55,7 +62,7 @@ class DocumentsUploadController extends Controller
 
     public function showDocuments(Vendor $vendor)
     {
-        $documents = Document::where('documentable_id', $vendor->id)->get();
+        $documents = Document::where(['documentable_id'=> $vendor->id, 'documentable_type'=> Vendor::class])->get();
 
         return VendorDocumentResource::collection($documents);
     }
@@ -64,7 +71,10 @@ class DocumentsUploadController extends Controller
     {
         $documents = Document::where('documentable_id', $vendor->id)->get();
         $data = $documents->mapWithKeys(function ($document) {
-            return [$document->documentLibrary->name => env('AWS_URL') . '/' . $document->url];
+            if($document->url){
+                return [$document->documentLibrary->name => env('AWS_URL') . '/' . $document->url];
+            }
+            return [];
         });
         return $data;
     }
@@ -78,7 +88,11 @@ class DocumentsUploadController extends Controller
         ];
     }
 
-    public function updateRiskPolicy(Request $request,Vendor $vendor){
+    public function updateRiskPolicy(Request $request,Vendor $vendor)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
 
         $document = Document::where('documentable_id',$vendor->id)->where('name','risk_policy')->latest()->first();
         if(empty($document)){
@@ -93,11 +107,13 @@ class DocumentsUploadController extends Controller
             ]);
         }
 
-        $document->update([
-            'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
-            'expiry_date' => $request->risk_policy_expiry,
-            'status' => 'pending'
-        ]);
+        if ($request->hasFile('risk_policy_document')) {
+            $document->update([
+                'url' => optimizeDocumentAndUpload($request->file('risk_policy_document')),
+                'expiry_date' => $request->risk_policy_expiry,
+                'status' => 'pending'
+            ]);
+        }
 
         return (new CustomResponseResource([
             'title' => 'Success',
