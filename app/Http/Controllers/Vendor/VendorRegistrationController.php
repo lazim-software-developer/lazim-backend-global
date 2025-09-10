@@ -28,7 +28,12 @@ class VendorRegistrationController extends Controller
     public function registration(VendorRegisterRequest $request)
     {
         // Check if user exists in our DB
-        $userData = User::where(['email' => $request->get('email'), 'phone' => $request->get('phone')]);
+        $userData = User::where(
+            [
+                'email' => trim(strtolower($request->get('email'))),
+                'phone' => str_replace(' ', '', trim($request->phone))
+            ]
+        );
 
         // if user exists
         if ($userData->exists()) {
@@ -86,8 +91,12 @@ class VendorRegistrationController extends Controller
             }
 
             // $documents = Document::where('documentable_id', $vendor->id);
+
             //check if vendor has uploaded documnets
+            // $documents->exists();
+            // if (!$vendor->documents()->exists()) {
             if ($vendor->documents()->count() < 5) {
+
                 return (new CustomResponseResource([
                     'title' => 'redirect_documents',
                     'message' => "You have not uploaded all documents. You'll be redirected to documents page",
@@ -170,7 +179,7 @@ class VendorRegistrationController extends Controller
 
         $request->merge(['first_name' => $request->name, 'active' => 1, 'role_id' => $role]);
         $request->merge(['email' => trim(strtolower($request->email))]);
-        $request->merge(['phone' => str_replace(' ', '', trim($request->mobile))]);
+        $request->merge(['phone' => str_replace(' ', '', trim($request->phone))]);
         $user = User::create($request->all());
 
         // Send email after 5 seconds
