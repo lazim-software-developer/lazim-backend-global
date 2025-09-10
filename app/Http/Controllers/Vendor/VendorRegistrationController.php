@@ -507,8 +507,7 @@ class VendorRegistrationController extends Controller
             ->where(['vendor_id' => $vendor, 'status' => 'rejected'])
             ->exists();
         return [
-            //'registered_with' =>($oaIds === 11)? 'OA' : OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique(),
-            'registered_with' => "OA",
+            'registered_with' => OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique(),
             're_upload_documents' => $reUploadDocuments ? true : false,
             'vendor_id' => $vendor,
         ];
