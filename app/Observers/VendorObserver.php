@@ -31,7 +31,7 @@ class VendorObserver
             ->body('New vendor created ' . $vendor->name)
             ->type('vendor')
             ->priority('Low')
-            ->building($vendor->building_id)
+            // ->building($vendor->building_id)
             ->actions([
                 Action::make('view')
                     ->button()

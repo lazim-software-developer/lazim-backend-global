@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\GateKeeperLoginRequest;
-use Illuminate\Support\Facades\DB;
 use App\Models\User\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use Illuminate\Support\Carbon;
+use App\Models\OwnerAssociation;
+use Illuminate\Support\Facades\DB;
+use App\Models\Building\FlatTenant;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\NotIn;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\CustomResponseResource;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\FlatTenant;
-use App\Models\ExpoPushNotification;
-use App\Models\OwnerAssociation;
-use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Auth\GateKeeperLoginRequest;
 
 class AuthController extends Controller
 {
@@ -387,6 +388,12 @@ class AuthController extends Controller
             'token' => hash('sha256', $refreshToken),
             'expires_at' => now()->addDays(30)  // Set the expiration time for the refresh token
         ]);
+        
+        $vendor = Vendor::where('owner_id', $user->id)->first()?->id;
+        $oaIds  = DB::table('owner_association_vendor')->where(['vendor_id' => $vendor, 'active' => true, 'status' => 'approved'])->pluck('owner_association_id');
+        $registeredWith = OwnerAssociation::whereIn('id', $oaIds)->pluck('role', 'role')->unique();
+
+        $user->setAttribute('registered_with', $registeredWith);
 
         $user->profile_photo = $user->profile_photo ? Storage::disk('s3')->url($user->profile_photo) : null;
 
