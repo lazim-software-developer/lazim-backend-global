@@ -26,6 +26,7 @@ use App\Models\Building\Building;
 use App\Models\Building\Document;
 use App\Models\Scopes\Searchable;
 use App\Models\Vendor\Attendance;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Accounting\Invoice;
 use App\Models\Building\Complaint;
@@ -62,6 +63,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     use Searchable;
     use HasApiTokens;
     use HasProfilePhoto;
+    use SoftDeletes;
     use TwoFactorAuthenticatable;
 
     protected $connection = 'mysql';

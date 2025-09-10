@@ -90,6 +90,7 @@ class VendorRegistrationController extends Controller
                 ]))->response()->setStatusCode(403);
             }
 
+
             // $documents = Document::where('documentable_id', $vendor->id);
 
             //check if vendor has uploaded documnets
@@ -108,28 +109,30 @@ class VendorRegistrationController extends Controller
             if ($vendor) {
                 $isAttached = $vendor->ownerAssociation()->wherePivot('owner_association_id', $request->owner_association_id)->exists();
                 $ownerAssociation = OwnerAssociation::where('id', $request->owner_association_id)->first();
-
                 if ($isAttached) {
                     return (new CustomResponseResource([
                         'title' => 'vendor_already_exists',
-                        'message' => "This vendor is already registered with this Owner Association.",
+                        'message' => "This vendor is already registered with this " . $ownerAssociation?->role ?? 'Association' . '.',
                         'code' => 403, // Conflict status code
                         'data' => $vendor,
                     ]))->response()->setStatusCode(403);
                 }
+                $type = $userData->first()?->role->name;
 
-                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(), 'active' => false]);
+                $vendor->ownerAssociation()->attach($request->owner_association_id, ['from' => now()->toDateString(), 'active' => false, 'type' => $request->role]);
                 return (new CustomResponseResource([
                     'title' => 'vendor_exists',
-                    'message' => "You have successfully registered with the new Owner Association. They will get back to you soon!",
+                    'message' => "You have successfully registered with the new " . $ownerAssociation?->role ?? 'Association' . ". They will get back to you soon!",
                     'code' => 200,
                     'status' => 'success',
                     'data' => $vendor,
                 ]))->response()->setStatusCode(200);
             }
         } else {
-            $existingEmail = User::where(['email' => $request->email])->first();
-            $existingPhone = User::where(['phone' => $request->phone])->first();
+            $existingEmail = User::where(['email' => trim(strtolower($request->email))])->first();
+            $existingPhone = User::where(['phone' => trim($request->phone)])->first();
+
+
 
             // Check if user exists in our DB
             if ($existingEmail) {
