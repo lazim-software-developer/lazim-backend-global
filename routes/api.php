@@ -517,6 +517,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
     //Vendor assets
     Route::get('/vendor/{vendor}', [AssetController::class, 'listAssets']);
     Route::post('/attach-asset/{asset}', [AssetController::class, 'attachAsset']);
+    Route::post('/detach-asset/{asset}', [AssetController::class, 'detachAsset']);
     Route::get('/{asset}/technicians', [AssetController::class, 'listTechnicians']);
 
     //PPM APIs

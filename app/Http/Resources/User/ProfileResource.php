@@ -32,7 +32,7 @@ class ProfileResource extends JsonResource
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at,
             'remember_token'=>$this->remember_token,
-            'selectType'=> OwnerAssociation::find($this->owner_association_id)->resource == "Default"  ? 'globalOa' : 'OA',
+            'selectType'=> 'globalOa',
 
         ];
     }

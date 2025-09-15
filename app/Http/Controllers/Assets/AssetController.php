@@ -21,6 +21,7 @@ use App\Http\Resources\Asset\AssetResource;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Resources\CustomResponseResource;
 use App\Http\Requests\Assets\AssetAttachRequest;
+use App\Http\Requests\Assets\AssetDetachRequest;
 use App\Http\Resources\Vendor\AssetListResource;
 use App\Http\Resources\Assets\AssetMaintenanceResource;
 use App\Http\Resources\Assets\AssetTechniciansResource;
@@ -178,6 +179,28 @@ class AssetController extends Controller
             'code' => 201,
             'status' => 'success',
             'data' => $assets,
+        ]))->response()->setStatusCode(201);
+    }
+
+    public function detachAsset(AssetDetachRequest $request,Asset $asset)
+    {
+        if ($request->has('building_id')) {
+            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+
+        TechnicianAssets::where([
+            'asset_id' => $asset->id,
+            'technician_id' => $request->technician_id,
+            'vendor_id' => $request->vendor_id,
+            'building_id' => $request->building_id,
+        ],
+        ['active' => false])->delete();
+        return (new CustomResponseResource([
+            'title' => 'Success',
+            'message' => 'Asset detached successfully!',
+            'code' => 201,
+            'status' => 'success',
+            // 'data' => [],
         ]))->response()->setStatusCode(201);
     }
 
