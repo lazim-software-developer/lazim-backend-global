@@ -100,14 +100,14 @@ class RegistrationController extends Controller
         if (!$queryModel->exists()) {
             if ($type === 'Owner') {
                 return (new CustomResponseResource([
-                    'title' => 'mollak_error',
-                    'message' => "Your details are not matching with Mollak data. Please use your Title Deed instead",
+                    'title' => 'data_error',
+                    'message' => "Your details are not matching with our data. Please use your Title Deed instead",
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             } else {
                 return (new CustomResponseResource([
-                    'title' => 'mollak_error',
-                    'message' => "Your details are not matching with Mollak data. Please use your Ejari document instead",
+                    'title' => 'data_error',
+                    'message' => "Your details are not matching with our data. Please use your Tenancy document instead",
                     'status' => 'detailsNotMatching',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
@@ -136,7 +136,7 @@ class RegistrationController extends Controller
         $connection = DB::connection('lazim_accounts');
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
         $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+        // $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
         $name = $firstName . ' - ' . $flat->property_number;
         $connection->table('customers')->insert([
             'customer_id' => $customerId,
@@ -160,7 +160,7 @@ class RegistrationController extends Controller
             'created_by_lazim' => true,
             'flat_id' => $flat->id,
             'building_id' => $flat->building_id,
-            'primary' => $primary ? 0 : 1,
+            // 'primary' => $primary ? 0 : 1,
         ]);
 
         // Store details to Flat tenants table
@@ -242,13 +242,12 @@ class RegistrationController extends Controller
         // Determine the type (tenant or owner)
         $type = $request->input('type', 'Owner');
 
-
-        // Identify role based on the type
-        $role = Role::where('name', $type)->value('id');
-
         // If the check passes, store the user details in the users table
         $building = Building::where('id', $request->building_id)->first();
         $owner_association_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()?->owner_association_id;
+
+        // Identify role based on the type
+        $role = Role::where('name', $type)->where('owner_association_id', $owner_association_id)->value('id');
 
         $user = User::create([
             'email' => $request->email, // Assuming email is still provided for communication
@@ -258,36 +257,6 @@ class RegistrationController extends Controller
             'active' => 0,
             'owner_id' => $ownerId,
             'owner_association_id' => $owner_association_id,
-        ]);
-
-        $connection = DB::connection('lazim_accounts');
-        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
-        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-        $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
-        $name = $request->name . ' - ' . $flat->property_number;
-        $connection->table('customers')->insert([
-            'customer_id' => $customerId,
-            'name' => $name,
-            'email'  => $request->email,
-            'contact' => $request->mobile,
-            'type' => $type,
-            'lang' => 'en',
-            'created_by' => $created_by,
-            'is_enable_login' => 0,
-            'billing_name' => $name,
-            'billing_country' => 'UAE',
-            'billing_city' => 'Dubai',
-            'billing_phone' => $request->mobile,
-            'billing_address' => $building->address_line1 . ', ' . $building->area,
-            'shipping_name' => $name,
-            'shipping_country' => 'UAE',
-            'shipping_city' => 'Dubai',
-            'shipping_phone' => $request->mobile,
-            'shipping_address' => $building->address_line1 . ', ' . $building->area,
-            'created_by_lazim' => true,
-            'flat_id' => $flat->id,
-            'building_id' => $flat->building_id,
-            'primary' => $primary ? 0 : 1,
         ]);
 
         if ($request->hasFile('emirates_document')) {
@@ -303,7 +272,7 @@ class RegistrationController extends Controller
         if ($request->hasFile('passport_document')) {
         $passport = optimizeDocumentAndUpload($request->passport_document, 'dev');
         }else{
-            $passport=null; 
+            $passport=null;
         }
         if ($request->hasFile('trade_license')) {
         $tradeLicense = $request->filled('trade_license') ? optimizeDocumentAndUpload($request->trade_license, 'dev') : null;
@@ -351,6 +320,36 @@ class RegistrationController extends Controller
 
         // Send email after 5 seconds
         SendVerificationOtp::dispatch($user)->delay(now()->addSeconds(5));
+        $connection = DB::connection('lazim_accounts');
+        $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()->id;
+        $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
+        // $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+        // $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->exists();
+        $name = $request->name . ' - ' . $flat->property_number;
+        $connection->table('customers')->insert([
+            'customer_id' => $customerId,
+            'name' => $name,
+            'email'  => $request->email,
+            'contact' => $request->mobile,
+            'type' => $type,
+            'lang' => 'en',
+            'created_by' => $created_by,
+            'is_enable_login' => 0,
+            'billing_name' => $name,
+            'billing_country' => 'UAE',
+            'billing_city' => 'Dubai',
+            'billing_phone' => $request->mobile,
+            'billing_address' => $building->address_line1 . ', ' . $building->area,
+            'shipping_name' => $name,
+            'shipping_country' => 'UAE',
+            'shipping_city' => 'Dubai',
+            'shipping_phone' => $request->mobile,
+            'shipping_address' => $building->address_line1 . ', ' . $building->area,
+            'created_by_lazim' => true,
+            'flat_id' => $flat->id,
+            'building_id' => $flat->building_id,
+            // 'primary' => $primary ? 0 : 1,
+        ]);
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
@@ -484,7 +483,7 @@ class RegistrationController extends Controller
         }
 
         // If OTP matches, you can set the user's email as verified in the users table or any other logic you want to implement
-        
+
         if($request->type == 'email') {
             User::where('email', $request->contact_value)->update(['email_verified' => true]);
         } else {
