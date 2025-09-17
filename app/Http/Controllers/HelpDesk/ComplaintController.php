@@ -253,9 +253,10 @@ class ComplaintController extends Controller
             }
         }
 
-        $categoryName = $request->category ? Service::where('subcategory_id', $request->category)->value('name') : '';
+        $service = Service::where('subcategory_id', $request->category)->first();
+        $categoryName = $service ? $service->name : '';
 
-        $service_id = $request->category ?? null;
+        $service_id = $service ? $service->id : null;
 
         // Fetch vendor id who is having an active contract for the given service in the building
         $vendor = ServiceVendor::where([
@@ -289,6 +290,7 @@ class ComplaintController extends Controller
 
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
+        \Log::info("##### Complaint 2 #####   ". json_encode($request->all()));
         $complaint = Complaint::create($request->all());
 
 
