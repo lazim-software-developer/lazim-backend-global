@@ -35,7 +35,7 @@ public function listServices(SubCategory $subcategory)
             'active' => 1,
             'owner_association_id' => $vendor->owner_association_id,
         ]);
-        
+
         $service = Service::firstOrCreate(
             [
                 'name' => $request->name
@@ -96,23 +96,24 @@ public function listServices(SubCategory $subcategory)
 
     public function listCategories()
     {
-        // $categories = SubCategory::whereIn('id', [1, 5, 13, 7,41])->get();
-        // return SubCategoryResource::collection($categories);
-        return ['data' => [
-            ["id"=>5,
-            "name"=>"House Keeping"],
-            ["id"=>36,
-            "name"=>"Security"],
-            ["id"=>69,
-            "name"=>"Electrical"],
-            ["id"=>69,
-            "name"=>"Plumbing"],
-            ["id"=>69,
-            "name"=>"AC"],
-            ["id"=>40,
-            "name"=>"Pest Control"],
-            ["id"=>228,
-            "name"=>"Other"]
-            ]];
+        $categories = SubCategory::whereIn('code', ['A1.0', 'A2.00', 'B1.0','B6'])->get();
+
+        return SubCategoryResource::collection($categories);
+        // return ['data' => [
+        //     ["id"=>5,
+        //     "name"=>"House Keeping"],
+        //     ["id"=>36,
+        //     "name"=>"Security"],
+        //     ["id"=>69,
+        //     "name"=>"Electrical"],
+        //     ["id"=>69,
+        //     "name"=>"Plumbing"],
+        //     ["id"=>69,
+        //     "name"=>"AC"],
+        //     ["id"=>40,
+        //     "name"=>"Pest Control"],
+        //     ["id"=>228,
+        //     "name"=>"Other"]
+        //     ]];
     }
 }
