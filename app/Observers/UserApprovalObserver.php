@@ -31,7 +31,7 @@ class UserApprovalObserver
             ->iconColor('warning')
             ->type('user_approval')
             ->priority('Low')
-            ->building($userApproval->building_id)
+            ->building($userApproval->flat->building_id)
             ->actions([
                 Action::make('View')
                     ->button()
