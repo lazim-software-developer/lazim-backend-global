@@ -210,6 +210,7 @@ class ComplaintController extends Controller
      */
     public function create(ComplaintStoreRequest $request, Building $building)
     {
+\Log::info("##### Complaint #####   ". json_encode($request->all()));
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;
@@ -252,7 +253,7 @@ class ComplaintController extends Controller
             }
         }
 
-        $categoryName = $request->category ? Service::where('id', $request->category)->value('name') : '';
+        $categoryName = $request->category ? Service::where('subcategory_id', $request->category)->value('name') : '';
 
         $service_id = $request->category ?? null;
 
