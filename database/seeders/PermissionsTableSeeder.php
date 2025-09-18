@@ -13,6 +13,10 @@ class PermissionsTableSeeder extends Seeder
         DB::beginTransaction();
         try {
             $permissions = [
+                'view_mollak::invoice',
+                'view_any_mollak::invoice',
+                'create_mollak::invoice',
+                'update_mollak::invoice',
                 'view_access::card::forms::document',
                 'view_any_access::card::forms::document',
                 'create_access::card::forms::document',
