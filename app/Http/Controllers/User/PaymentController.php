@@ -89,8 +89,8 @@ class PaymentController extends Controller
     {
         [$startDate, $endDate] = explode(' To ', $dateRange);
         return [
-            'start' => \Carbon\Carbon::createFromFormat('d-M-Y', trim($startDate)),
-            'end' => \Carbon\Carbon::createFromFormat('d-M-Y', trim($endDate))
+            'start' => Carbon::createFromFormat('d-M-Y', trim($startDate)),
+            'end' => Carbon::createFromFormat('d-M-Y', trim($endDate))
         ];
     }
 
@@ -106,7 +106,7 @@ class PaymentController extends Controller
 
     public function fetchServiceChargePDF(OAMInvoice $invoice)
     {
-        $pdfLink = $invoice->invoice_detail_link;
+        $pdfLink = $invoice->invoice_pdf_link;
 
         return $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
