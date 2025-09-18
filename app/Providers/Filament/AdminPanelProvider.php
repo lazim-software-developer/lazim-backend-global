@@ -39,6 +39,7 @@ use App\Filament\Resources\LegalOfficerResource;
 use App\Filament\Resources\UserApprovalResource;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\Resources\BankStatementResource;
+use App\Filament\Resources\MollakInvoiceResource;
 use App\Filament\Resources\Master\CountryResource;
 use App\Filament\Components\NavigationItemExtended;
 use App\Filament\Resources\DelinquentOwnerResource;
@@ -49,8 +50,8 @@ use App\Filament\Resources\NotificationListResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Filament\Resources\OacomplaintReportsResource;
-use Illuminate\Session\Middleware\AuthenticateSession;
 // use Filament\Pages\Dashboard;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -436,6 +437,7 @@ class AdminPanelProvider extends PanelProvider
                     $user->can('view_any_aging::report') ||
                     $user->can('view_any_bank::statement') ||
                     $user->can('page_GeneralFundStatement') ||
+                    $user->can('view_any_o::a::m::invoice') ||
                     $user->can('page_ReserveFundStatement') ||
                     $user->can('view_any_owner::association::invoice') ||
                     $user->can('view_any_owner::association::receipt') ||
@@ -476,6 +478,12 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-s-document-text')
                                     ->activeIcon('heroicon-s-document-text')
                                     ->sort(5),
+                                NavigationItem::make('Invoices')
+                                    ->url(MollakInvoiceResource::getUrl())
+                                    ->hidden(!$user->can('view_any_o::a::m::invoice'))
+                                    ->icon('heroicon-s-document-arrow-up')
+                                    ->activeIcon('heroicon-s-document-arrow-up')
+                                    ->sort(1),
                                 NavigationItem::make('General Fund Statement')
                                     ->url('/admin/general-fund-statement')
                                     ->hidden(!$user->can('page_GeneralFundStatement'))
@@ -809,7 +817,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::TOPBAR_START,
-                fn (): string => view('filament.hooks.topbar-logo')->render()
+                fn(): string => view('filament.hooks.topbar-logo')->render()
             )
             ->middleware([
                 EncryptCookies::class,
@@ -828,7 +836,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
-                ->gridColumns([
+                    ->gridColumns([
                         'default' => 1,
                         'sm' => 2,
                         'lg' => 3
