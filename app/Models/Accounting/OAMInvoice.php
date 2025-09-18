@@ -32,6 +32,7 @@ class OAMInvoice extends Model
         'invoice_due_date',
         'invoice_pdf_link',
         'invoice_detail_link',
+        'pdf_path',
         'updated_by',
         'type',
         'invoice_quarter',
@@ -41,6 +42,7 @@ class OAMInvoice extends Model
         'invoice_amount',
         'amount_paid',
         'payment_url',
+        'owner_association_id',
     ];
 
     // Save data to invoice audit table before updating the entry
