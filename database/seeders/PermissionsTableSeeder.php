@@ -425,7 +425,7 @@ class PermissionsTableSeeder extends Seeder
             ];
 
             foreach ($permissions as $permission) {
-                Permission::create([
+                Permission::updateOrCreate([
                     'name'       => $permission,
                     'guard_name' => 'web',
                 ]);
