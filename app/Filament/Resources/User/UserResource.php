@@ -79,10 +79,10 @@ class UserResource extends Resource
                         ->placeholder('Email'),
 
                     TextInput::make('phone')
-                        ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
+                        // ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/'])
                         // ->required()
                         ->disabledOn('edit')
-                        ->prefix('971')
+                        ->prefix('976')
                         ->unique(
                             'users',
                             'phone',
@@ -134,7 +134,7 @@ class UserResource extends Resource
                         ->nullable(),
                     Hidden::make('guard_name')
                         ->label(__('filament-shield::filament-shield.field.guard_name'))
-                        ->default(is_null(Auth::guard()->getName()) ? 'web' : 'web') //Todo 
+                        ->default(is_null(Auth::guard()->getName()) ? 'web' : 'web') //Todo
                         ->nullable(),
                     Tabs::make('Permissions')
                         ->columnSpanFull()

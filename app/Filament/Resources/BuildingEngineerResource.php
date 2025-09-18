@@ -55,13 +55,13 @@ class BuildingEngineerResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('phone')
-                    ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
-                        return function (string $attribute, $value, Closure $fail) {
-                            if (DB::table('users')->where('phone', '976'.$value)->count() > 0) {
-                                $fail('The phone is already taken by a User.');
-                            }
-                        };
-                    },])
+                    // ->rules(['regex:/^(50|51|52|55|56|58|02|03|04|06|07|09)\d{7}$/', function () {
+                    //     return function (string $attribute, $value, Closure $fail) {
+                    //         if (DB::table('users')->where('phone', '976'.$value)->count() > 0) {
+                    //             $fail('The phone is already taken by a User.');
+                    //         }
+                    //     };
+                    // },])
                     ->prefix('976')
                     ->required()
                     ->maxLength(255),
