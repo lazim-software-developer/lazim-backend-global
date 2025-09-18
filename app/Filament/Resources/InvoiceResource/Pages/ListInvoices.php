@@ -16,7 +16,7 @@ class ListInvoices extends ListRecords
 {
     protected static string $resource = InvoiceResource::class;
     protected static ?string $title = 'Invoice';
-    protected static string $view = 'filament.resources.invoice.list';
+    // protected static string $view = 'filament.resources.invoice.list';
 
     protected function getHeaderActions(): array
     {
