@@ -22,7 +22,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PatrollingController extends Controller
 {
-    public function fetchAllFloors(Building $building): AnonymousResourceCollection|JsonResponse
+    public function featchAllFloors(Building $building): AnonymousResourceCollection|JsonResponse
     {
         $context = ['user_id' => auth()->user()?->id, 'building_id' => $building->id];
         if (!$building) {
