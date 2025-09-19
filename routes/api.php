@@ -528,7 +528,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix('assets')->group(function 
 Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gatekeeper')->group(function () {
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
 
-    Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::get('floors/{building}', [PatrollingController::class, 'featchAllFloors']);
     Route::post('start-patrolling/{building}', [PatrollingController::class, 'createPatrolling']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
