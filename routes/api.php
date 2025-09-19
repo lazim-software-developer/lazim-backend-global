@@ -529,6 +529,7 @@ Route::middleware(['auth:sanctum', 'active', 'active.gatekeeper'])->prefix('gate
     Route::get('snags', [GatekeeperComplaintController::class, 'index']);
 
     Route::get('floors', [PatrollingController::class, 'featchAllFloors']);
+    Route::post('start-patrolling/{building}', [PatrollingController::class, 'createPatrolling']);
     Route::post('store-patrolling/{building}', [PatrollingController::class, 'store']);
 
     // List all residents for an
