@@ -138,3 +138,78 @@ if (!function_exists('getUnreadNotifications')) {
         return $notification->getUnreadNotificationsQuery()->simplePaginate(50, pageName: 'database-notifications-page');
     }
 }
+
+if (! function_exists('addTextToQR')) {
+    /**
+     * Generate a unique identifier.
+     *
+     * @return string
+     */
+    function addTextToQR($qrCode, $qrText = [], $qrCodeSize = 300, $width = 300, $height = 400): string
+    {
+        // Calculate dynamic font size (5% of QR size, clamped between 10 and 20)
+        $fontSize = max(10, min(20, $qrCodeSize * 0.05));
+
+        // Calculate text positioning
+        $textY = $qrCodeSize + ($qrCodeSize * 0.1); // Start text 10% below QR code
+        $lineSpacing = $fontSize * 1.5;
+
+        // Create SVG text elements
+        $svgText = '';
+        foreach ($qrText as $line) {
+            // Center text horizontally (approximate, as SVG text alignment is simpler)
+            $svgText .= "<text x='50%' y='{$textY}' font-size='{$fontSize}' font-family='Arial, sans-serif' text-anchor='middle'>{$line}</text>";
+            $textY += $lineSpacing;
+        }
+
+        // Append text to SVG
+        $svg = str_replace('</svg>', $svgText . '</svg>', $qrCode);
+
+        // Update SVG viewBox to accommodate text
+        $height = $qrCodeSize + ($qrCodeSize * 0.1) + (count($qrText) * $lineSpacing);
+        $svg = preg_replace(
+            '/viewBox="0 0 (\d+) (\d+)"/',
+            "viewBox='0 0 $qrCodeSize $height'",
+            $svg
+        );
+        return $svg;
+    }
+}
+
+
+
+if (! function_exists('convertSvgToPng')) {
+    /**
+     * Convert SVG to PNG.
+     *
+     * @param string $svgContent
+     * @param string $output
+     * @param int $size
+     * @return string
+     */
+    function convertSvgToPng($svgContent, $outputPath, $size = 200)
+    {
+        // Sanitize SVG to prevent XSS
+        $cleanSvgContent = preg_replace('/<\?xml[^>]*\?>\s*/i', '', $svgContent);
+
+        if (!$cleanSvgContent) {
+            throw new \Exception('Invalid SVG content');
+        }
+
+        // Create an image instance with Imagick
+        $image = Image::make($cleanSvgContent);
+
+        // Resize to ensure consistent output (optional)
+        $image->resize($size, $size, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+
+        // Set the format to PNG
+        $image->encode('png');
+
+        // Save the PNG to the output path
+        $image->save($outputPath);
+
+        return $outputPath;
+    }
+}

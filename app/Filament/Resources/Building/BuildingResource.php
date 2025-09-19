@@ -49,6 +49,7 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRela
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\LocationQrCodeRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromotionsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
@@ -475,7 +476,7 @@ class BuildingResource extends Resource
                                 // Created by user info
                                 // Column::make('created_by_name')
                                 //     ->heading('Created By')
-                                //     ->formatStateUsing(fn ($record) => 
+                                //     ->formatStateUsing(fn ($record) =>
                                 //         $record->createdBy->name ?? 'System'
                                 //     ),
                             ])
@@ -588,6 +589,7 @@ class BuildingResource extends Resource
             // BuildingResource\RelationManagers\BudgetRelationManager::class,
             BuildingResource\RelationManagers\BuildingPocsRelationManager::class,
             FloorsRelationManager::class,
+            LocationQrCodeRelationManager::class,
             RuleregulationsRelationManager::class,
             EmergencyNumbersRelationManager::class,
             OfferPromotionsRelationManager::class,
