@@ -36,7 +36,7 @@ class ProfileResource extends JsonResource
 
         ];
         if($this->role->name == 'Security'){
-            $data['building_id'] = $this->pocs->building_id;
+            $data['building_id'] = $this->pocs[0]->building_id;
         }
         return $data;
     }
