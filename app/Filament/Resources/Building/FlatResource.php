@@ -76,7 +76,7 @@ class FlatResource extends Resource
                         Select::make('building_id')
                             ->rules(['exists:buildings,id'])
                             ->relationship('building', 'name', function ($query) {
-                                $query->where('owner_association_id', auth()->user()->owner_association_id)->where('resource', 'Default');
+                                $query->where('owner_association_id', auth()->user()->owner_association_id);
                             })
                             ->reactive()
                             ->preload()
@@ -329,7 +329,7 @@ class FlatResource extends Resource
                                 // Created by user info
                                 // Column::make('created_by_name')
                                 //     ->heading('Created By')
-                                //     ->formatStateUsing(fn ($record) => 
+                                //     ->formatStateUsing(fn ($record) =>
                                 //         $record->createdBy->name ?? 'System'
                                 //     ),
                             ])
