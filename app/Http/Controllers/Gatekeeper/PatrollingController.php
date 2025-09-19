@@ -14,10 +14,10 @@ use App\Models\Building\BuildingPoc;
 use App\Models\Gatekeeper\Patrolling;
 use App\Models\Gatekeeper\PatrollingList;
 use Illuminate\Support\Facades\Validator;
-use App\Filament\Resources\PatrollingResource;
 use App\Http\Resources\CustomResponseResource;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\GateKeeper\FloorResource;
+use App\Http\Resources\GateKeeper\PatrollingResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PatrollingController extends Controller
