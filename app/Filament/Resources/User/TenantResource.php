@@ -238,7 +238,7 @@ class TenantResource extends Resource
                             } else {
                                 return Building::where('owner_association_id', auth()->user()->owner_association_id)
                                     ->where('status', 1)
-                                    ->where('resource', 'Default')
+                                    // ->where('resource', 'Default')
                                     ->pluck('name', 'id');
                             }
                         })
