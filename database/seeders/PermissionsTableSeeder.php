@@ -422,6 +422,18 @@ class PermissionsTableSeeder extends Seeder
                 'widget_AmenityBookingOverview',
                 'widget_MoveInOutSchedule',
                 'widget_PreventiveReactiveMaintenance',
+                'view_module',
+                'view_any_module',
+                'create_module',
+                'update_module',
+                'delete_module',
+                'delete_any_module',
+                'force_delete_module',
+                'force_delete_any_module',
+                'restore_module',
+                'restore_any_module',
+                'replicate_module',
+                'reorder_module',
             ];
 
             foreach ($permissions as $permission) {

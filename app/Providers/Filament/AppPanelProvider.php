@@ -211,6 +211,12 @@ class AppPanelProvider extends PanelProvider
                             //     ->icon('heroicon-s-document-text')
                             //     ->activeIcon('heroicon-s-document-text')
                             //     ->sort(15),
+                            NavigationItem::make('Modules')
+                                ->url('/app/modules')
+                              //  ->hidden(!$user->can('view_any_owner::association'))
+                                ->icon('heroicon-s-credit-card')
+                                ->activeIcon('heroicon-s-credit-card')
+                                ->sort(15),
                         ]),
                 ]);
             }

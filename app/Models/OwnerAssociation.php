@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Sushi\Sushi;
 use App\Models\User\User;
+use App\Models\Module;
 use Illuminate\Support\Arr;
 use App\Models\MollakTenant;
 use App\Models\Building\Flat;
@@ -157,4 +158,10 @@ class OwnerAssociation extends Model
             'id'                 // Local key on buildings table
         );
     }
+
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_owner_association', 'owner_association_id', 'module_id')->withPivot('created_by', 'updated_by')->withTimestamps();
+    }
+    
 }
