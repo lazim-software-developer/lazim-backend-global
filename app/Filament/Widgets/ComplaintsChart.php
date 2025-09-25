@@ -30,12 +30,6 @@ class ComplaintsChart extends ChartWidget
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
 
-        \Illuminate\Support\Facades\Log::info('Fetching complaints data', [
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'userId' => auth()->user()->id,
-            'filter' => json_encode($this->filters, JSON_PRETTY_PRINT),
-        ]);
         // Fetch all buildings related to the current user's OA
         $buildings = (is_null($this->filters['building'])) ? Building::where('owner_association_id', auth()->user()->owner_association_id)->get() : Building::where('id', $this->filters['building'])->where('owner_association_id', auth()->user()->owner_association_id)->get();
 
