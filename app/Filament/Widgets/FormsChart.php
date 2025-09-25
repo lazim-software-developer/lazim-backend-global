@@ -57,7 +57,7 @@ class FormsChart extends ChartWidget
     protected function getData(): array
     {
         $activeFilter = $this->filter;
-        \Log::info('Active filter: ' . $activeFilter);
+        // \Log::info('Active filter: ' . $activeFilter);
         $startDate = $this->filters['startDate'] ?? null;
         $endDate = $this->filters['endDate'] ?? null;
         // $startDate = $this->filters['startDate'] ?? $this->filter;
