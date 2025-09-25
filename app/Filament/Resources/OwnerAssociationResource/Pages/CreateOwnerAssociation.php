@@ -2,15 +2,13 @@
 
 namespace App\Filament\Resources\OwnerAssociationResource\Pages;
 
-use Filament\Actions;
 use App\Models\User\User;
-use Illuminate\Support\Str;
 use App\Jobs\AccountCreationJob;
 use App\Models\OwnerAssociation;
+use App\Models\Module;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\OwnerAssociationResource;
@@ -40,6 +38,32 @@ class CreateOwnerAssociation extends CreateRecord
             ]);
         $this->AssignedPermisionToOwnerAssociation($this->record->id);
         $this->CreateUser($this->record);
+
+        
+        $state = $this->form->getState();
+
+        $modules = $state['modules'] ?? [];
+
+        $this->record->modules()->sync(
+            collect($modules)
+                ->filter() 
+                ->keys()
+                ->toArray()
+        );
+
+        foreach ($modules as $moduleId => $active) {
+            if ($active) {
+                $moduleName = Module::find($moduleId)?->name;
+
+                if ($moduleName === 'Accounts') {
+                    Log::info("Accounts module toggled for OA {$this->record->id}");
+                }
+
+                if ($moduleName === 'Management') {
+                    Log::info("Management module toggled for OA {$this->record->id}");
+                }
+            }
+        }
     }
 
     public function AssignedPermisionToOwnerAssociation($id)
@@ -113,6 +137,7 @@ class CreateOwnerAssociation extends CreateRecord
                 'model_type' => User::class,
                 'model_id' => $user->id,
             ]);
+
             $this->LazimAccountDatabase($data, $user, $password);
             // Send email with credentials
             $slug = $data->slug;

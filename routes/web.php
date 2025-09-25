@@ -63,8 +63,8 @@ Route::get('/download/import-report/{filename}', [BuildingImportController::clas
     ->where('filename', '.*');
 Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
     ->name('download.sample-flat-file');
-Route::get('/download/sample-budget-file', [BudgetImportController::class, 'downloadSampleBudgetFile'])
-    ->name('download.sample-budget-file');
+// Route::get('/download/sample-budget-file', [BudgetImportController::class, 'downloadSampleBudgetFile'])
+//     ->name('download.sample-budget-file');
 
 // Service chanrge
 Route::get('service-charge/{saleNOC}/generate-pdf/', [PDFController::class, 'serviceChargePDF']);

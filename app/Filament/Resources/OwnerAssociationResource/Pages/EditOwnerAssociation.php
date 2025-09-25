@@ -3,17 +3,12 @@
 namespace App\Filament\Resources\OwnerAssociationResource\Pages;
 
 use App\Filament\Resources\OwnerAssociationResource;
-use App\Jobs\AccountCreationJob;
-use App\Models\OwnerAssociation;
 use App\Models\User\User;
-use Filament\Actions;
+use App\Models\OwnerAssociation;
+use App\Models\Module;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class EditOwnerAssociation extends EditRecord
 {
@@ -52,9 +47,44 @@ class EditOwnerAssociation extends EditRecord
                 'active'  => $data->active,
             ]);
 
+        $state = $this->form->getState();
+
+        $modules = $state['modules'] ?? [];
+
+        $this->record->modules()->sync(
+            collect($modules)
+                ->filter() 
+                ->keys()
+                ->toArray()
+        );
+
+        foreach ($modules as $moduleId => $active) {
+            if ($active) {
+                $moduleName = Module::find($moduleId)?->name;
+
+                if ($moduleName === 'Accounts') {
+                    Log::info("Accounts module toggled for OA {$this->record->id}");
+                }
+
+                if ($moduleName === 'Management') {
+                    Log::info("Management module toggled for OA {$this->record->id}");
+                }
+            }
+        }
+
         $connection = DB::connection(env('SECOND_DB_CONNECTION'));
         $connection->table('users')->where('email', $data->email)->where('owner_association_id', $data->id)->update([
             'name' => $data->name,
         ]);
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['modules'] = $this->record->modules
+            ->pluck('id')
+            ->mapWithKeys(fn ($id) => [$id => true])
+            ->toArray();
+
+        return $data;
     }
 }
