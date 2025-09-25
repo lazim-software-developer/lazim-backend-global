@@ -317,10 +317,19 @@ class VendorRegistrationController extends Controller
     }
 
 
-    public function updateManagerDetails(ManagerDetailsRequest $request, Vendor $vendor)
+    public function updateManagerDetails(ManagerDetailsRequest $request, $vendorId)
     {
+
         if ($request->has('building_id')) {
             $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+        }
+        $vendor = Vendor::find($vendorId);
+
+        if (!$vendor) {
+            return (new CustomResponseResource([
+                'message' => 'Invalid vendor ID provided.',
+                'code' => 400,
+            ]))->response()->setStatusCode(400);
         }
 
         $managerId = VendorManager::where('vendor_id', $vendor->id)->first()?->id;

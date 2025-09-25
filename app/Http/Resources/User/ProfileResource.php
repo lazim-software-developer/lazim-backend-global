@@ -16,7 +16,7 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return[
+        $data = [
             'id'=>$this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
@@ -33,7 +33,10 @@ class ProfileResource extends JsonResource
             'updated_at'=>$this->updated_at,
             'remember_token'=>$this->remember_token,
             'selectType'=> OwnerAssociation::find($this->owner_association_id)?->resource == "Default"  ? 'globalOa' : 'OA',
-
         ];
+        if($this->role->name == 'Security'){
+            $data['building_id'] = $this->building_id;
+        }
+        return $data;
     }
 }
