@@ -14,6 +14,7 @@ class PatrollingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+Log::info("Patrolling Resource". json_encode($request));
         return [
             'id' => $this->id,
             'building' => $this->building->name,

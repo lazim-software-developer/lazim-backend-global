@@ -26,6 +26,7 @@ class PatrollingController extends Controller
     public function featchAllFloors(Building $building): AnonymousResourceCollection|JsonResponse
     {
         $context = ['user_id' => auth()->user()?->id, 'building_id' => $building->id];
+Log::info("Patrolling COntaoller". json_encode($context));
         if (!$building) {
             return $this->errorResponse('Building not found.', Response::HTTP_NOT_FOUND);
         }
@@ -37,12 +38,13 @@ class PatrollingController extends Controller
             return $this->errorResponse('No active owner association found for this building.', Response::HTTP_BAD_REQUEST);
         }
         try {
-            return PatrollingResource::collection(
-                Patrolling::where('building_id', $building->id)
+Log::info("Patrolling COntaoller check");
+            $query = Patrolling::where('building_id', $building->id)
                     ->where('owner_association_id', $oaId)
                     ->latest()
-                    ->paginate(10)
-            );
+                    ->paginate(10);
+Log::info("Patrolling COntaoller". json_encode($query));
+            return PatrollingResource::collection($query);
         } catch (\Exception $e) {
             Log::error('Failed to create patrolling record', [
                 ...$context,

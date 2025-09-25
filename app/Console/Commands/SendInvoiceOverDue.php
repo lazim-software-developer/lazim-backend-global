@@ -76,12 +76,12 @@ class SendInvoiceOverDue extends Command
                     try {
                         $credentials = AccountCredentials::where('oa_id', $owner['owner_association_id'])->where('active', true)->latest()->first();
                         $mailCredentials = [
-                            'mail_host' => $credentials->host ?? env('MAIL_HOST'),
-                            'mail_port' => $credentials->port ?? env('MAIL_PORT'),
-                            'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
-                            'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
-                            'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
-                            'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
+                           //  'mail_host' => $credentials->host ?? env('MAIL_HOST'),
+                          //  'mail_port' => $credentials->port ?? env('MAIL_PORT'),
+                         //   'mail_username' => $credentials->username ?? env('MAIL_USERNAME'),
+                        //    'mail_password' => $credentials->password ?? env('MAIL_PASSWORD'),
+                       //     'mail_encryption' => $credentials->encryption ?? env('MAIL_ENCRYPTION'),
+                      //     'mail_from_address' => $credentials->email ?? env('MAIL_FROM_ADDRESS'),
                         ];
                         $ownerAssociation=OwnerAssociation::where('id',$owner['owner_association_id'])->value('name');
                         $OaName = $ownerAssociation ?: 'Admin';
@@ -114,8 +114,8 @@ class SendInvoiceOverDue extends Command
                         //     echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
                         // }
                         if($PaymentDate==date('Y-m-d') || $FollowUpDate==date('Y-m-d')){
-                            InvoiceReminderTracking::create($InvoiceData);
-                            InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName,$flat, $building);
+                      //      InvoiceReminderTracking::create($InvoiceData);
+                      //      InvoiceNotification::dispatch($UserDetail['email'], $UserDetail['first_name'],$invoice['invoice_number'], $invoice['invoice_date'], $invoice['invoice_due_date'], $remainingAmount, $mailCredentials, $OaName,$flat, $building);
                             echo "Invoice overdue notification sent for invoice ID: " . $invoice['invoice_number'] . "\n";
                         }
                     } catch (\Exception $e) {

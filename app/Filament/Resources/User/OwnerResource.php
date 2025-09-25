@@ -323,48 +323,108 @@ class OwnerResource extends Resource
                         }
                     }),
                     
-                    Repeater::make('flatOwners')
-                    ->relationship()
-                    ->schema([
-                        Select::make('flat_id')
-                            ->label('Unit Number')
-                            ->required()
-                            ->options(function ($get) {
-                                $buildingId = $get('../../building_id');
-                                if (!$buildingId) return [];
+Repeater::make('flatOwners')
+                        ->relationship()
+                        ->schema([
+                            // Building dropdown inside repeater
+                            Select::make('building_id')
+                                ->label('Building')
+                                ->options(function ($get, $record) {
+                                    // If editing and flat_id is set, show only the building of the selected flat
+                                    $flatId = $get('flat_id') ?? $record?->flat_id;
+                                    \Log::info('Flat ID inside options function: ' . $flatId); // Debug line
+                                    if ($flatId) {
+                                        $flat = Flat::with('building')->find($flatId);
+                                        if ($flat && $flat->building) {
+                                            return Building::where('id', $flat->building->id)->pluck('name', 'id');
+                                        }
+                                    }
+                                    $query = Building::query();
 
-                                // Get all selected flat IDs except the current one
-                                $currentFlatId = $get('flat_id');
-                                $selectedFlats = collect($get('../../flatOwners'))
-                                    ->pluck('flat_id')
-                                    ->filter()
-                                    ->reject(function ($id) use ($currentFlatId) {
-                                        return $id === $currentFlatId;
-                                    })
-                                    ->toArray();
-
-                                return Flat::where('building_id', $buildingId)
-                                    // ->where('status', 1)
-                                    ->whereNotIn('id', $selectedFlats)
-                                    ->get()
-                                    ->mapWithKeys(function ($flat) {
-                                        return [$flat->id => $flat->property_number];
-                                    });
-                            })
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, $set) {
-                                if ($state === null) {
+                                    // Ensure the current building (for edit) is included
+                                    $currentBuildingId = $get('building_id') ?? $record?->building_id;
+                                    if ($currentBuildingId) {
+                                        $query->orWhere('id', $currentBuildingId);
+                                    }
+                                    // Otherwise, show all buildings as per user role
+                                    if (Role::where('id', auth()->user()->role_id)->first()->name == 'Admin') {
+                                        return $query->pluck('name', 'id');
+                                    } else {
+                                        return $query->where('owner_association_id', auth()->user()->owner_association_id)
+                                            ->pluck('name', 'id');
+                                    }
+                                })
+                                ->required()
+                                ->reactive()
+                                ->preload()
+                                ->searchable()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    // Reset flat_id when building changes
                                     $set('flat_id', null);
-                                }
-                            })
-                            ->preload()
-                            ->searchable()
-                    ])
-                        // ->columnSpan([
-                        //     'sm' => 1,
-                        //     'md' => 1,
-                        //     'lg' => 2,
-                        // ]),
+                                })
+->default(function ($get, $record) {
+                                    $flatId = $get('flat_id') ?? $record?->flat_id;
+                                    \Log::info('Flat ID inside default function: ' . $flatId); // Debug line
+                                    if ($flatId) {
+                                        $flat = Flat::with('building')->find($flatId);
+                                        if ($flat && $flat->building) {
+                                            return $flat->building->id; // ✅ Return just the ID
+                                        }
+                                    }
+
+                                    // Optionally return a default building ID (e.g., first available)
+                                    return null;
+                                }),
+
+                            // Flat dropdown dependent on building_id
+                            Select::make('flat_id')
+                                ->label('Unit Number')
+                                ->required()
+                                ->options(function ($get, $state, $record) {
+                                    $buildingId = $get('building_id');
+                                    $flatId = $state ?? $record?->flat_id;
+
+                                    // If flat is already selected, show its building and unit number
+                                    if ($flatId) {
+                                        $flat = Flat::with('building')->find($flatId);
+                                        if ($flat && $flat->building) {
+                                            return [
+                                                $flat->id => $flat->building->name . ' - ' . $flat->property_number
+                                            ];
+                                        }
+                                    }
+
+                                    // Otherwise, show all units for selected building
+                                    if (!$buildingId) {
+                                        return [];
+                                    }
+
+                                    // Get all selected flat IDs except the current one
+                                    $currentFlatId = $flatId;
+                                    $selectedFlats = collect($get('../../flatOwners'))
+                                        ->pluck('flat_id')
+                                        ->filter()
+                                        ->reject(function ($id) use ($currentFlatId) {
+                                            return $id === $currentFlatId;
+                                        })
+                                        ->toArray();
+
+                                    return Flat::where('building_id', $buildingId)
+                                        ->whereNotIn('id', $selectedFlats)
+                                        ->get()
+                                        ->mapWithKeys(function ($flat) {
+                                            return [$flat->id => $flat->building->name . ' - ' . $flat->property_number];
+                                        });
+                                })
+                                ->reactive()
+                                ->preload()
+                                ->searchable(),
+                        ])
+                         ->columns([
+                             'sm' => 1,
+                             'md' => 1,
+                             'lg' => 2,
+                         ]),
                 ]),
 
         ]);
