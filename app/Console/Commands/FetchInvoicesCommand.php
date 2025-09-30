@@ -23,6 +23,6 @@ class FetchInvoicesCommand extends Command
             }
         });
 
-        $this->info('The invoices have been fetched and saved successfully.');
+        $this->info('The invoices have been fetched and saved successfully.'); 
     }
 }
