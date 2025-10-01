@@ -10,6 +10,7 @@ use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\TLController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\AppFeedbackController;
@@ -637,3 +638,8 @@ Route::get('buildings', [BuildingController::class, 'index']);
     Route::post('flatsimport', [FlatController::class, 'import']);
     Route::get('flatsexport', [FlatController::class, 'export']);
 // });
+
+#Review route
+Route::prefix('review')->group(function () {
+  Route::post('/create', [ReviewController::class, 'store']);
+});
