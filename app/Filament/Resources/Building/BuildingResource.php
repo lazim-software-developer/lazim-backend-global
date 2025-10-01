@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\Building;
 
 use Closure;
@@ -48,9 +49,11 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\Building\BuildingResource\Pages;
 use App\Filament\Resources\BuildingResource\RelationManagers\VendorRelationManager;
 use App\Filament\Resources\BuildingResource\RelationManagers\ContractsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\FloorsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\IncidentsRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\UsersBuildingRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingvendorRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\LocationQrCodeRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\BuildingserviceRelationManager;
@@ -58,6 +61,8 @@ use App\Filament\Resources\Building\BuildingResource\RelationManagers\OfferPromo
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\OwnercommitteesRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\RuleregulationsRelationManager;
 use App\Filament\Resources\Building\BuildingResource\RelationManagers\EmergencyNumbersRelationManager;
+use App\Filament\Resources\Building\BuildingResource\RelationManagers\UsersBuildingRoleRelationManager;
+
 
 class BuildingResource extends Resource
 {
@@ -86,11 +91,11 @@ class BuildingResource extends Resource
                     TextInput::make('name')
                         ->rules(['max:50', 'string'])
                         ->required()
-                    // ->disabled(function () {
-                    //     if (auth()->user()->role->name !== 'Admin') {
-                    //         return true;
-                    //     }
-                    // })
+                        // ->disabled(function () {
+                        //     if (auth()->user()->role->name !== 'Admin') {
+                        //         return true;
+                        //     }
+                        // })
                         ->unique('buildings', 'name', fn(?Model $record) => $record)
                         ->placeholder('Name'),
 
@@ -129,18 +134,18 @@ class BuildingResource extends Resource
                         ->visible(auth()->user()?->owner_association_id === null)
                         ->required()
                         ->options(function () {
-                            if(auth()->user()?->role?->name === 'Property Manager'){
+                            if (auth()->user()?->role?->name === 'Property Manager') {
                                 return OwnerAssociation::where('role', auth()->user()?->role?->name)->pluck('name', 'id');
                             }
                             return OwnerAssociation::pluck('name', 'id');
                         })
                         ->placeholder('Select an Owner Association'),
                     Hidden::make('created_by')
-                    ->default(auth()->user()?->id),
+                        ->default(auth()->user()?->id),
                     Hidden::make('updated_by')
-                    ->default(auth()->user()?->id),
+                        ->default(auth()->user()?->id),
                     Hidden::make('resource')
-                    ->default('Lazim'),
+                        ->default('Lazim'),
                     TextInput::make('area')
                         ->rules(['max:100'])
                         ->required()
@@ -191,13 +196,14 @@ class BuildingResource extends Resource
                         ->disabled(function ($record) {
                             if ($record) {
                                 return $record->floors != null;
-                            }return false;
+                            }
+                            return false;
                         })
                         ->label('Floor'),
                     TextInput::make('floor_description')
-                    ->rules(['max:255', 'string'])
-                    ->placeholder('Floor Description')
-                    ->label('Floor Description'),
+                        ->rules(['max:255', 'string'])
+                        ->placeholder('Floor Description')
+                        ->label('Floor Description'),
 
                     TextInput::make('parking_count')
                         ->rule('regex:/^[0-9\-.,\/_ ]+$/')
@@ -238,7 +244,7 @@ class BuildingResource extends Resource
                         ->rules(['boolean'])
                         ->default(true) // Sets the default value to true (active)
                         ->label('Status'),
-                        // ->hiddenOn('create'),
+                    // ->hiddenOn('create'),
 
                     // TextInput::make('lat')
                     //     ->rules(['numeric'])
@@ -265,14 +271,14 @@ class BuildingResource extends Resource
                                         $set('pincode', null);
                                     }
                                 })
-                            // ->label('Address')
+                                // ->label('Address')
                                 ->placeholder('Enter location')
                                 ->maxLength(256)
                                 ->updateLatLng(true)
                                 ->reactive()
                                 ->types(['establishment'])
-                            // ->countries(['IN'])
-                            // ->Regex('/^[^!@#$]*$/')
+                                // ->countries(['IN'])
+                                // ->Regex('/^[^!@#$]*$/')
                                 ->validationMessages([
                                     // 'Regex'     => 'Enter valid search location',
                                     'countries' => 'International places not allowed',
@@ -287,7 +293,7 @@ class BuildingResource extends Resource
                                         ->extraAttributes([
                                             'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
                                         ])
-                                    // ->hidden()
+                                        // ->hidden()
                                         ->label('Latitude')
                                         ->required()
                                         ->rules(['max:255'])
@@ -300,19 +306,19 @@ class BuildingResource extends Resource
                                             ]);
                                         })
                                         ->readOnly()
-                                    // ->disabled(function (callable $get) {
-                                    // if ($get('Search') == true) {
-                                    //     return false;
-                                    // }
-                                    // return true;
-                                    // })
+                                        // ->disabled(function (callable $get) {
+                                        // if ($get('Search') == true) {
+                                        //     return false;
+                                        // }
+                                        // return true;
+                                        // })
                                         ->lazy(),
 
                                     TextInput::make('lng')
                                         ->extraAttributes([
                                             'style' => 'background-color: #f0f0f0; color: #6c757d; pointer-events: none;',
                                         ])
-                                    // ->hidden()
+                                        // ->hidden()
                                         ->label('Longitude')
                                         ->required()
                                         ->rules(['max:255'])
@@ -327,12 +333,12 @@ class BuildingResource extends Resource
                                             $location = $get('location');
                                         })
                                         ->readonly()
-                                    //     ->disabled(function (callable $get) {
-                                    //     if ($get('Search') == true) {
-                                    //         return false;
-                                    //     }
-                                    //     return true;
-                                    // })
+                                        //     ->disabled(function (callable $get) {
+                                        //     if ($get('Search') == true) {
+                                        //         return false;
+                                        //     }
+                                        //     return true;
+                                        // })
                                         ->lazy(),
                                 ]),
 
@@ -386,7 +392,7 @@ class BuildingResource extends Resource
                                     ->after('from')
                                     ->label('Contract End Date')
                                     ->required()
-                                // ->disabledOn('edit')
+                                    // ->disabledOn('edit')
                                     ->validationMessages([
                                         'after' => 'The "Contract start date" must be after the "Contract end date".',
                                     ]),
@@ -472,9 +478,9 @@ class BuildingResource extends Resource
                             ->exists();
 
                         return $active
-                        ? 'Are you sure you want to detach from this building?
+                            ? 'Are you sure you want to detach from this building?
                             This will remove your management authority and deactivate related flats and flat tenants.'
-                        : 'Are you sure you want to attach to this building?
+                            : 'Are you sure you want to attach to this building?
                              This will grant you management authority.';
                     })
                     ->form(function ($record) {
@@ -522,7 +528,7 @@ class BuildingResource extends Resource
 
                             $pmId = DB::table('building_owner_association')
                                 ->where('building_id', $record->id)
-                            // ->where('active', 1)
+                                // ->where('active', 1)
                                 ->pluck('owner_association_id')[0];
                             $pmRole = OwnerAssociation::where('id', $pmId)->first()->role == 'Property Manager';
 
@@ -709,7 +715,6 @@ class BuildingResource extends Resource
                                         $user->tokens()->delete();
                                     }
                                 }
-
                             }
                         }
                         $vendorAssociated->update(['active' => 0, 'end_date' => Carbon::now()->format('Y-m-d')]);
@@ -775,7 +780,7 @@ class BuildingResource extends Resource
                             Log::error("File not found at path: ", [$fullPath]);
                         }
 
-                                                                                                // Now import using the file path
+                        // Now import using the file path
                         Excel::import(new BudgetImport($budgetPeriod, $record->id), $fullPath); // Notify user of success
 
                         // } catch (\Exception $e) {
@@ -787,7 +792,7 @@ class BuildingResource extends Resource
                         // }
                     })
                     ->hidden(auth()->user()->role?->name === 'Property Manager'),
-                    Action::make('delete')
+                Action::make('delete')
                     ->button()
                     ->visible(function () {
                         $auth_user = auth()->user();
@@ -798,31 +803,31 @@ class BuildingResource extends Resource
                         }
                     })
                     ->action(function ($record,) {
-                        if(!empty(auth()->user()?->owner_association_id)) {
+                        if (!empty(auth()->user()?->owner_association_id)) {
                             DB::table('building_owner_association')
-                            ->where('building_id', $record->id)
-                            ->where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->delete();
-                        }else{
+                                ->where('building_id', $record->id)
+                                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->delete();
+                        } else {
                             DB::table('building_owner_association')
-                            ->where('building_id', $record->id)
-                            ->delete();
+                                ->where('building_id', $record->id)
+                                ->delete();
                         }
-                        if(!empty(auth()->user()?->owner_association_id)) {
+                        if (!empty(auth()->user()?->owner_association_id)) {
                             DB::table('floors')
-                            ->where('building_id', $record->id)
-                            ->where('owner_association_id', auth()->user()?->owner_association_id)
-                            ->delete();
-                        }else{
+                                ->where('building_id', $record->id)
+                                ->where('owner_association_id', auth()->user()?->owner_association_id)
+                                ->delete();
+                        } else {
                             DB::table('floors')
-                            ->where('building_id', $record->id)
-                            ->delete();
+                                ->where('building_id', $record->id)
+                                ->delete();
                         }
                         // Then, soft delete the corresponding user in the secondary database
                         $secondaryConnection = DB::connection(env('SECOND_DB_CONNECTION'));
                         $secondaryConnection->table('users')
-                        ->where('building_id', $record->id)
-                        ->update(['deleted_at' => now()]);
+                            ->where('building_id', $record->id)
+                            ->update(['deleted_at' => now()]);
                         $record->delete();
                         Notification::make()
                             ->title('Building Deleted Successfully')
@@ -836,75 +841,84 @@ class BuildingResource extends Resource
             ])
             ->bulkActions([
                 ExportBulkAction::make()
-                ->exports([
-                    ExcelExport::make()
-                        ->withColumns([
-                            Column::make('created_by')
-                            ->heading('Created By')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->CreatedBy->first_name.' '.$record->CreatedBy->last_name ?? 'N/A'
-                            ),
-                            // Custom column using relationship
-                            Column::make('owner_association_id')
-                            ->heading('Owner Association Name')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->ownerAssociationData->name ?? 'N/A'
-                            ),
-                            Column::make('name')
-                                ->heading('Building Name'),
-                            Column::make('building_type')
-                                ->heading('Building Type'),
-                            Column::make('floors')
-                                ->heading('Floors'),
-                            Column::make('property_group_id')
-                                ->heading('Property Group ID')
-                                ->formatStateUsing(fn ($record) =>
-                                    $record->property_group_id ?? 'N/A'
-                                ),
-                            Column::make('address_line1')
-                                ->heading('Address Line 1')
-                                ->formatStateUsing(fn ($record) =>
-                                    $record->address_line1 ?? 'N/A'
-                                ),
-                            Column::make('address_line2')
-                            ->heading('Address Line 2')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->address_line2 ?? 'N/A'
-                            ),
-                            Column::make('area')
-                                ->heading('Area')
-                                ->formatStateUsing(fn ($record) =>
-                                    $record->area ?? 'N/A'
-                                ),
-                            Column::make('city_id')
-                            ->heading('City')
-                            ->formatStateUsing(fn ($record) =>
-                                $record->cities->name ?? 'N/A'
-                            ),
-                            // Formatted date with custom accessor
-                            Column::make('created_at')
-                                ->heading('Created Date')
-                                ->formatStateUsing(fn ($state) =>
-                                    $state ? $state->format('d/m/Y') : ''
-                                ),
+                    ->exports([
+                        ExcelExport::make()
+                            ->withColumns([
+                                Column::make('created_by')
+                                    ->heading('Created By')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->CreatedBy->first_name . ' ' . $record->CreatedBy->last_name ?? 'N/A'
+                                    ),
+                                // Custom column using relationship
+                                Column::make('owner_association_id')
+                                    ->heading('Owner Association Name')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->ownerAssociationData->name ?? 'N/A'
+                                    ),
+                                Column::make('name')
+                                    ->heading('Building Name'),
+                                Column::make('building_type')
+                                    ->heading('Building Type'),
+                                Column::make('floors')
+                                    ->heading('Floors'),
+                                Column::make('property_group_id')
+                                    ->heading('Property Group ID')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->property_group_id ?? 'N/A'
+                                    ),
+                                Column::make('address_line1')
+                                    ->heading('Address Line 1')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->address_line1 ?? 'N/A'
+                                    ),
+                                Column::make('address_line2')
+                                    ->heading('Address Line 2')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->address_line2 ?? 'N/A'
+                                    ),
+                                Column::make('area')
+                                    ->heading('Area')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->area ?? 'N/A'
+                                    ),
+                                Column::make('city_id')
+                                    ->heading('City')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->cities->name ?? 'N/A'
+                                    ),
+                                // Formatted date with custom accessor
+                                Column::make('created_at')
+                                    ->heading('Created Date')
+                                    ->formatStateUsing(
+                                        fn($state) =>
+                                        $state ? $state->format('d/m/Y') : ''
+                                    ),
                                 Column::make('status')
-                                ->heading('Status')
-                                ->formatStateUsing(fn ($record) =>
-                                    $record->status == 1
-                                        ? 'Active'
-                                        : 'Inactive'
-                                ),
+                                    ->heading('Status')
+                                    ->formatStateUsing(
+                                        fn($record) =>
+                                        $record->status == 1
+                                            ? 'Active'
+                                            : 'Inactive'
+                                    ),
 
-                            // Created by user info
-                            // Column::make('created_by_name')
-                            //     ->heading('Created By')
-                            //     ->formatStateUsing(fn ($record) =>
-                            //         $record->createdBy->name ?? 'System'
-                            //     ),
-                        ])
-                        ->withFilename(date('Y-m-d') . '-buildings-report')
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                ]),
+                                // Created by user info
+                                // Column::make('created_by_name')
+                                //     ->heading('Created By')
+                                //     ->formatStateUsing(fn ($record) =>
+                                //         $record->createdBy->name ?? 'System'
+                                //     ),
+                            ])
+                            ->withFilename(date('Y-m-d') . '-buildings-report')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                    ]),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
@@ -1019,6 +1033,7 @@ class BuildingResource extends Resource
 
         // All available relations
         $allRelations = [
+            BuildingResource\RelationManagers\UsersRelationManager::class,
             BuildingResource\RelationManagers\FacilityBookingsRelationManager::class,
             BuildingResource\RelationManagers\ServiceBookingsRelationManager::class,
             // BuildingResource\RelationManagers\BudgetRelationManager::class,

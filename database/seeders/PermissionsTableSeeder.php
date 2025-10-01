@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -360,6 +361,7 @@ class PermissionsTableSeeder extends Seeder
                 'view_any_bill',
                 'create_bill',
                 'update_bill',
+                'view_facility::booking',
                 'view_any_facility::booking',
                 'create_facility::booking',
                 'update_facility::booking',
@@ -418,6 +420,15 @@ class PermissionsTableSeeder extends Seeder
                 'widget_AmenityBookingOverview',
                 'widget_MoveInOutSchedule',
                 'widget_PreventiveReactiveMaintenance',
+                'view_all::users',
+                'view_any_all::users',
+                'create_all::users',
+                'update_all::users',
+                'view_mollak::invoice',
+                'view_any_mollak::invoice',
+                'create_mollak::invoice',
+                'update_mollak::invoice',
+
             ];
 
             foreach ($permissions as $permission) {
