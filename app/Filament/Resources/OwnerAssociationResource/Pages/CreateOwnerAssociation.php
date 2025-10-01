@@ -138,7 +138,7 @@ class CreateOwnerAssociation extends CreateRecord
                 'model_id' => $user->id,
             ]);
 
-            $this->LazimAccountDatabase($data, $user, $password);
+          //  $this->LazimAccountDatabase($data, $user, $password);
             // Send email with credentials
             $slug = $data->slug;
             AccountCreationJob::dispatch($user, $this->password, $slug);
