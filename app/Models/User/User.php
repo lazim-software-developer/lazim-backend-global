@@ -2,55 +2,56 @@
 
 namespace App\Models\User;
 
-use App\Models\AccountCredentials;
-use App\Models\Accounting\Invoice;
-use App\Models\Accounting\WDA;
+use Filament\Panel;
 use App\Models\Asset;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Building\Document;
-use App\Models\Building\FacilityBooking;
-use App\Models\Building\Flat;
-use App\Models\Building\FlatTenant;
-use App\Models\Community\Poll;
-use App\Models\Community\PollResponse;
-use App\Models\Community\Post;
-use App\Models\Community\PostLike;
-use App\Models\ExpoPushNotification;
-use App\Models\Forms\AccessCard;
-use App\Models\Forms\FitOutForm;
+use App\Models\Vendor\PPM;
 use App\Models\Forms\Guest;
-use App\Models\Forms\MoveInOut;
+use App\Models\Master\Role;
+use App\Models\Building\Flat;
 use App\Models\Forms\SaleNOC;
 use App\Models\ItemInventory;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
-use App\Models\ResidentialForm;
-use App\Models\Scopes\Searchable;
-use App\Models\TechnicianVendor;
-use App\Models\Vendor\Attendance;
-use App\Models\Vendor\PPM;
 use App\Models\Vendor\Vendor;
-use App\Models\Vendor\VendorManager;
-use App\Models\Visitor\FlatVisitor;
+use App\Models\Accounting\WDA;
+use App\Models\Community\Poll;
+use App\Models\Community\Post;
 use Filament\Facades\Filament;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
-use Filament\Models\Contracts\HasName;
-use Filament\Models\Contracts\HasTenants;
-use Filament\Panel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
+use App\Models\Forms\MoveInOut;
+use App\Models\ResidentialForm;
+use App\Models\Forms\AccessCard;
+use App\Models\Forms\FitOutForm;
+use App\Models\OwnerAssociation;
+use App\Models\TechnicianVendor;
+use App\Models\Building\Building;
+use App\Models\Building\Document;
+use App\Models\Scopes\Searchable;
+use App\Models\Vendor\Attendance;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\AccountCredentials;
+use App\Models\Accounting\Invoice;
+use App\Models\Building\Complaint;
+use App\Models\Community\PostLike;
+use Illuminate\Support\Collection;
+use App\Models\Building\FlatTenant;
+use App\Models\Visitor\FlatVisitor;
+use Illuminate\Support\Facades\Log;
+use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
+use App\Models\Vendor\VendorManager;
+use App\Models\Community\PollResponse;
+use Filament\Models\Contracts\HasName;
+use Laravel\Jetstream\HasProfilePhoto;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Building\FacilityBooking;
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\HasTenants;
+use Filament\Models\Contracts\FilamentUser;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, HasName
 {
@@ -138,6 +139,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     {
         return $this->hasMany(Vendor::class, 'owner_id');
     }
+
+    public function buildings(): BelongsToMany
+    {
+        return $this->belongsToMany(Building::class)->withTimestamps();
+    }
+
 
     public function documents()
     {
@@ -232,7 +239,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
             ]);
         }
 
-        $notAllowedRoles = ['Admin','Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'];
+        $notAllowedRoles = ['Admin', 'Technician', 'Security', 'Tenant', 'Owner', 'Managing Director', 'Vendor', 'Property Manager'];
 
         $notAllowedPMRoles = ['Resident', 'Facility Manager', 'Technician', 'Gatekeeper', 'OA'];
 
@@ -240,11 +247,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         $userRoleName = Role::find($this->role_id)->name;
         if ($panel->getId() === 'app' && !in_array($userRoleName, $notAllowedPMRoles) && $this->active) {
             return true;
-        }
-        elseif($panel->getId() === 'admin' && !in_array($userRoleName, $notAllowedRoles) && $this->active) {
+        } elseif ($panel->getId() === 'admin' && !in_array($userRoleName, $notAllowedRoles) && $this->active) {
             return true;
-        }
-        else{
+        } else {
             Filament::auth()->logout();
             throw ValidationException::withMessages([
                 'data.email' => __('Unautorized access'),
@@ -271,7 +276,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     public function residences()
     {
         return $this->belongsToMany(Flat::class, 'flat_tenants', 'tenant_id')
-        ->wherePivot('active', true);
+            ->wherePivot('active', true);
     }
 
     public function likedPosts()
@@ -373,8 +378,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     {
         return $this->hasMany(ItemInventory::class);
     }
-      public function mailCredentials()
+    public function mailCredentials()
     {
-        return $this->hasMany(AccountCredentials::class,'created_by');
+        return $this->hasMany(AccountCredentials::class, 'created_by');
     }
 }
