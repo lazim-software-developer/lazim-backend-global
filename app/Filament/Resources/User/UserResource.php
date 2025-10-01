@@ -325,6 +325,7 @@ class UserResource extends Resource
     {
         return [
             // UserResource\RelationManagers\AttendancesRelationManager::class,
+            UserResource\RelationManagers\BuildingsRelationManager::class,
             // UserResource\RelationManagers\VendorsRelationManager::class,
 
             // UserResource\RelationManagers\BuildingPocsRelationManager::class,
