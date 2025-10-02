@@ -19,7 +19,6 @@ beforeEach(function () {
 });
 
 
-
 function validOwnerAssociationData(): array
 {
     return [
