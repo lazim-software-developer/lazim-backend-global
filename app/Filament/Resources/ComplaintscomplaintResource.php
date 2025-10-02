@@ -84,7 +84,8 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->required(fn(Complaint $record)=> $record->category !== 'Other' || $record->category !== 'Incidents')
+                            // ->required(fn(Complaint $record)=> $record->category !== 'Other' || $record->category !== 'Incidents')
+                            ->required(fn(Complaint $record)=> !in_array($record->category,['Other','Incidents']))
                             ->options(function (Complaint $record, Get $get) {
 
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
