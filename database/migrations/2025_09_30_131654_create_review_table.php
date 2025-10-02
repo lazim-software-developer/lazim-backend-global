@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('oa_id');
             $table->unsignedBigInteger('flat_id');
             $table->tinyInteger('type')->comment('1 = feedback');
-            $table->longText('comment')->nullable();
-            $table->tinyInteger('feedback')->comment('1 = good, 2 = average, 3 = bad');
+            $table->json('comment')->nullable();
+            $table->tinyInteger('feedback')->comment('1 = bad, 2 = average, 3 = good');
             $table->softDeletes(); 
             $table->timestamps();
 
