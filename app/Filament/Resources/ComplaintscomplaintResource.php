@@ -84,7 +84,7 @@ class ComplaintscomplaintResource extends Resource
                         Select::make('vendor_id')
                             ->relationship('vendor', 'name')
                             ->preload()
-                            ->required(fn(Complaint $record)=> $record->category !== 'Other')
+                            ->required(fn(Complaint $record)=> $record->category !== 'Other' || $record->category !== 'Incidents')
                             ->options(function (Complaint $record, Get $get) {
 
                                 $serviceVendor = ServiceVendor::where('service_id', $get('service_id'))->pluck('vendor_id');
@@ -98,7 +98,7 @@ class ComplaintscomplaintResource extends Resource
 
                                         $query->where('owner_association_id', $record->owner_association_id);
                                     });
-                                    $mainQuery =  ($record->category !== 'Other') ? $mainQuery->whereIn('id', $serviceVendor) : $mainQuery;
+                                    $mainQuery =  ($record->category !== 'Other' || $record->category !== 'Incidents') ? $mainQuery->whereIn('id', $serviceVendor) : $mainQuery;
                                     return $mainQuery->pluck('name', 'id');
                                 }
                                 return Vendor::whereIn('id', $serviceVendor)->pluck('name', 'id');

@@ -531,7 +531,8 @@ class AdminPanelProvider extends PanelProvider
                                     ->sort(4),
                                 NavigationItem::make('Mollak Invoices')
                                     ->url(MollakInvoiceResource::getUrl())
-                                    ->hidden(!$user->can('view_any_o::a::m::invoice'))
+                                    ->hidden(!$user->can('view_any_o::a::m::invoice') || !$user->can('view_mollak::invoice'))
+                                     // ->makeCustomUrl('/mollak-invoices')
                                     ->icon('heroicon-s-document-arrow-up')
                                     ->activeIcon('heroicon-s-document-arrow-up')
                                     ->sort(1),
