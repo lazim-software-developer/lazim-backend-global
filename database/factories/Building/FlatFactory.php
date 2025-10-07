@@ -23,10 +23,13 @@ class FlatFactory extends Factory
     public function definition(): array
     {
         return [
-            'number' => $this->faker->randomNumber(),
             'floor' => $this->faker->randomNumber(),
+            'property_number' => $this->faker->randomNumber(),
+            'property_type' => 'UNIT',
             'description' => $this->faker->text(50),
             'building_id' => \App\Models\Building\Building::factory(),
+            'owner_association_id' => \App\Models\User\User::factory(),
+            'status' => 1,
         ];
     }
 }

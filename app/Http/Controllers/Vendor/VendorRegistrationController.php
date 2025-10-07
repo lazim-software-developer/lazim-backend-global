@@ -255,7 +255,7 @@ class VendorRegistrationController extends Controller
 
         $doc = Document::create([
             "name" => "risk_policy",
-            "document_library_id" => DocumentLibrary::where('name', 'Risk policy')->first()->id,
+            "document_library_id" => DocumentLibrary::where('name', 'risk_assessement')->first()->id,
             "owner_association_id" => $request->owner_association_id,
             "status" => 'pending',
             "documentable_id" => $vendor->id,
@@ -264,7 +264,7 @@ class VendorRegistrationController extends Controller
         ]);
         Document::create([
             "name" => "tl_document",
-            "document_library_id" => DocumentLibrary::where('name', 'TL document')->first()->id,
+            "document_library_id" => DocumentLibrary::where('name', 'tl_document')->first()->id,
             "owner_association_id" => $request->owner_association_id,
             "status" => 'pending',
             "documentable_id" => $vendor->id,

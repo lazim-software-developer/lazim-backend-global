@@ -15,10 +15,14 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = [
-            ['id'   => 1, 'first_name' => 'Shilpa', 'last_name'=> 'Gowda', 'email' => 'admin@gmail.com','phone' => '9234567890', 'password' => Hash::make('test1234'), 'active' => 1, 'role_id'=> Role::where('name', 'Admin')->value('id'),],
-        ];
+        // $user = [
+        //     ['id'   => 1, 'first_name' => 'Shilpa', 'last_name'=> 'Gowda', 'email' => 'admin@gmail.com','phone' => '9234567890', 'password' => Hash::make('test1234'), 'active' => 1, 'role_id'=> Role::where('name', 'Admin')->value('id'),],
+        // ];
 
-        User::insert($user);
+        // User::insert($user);
+
+         User::factory()
+            ->count(10)
+            ->create();
     }
 }

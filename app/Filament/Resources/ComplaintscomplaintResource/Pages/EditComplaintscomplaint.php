@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources\ComplaintscomplaintResource\Pages;
 
-use App\Filament\Resources\ComplaintscomplaintResource;
-use App\Jobs\ComplaintStatusMail;
-use App\Models\AccountCredentials;
-use App\Models\ExpoPushNotification;
-use App\Models\Master\Role;
-use App\Models\OwnerAssociation;
+use App\Models\Media;
+use Filament\Actions;
 use App\Models\Remark;
 use App\Traits\UtilsTrait;
-use Filament\Actions;
-use Filament\Facades\Filament;
-use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\DB;
+use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use Filament\Facades\Filament;
+use App\Models\OwnerAssociation;
+use App\Jobs\ComplaintStatusMail;
+use App\Models\AccountCredentials;
+use Illuminate\Support\Facades\DB;
+use App\Models\ExpoPushNotification;
+use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\ComplaintscomplaintResource;
 
 class EditComplaintscomplaint extends EditRecord
 {
@@ -36,24 +37,53 @@ class EditComplaintscomplaint extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['type'] = Str::ucfirst($data['type']);
+        // $media = $this->record->media()->get()->map(function ($media) {
+        //     return [
+        //         'url' => $media->file_path,
+        //         'id' => $media->id,
+        //     ];
+        // })->toArray();
+        
+      //  $data['media'] = $media;
+
         return $data;
     }
 
     public function beforeSave()
-    {
-        $data = $this->form->getState();
+{
+    $data = $this->form->getState();
 
-        if ((array_key_exists('remarks', $data) && $data['remarks'] != $this->record->remarks) || (array_key_exists('status', $data) && $data['status'] != $this->record->status)) {
+    // 1️⃣ Find or create the remark for this complaint
+    $remark = $this->record->remarks()->latest()->first();
 
-            Remark::create([
-                'remarks' => $data['remarks'],
-                'type' => 'Complaint',
-                'status' => $data['status'],
-                'user_id' => auth()->user()->id,
-                'complaint_id' => $this->record->id,
+    if ($remark) {
+        $remark->update([
+            'remarks' => $data['remarks'] ?? $remark->remarks,
+            'status'  => $data['status'] ?? $remark->status,
+        ]);
+    } else {
+        $remark = Remark::create([
+            'remarks'      => $data['remarks'],
+            'type'         => 'Complaint',
+            'status'       => $data['status'] ?? 'open',
+            'user_id'      => auth()->user()->id,
+            'complaint_id' => $this->record->id,
+        ]);
+    }
+
+    // 2️⃣ Attach uploaded files (Filament already uploaded them to S3)
+    if (!empty($data['remark_media'])) {
+        foreach ($data['remark_media'] as $filePath) {
+            // $filePath is already a string path like "remarks/abc.pdf"
+            $remark->media()->create([
+                'url'  => $filePath,
+                'name' => 'before',
             ]);
         }
     }
+}
+
+
 
     public function afterSave()
     {

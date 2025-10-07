@@ -24,6 +24,7 @@ use App\Models\Complaintscomplaint;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\ServiceVendor;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -33,6 +34,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
@@ -198,25 +200,57 @@ class ComplaintscomplaintResource extends Resource
                     }),
                 Section::make('Status and Remarks')
                     ->schema([
+                        // 1️⃣ Complaint status
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
                                 'in-progress' => 'In-Progress',
                                 'closed' => 'Closed',
                             ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
+                            ->disabled(fn(Complaint $record) => $record->status === 'closed')
                             ->searchable()
                             ->live(),
-                        TextArea::make('remarks')
-                            ->rules(['max:250'])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
+
+                        // 2️⃣ Single remark input
+                        Textarea::make('remarks')
+                            ->label('Remark')
+                            ->rules(['max:3500'])
+                            ->required()
+                            ->disabled(fn(Complaint $record) => $record->status === 'closed'),
+
+                        // 3️⃣ Media for this remark
+                        FileUpload::make('media')
+                            ->label('Attachments')
+                            ->multiple() // allow single or multiple files
+                            ->disk('s3')
+                            ->directory('dev')
+                            ->maxSize(2048)
+                            ->openable(true)
+                            ->downloadable(true)
+                            ->helperText('Optional: Upload images or documents related to this remark.')
+
+
+                            ->visible(function ($record) {
+                                if (! $record) return false;
+
+                                $latestRemark = $record->remarks()->latest()->first();
+                                if ($latestRemark) {
+                                    $latestRemark->media->each(function ($media) {
+                                        Log::info('Remark media visible check', [
+                                            'media_id' => $media->id,
+                                            'url'      => $media->url,
+                                            'full_url' => Storage::cloud()->url($media->url),
+                                        ]);
+                                    });
+                                }
+
+                                return $latestRemark && $latestRemark->media()->exists();
                             })
-                            ->required(),
+                            ->url(function ($record) {
+                                return $record->media()->first()?->url;
+                            })
                     ])
-                    ->columns(2)
+
             ]);
     }
 

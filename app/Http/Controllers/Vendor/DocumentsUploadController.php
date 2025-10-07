@@ -2,38 +2,40 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Vendor\DocumentsUploadRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\Vendor\VendorDocumentResource;
-use App\Models\Building\Document;
-use App\Models\Master\DocumentLibrary;
-use App\Models\Vendor\Vendor;
 use Illuminate\Http\Request;
+use App\Models\Vendor\Vendor;
+use App\Models\Building\Document;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Master\DocumentLibrary;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Requests\Vendor\DocumentsUploadRequest;
+use App\Http\Resources\Vendor\VendorDocumentResource;
 
 class DocumentsUploadController extends Controller
 {
     public function documentsUpload(DocumentsUploadRequest $request, Vendor $vendor)
     {
-\Log::info("  requestdata start   ". json_encode($request->all()));
-        if ($request->has('building_id')) {
-            $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
-        }
+        Log::info("  requestdata start   ". json_encode($request->all()));
+                if ($request->has('building_id')) {
+                    $oa_id = DB::table('building_owner_association')->where('building_id', $request->building_id)->where('active', true)->first()->owner_association_id;
+                }
 
-        $status = 0;
-        foreach($request->docs as $key => $value) {
-            $path = optimizeDocumentAndUpload($value);
-            $request->merge([
-                'name' => $key,
-                'documentable_id' => $vendor->id,
-                'status'    => 'pending',
-                'documentable_type'   => Vendor::class,
-                'document_library_id' => DocumentLibrary::where('label', $key)->value('id'),
-                'url' => $path,
-                'owner_association_id' => $vendor->owner_association_id,
-            ]);
-\Log::info("  requestdata    ". json_encode($request->all()));
+                $status = 0;
+                foreach($request->docs as $key => $value) {
+                    Log::info("key ".json_encode($key). "  value    ". json_encode($value));
+                    $path = optimizeDocumentAndUpload($value);
+                    $request->merge([
+                        'name' => $key,
+                        'documentable_id' => $vendor->id,
+                        'status'    => 'pending',
+                        'documentable_type'   => Vendor::class,
+                        'document_library_id' => DocumentLibrary::where('label', $key)->value('id'),
+                        'url' => $path,
+                        'owner_association_id' => $vendor->owner_association_id,
+                    ]);
+            Log::info("  requestdata    ". json_encode($request->all()));
             $docs = Document::where('documentable_id',$vendor->id)->where('document_library_id',DocumentLibrary::where('label', $key)->value('id'))
                     ->where('owner_association_id',$vendor->owner_association_id)->where('name',$key);
             if(!$docs->exists()) {
