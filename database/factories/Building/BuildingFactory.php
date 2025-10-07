@@ -24,7 +24,8 @@ class BuildingFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'unit_number' => $this->faker->numerify('##########'),
+            //'unit_number' => $this->faker->numerify('##########'),
+            'property_group_id' => $this->faker->numerify('##########'),
             'address_line1' => $this->faker->address(),
             'address_line2' => $this->faker->address(),
             'area' => $this->faker->city(),
@@ -32,6 +33,8 @@ class BuildingFactory extends Factory
             'lng' => $this->faker->longitude(),
             'description' => $this->faker->text(),
             'floors' => $this->faker->numberBetween(1, 10),
+            'status' => 1,
+            'allow_postupload' => 1,
             'city_id' => \App\Models\Master\City::factory(),
         ];
     }

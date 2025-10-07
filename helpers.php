@@ -28,6 +28,31 @@ function optimizeAndUpload($image, $path, $width = 474, $height = 622)
     return $fullPath;
 }
 
+function optimizeAndUploadFile($image, $folder, $width = 474, $height = 622)
+{
+    // Ensure the uploaded file is valid
+    if (!($image instanceof \Illuminate\Http\UploadedFile) || !$image->isValid()) {
+        throw new \Exception('Invalid uploaded file.');
+    }
+
+    // Generate a unique filename
+    $extension = $image->getClientOriginalExtension() ?: 'jpg';
+    $filename = uniqid() . '.' . $extension;
+    $fullPath = $folder . '/' . $filename;
+
+    // Optimize image
+    $optimizedImage = Image::make($image->getPathname())
+        ->resize($width, $height, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        })
+        ->encode($extension, 80); // You can adjust quality here
+
+    // Save to S3
+    Storage::disk('s3')->put($fullPath, (string) $optimizedImage, 'public');
+
+    return $fullPath;
+}
 function imageUploadonS3($image, $path)
 {
     $filename = uniqid() . '.' . $image->getClientOriginalExtension();

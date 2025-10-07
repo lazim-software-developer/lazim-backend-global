@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers\HelpDesk;
 
-use App\Filament\Resources\IncidentResource;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
-use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
-use App\Http\Requests\IncidentRequest;
-use App\Http\Resources\CustomResponseResource;
-use App\Http\Resources\HelpDesk\Complaintresource;
-use App\Jobs\Complaint\ComplaintCreationJob;
-use App\Models\AccountCredentials;
-use App\Models\Building\Building;
-use App\Models\Building\BuildingPoc;
-use App\Models\Building\Complaint;
-use App\Models\Building\FlatTenant;
-use App\Models\ExpoPushNotification;
-use App\Models\Master\Role;
-use App\Models\Master\Service;
+use Carbon\Carbon;
 use App\Models\Media;
+use App\Models\User\User;
+use App\Traits\UtilsTrait;
+use App\Models\Master\Role;
+use Illuminate\Http\Request;
+use App\Models\Master\Service;
+use App\Models\Vendor\Contract;
 use App\Models\OwnerAssociation;
 use App\Models\TechnicianVendor;
-use App\Models\User\User;
-use App\Models\Vendor\Contract;
-use App\Models\Vendor\ServiceVendor;
-use App\Traits\UtilsTrait;
-use Carbon\Carbon;
-use Filament\Notifications\Actions\Action;
-use Filament\Notifications\Notification;
-use Illuminate\Http\Request;
+use App\Models\Building\Building;
+use App\Models\AccountCredentials;
+use App\Models\Building\Complaint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\FacadesLog;
+use App\Models\Building\FlatTenant;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\Building\BuildingPoc;
+use App\Models\ExpoPushNotification;
+use App\Models\Vendor\ServiceVendor;
+use App\Http\Requests\IncidentRequest;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Filament\Resources\IncidentResource;
+use App\Jobs\Complaint\ComplaintCreationJob;
+use App\Http\Resources\CustomResponseResource;
+use App\Http\Resources\HelpDesk\Complaintresource;
+use App\Http\Requests\Helpdesk\ComplaintStoreRequest;
+use App\Http\Requests\Helpdesk\ComplaintUpdateRequest;
 
 class ComplaintController extends Controller
 {
@@ -210,7 +211,7 @@ class ComplaintController extends Controller
      */
     public function create(ComplaintStoreRequest $request, Building $building)
     {
-\Log::info("##### Complaint #####   ". json_encode($request->all()));
+        Log::info("##### Complaint #####   ". json_encode($request->all()));
         if (auth()->user()->role->name == 'Security') {
             // Check if the gatekeeper has active member of the building
             $complaintableClass = User::class;
@@ -290,7 +291,7 @@ class ComplaintController extends Controller
 
         // Create the complaint and assign it the vendor
         // TODO: Assign ticket automatically to technician
-        \Log::info("##### Complaint 2 #####   ". json_encode($request->all()));
+        Log::info("##### Complaint 2 #####   ". json_encode($request->all()));
         $complaint = Complaint::create($request->all());
 
 
@@ -439,11 +440,13 @@ class ComplaintController extends Controller
                 Log::info("No technicians to add", []);
             }
         }
+        $complaint->load('media');
         return (new CustomResponseResource([
             'title'   => 'Success',
             'message' => "We'll get back to you at the earliest!",
             'code'    => 201,
             'status'  => 'success',
+            'data'    => $complaint->media, 
         ]))->response()->setStatusCode(201);
     }
 
