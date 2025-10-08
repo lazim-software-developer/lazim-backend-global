@@ -200,7 +200,6 @@ class ComplaintscomplaintResource extends Resource
                     }),
                 Section::make('Status and Remarks')
                     ->schema([
-                        // 1️⃣ Complaint status
                         Select::make('status')
                             ->options([
                                 'open' => 'Open',
@@ -210,47 +209,61 @@ class ComplaintscomplaintResource extends Resource
                             ->disabled(fn(Complaint $record) => $record->status === 'closed')
                             ->searchable()
                             ->live(),
-
-                        // 2️⃣ Single remark input
                         Textarea::make('remarks')
                             ->label('Remark')
                             ->rules(['max:3500'])
                             ->required()
+                            ->default(fn($record) => $record?->remarks ?? '')
                             ->disabled(fn(Complaint $record) => $record->status === 'closed'),
 
-                        // 3️⃣ Media for this remark
-                        FileUpload::make('media')
-                            ->label('Attachments')
-                            ->multiple() // allow single or multiple files
+
+                        FileUpload::make('remark_media')
                             ->disk('s3')
                             ->directory('dev')
-                            ->maxSize(2048)
-                            ->openable(true)
-                            ->downloadable(true)
-                            ->helperText('Optional: Upload images or documents related to this remark.')
+                            ->openable()
+                            ->downloadable()
+                            ->multiple()
+                            ->image() // Restrict to images for preview
+                            ->previewable(true) // Explicitly enable previews (default is true for images)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif']) // Restrict to image types
+                            ->default(function ($record) {
+                                if (! $record) return [];
 
+                                // Map media URLs for preview
+                                return $record->media
+                                    ->filter(fn($media) => in_array(strtolower(pathinfo($media->url, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                    ->map(fn($media) => Storage::cloud()->url($media->url))
+                                    ->toArray();
+                            }),
+                            // Repeater::make('remarks')
+                            // ->relationship() // points to Complaint->remarks()
+                            // ->schema([
+                                Repeater::make('remarks')
+                                    ->relationship('media')
+                                    ->schema([
+                                        FileUpload::make('media')
+                                            ->disk('s3')
+                                            ->directory('remarks')
+                                            ->openable()
+                                            ->downloadable()
+                                            ->default(function ($record) {
+                                                dd($record);
+                                                if (! $record) return [];
 
-                            ->visible(function ($record) {
-                                if (! $record) return false;
+                                                // get all media for latest remark
+                                                $latestRemark = $record->remarks()->latest()->first();
+                                                if (! $latestRemark) return [];
 
-                                $latestRemark = $record->remarks()->latest()->first();
-                                if ($latestRemark) {
-                                    $latestRemark->media->each(function ($media) {
-                                        Log::info('Remark media visible check', [
-                                            'media_id' => $media->id,
-                                            'url'      => $media->url,
-                                            'full_url' => Storage::cloud()->url($media->url),
-                                        ]);
-                                    });
-                                }
+                                                return $latestRemark->media
+                                                    ->map(fn($media) => Storage::cloud()->url($media->url))
+                                                    ->toArray();
+                                            })
+                                    ])->disabled() // Disable adding new media
+                                    ->dehydrated(false)
+                            // ])->dehydrated(false)
+                            // ->disabled(),
 
-                                return $latestRemark && $latestRemark->media()->exists();
-                            })
-                            ->url(function ($record) {
-                                return $record->media()->first()?->url;
-                            })
-                    ])
-
+                    ])->columns(2),
             ]);
     }
 
