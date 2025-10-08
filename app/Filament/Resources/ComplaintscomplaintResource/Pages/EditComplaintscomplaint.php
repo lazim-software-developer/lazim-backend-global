@@ -34,6 +34,8 @@ class EditComplaintscomplaint extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
+    
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['type'] = Str::ucfirst($data['type']);
@@ -50,38 +52,38 @@ class EditComplaintscomplaint extends EditRecord
     }
 
     public function beforeSave()
-{
-    $data = $this->form->getState();
+    {
+        $data = $this->form->getState();
 
-    // 1️⃣ Find or create the remark for this complaint
-    $remark = $this->record->remarks()->latest()->first();
+        // 1️⃣ Find or create the remark for this complaint
+        $remark = $this->record->remarks()->latest()->first();
 
-    if ($remark) {
-        $remark->update([
-            'remarks' => $data['remarks'] ?? $remark->remarks,
-            'status'  => $data['status'] ?? $remark->status,
-        ]);
-    } else {
-        $remark = Remark::create([
-            'remarks'      => $data['remarks'],
-            'type'         => 'Complaint',
-            'status'       => $data['status'] ?? 'open',
-            'user_id'      => auth()->user()->id,
-            'complaint_id' => $this->record->id,
-        ]);
-    }
-
-    // 2️⃣ Attach uploaded files (Filament already uploaded them to S3)
-    if (!empty($data['remark_media'])) {
-        foreach ($data['remark_media'] as $filePath) {
-            // $filePath is already a string path like "remarks/abc.pdf"
-            $remark->media()->create([
-                'url'  => $filePath,
-                'name' => 'before',
+        if ($remark) {
+            $remark->update([
+                'remarks' => $data['main_remarks'] ?? $remark->remarks,
+                'status'  => $data['status'] ?? $remark->status,
+            ]);
+        } else {
+            $remark = Remark::create([
+                'remarks'      => $data['main_remarks'],
+                'type'         => 'Complaint',
+                'status'       => $data['status'] ?? 'open',
+                'user_id'      => auth()->user()->id,
+                'complaint_id' => $this->record->id,
             ]);
         }
+
+        // 2️⃣ Attach uploaded files (Filament already uploaded them to S3)
+        if (!empty($data['remark_media'])) {
+            foreach ($data['remark_media'] as $filePath) {
+                // $filePath is already a string path like "remarks/abc.pdf"
+                $remark->media()->create([
+                    'url'  => $filePath,
+                    'name' => 'before',
+                ]);
+            }
+        }
     }
-}
 
 
 
@@ -213,4 +215,6 @@ class EditComplaintscomplaint extends EditRecord
             ]);
         }
     }
+
+    
 }
