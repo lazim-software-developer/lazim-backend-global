@@ -239,6 +239,7 @@ class ComplaintscomplaintResource extends Resource
                                     ->disabled(function (Get $get) {
                                         return $get()['status'] == 'closed';
                                     })
+                                    ->dehydrated(false)
                                     ->columns(1),
                             ])
                             ->addable(false)

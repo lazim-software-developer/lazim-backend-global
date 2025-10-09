@@ -13,6 +13,7 @@ use App\Models\OwnerAssociation;
 use App\Jobs\ComplaintStatusMail;
 use App\Models\AccountCredentials;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\ExpoPushNotification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ComplaintscomplaintResource;
@@ -34,7 +35,7 @@ class EditComplaintscomplaint extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
-    
+
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
@@ -45,7 +46,7 @@ class EditComplaintscomplaint extends EditRecord
         //         'id' => $media->id,
         //     ];
         // })->toArray();
-        
+
       //  $data['media'] = $media;
 
         return $data;
@@ -53,36 +54,103 @@ class EditComplaintscomplaint extends EditRecord
 
     public function beforeSave()
     {
-        $data = $this->form->getState();
+        // $data = $this->form->getState();
+        // dd($this->data,$this->form,$data);
 
         // 1️⃣ Find or create the remark for this complaint
-        $remark = $this->record->remarks()->latest()->first();
+        // $remark = $this->record->remarks()->latest()->first();
 
-        if ($remark) {
-            $remark->update([
-                'remarks' => $data['main_remarks'] ?? $remark->remarks,
-                'status'  => $data['status'] ?? $remark->status,
-            ]);
-        } else {
-            $remark = Remark::create([
-                'remarks'      => $data['main_remarks'],
-                'type'         => 'Complaint',
-                'status'       => $data['status'] ?? 'open',
-                'user_id'      => auth()->user()->id,
-                'complaint_id' => $this->record->id,
-            ]);
-        }
+        // if ($remark) {
+        //     $remark->update([
+        //         'remarks' => $data['main_remarks'] ?? $remark->remarks,
+        //         'status'  => $data['status'] ?? $remark->status,
+        //     ]);
+        // } else {
+        //     $remark = Remark::create([
+        //         'remarks'      => $data['main_remarks'],
+        //         'type'         => 'Complaint',
+        //         'status'       => $data['status'] ?? 'open',
+        //         'user_id'      => auth()->user()->id,
+        //         'complaint_id' => $this->record->id,
+        //     ]);
+        // }
 
         // 2️⃣ Attach uploaded files (Filament already uploaded them to S3)
-        if (!empty($data['remark_media'])) {
-            foreach ($data['remark_media'] as $filePath) {
-                // $filePath is already a string path like "remarks/abc.pdf"
-                $remark->media()->create([
-                    'url'  => $filePath,
-                    'name' => 'before',
+        // if (!empty($data['remark_media'])) {
+        //     foreach ($data['remark_media'] as $filePath) {
+        //         // $filePath is already a string path like "remarks/abc.pdf"
+        //         $remark->media()->create([
+        //             'url'  => $filePath,
+        //             'name' => 'before',
+        //         ]);
+        //     }
+        // }
+
+        DB::transaction(function () {
+            $data = $this->form->getState();
+
+            if (!empty($data['remarks'])) {
+                // Get the latest remark by sorting keys (record-{id}) by ID
+                $remarkData = collect($data['remarks'])->sortByDesc(function ($item, $key) {
+                    return (int) str_replace('record-', '', $key);
+                })->first();
+
+                $remark = $this->record->remarks()->find($remarkData['id'] ?? null);
+
+                if ($remark) {
+                    // Update existing remark
+                    $remark->update([
+                        'remarks' => $remarkData['remarks'] ?? $remark->remarks,
+                        'status' => $data['status'] ?? $remark->status,
+                    ]);
+                } else {
+                    // Create new remark
+                    $remark = $this->record->remarks()->create([
+                        'remarks' => $remarkData['remarks'] ?? '',
+                        'type' => 'Complaint',
+                        'status' => $data['status'] ?? 'open',
+                        'user_id' => auth()->user()->id,
+                        'complaint_id' => $this->record->id,
+                    ]);
+                }
+
+                // 2️⃣ Process media for the remark
+                if (!empty($remarkData['media'])) {
+                    foreach ($remarkData['media'] as $mediaKey => $media) {
+                        // Skip existing media (record-{id} with id)
+                        if (str_starts_with($mediaKey, 'record-') && isset($media['id'])) {
+                            continue;
+                        }
+                        // Create new media record
+                        $remark->media()->create([
+                            'url' => $media['url'],
+                            'name' => 'before', // Adjust as needed
+                            'mediaable_id' => $remark->id,
+                            'mediaable_type' => Remark::class,
+                        ]);
+                    }
+                }
+            } else {
+                // No remarks provided, create a default remark
+                $remark = $this->record->remarks()->create([
+                    'remarks' => '',
+                    'type' => 'Complaint',
+                    'status' => $data['status'] ?? 'open',
+                    'user_id' => auth()->user()->id,
+                    'complaint_id' => $this->record->id,
+                ]);
+                Log::warning('No remarks provided, created default remark', [
+                    'complaint_id' => $this->record->id,
+                    'remark_id' => $remark->id,
                 ]);
             }
-        }
+
+            Log::info('Saved remark for complaint', [
+                'complaint_id' => $this->record->id,
+                'user_id' => auth()->user()->id,
+                'remark_id' => $remark->id ?? null,
+            ]);
+        });
     }
 
 
@@ -216,5 +284,5 @@ class EditComplaintscomplaint extends EditRecord
         }
     }
 
-    
+
 }
