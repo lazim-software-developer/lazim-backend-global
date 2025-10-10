@@ -6,6 +6,7 @@ use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\User\User;
 use Filament\Tables\Table;
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use App\Filament\Resources\ComplaintcomplaintResource\RelationManagers\RemarksRelationManager;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
 
 class ComplaintscomplaintResource extends Resource
@@ -198,126 +200,57 @@ class ComplaintscomplaintResource extends Resource
                     ->visible(function ($record) {
                         return $record && $record->media()->exists();
                     }),
+            
                 Section::make('Status and Remarks')
-                    ->schema([
-                        Select::make('status')
-                            ->options([
+                ->schema([
+                    Select::make('status')
+                        ->label('Status')
+                        ->options(function (?Complaint $record) {
+                            if ($record && $record->status === 'closed') {
+                                return [
+                                    'closed' => 'Closed',
+                                    're-open' => 'Re-Open',
+                                ];
+                            }
+                            return [
                                 'open' => 'Open',
                                 'in-progress' => 'In-Progress',
                                 'closed' => 'Closed',
-                            ])
-                            ->disabled(function (Complaint $record) {
-                                return $record->status == 'closed';
-                            })
-                            ->searchable()
-                            ->live(),
-                        Repeater::make('remarks')
-                            ->relationship('remarks') // Assumes 'remarks' is the relationship name in Complaint model
-                            ->schema([
-                                Textarea::make('remarks')
-                                    ->label('Remark')
-                                    ->disabled(function (Get $get) {
-                                        return $get()['status'] == 'closed';
-                                    })
-                                    ->required()
-                                    ->maxLength(250),
-                                Repeater::make('media') // Nested repeater for media related to each remark
-                                    ->relationship('media') // Assumes 'media' is the relationship name in the remarks model
-                                    ->schema([
-                                        FileUpload::make('url')
-                                            ->disk('s3')
-                                            ->directory('dev')
-                                            ->maxSize(2048)
-                                            ->helperText('Accepted file types: jpg, jpeg, png / Max file size: 2MB')
-                                            ->openable(true)
-                                            ->downloadable(true)
-                                            ->label('Media File')
-                                            // ->disabled(function (Get $get) {
-                                            //     return $get()['status'] == 'closed';
-                                            // }),
-                                    ])
-                                    ->disabled(function (Get $get) {
-                                        return $get()['status'] == 'closed';
-                                    })
-                                    ->dehydrated(false)
-                                    ->columns(1),
-                            ])
-                            ->addable(false)
-                            ->disabled(function (Get $get) {
-                                return $get()['status'] == 'closed';
-                            })
-                            ->columns(2),
-                    ])
-                    ->columns(1),
+                            ];
+                        })
+                        ->default(fn(?Complaint $record) => $record?->status ?? 'open')
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set) => $set('remarks', '')) ,
 
+                    Textarea::make('main_remark')
+                        ->label('Remark')
+                        ->required(function (Get $get, ?Complaint $record) {
+                            if (! $record) {
+                                return false;
+                            }
+                            $latestRemark = $record->remarks()
+                                ->latest('created_at')
+                                ->first();
+                            $previousStatus = $latestRemark?->status ?? $record->status;
+                            return $get('status') !== $previousStatus
+                                && in_array($get('status'), ['in-progress', 'closed', 're-open']);
+                        })
 
+                        ->rules(['max:3500'])
+                        ->default(null)
+                        ->reactive(),
 
-                // Section::make('Status and Remarks')
-                //     ->schema([
-                //         Select::make('status')
-                //             ->options([
-                //                 'open' => 'Open',
-                //                 'in-progress' => 'In-Progress',
-                //                 'closed' => 'Closed',
-                //             ])
-                //             ->disabled(fn(Complaint $record) => $record->status === 'closed')
-                //             ->searchable()
-                //             ->live(),
-                //         Textarea::make('remarks')
-                //             ->label('Remark')
-                //             ->rules(['max:3500'])
-                //             ->required()
-                //             ->default(fn($record) => $record?->remarks ?? '')
-                //             ->disabled(fn(Complaint $record) => $record->status === 'closed'),
-
-
-                //         FileUpload::make('remark_media')
-                //             ->disk('s3')
-                //             ->directory('dev')
-                //             ->openable()
-                //             ->downloadable()
-                //             ->multiple()
-                //             ->image() // Restrict to images for preview
-                //             ->previewable(true) // Explicitly enable previews (default is true for images)
-                //             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif']) // Restrict to image types
-                //             ->default(function ($record) {
-                //                 if (! $record) return [];
-
-                //                 // Map media URLs for preview
-                //                 return $record->media
-                //                     ->filter(fn($media) => in_array(strtolower(pathinfo($media->url, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
-                //                     ->map(fn($media) => Storage::cloud()->url($media->url))
-                //                     ->toArray();
-                //             }),
-                //             // Repeater::make('remarks')
-                //             // ->relationship() // points to Complaint->remarks()
-                //             // ->schema([
-                //                 Repeater::make('remarks')
-                //                     ->relationship('media')
-                //                     ->schema([
-                //                         FileUpload::make('media')
-                //                             ->disk('s3')
-                //                             ->directory('remarks')
-                //                             ->openable()
-                //                             ->downloadable()
-                //                             ->default(function ($record) {
-                //                                 dd($record);
-                //                                 if (! $record) return [];
-
-                //                                 // get all media for latest remark
-                //                                 $latestRemark = $record->remarks()->latest()->first();
-                //                                 if (! $latestRemark) return [];
-
-                //                                 return $latestRemark->media
-                //                                     ->map(fn($media) => Storage::cloud()->url($media->url))
-                //                                     ->toArray();
-                //                             })
-                //                     ])->disabled() // Disable adding new media
-                //                     ->dehydrated(false)
-                //             // ])->dehydrated(false)
-                //             // ->disabled(),
-
-                //     ])->columns(2),
+                    FileUpload::make('remark_media')
+                        ->disk('s3')
+                        ->directory('dev')
+                        ->openable()
+                        ->downloadable()
+                        ->multiple()
+                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                        ->label('Remark Media'),
+                ])
+                ->columns(2),
             ]);
     }
 
@@ -433,6 +366,7 @@ class ComplaintscomplaintResource extends Resource
     {
         return [
             CommentsRelationManager::class,
+            RemarksRelationManager::class,
         ];
     }
 
