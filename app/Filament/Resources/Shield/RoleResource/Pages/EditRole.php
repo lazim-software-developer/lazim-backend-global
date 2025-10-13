@@ -149,7 +149,7 @@ class EditRole extends EditRecord
                 }
             } else {
                 Log::warning('Role not found, calling syncRoleToAccounting');
-                $this->syncRoleToAccounting($role, $permissions);
+                $this->updateRoleInAccounting($role, $permissions);
             }
         } catch (\Exception $e) {
             Log::error('Failed to update role in accounting DB: ' . $e->getMessage());
