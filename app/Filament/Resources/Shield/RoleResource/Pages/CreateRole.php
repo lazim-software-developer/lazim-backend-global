@@ -68,6 +68,8 @@ class CreateRole extends CreateRecord
                 'name' => $role->name,
                 'guard_name' => $role->guard_name,
                 'oa_role_id' => $role->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
 
             $conn->table('roles')->updateOrInsert(

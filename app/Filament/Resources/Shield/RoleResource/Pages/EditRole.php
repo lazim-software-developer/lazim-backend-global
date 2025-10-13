@@ -99,62 +99,77 @@ class EditRole extends EditRecord
     protected function updateRoleInAccounting($role, $permissions): void
     {
         try {
+            // Connect to Accounting DB
             $conn = DB::connection(env('SECOND_DB_CONNECTION', 'lazim_accounts'));
             Log::info('lazim_accounts Connection: ' . ($conn->getPdo() ? 'Success' : 'Failed'));
 
+            // Check for existing role
             $existingRole = $conn->table('roles')
                 ->where('oa_role_id', $role->id)
                 ->where('guard_name', $role->guard_name)
                 ->first();
 
+            // If existing role found -> update, else insert new
             if ($existingRole) {
-                $conn->table('roles')
-                    ->where('id', $existingRole->id)
-                    ->update([
-                        'name' => $role->name,
-                    ]); // Removed guard_name update to avoid mismatch
-
+                $conn->table('roles')->where('id', $existingRole->id)->update([
+                    'name' => $role->name,
+                    'updated_at' => now(),
+                ]);
                 $accountingRoleId = $existingRole->id;
-                Log::info('Updated role in lazim_accounts with ID: ' . $accountingRoleId);
+                Log::info("Updated existing role [ID: {$accountingRoleId}] in accounting DB.");
+            } else {
+                $accountingRoleId = $conn->table('roles')->insertGetId([
+                    'name' => $role->name,
+                    'guard_name' => $role->guard_name,
+                    'oa_role_id' => $role->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                Log::info("Created new role [ID: {$accountingRoleId}] in accounting DB.");
+            }
 
-                // Handle permissions (support both objects and strings)
-                foreach ($permissions as $permission) {
-                    $permissionName = is_object($permission) ? $permission->name : $permission;
-                    $permissionRecord = $conn->table('permissions')->where([
+            // Sync permissions
+            foreach ($permissions as $permission) {
+                $permissionName = is_object($permission) ? $permission->name : $permission;
+
+                // Check if permission exists in accounting DB
+                $permissionRecord = $conn->table('permissions')->where([
+                    'name' => $permissionName,
+                    'guard_name' => $role->guard_name,
+                ])->first();
+
+                // If not exists, create it
+                if (!$permissionRecord) {
+                    $permissionId = $conn->table('permissions')->insertGetId([
                         'name' => $permissionName,
                         'guard_name' => $role->guard_name,
-                    ])->first();
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    Log::info("Inserted new permission '{$permissionName}' [ID: {$permissionId}] in accounting DB.");
+                } else {
+                    $permissionId = $permissionRecord->id;
+                }
 
-                    if (!$permissionRecord) {
-                        $permissionId = $conn->table('permissions')->insertGetId([
-                            'name' => $permissionName,
-                            'guard_name' => $role->guard_name,
-                        ]);
-                    } else {
-                        $permissionId = $permissionRecord->id;
-                    }
+                // Attach permission to role if not already attached
+                $alreadyExists = $conn->table('role_has_permissions')->where([
+                    'role_id' => $accountingRoleId,
+                    'permission_id' => $permissionId,
+                ])->exists();
 
-                    $alreadyExists = $conn->table('role_has_permissions')->where([
+                if (!$alreadyExists) {
+                    $conn->table('role_has_permissions')->insert([
                         'role_id' => $accountingRoleId,
                         'permission_id' => $permissionId,
-                    ])->exists();
-
-                    if (!$alreadyExists) {
-                        $conn->table('role_has_permissions')->insert([
-                            'role_id' => $accountingRoleId,
-                            'permission_id' => $permissionId,
-                        ]);
-                        Log::info('Added permission: ' . $permissionName . ' for role ID ' . $accountingRoleId);
-                    }
+                    ]);
+                    Log::info("Linked permission '{$permissionName}' to role ID {$accountingRoleId}");
                 }
-            } else {
-                Log::warning('Role not found, calling syncRoleToAccounting');
-                $this->updateRoleInAccounting($role, $permissions);
             }
         } catch (\Exception $e) {
             Log::error('Failed to update role in accounting DB: ' . $e->getMessage());
         }
     }
+
 
     protected function getRedirectUrl(): string
     {
