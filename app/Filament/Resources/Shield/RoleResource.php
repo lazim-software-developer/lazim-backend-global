@@ -402,7 +402,7 @@ class RoleResource extends Resource implements HasShieldPermissions
         static::$permissionsCollection = static::$permissionsCollection ?: Utils::getPermissionModel()::all();
         $searchTerm = str_replace(' ', '', strtolower($get('search', '')));
 
-        // Check if user is Property Manager
+        // 1) Role-based exclusions apply karo, par SEARCH se filter mat karo
         if (auth()->user()->role && auth()->user()->role->name === 'Property Manager') {
             $exclusions = [
                 'ActivityResource',
@@ -437,21 +437,9 @@ class RoleResource extends Resource implements HasShieldPermissions
             ];
 
             $resources = collect(FilamentShield::getResources())
-                ->filter(function ($entity) use ($exclusions, $searchTerm) {
+                ->filter(function ($entity) use ($exclusions) {
                     $resourceClass = class_basename($entity['fqcn']);
-
-                    // First check exclusions
-                    if (in_array($resourceClass, $exclusions)) {
-                        return false;
-                    }
-
-                    // Then check search if term exists
-                    if ($searchTerm) {
-                        $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
-                        return str_contains($label, $searchTerm);
-                    }
-
-                    return true;
+                    return ! in_array($resourceClass, $exclusions);
                 });
         } elseif (auth()->user()->role && auth()->user()->role->name === 'OA') {
             $exclusions = [
@@ -463,47 +451,35 @@ class RoleResource extends Resource implements HasShieldPermissions
                 // 'RentalChequeResource',
                 // 'SubContractorResource',
             ];
-
             $resources = collect(FilamentShield::getResources())
-                ->filter(function ($entity) use ($exclusions, $searchTerm) {
+                ->filter(function ($entity) use ($exclusions) {
                     $resourceClass = class_basename($entity['fqcn']);
-
-                    // First check exclusions
-                    if (in_array($resourceClass, $exclusions)) {
-                        return false;
-                    }
-
-                    // Then check search if term exists
-                    if ($searchTerm) {
-                        $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
-                        return str_contains($label, $searchTerm);
-                    }
-
-                    return true;
+                    return ! in_array($resourceClass, $exclusions);
                 });
         } else {
-            // Original behavior for other roles
-            $resources = collect(FilamentShield::getResources())
-                ->filter(function ($entity) use ($searchTerm) {
-                    if ($searchTerm) {
-                        $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
-                        return str_contains($label, $searchTerm);
-                    }
-                    return true;
-                });
+            $resources = collect(FilamentShield::getResources());
         }
 
-        // Keep original mapping logic
-        return $resources->map(function ($entity) {
+        // 2) Ab har resource ka Section banao; search se sirf HIDE karo
+        return $resources->map(function ($entity) use ($get, $searchTerm) {
+            $label = strtolower(FilamentShield::getLocalizedResourceLabel($entity['fqcn']));
+            $matchesSearch = $searchTerm ? str_contains($label, $searchTerm) : true;
+
+            // Agar is resource me pehle se selections hain, to visible rakho
+            $selectedState = $get($entity['resource']) ?? [];
+            $hasSelected = ! empty($selectedState);
+
             return Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
                 ->description(fn() => new HtmlString('<span style="word-break: break-word;">'))
                 ->compact()
+                ->hidden(fn() => ! $matchesSearch && ! $hasSelected) // 🔑 hide only, unmount nahi
                 ->schema([
                     static::getCheckBoxListComponentForResource($entity),
                 ])
                 ->columnSpan(FilamentShieldPlugin::get()->getSectionColumnSpan());
         })->toArray();
     }
+
 
     public static function getResourceTabBadgeCount(): ?int
     {
@@ -789,6 +765,7 @@ class RoleResource extends Resource implements HasShieldPermissions
             ->label('')
             ->options(fn(): array => $permissionsArray)
             ->live()
+            ->dehydrated(true)    // 🔑 hidden/filtered hote hue bhi values save hongi
             ->afterStateHydrated(function (Component $component, $livewire, string $operation, ?Model $record, Forms\Set $set) use ($permissionsArray) {
                 static::setPermissionStateForRecordPermissions(
                     component: $component,
@@ -796,13 +773,11 @@ class RoleResource extends Resource implements HasShieldPermissions
                     permissions: $permissionsArray,
                     record: $record
                 );
-
                 static::toggleSelectAllViaEntities($livewire, $set);
             })
             ->afterStateUpdated(fn($livewire, Forms\Set $set) => static::toggleSelectAllViaEntities($livewire, $set))
             ->selectAllAction(fn(FormAction $action, Component $component, $livewire, Forms\Set $set) => static::bulkToggleableAction($action, $component, $livewire, $set))
             ->deselectAllAction(fn(FormAction $action, Component $component, $livewire, Forms\Set $set) => static::bulkToggleableAction($action, $component, $livewire, $set, true))
-            ->dehydrated(fn($state) => ! blank($state))
             ->bulkToggleable()
             ->gridDirection('row')
             ->columns(FilamentShieldPlugin::get()->getResourceCheckboxListColumns());
