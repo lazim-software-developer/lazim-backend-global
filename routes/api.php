@@ -16,6 +16,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Vendor\TLController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\PermitWorkController;
 use App\Http\Controllers\Vendor\WDAController;
@@ -790,4 +791,9 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
     Route::patch('flatsModule/{id}/change-status', [FlatController::class, 'changeStatus']);
     Route::post('flatsimport', [FlatController::class, 'import']);
     Route::get('flatsexport', [FlatController::class, 'export']);
+});
+
+#Review route
+Route::prefix('review')->group(function () {
+  Route::post('/create', [ReviewController::class, 'store']);
 });
