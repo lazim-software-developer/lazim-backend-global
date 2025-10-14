@@ -640,6 +640,6 @@ Route::get('buildings', [BuildingController::class, 'index']);
 // });
 
 #Review route
-Route::prefix('review')->group(function () {
-  Route::post('/create', [ReviewController::class, 'store']);
+Route::middleware(['auth:sanctum'])->prefix('review')->group(function () {
+    Route::post('/create', [ReviewController::class, 'store'])->name('review.create');
 });
