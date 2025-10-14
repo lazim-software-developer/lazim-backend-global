@@ -794,6 +794,8 @@ Route::middleware(['auth:sanctum', 'email.verified', 'active'])->group(function 
 });
 
 #Review route
-Route::prefix('review')->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'active'])->prefix('review')->group(function () {
   Route::post('/create', [ReviewController::class, 'store']);
 });
+
+
