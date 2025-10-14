@@ -46,8 +46,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use App\Filament\Resources\ComplaintscomplaintResource\Pages;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers;
+use App\Filament\Resources\UserApprovalResource\RelationManagers\HistoryRelationManager;
 use App\Filament\Resources\ComplaintcomplaintResource\RelationManagers\RemarksRelationManager;
 use App\Filament\Resources\ComplaintscomplaintResource\RelationManagers\CommentsRelationManager;
+use App\Filament\Resources\HistoryRelationManagerResource\RelationManagers\HistoriesRelationManager;
 
 class ComplaintscomplaintResource extends Resource
 {
@@ -367,6 +369,7 @@ class ComplaintscomplaintResource extends Resource
         return [
             CommentsRelationManager::class,
             RemarksRelationManager::class,
+            HistoriesRelationManager::class,
         ];
     }
 
