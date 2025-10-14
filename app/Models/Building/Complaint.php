@@ -2,25 +2,28 @@
 
 namespace App\Models\Building;
 
+use Carbon\Carbon;
+use App\Models\Media;
+use App\Models\Remark;
+use App\Models\User\User;
+use App\Models\ModelHistory;
+use App\Models\Building\Flat;
+use App\Models\Vendor\Vendor;
+use App\Models\Master\Service;
+use App\Models\OwnerAssociation;
 use App\Models\Building\Building;
 use App\Models\Community\Comment;
-use App\Models\Master\Service;
-use App\Models\Media;
-use App\Models\OaUserRegistration;
 use App\Models\Scopes\Searchable;
-use App\Models\User\User;
-use Carbon\Carbon;
+use App\Models\OaUserRegistration;
+use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Building\Flat;
-use App\Models\OwnerAssociation;
-use App\Models\Remark;
-use App\Models\Vendor\Vendor;
 
 class Complaint extends Model
 {
     use HasFactory;
     use Searchable;
+    use HasHistory;
 
     protected $connection = 'mysql';
 
@@ -84,10 +87,10 @@ class Complaint extends Model
 
         return $this->morphTo();
     }
-    public function oaUserRegistration()
-    {
-        return $this->belongsTo(OaUserRegistration::class);
-    }
+    // public function oaUserRegistration()
+    // {
+    //     return $this->belongsTo(OaUserRegistration::class);
+    // }
 
     public function comments()
     {
@@ -126,4 +129,15 @@ class Complaint extends Model
     {
         return $this->hasMany(Remark::class);
     }
+
+    public function histories()
+    {
+        return $this->morphMany(\App\Models\ModelHistory::class, 'historable');
+    }
+
+    // add this alias so legacy calls don't break
+public function history()
+{
+    return $this->histories();
+}
 }

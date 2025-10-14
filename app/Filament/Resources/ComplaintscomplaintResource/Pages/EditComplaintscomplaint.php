@@ -8,6 +8,7 @@ use App\Models\Remark;
 use App\Traits\UtilsTrait;
 use App\Models\Master\Role;
 use Illuminate\Support\Str;
+use App\Models\ModelHistory;
 use Filament\Facades\Filament;
 use App\Models\OwnerAssociation;
 use App\Jobs\ComplaintStatusMail;
@@ -195,6 +196,21 @@ class EditComplaintscomplaint extends EditRecord
                 'updated_at' => now()->format('Y-m-d H:i:s'),
             ]);
         }
+    }
+
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        ModelHistory::firstOrCreate(
+            [
+                'historable_type' => get_class($this->record),
+                'historable_id' => $this->record->id,
+                'user_id' => auth()->id(),
+                'action' => 'read',
+            ],
+            ['changes' => null]
+        );
     }
 
 
