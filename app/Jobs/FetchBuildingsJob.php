@@ -8,11 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use App\Jobs\FetchFlatsAndOwnersForBuilding;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class FetchBuildingsJob implements ShouldQueue
@@ -20,6 +18,7 @@ class FetchBuildingsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $ownerAssociation;
+
     protected $source;
 
     /**
@@ -38,16 +37,24 @@ class FetchBuildingsJob implements ShouldQueue
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/managementcompany/" . $this->ownerAssociation->mollak_id . "/propertygroups");
+            'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+        ])->get(env('MOLLAK_API_URL') . '/sync/managementcompany/' . $this->ownerAssociation->mollak_id . '/propertygroups');
 
+        DB::table('mollak_api_call_histories')->insert([
+            'api_url' => '/sync/managementcompany/' . $this->ownerAssociation->mollak_id . '/propertygroups',
+            'module' => 'Building',
+            'job_name' => 'FetchBuildingsJob',
+            'user_id' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Save buildings to Building table
         if ($response->successful()) {
             $propertyGroups = $response->json()['response']['propertyGroups'];
 
             foreach ($propertyGroups as $group) {
-                $building =  Building::firstOrCreate(
+                $building = Building::firstOrCreate(
                     [
                         'property_group_id' => $group['propertyGroupId'],
                         'owner_association_id' => $this->ownerAssociation->id,
@@ -70,7 +77,7 @@ class FetchBuildingsJob implements ShouldQueue
                 $connection->table('users')->updateOrInsert([
                     'building_id' => $building->id,
                     'owner_association_id' => $this->ownerAssociation->id,
-                ],[
+                ], [
                     'name' => $building->name,
                     'email' => 'user' . Str::random(8) . '@lazim.ae',
                     'email_verified_at' => now(),
@@ -82,10 +89,10 @@ class FetchBuildingsJob implements ShouldQueue
                     'plan' => 1,
                     'is_enable_login' => 1,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ]);
-                if($this->source == 'Mollak'){
-                    FetchFlatsAndOwnersForBuilding::dispatch($building,'Mollak');
+                if ($this->source == 'Mollak') {
+                    FetchFlatsAndOwnersForBuilding::dispatch($building, 'Mollak');
                 }
             }
         }

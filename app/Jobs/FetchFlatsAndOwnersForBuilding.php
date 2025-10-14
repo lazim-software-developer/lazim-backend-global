@@ -2,15 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\Building\Flat;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use App\Models\Building\Flat;
-use App\Jobs\FetchOwnersForFlat;
 use Illuminate\Support\Facades\DB;
+// use App\Jobs\FetchOwnersForFlat;
+// use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class FetchFlatsAndOwnersForBuilding implements ShouldQueue
@@ -18,9 +19,10 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $building;
+
     protected $source;
 
-    public function __construct($building,$source)
+    public function __construct($building, $source)
     {
         $this->building = $building;
         $this->source = $source;
@@ -31,8 +33,18 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
         try {
             $response = Http::withOptions(['verify' => false])->withHeaders([
                 'content-type' => 'application/json',
-                'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-            ])->get(env("MOLLAK_API_URL") . "/sync/propertygroups/" . $this->building->property_group_id . "/units");
+                'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+            ])->get(env('MOLLAK_API_URL') . '/sync/propertygroups/' . $this->building->property_group_id . '/units');
+
+            DB::table('mollak_api_call_histories')->insert([
+                'api_url' => '/sync/propertygroups/' . $this->building->property_group_id . '/units',
+                'module' => 'Unit',
+                'job_name' => 'FetchFlatsAndOwnersForBuilding',
+                'record_id' => $this->building->id,
+                'user_id' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
             $data = $response->json();
 
@@ -53,7 +65,7 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                             'applicable_area' => $property['applicableArea'],
                             'virtual_account_number' => $property['virtualAccountNumber'],
                             'parking_count' => $property['parkingCount'],
-                            'property_type' => 'NA'
+                            'property_type' => 'NA',
                         ]
                     );
 
@@ -74,13 +86,14 @@ class FetchFlatsAndOwnersForBuilding implements ShouldQueue
                     // ]);
 
                     // Dispatch job to fetch owners for the flat
-                    if($this->source == 'Mollak'){
-                        FetchOwnersForFlat::dispatch($flat);
+                    if ($this->source == 'Mollak') {
+                        // FetchOwnersForFlat::dispatch($flat);
+                        FetchAllUnitOwner::dispatch($this->building)->delay(now()->addSeconds(20));
                     }
                 }
             }
         } catch (\Exception $e) {
-            Log::error("no responce from mollak". $this->building->property_group_id);
+            Log::error('no responce from mollak' . $this->building->property_group_id);
         }
     }
 }

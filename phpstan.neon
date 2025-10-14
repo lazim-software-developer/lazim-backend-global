@@ -1,0 +1,23 @@
+parameters:
+    level: 5
+    paths:
+        - app
+        - bootstrap
+        - config
+        - database
+        - routes
+        - tests
+    excludePaths:
+        - vendor
+        - node_modules
+        - storage
+        - public
+        - bootstrap/cache
+        - database/factories
+        - database/seeders
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    checkImplicitMixed: false
+    inferPrivatePropertyTypeFromConstructor: true
+includes:
+    - vendor/nunomaduro/larastan/extension.neon

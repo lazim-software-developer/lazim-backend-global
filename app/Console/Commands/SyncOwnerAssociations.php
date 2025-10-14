@@ -6,7 +6,6 @@ use App\Jobs\FetchBuildingsJob;
 use App\Models\OwnerAssociation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -31,41 +30,48 @@ class SyncOwnerAssociations extends Command
      */
     public function handle()
     {
-
-
         $response = Http::withoutVerifying()->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id'  => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . '/sync/managementcompany');
+            'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+        ])->get(env('MOLLAK_API_URL') . '/sync/managementcompany');
 
         $managementCompanies = $response->json()['response']['managementCompanies'];
 
+        DB::table('mollak_api_call_histories')->insert([
+            'api_url' => '/sync/managementcompany',
+            'module' => 'OwnerAssociation',
+            'job_name' => 'SyncOwnerAssociations',
+            'user_id' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         foreach ($managementCompanies as $company) {
             $ownerAssociation = OwnerAssociation::firstOrCreate(
                 [
                     'mollak_id' => $company['id'],
-                    'trn_number' => $company['trn']
+                    'trn_number' => $company['trn'],
                 ],
                 [
-                    'name'       => $company['name']['englishName'],
-                    'phone'      => $company['contactNumber'],
-                    'email'      => $company['email'],
+                    'name' => $company['name']['englishName'],
+                    'phone' => $company['contactNumber'],
+                    'email' => $company['email'],
                     'trn_number' => $company['trn'],
-                    'address'    => $company['address'],
+                    'address' => $company['address'],
                 ]
             );
+
             try {
                 $url = 'api/register';
                 $body = [
-                    'name'      => $company['name']['englishName'],
-                    'email'     => $company['email'],
-                    'password'  => 'Password',
+                    'name' => $company['name']['englishName'],
+                    'email' => $company['email'],
+                    'password' => 'Password',
                     'password_confirmation' => 'Password',
                     'created_by_lazim' => 1,
                     'owner_association_id' => $ownerAssociation->id,
                 ];
-                $httpRequest  = Http::withOptions(['verify' => false])
+                $httpRequest = Http::withOptions(['verify' => false])
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                     ]);
@@ -96,7 +102,7 @@ class SyncOwnerAssociations extends Command
             //     'model_id' => $accountUser?->id,
             // ]);
 
-            FetchBuildingsJob::dispatch($ownerAssociation,'Mollak');
+            FetchBuildingsJob::dispatch($ownerAssociation, 'Mollak');
         }
     }
 }

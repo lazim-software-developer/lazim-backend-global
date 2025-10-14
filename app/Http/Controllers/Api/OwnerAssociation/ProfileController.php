@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Api\OwnerAssociation;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
@@ -27,7 +27,7 @@ class ProfileController extends Controller
 
         return new CustomResponseResource([
             'title' => 'Profile Updated',
-            'message' => 'Your profile has been updated successfully.'
+            'message' => 'Your profile has been updated successfully.',
         ]);
     }
 
@@ -57,7 +57,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         // Check if the provided current password matches the one in the database
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return (new CustomResponseResource([
                 'title' => 'Password Update Failed',
                 'message' => 'The provided current password does not match our records.',

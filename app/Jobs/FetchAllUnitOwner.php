@@ -2,25 +2,26 @@
 
 namespace App\Jobs;
 
-use Log;
-use App\Models\Building\Flat;
-use Illuminate\Bus\Queueable;
+use App\Jobs\Building\AssignFlatsToTenant;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
 use App\Traits\ThrottlesApiCalls;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Jobs\Building\AssignFlatsToTenant;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Log;
 
 class FetchAllUnitOwner implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ThrottlesApiCalls;
 
     protected $building;
+
     /**
      * Create a new job instance.
      */
@@ -35,9 +36,10 @@ class FetchAllUnitOwner implements ShouldQueue
     public function handle(): void
     {
         // Try to throttle
-        if (!$this->throttleApiCall('external-api-global', 2)) {
+        if (! $this->throttleApiCall('external-api-global', 2)) {
             // Too soon, retry after delay
             $this->release(2);
+
             return;
         }
 
@@ -51,22 +53,32 @@ class FetchAllUnitOwner implements ShouldQueue
 
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'content-type' => 'application/json',
-            'consumer-id' => env("MOLLAK_CONSUMER_ID"),
-        ])->get(env("MOLLAK_API_URL") . "/sync/owners/" . $building->property_group_id);
+            'consumer-id' => env('MOLLAK_CONSUMER_ID'),
+        ])->get(env('MOLLAK_API_URL') . '/sync/owners/' . $building->property_group_id);
+
+        DB::table('mollak_api_call_histories')->insert([
+            'api_url' => '/sync/owners/' . $this->building->property_group_id,
+            'module' => 'Unit',
+            'job_name' => 'FetchAllUnitOwner',
+            'record_id' => $this->building->id,
+            'user_id' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         $ownerData = $response->json();
         if ($ownerData['response'] != null) {
             foreach ($ownerData['response']['properties'] as $property) {
                 // Update property_type for a building
                 Log::info('###### FetchAllUnitOwner -- 61 -- ######  Property: ' . json_encode(['propertyNumber' => $property['propertyNumber']]));
-                if ($property['propertyType'] == "LAND") {
+                if ($property['propertyType'] == 'LAND') {
                     $building->update(['common_area_details' => json_encode($property)]);
-                }else{
+                } else {
                     $flat = Flat::where('mollak_property_id', $property['mollakPropertyId'])
                         ->where('building_id', $building->id)
                         ->first();
 
-                    if (isset($flat) && !empty($flat)) {
+                    if (isset($flat) && ! empty($flat)) {
                         $flat->update(['property_type' => $property['propertyType']]);
                         $this->storeOwner($property, $flat);
                     }
@@ -75,7 +87,7 @@ class FetchAllUnitOwner implements ShouldQueue
         }
     }
 
-    function storeOwner(array $property, $flat)
+    public function storeOwner(array $property, $flat)
     {
         // Store owner data logic here
         // This function can be used to encapsulate the logic of storing owner data
@@ -163,14 +175,14 @@ class FetchAllUnitOwner implements ShouldQueue
                 // Log::info('owner',[$owner]);
                 // Attach the owner to the flat
                 $ownerId = $owner->id;
-                if (!empty($owner)) {
+                if (! empty($owner)) {
                     // $this->flat->owners()->syncWithoutDetaching($ownerId);
                     // Find all the flats that this user is owner of and attach them to flat_tenant table using the job
                     AssignFlatsToTenant::dispatch($ownerData['email'], $phone, $ownerId, $customerId, 'Owner')->delay(now()->addSeconds(5));
                 }
             }
             // Attach the owners to the flat
-            if (!empty($ownerIds)) {
+            if (! empty($ownerIds)) {
                 $flat->owners()->sync($ownerIds);
                 Log::info('##### FetchOwnerForFlat -> owner_ids ##### ', $ownerIds);
             }
@@ -179,7 +191,7 @@ class FetchAllUnitOwner implements ShouldQueue
         }
     }
 
-    function cleanPhoneNumber($phoneNumber)
+    public function cleanPhoneNumber($phoneNumber)
     {
         // Remove -, +, and | characters
         $cleaned = preg_replace('/[-+|]/', '', $phoneNumber);
@@ -189,5 +201,4 @@ class FetchAllUnitOwner implements ShouldQueue
 
         return $cleaned;
     }
-
 }

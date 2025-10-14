@@ -12,7 +12,7 @@ use App\Http\Resources\CustomResponseResource;
 use App\Http\Resources\RegisterOwnersList;
 use App\Jobs\Auth\ResendOtpEmail;
 use App\Jobs\Building\AssignFlatsToTenant;
-use App\Jobs\EmailOtp;
+// use App\Jobs\EmailOtp;
 use App\Jobs\SendVerificationOtp;
 use App\Models\ApartmentOwner;
 use App\Models\Building\Building;
@@ -44,7 +44,7 @@ class RegistrationController extends Controller
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403,
-                'type' => 'email'
+                'type' => 'email',
             ]))->response()->setStatusCode(403);
         }
 
@@ -54,7 +54,7 @@ class RegistrationController extends Controller
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403,
-                'type' => 'phone'
+                'type' => 'phone',
             ]))->response()->setStatusCode(403);
         }
 
@@ -71,7 +71,7 @@ class RegistrationController extends Controller
         $flat = Flat::find($request->flat_id);
 
         // Check if flat exists
-        if (!$flat) {
+        if (! $flat) {
             return (new CustomResponseResource([
                 'title' => 'flat_error',
                 'message' => 'Flat selected by you doesnot exists',
@@ -84,7 +84,6 @@ class RegistrationController extends Controller
 
         // Check if the given flat_id is already allotted to someone with active true
         $flatOwner = DB::table('flat_tenants')->where(['flat_id' => $flat->id, 'active' => 1, 'role' => 'Tenant']);
-
 
         if ($type === 'Tenant' && $flatOwner->exists()) {
             return (new CustomResponseResource([
@@ -100,17 +99,17 @@ class RegistrationController extends Controller
             $queryModel = MollakTenant::where(['email' => $email, 'mobile' => $request->mobile, 'building_id' => $request->building_id, 'flat_id' => $request->flat_id]);
         }
 
-        if (!$queryModel->exists()) {
+        if (! $queryModel->exists()) {
             if ($type === 'Owner') {
                 return (new CustomResponseResource([
                     'title' => 'mollak_error',
-                    'message' => "Your details are not matching with Mollak data. Please use your Title Deed instead",
+                    'message' => 'Your details are not matching with Mollak data. Please use your Title Deed instead',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
             } else {
                 return (new CustomResponseResource([
                     'title' => 'mollak_error',
-                    'message' => "Your details are not matching with Mollak data. Please use your Ejari document instead",
+                    'message' => 'Your details are not matching with Mollak data. Please use your Ejari document instead',
                     'status' => 'detailsNotMatching',
                     'code' => 400,
                 ]))->response()->setStatusCode(400);
@@ -140,7 +139,7 @@ class RegistrationController extends Controller
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
         if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->exists();
             $name = $firstName . ' - ' . $flat->property_number;
             $connection->table('customers')->insert([
                 'customer_id' => $customerId,
@@ -174,7 +173,7 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  null,
+            'start_date' => null,
             'end_date' => $type === 'Tenant' ? $queryModel->value('end_date') : null,
             'active' => 1,
             'role' => $type,
@@ -194,7 +193,7 @@ class RegistrationController extends Controller
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id. Please verify to continue using the application",
             'code' => 201,
-            'status' => 'success'
+            'status' => 'success',
         ]))->response()->setStatusCode(201);
     }
 
@@ -204,17 +203,17 @@ class RegistrationController extends Controller
         $request->merge(['mobile' => str_replace(' ', '', trim($request->mobile))]);
         $userData = User::where(['email' => $request->get('email')]);
         if ($request->type == 'Owner') {
-            $ownerId=$request->get('owner_id');
+            $ownerId = $request->get('owner_id');
             $userData->where('owner_id', $request->get('owner_id'));
-        }else{
-            $ownerId=NULL;
+        } else {
+            $ownerId = null;
         }
         if ($userData->exists() && ($userData->first()->email_verified == 0)) {
             return (new CustomResponseResource([
                 'title' => 'account_present',
                 'message' => "Your account is not verified. You'll be redirected to account verification page",
                 'code' => 403,
-                'type' => 'email'
+                'type' => 'email',
             ]))->response()->setStatusCode(403);
         }
 
@@ -241,7 +240,7 @@ class RegistrationController extends Controller
         $flat = Flat::find($request->flat_id);
 
         // Check if flat exists
-        if (!$flat) {
+        if (! $flat) {
             return (new CustomResponseResource([
                 'title' => 'flat_error',
                 'message' => 'Flat selected by you doesnot exists',
@@ -323,12 +322,12 @@ class RegistrationController extends Controller
         $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $request->building_id])->first()?->id;
         if ($created_by) {
             $customerId = $connection->table('customers')->where('created_by', $created_by)->orderByDesc('customer_id')->first()?->customer_id + 1;
-            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $primary = $connection->table('customers')->where('flat_id', $flat->id)->where('type', 'Owner')->exists();
             $name = $request->name . ' - ' . $flat->property_number;
             $connection->table('customers')->insert([
                 'customer_id' => $customerId,
                 'name' => $name,
-                'email'  => $request->email,
+                'email' => $request->email,
                 'contact' => $request->mobile,
                 'type' => $type,
                 'lang' => 'en',
@@ -412,7 +411,7 @@ class RegistrationController extends Controller
             'tenant_id' => $user->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  $request->has('start_date') ? $request->start_date : now(),
+            'start_date' => $request->has('start_date') ? $request->start_date : now(),
             'end_date' => $request->has('end_date') ? $request->end_date : null,
             'active' => 0,
             'role' => $type,
@@ -422,7 +421,7 @@ class RegistrationController extends Controller
 
         $customer = $connection->table('customers')->where([
             'email' => $request->email,
-            'contact' => $request->mobile
+            'contact' => $request->mobile,
         ])->first();
         $property = Flat::find($request->flat_id)?->property_number;
         if ($customer && $property) {
@@ -430,7 +429,7 @@ class RegistrationController extends Controller
                 'customer_id' => $customer?->id,
                 'flat_id' => $request->flat_id,
                 'building_id' => $request->building_id,
-                'property_number' => $property
+                'property_number' => $property,
             ]);
         }
 
@@ -441,7 +440,7 @@ class RegistrationController extends Controller
             'title' => 'Registration successful!',
             'message' => "We've sent verification code to your email Id. Please verify to continue using the application",
             'code' => 201,
-            'status' => 'verificationPending'
+            'status' => 'verificationPending',
         ]))->response()->setStatusCode(201);
     }
 
@@ -499,7 +498,7 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Document submitted!',
-            'message' => "Document submitted succesfully!",
+            'message' => 'Document submitted succesfully!',
             'code' => 201,
             'status' => 'success',
         ]))->response()->setStatusCode(201);
@@ -536,27 +535,27 @@ class RegistrationController extends Controller
         ];
     }
 
-    public function emailOtp(ResendOtpRequest $request)
-    {
-        // Validate the type and contact_value
-        $type = $request->type;
-        $contactValue = $request->contact_value;
+    // public function emailOtp(ResendOtpRequest $request)
+    // {
+    //     // Validate the type and contact_value
+    //     $type = $request->type;
+    //     $contactValue = $request->contact_value;
 
-        $otp = rand(1000, 9999);
+    //     $otp = rand(1000, 9999);
 
-        DB::table('otp_verifications')->updateOrInsert(
-            ['type' => $type, 'contact_value' => $contactValue],
-            ['otp' => $otp]
-        );
+    //     DB::table('otp_verifications')->updateOrInsert(
+    //         ['type' => $type, 'contact_value' => $contactValue],
+    //         ['otp' => $otp]
+    //     );
 
-        EmailOtp::dispatch($otp, $type, $contactValue);
+    //     EmailOtp::dispatch($otp, $type, $contactValue);
 
-        return (new CustomResponseResource([
-            'title' => 'Success',
-            'message' => 'OTP sent successfully!',
-            'code' => 200,
-        ]))->response()->setStatusCode(200);
-    }
+    //     return (new CustomResponseResource([
+    //         'title' => 'Success',
+    //         'message' => 'OTP sent successfully!',
+    //         'code' => 200,
+    //     ]))->response()->setStatusCode(200);
+    // }
 
     public function verifyOtp(EmailVerificationRequest $request)
     {
@@ -565,7 +564,7 @@ class RegistrationController extends Controller
             ->where('contact_value', $request->contact_value)
             ->first();
 
-        if (!$otpEntry || $otpEntry->otp !== $request->otp) {
+        if (! $otpEntry || $otpEntry->otp !== $request->otp) {
             return (new CustomResponseResource([
                 'title' => 'Error',
                 'message' => 'Invalid OTP. Please try again.',
@@ -575,7 +574,7 @@ class RegistrationController extends Controller
 
         // If OTP matches, you can set the user's email as verified in the users table or any other logic you want to implement
 
-        if($request->type == 'email') {
+        if ($request->type == 'email') {
             User::where('email', $request->contact_value)->update(['email_verified' => true]);
         } else {
             User::where('phone', $request->contact_value)->update(['phone_verified' => true]);
@@ -585,9 +584,10 @@ class RegistrationController extends Controller
 
         return response()->json([
             'message' => 'Successfully verified.',
-            'status' => 'success'
+            'status' => 'success',
         ], 200);
     }
+
     public function resendOtp(ResendOtpRequest $request)
     {
         // Validate the type and contact_value
@@ -628,7 +628,7 @@ class RegistrationController extends Controller
             // If type is email, send the OTP to the email
             ResendOtpEmail::dispatch($user, $otp, $type)->delay(now()->addSeconds(5));
 
-            //TODO: If type is phone, you can integrate with an SMS service to send the OTP
+            // TODO: If type is phone, you can integrate with an SMS service to send the OTP
             // (This part is left out for now as it depends on the SMS service)
 
             return (new CustomResponseResource([
@@ -651,12 +651,12 @@ class RegistrationController extends Controller
         $owners = $flat->owners()->get();
 
         $owners = $owners->filter(function ($owner) {
-            if (!$owner->users()
+            if (! $owner->users()
                 ->where('email_verified', 1)
                 ->where('phone_verified', 1)
                 ->exists()) {
                 return $owner;
-            };
+            }
         });
 
         return RegisterOwnersList::collection($owners);
@@ -666,7 +666,7 @@ class RegistrationController extends Controller
     {
         return ['data' => [
             'email' => $owner->email,
-            'phone' => $owner->mobile
+            'phone' => $owner->mobile,
         ]];
     }
 
@@ -678,6 +678,7 @@ class RegistrationController extends Controller
 
         return RegisterOwnersList::collection($owners);
     }
+
     public function addFlat(AddFlatForResidentsRequest $request)
     {
         if ($request->has('global_building_id')) {
@@ -716,9 +717,9 @@ class RegistrationController extends Controller
 
             if ($ownerResiding) {
                 return (new CustomResponseResource([
-                    'title'   => 'flat_error',
+                    'title' => 'flat_error',
                     'message' => 'Flat is already allocated to one owner residing in same flat!',
-                    'code'    => 400,
+                    'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
         }
@@ -729,9 +730,9 @@ class RegistrationController extends Controller
 
             if ($tenantExists) {
                 return (new CustomResponseResource([
-                    'title'   => 'flat_error',
+                    'title' => 'flat_error',
                     'message' => 'Looks like this flat is already allocated to one tenant!',
-                    'code'    => 400,
+                    'code' => 400,
                 ]))->response()->setStatusCode(400);
             }
         }
@@ -773,7 +774,7 @@ class RegistrationController extends Controller
             'tenant_id' => $userData->id,
             'primary' => true,
             'building_id' => $request->building_id,
-            'start_date' =>  $request->has('start_date') ? $request->start_date : now(),
+            'start_date' => $request->has('start_date') ? $request->start_date : now(),
             'end_date' => $request->has('end_date') ? $request->end_date : null,
             'active' => 0,
             'role' => $type,
@@ -783,9 +784,9 @@ class RegistrationController extends Controller
 
         return (new CustomResponseResource([
             'title' => 'Registration successful!',
-            'message' => "Request sent to admin for approval.",
+            'message' => 'Request sent to admin for approval.',
             'code' => 201,
-            'status' => 'approvalPending'
+            'status' => 'approvalPending',
         ]))->response()->setStatusCode(201);
     }
 }

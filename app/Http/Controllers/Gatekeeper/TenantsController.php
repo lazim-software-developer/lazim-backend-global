@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\GateKeeper;
+namespace App\Http\Controllers\Gatekeeper;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\GateKeeper\TenantResource;
-use Illuminate\Http\Request;
-use App\Models\Building\FlatTenant;
-use App\Models\Building\Flat;
-
 use App\Models\Building\Building;
+use App\Models\Building\Flat;
+use App\Models\Building\FlatTenant;
+use Illuminate\Http\Request;
 
 class TenantsController extends Controller
 {
-    function fetchAllTenants(Request $request, Building $building)
+    public function fetchAllTenants(Request $request, Building $building)
     {
 
         $tenantsQuery = FlatTenant::where(['building_id' => $building->id, 'active' => 1]);
