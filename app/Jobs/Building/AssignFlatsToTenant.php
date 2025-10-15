@@ -75,7 +75,7 @@ class AssignFlatsToTenant implements ShouldQueue
             $created_by = $connection->table('users')->where(['type' => 'building', 'building_id' => $flatDetails->building_id])->first()->id;
             $building = Building::find($flatDetails->building_id);
             $name = $user->first_name . ' - ' . $flatDetails->property_number;
-            $primary = $connection->table('customers')->where('flat_id', $flatDetails->id)->where('type', 'Owner')->where('primary',true)->exists();
+            $primary = $connection->table('customers')->where('flat_id', $flatDetails->id)->where('type', 'Owner')->exists();
             $connection->table('customers')->updateOrInsert(
                 [
                     'created_by' => $created_by,

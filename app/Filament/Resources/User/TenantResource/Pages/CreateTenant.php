@@ -26,7 +26,7 @@ class CreateTenant extends CreateRecord
         }else{
             $UserID=auth()->user()?->id;
         }
-        
+
         FlatTenant::updateOrCreate(
             ['tenant_id' =>$UserID, 'flat_id' => $this->record->flat_id],
             [
@@ -45,7 +45,7 @@ class CreateTenant extends CreateRecord
         $customer = $connection->table('customers')->where('created_by', auth()->user()?->id)->orderByDesc('customer_id')->first();
         $customerId = $customer ? $customer->customer_id + 1 : 1;
         $primary = $connection->table('customers')->where('flat_id', $this->record->flat_id)
-        ->where('building_id', $this->record->building_id)->where('created_by', auth()->user()?->id)->where('email', $this->record->email)->where('type', 'Tenant')->where('primary',true)->exists();
+        ->where('building_id', $this->record->building_id)->where('created_by', auth()->user()?->id)->where('email', $this->record->email)->where('type', 'Tenant')->exists();
         $connection->table('customers')->updateOrInsert(
             [
                 'created_by' => auth()->user()?->id,
