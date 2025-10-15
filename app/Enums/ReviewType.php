@@ -1,16 +1,27 @@
 <?php
+
 namespace App\Enums;
 
 enum ReviewType: int
 {
     case FEEDBACK = 1;
-   // case BUILDING_REVIEW = 2;
+    case MOVEIN = 2;
+    case MOVEOUT = 3;
+    case SALE_NOC = 4;
+    case FIT_OUT = 5;
+    case HOLIDAY_HOME = 6;
+    case VISITOR = 7;
 
     public function label(): string
     {
         return match ($this) {
             self::FEEDBACK => 'feedback',
-           // self::BUILDING_REVIEW => 'building_review',
+            self::MOVEIN => 'moveIn',
+            self::MOVEOUT => 'moveOut',
+            self::SALENOC => 'saleNoc',
+            self::FITOUT => 'fitOut',
+            self::HOLIDAYHOME => 'holidayHome',
+            self::VISITOR => 'visitor',
         };
     }
 
@@ -19,7 +30,12 @@ enum ReviewType: int
     {
         return match ($label) {
             'feedback' => self::FEEDBACK,
-            //'building_review' => self::BUILDING_REVIEW,
+            'moveIn' => self::MOVEIN,
+            'moveOut' => self::MOVEOUT,
+            'saleNoc' => self::SALENOC,
+            'fitOut' => self::FITOUT,
+            'holidayHome' => self::HOLIDAYHOME,
+            // 'visitor' => self::VISITOR,
             default => 1,
         };
     }
