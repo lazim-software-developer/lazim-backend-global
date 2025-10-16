@@ -18,9 +18,9 @@ enum ReviewType: int
             self::FEEDBACK => 'feedback',
             self::MOVEIN => 'moveIn',
             self::MOVEOUT => 'moveOut',
-            self::SALENOC => 'saleNoc',
-            self::FITOUT => 'fitOut',
-            self::HOLIDAYHOME => 'holidayHome',
+            self::SALE_NOC => 'saleNoc',
+            self::FIT_OUT => 'fitOut',
+            self::HOLIDAY_HOME => 'holidayHome',
             self::VISITOR => 'visitor',
         };
     }
@@ -32,9 +32,9 @@ enum ReviewType: int
             'feedback' => self::FEEDBACK,
             'moveIn' => self::MOVEIN,
             'moveOut' => self::MOVEOUT,
-            'saleNoc' => self::SALENOC,
-            'fitOut' => self::FITOUT,
-            'holidayHome' => self::HOLIDAYHOME,
+            'saleNoc' => self::SALE_NOC,
+            'fitOut' => self::FIT_OUT,
+            'holidayHome' => self::HOLIDAY_HOME,
             // 'visitor' => self::VISITOR,
             default => 1,
         };
