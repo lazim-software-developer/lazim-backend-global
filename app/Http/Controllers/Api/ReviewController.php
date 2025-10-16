@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\ReviewType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewRequest;
 use App\Http\Resources\ReviewResource;
@@ -22,7 +21,7 @@ class ReviewController extends Controller
                 'user_id' => auth()->id(),
                 'oa_id' => $request->oa_id,
                 'flat_id' => $request->flat_id,
-                'type' => ReviewType::fromLabel($request->type),
+                'type' => $request->type,
                 'comment' => $request->comment,
                 'feedback' => $request->feedback,
             ]);
