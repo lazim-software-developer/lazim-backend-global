@@ -13,16 +13,16 @@ class MollakToken
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         try {
             // Log the mollak_id header
-            Log::info("id=======>   ".$request->header('mollak_id'));
+            // Log::info("id=======>   ".$request->header('mollak_id'));
 
             // Check if the request method is POST
-            if (!$request->isMethod('post')) {
+            if (! $request->isMethod('post')) {
                 return response()->json(['error' => 'Method Not Allowed'], 405);
             }
 
@@ -56,6 +56,7 @@ class MollakToken
             if (count($values) !== count(array_unique($values))) {
                 return response()->json(['error' => 'Duplicate Keys'], 400);
             }
+
             // Proceed with the request
             return $next($request);
         } catch (\Exception $e) {
