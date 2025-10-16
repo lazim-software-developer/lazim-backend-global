@@ -17,6 +17,18 @@ class ReviewRequest extends FormRequest
     }
 
     /**
+     * Convert 'type' from label to enum value before validation
+     */
+    public function prepareForValidation()
+    {
+        if ($this->has('type')) {
+            $this->merge([
+                'type' => ReviewType::fromLabel($this->type)?->value ?? $this->type,
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
