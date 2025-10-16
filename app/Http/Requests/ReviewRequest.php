@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ReviewType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class ReviewRequest extends FormRequest
 {
@@ -22,22 +24,22 @@ class ReviewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'   => 'required | exists:users,id',
-            'oa_id'     => 'required | exists:owner_associations,id',
-            'flat_id'   => 'required | exists:flats,id',
-            'type'      => 'required|string|in:feedback',
-            'comment'   => 'nullable | string',
-            'feedback'  => 'required | integer', 'in:1,2,3',
+            'user_id' => 'required | exists:users,id',
+            'oa_id' => 'required | exists:owner_associations,id',
+            'flat_id' => 'required | exists:flats,id',
+            'type' => ['required', new Enum(ReviewType::class)],
+            'comment' => 'nullable | string',
+            'feedback' => ['required', 'integer', 'in:1,2,3'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'user_id.exists'  => 'Selected user does not exist.',
-            'oa_id.exists'    => 'Selected owner association does not exist.',
-            'flat_id.exists'  => 'Selected flat does not exist.',
-            'feedback.in'     => 'Feedback must be 1 (good), 2 (average), or 3 (bad).',
+            'user_id.exists' => 'Selected user does not exist.',
+            'oa_id.exists' => 'Selected owner association does not exist.',
+            'flat_id.exists' => 'Selected flat does not exist.',
+            'feedback.in' => 'Feedback must be 1 (good), 2 (average), or 3 (bad).',
         ];
     }
 }
