@@ -16,8 +16,10 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FlatImportController;
 use App\Http\Controllers\Master\PDFController;
 use App\Http\Controllers\GeneralFundController;
+use App\Http\Controllers\OwnerImportController;
 use App\Http\Controllers\ReserveFundController;
 use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\OwnerAssociationInvoice;
 use App\Http\Controllers\Vendor\MasterController;
 use App\Http\Controllers\BuildingImportController;
@@ -26,7 +28,6 @@ use App\Http\Controllers\Vendor\InvoiceController;
 use App\Filament\Resources\Building\BuildingResource;
 use App\Http\Controllers\Vendor\DelinquentController;
 use App\Filament\Resources\LedgersResource\Pages\ListReceipts;
-use App\Http\Controllers\User\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,8 @@ Route::get('/download/import-report/{filename}', [BuildingImportController::clas
     ->where('filename', '.*');
 Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
     ->name('download.sample-flat-file');
+Route::get('/download/sample-owner-file', [OwnerImportController::class, 'downloadSampleFile'])
+    ->name('download.sample-owner-file');
 Route::get('/download/sample-budget-file', [BudgetImportController::class, 'downloadSampleBudgetFile'])
     ->name('download.sample-budget-file');
 

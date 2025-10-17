@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\User;
 
+use App\Filament\Imports\OwnerImport;
 use Closure;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -13,15 +14,21 @@ use App\Models\ApartmentOwner;
 use Filament\Resources\Resource;
 use App\Models\Building\Building;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\View;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
+use App\Filament\Imports\UnitImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\User\OwnerResource\Pages;
 
@@ -394,6 +401,93 @@ class OwnerResource extends Resource
                         return $query;
                     }),
             ])->filtersFormColumns(2)
+            ->headerActions([
+                Action::make('import')
+                    ->label('Import Owners')
+                    ->form([
+                        Section::make()
+                            ->schema([
+                                View::make('filament.components.sample-download-link')
+                                    ->view('filament.components.sample-owner-file-download'),
+                                FileUpload::make('file')
+                                    ->label('Choose CSV File')
+                                    ->disk('local')
+                                    ->directory('temp-imports')
+                                    ->acceptedFileTypes([
+                                        'text/csv',
+                                        'text/plain',
+                                        'application/csv',
+                                    ])
+                                    ->maxSize(5120)
+                                    ->required()
+                                    ->helperText('Upload your CSV file in the correct format')
+                            ])
+                    ])
+                    ->action(function (array $data) {
+                        try {
+                            $import = new OwnerImport();
+                            Excel::import($import, $data['file']);
+
+                            $result = $import->getResultSummary();
+
+                            if ($result['status'] === 200) {
+                                // Generate detailed report
+                                $report = "Import Report " . now()->format('Y-m-d H:i:s') . "\n\n";
+                                $report .= "Successfully imported: {$result['imported']}\n";
+                                $report .= "Skipped (already exists): {$result['skip']}\n";
+                                $report .= "Errors: {$result['error']}\n\n";
+
+                                // Add detailed error and skip information
+                                foreach ($result['details'] as $detail) {
+                                    $report .= "Row {$detail['row_number']}: {$detail['message']}\n";
+                                    $report .= "Data: " . json_encode($detail['data']) . "\n\n";
+                                }
+
+                                // Save report
+                                $filename = 'owner-import-' . now()->format('Y-m-d-H-i-s') . '.txt';
+                                $reportPath = 'import-reports/' . $filename;
+                                Storage::disk('local')->put($reportPath, $report);
+                            }
+                            if ($result['status'] === 401) {
+                                Notification::make()
+                                    ->title('invalid File')
+                                    ->body("{$result['error']}")
+                                    ->danger()
+                                    ->persistent()
+                                    ->send();
+                            } else {
+                                // Show notification with results
+                                Notification::make()
+                                    ->title('Import Complete')
+                                    ->body(
+                                        collect([
+                                            "Successfully imported: {$result['imported']}",
+                                            "Skipped: {$result['skip']}",
+                                            "Errors: {$result['error']}"
+                                        ])->join("\n")
+                                    )
+                                    ->actions([
+                                        \Filament\Notifications\Actions\Action::make('download_report')
+                                            ->label('Download Report')
+                                            ->url(route('download.import.report', ['filename' => $filename]))
+                                            ->openUrlInNewTab()
+                                    ])
+                                    ->success()
+                                    ->persistent()
+                                    ->send();
+                            }
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Import Failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+
+                        // Clean up temporary file
+                        Storage::disk('local')->delete($data['file']);
+                    })
+            ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
