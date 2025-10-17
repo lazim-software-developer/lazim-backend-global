@@ -11,6 +11,10 @@ enum ReviewType: int
     case FIT_OUT = 5;
     case HOLIDAY_HOME = 6;
     case VISITOR = 7;
+    case HAPPINESS_COMPLAINT = 8;
+    case ENQUIRY = 9;
+    case SUGGESTION = 10;
+    case FACILITY_SUPPORT = 11;
 
     public function label(): string
     {
@@ -22,6 +26,10 @@ enum ReviewType: int
             self::FIT_OUT => 'fitOut',
             self::HOLIDAY_HOME => 'holidayHome',
             self::VISITOR => 'visitor',
+            self::HAPPINESS_COMPLAINT => 'happinessComplaint',
+            self::ENQUIRY => 'enquiry',
+            self::SUGGESTION => 'suggestion',
+            self::FACILITY_SUPPORT => 'facilitySupport',
         };
     }
 
@@ -35,7 +43,11 @@ enum ReviewType: int
             'saleNoc' => self::SALE_NOC,
             'fitOut' => self::FIT_OUT,
             'holidayHome' => self::HOLIDAY_HOME,
-            // 'visitor' => self::VISITOR,
+            'visitor' => self::VISITOR,
+            'happinessComplaint' => self::HAPPINESS_COMPLAINT,
+            'enquiry' => self::ENQUIRY,
+            'suggestion' => self::SUGGESTION,
+            'facilitySupport' => self::FACILITY_SUPPORT,
             default => 1,
         };
     }
