@@ -15,6 +15,7 @@ use App\Http\Controllers\Assets\PPMController;
 use App\Http\Controllers\Vendor\WDAController;
 use App\Http\Controllers\AppFeedbackController;
 use App\Http\Controllers\Forms\GuestController;
+use App\Http\Controllers\Api\GuestApiController;
 use App\Http\Controllers\Assets\AssetController;
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\User\PaymentController;
@@ -24,15 +25,19 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Building\FlatController;
 use App\Http\Controllers\Forms\SaleNocController;
 use App\Http\Controllers\Vendor\TenderController;
+use App\Http\Controllers\Api\SaleNOCApiController;
+use App\Http\Controllers\Api\VisitorApiController;
 use App\Http\Controllers\Community\PollController;
 use App\Http\Controllers\Community\PostController;
 use App\Http\Controllers\Vendor\InvoiceController;
 use App\Http\Controllers\Forms\MoveInOutController;
 use App\Http\Controllers\Vendor\ContractController;
 use App\Http\Controllers\Vendor\ProposalController;
+use App\Http\Controllers\Api\MoveInOutApiController;
 use App\Http\Controllers\Forms\AccessCardController;
 use App\Http\Controllers\Services\ServiceController;
 use App\Http\Controllers\Technician\TasksController;
+use App\Http\Controllers\Api\FitOutFormApiController;
 use App\Http\Controllers\Building\BuildingController;
 use App\Http\Controllers\Community\CommentController;
 use App\Http\Controllers\Facility\FacilityController;
@@ -642,4 +647,29 @@ Route::get('buildings', [BuildingController::class, 'index']);
 #Review route
 Route::middleware(['auth:sanctum'])->prefix('review')->group(function () {
     Route::post('/create', [ReviewController::class, 'store'])->name('review.create');
+});
+
+Route::middleware(['auth:sanctum'])->prefix('move-in-out')->group(function () {
+    Route::post('/list', [MoveInOutApiController::class, 'list']);    
+    Route::get('/{movein}', [MoveInOutApiController::class, 'show']);  
+});
+
+Route::prefix('fitout')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/list', [FitOutFormApiController::class, 'list']);
+    Route::get('/{fitout}', [FitOutFormApiController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum'])->prefix('sale-noc')->group(function () {
+    Route::post('/list', [SaleNOCApiController::class, 'list']);
+    Route::get('/{saleNoc}', [SaleNOCApiController::class, 'show']);
+});
+
+Route::prefix('visitor')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/list', [VisitorApiController::class, 'list']);
+    Route::get('/{visitor}', [VisitorApiController::class, 'show']);
+});
+
+Route::prefix('guest')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/list', [GuestApiController::class, 'list']);
+    Route::get('/{guest}', [GuestApiController::class, 'show']);
 });
