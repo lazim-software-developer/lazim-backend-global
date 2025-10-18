@@ -18,9 +18,9 @@ class Complaintresource extends JsonResource
     {
         $priority = 'Low';
 
-        if($this->priority === 1) {
+        if ($this->priority === 1) {
             $priority = 'High';
-        } else if($this->priority == 2) {
+        } elseif ($this->priority == 2) {
             $priority = 'Medium';
         }
 
@@ -51,6 +51,7 @@ class Complaintresource extends JsonResource
             'due_date' => $this->due_date,
             'complaint_location' => $this->complaint_location,
             'status' => $this->status,
+            'ticket_number' => $this->ticket_number,
         ];
     }
 }
