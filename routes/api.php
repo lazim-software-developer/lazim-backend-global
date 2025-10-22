@@ -650,26 +650,26 @@ Route::middleware(['auth:sanctum'])->prefix('review')->group(function () {
 });
 
 Route::middleware(['auth:sanctum'])->prefix('move-in-out')->group(function () {
-    Route::post('/list', [MoveInOutApiController::class, 'list']);    
+    Route::get('/list', [MoveInOutApiController::class, 'list']);    
     Route::get('/{movein}', [MoveInOutApiController::class, 'show']);  
 });
 
 Route::prefix('fitout')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/list', [FitOutFormApiController::class, 'list']);
+    Route::get('/list', [FitOutFormApiController::class, 'list']);
     Route::get('/{fitout}', [FitOutFormApiController::class, 'show']);
 });
 
 Route::middleware(['auth:sanctum'])->prefix('sale-noc')->group(function () {
-    Route::post('/list', [SaleNOCApiController::class, 'list']);
+    Route::get('/list', [SaleNOCApiController::class, 'list']);
     Route::get('/{saleNoc}', [SaleNOCApiController::class, 'show']);
 });
 
 Route::prefix('visitor')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/list', [VisitorApiController::class, 'list']);
+    Route::get('/list', [VisitorApiController::class, 'list']);
     Route::get('/{visitor}', [VisitorApiController::class, 'show']);
 });
 
 Route::prefix('guest')->middleware(['auth:sanctum'])->group(function () {
-    Route::post('/list', [GuestApiController::class, 'list']);
+    Route::get('/list', [GuestApiController::class, 'list']);
     Route::get('/{guest}', [GuestApiController::class, 'show']);
 });
