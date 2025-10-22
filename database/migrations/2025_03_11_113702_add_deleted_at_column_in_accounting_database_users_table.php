@@ -28,8 +28,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('deleted_at');
-        });
+        if (!Schema::connection($this->connection)->hasColumn('users', 'deleted_at')) {
+            Schema::connection($this->connection)->table('users', function (Blueprint $table) {
+                $table->dropColumn('deleted_at');
+            });
+        }
     }
 };

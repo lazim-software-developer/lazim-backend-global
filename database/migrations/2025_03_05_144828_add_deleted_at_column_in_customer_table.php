@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * The connection name for the migration
-     * 
+     *
      * @var string
      */
     protected $connection;
@@ -28,11 +28,13 @@ return new class extends Migration
     public function up()
     {
         // Use the specified connection
-        Schema::connection($this->connection)->table('customers', function (Blueprint $table) {
+        if (!Schema::connection($this->connection)->hasColumn('customers', 'deleted_at')) {
+            Schema::connection($this->connection)->table('customers', function (Blueprint $table) {
             // Add your column here
-            $table->softDeletes();
-            
-        });
+                $table->softDeletes();
+            });
+        }
+
     }
 
     /**
@@ -41,8 +43,10 @@ return new class extends Migration
     public function down()
     {
         // Drop the column if migration needs to be rolled back
-        Schema::connection($this->connection)->table('customers', function (Blueprint $table) {
-            $table->dropColumn('deleted_at');
-        });
+        if (Schema::connection($this->connection)->hasColumn('customers', 'deleted_at')) {
+            Schema::connection($this->connection)->table('customers', function (Blueprint $table) {
+                $table->dropColumn('deleted_at');
+            });
+        }
     }
 };
