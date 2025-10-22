@@ -402,13 +402,18 @@ class OwnerResource extends Resource
                     }),
             ])->filtersFormColumns(2)
             ->headerActions([
+                Action::make('download_csv')
+                    ->label('Download Sample File')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn() => route('owners.export.csv'))
+                    ->openUrlInNewTab(),
                 Action::make('import')
                     ->label('Import Owners')
                     ->form([
                         Section::make()
                             ->schema([
-                                View::make('filament.components.sample-download-link')
-                                    ->view('filament.components.sample-owner-file-download'),
+                                // View::make('filament.components.sample-download-link')
+                                //     ->view('filament.components.sample-owner-file-download'),
                                 FileUpload::make('file')
                                     ->label('Choose CSV File')
                                     ->disk('local')

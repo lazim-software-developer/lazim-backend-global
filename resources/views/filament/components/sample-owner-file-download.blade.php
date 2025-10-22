@@ -4,7 +4,7 @@
             Download the sample file format for import
         </p>
     </div>
-    <a href="{{ route('download.sample-owner-file') }}" download id="downloadButton"
+    <a href="{{ route('owners.export.csv') }}" download id="downloadButton"
         class="inline-flex items-center justify-center gap-1 font-medium rounded-lg border transition-colors focus:outline-none focus:ring-offset-2 focus:ring-2 focus:ring-inset filament-button px-3 py-2 hover:bg-primary-500 focus:bg-primary-500 focus:ring-offset-primary-700 bg-primary-600 text-white shadow focus:ring-white border-transparent">
         <span id="normalState" class="inline-flex items-center gap-1">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
