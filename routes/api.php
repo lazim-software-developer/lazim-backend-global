@@ -651,7 +651,7 @@ Route::middleware(['auth:sanctum'])->prefix('review')->group(function () {
 
 Route::middleware(['auth:sanctum'])->prefix('move-in-out')->group(function () {
     Route::get('/list', [MoveInOutApiController::class, 'list']);    
-    Route::get('/{movein}', [MoveInOutApiController::class, 'show']);  
+    Route::get('/{id}', [MoveInOutApiController::class, 'show']);  
 });
 
 Route::prefix('fitout')->middleware(['auth:sanctum'])->group(function () {

@@ -12,7 +12,7 @@ use App\Models\Forms\FitOutForm;
 class FitOutFormApiController extends Controller
 {
     /**
-     * @api {post} /fitout/list List Fit-Out Forms
+     * @api {get} /fitout/list List Fit-Out Forms
      * @apiDescription
      * Returns a paginated list of Fit-Out forms with optional filters.
      *  

@@ -12,7 +12,7 @@ use App\Models\Visitor;
 class VisitorApiController extends Controller
 {
     /**
-     * @api {post} /visitor/list List Visitors
+     * @api {get} /visitor/list List Visitors
      * @apiDescription
      * Returns a paginated list of visitors with optional filters.
      *

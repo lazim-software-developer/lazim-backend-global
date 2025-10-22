@@ -12,7 +12,7 @@ use App\Models\Forms\SaleNOC;
 class SaleNOCApiController extends Controller
 {
     /**
-     * @api {post} /sale-noc/list List Sale NOC Records
+     * @api {get} /sale-noc/list List Sale NOC Records
      * @apiDescription
      * Returns a paginated list of Sale NOC records with optional filters.
      *  
@@ -52,9 +52,9 @@ class SaleNOCApiController extends Controller
                 ->orderByDesc('created_at');
 
             // Apply filters
-            if ($request->filled('building_id')) {
-                $query->where('building_id', $request->building_id);
-            }
+            // if ($request->filled('building_id')) {
+            //     $query->where('building_id', $request->building_id);
+            // }
 
             if ($request->filled('flat_id')) {
                 $query->where('flat_id', $request->flat_id);

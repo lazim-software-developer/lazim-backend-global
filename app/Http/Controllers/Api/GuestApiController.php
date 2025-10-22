@@ -12,7 +12,7 @@ use App\Models\Forms\Guest;
 class GuestApiController extends Controller
 {
     /**
-     * @api {post} /guest/list List Guests
+     * @api {get} /guest/list List Guests
      * @apiDescription
      * Returns a paginated list of guests with optional filters.
      *

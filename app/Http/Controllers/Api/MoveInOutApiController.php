@@ -12,7 +12,7 @@ use App\Http\Resources\MoveInOutResource;
 class MoveInOutApiController extends Controller
 {
     /**
-     * @api {post} /move-in-out/list List Move-In Records
+     * @api {get} /move-in-out/list List Move-In Records
      * @apiDescription
      * Returns a filtered list of move-in records (same as Filament table logic).
      *  
@@ -21,10 +21,11 @@ class MoveInOutApiController extends Controller
      * @apiHeader {String} Authorization Bearer token required.
      * @apiHeader {String} Accept application/json
      *
-     * @apiBody {Integer} [building_id] Optional. Filter by building. not required for now
-     * @apiBody {Integer} [flat_id] Optional. Filter by flat.
-     * @apiBody {String="approved","rejected","NA"} [status] Optional. Filter by status.
-     *
+     * @apiQuery {String="move-in","move-out"} [type] Optional. Filter by record type.
+     * @apiQuery {Integer} [building_id] Optional. Filter by building. (Not required for now)
+     * @apiQuery {Integer} [flat_id] Optional. Filter by flat.
+     * @apiQuery {String="approved","rejected","pending","all"} [status] Optional. Filter by status.
+     * 
      * @apiSuccessExample {json} Success Response:
      * {
      *   "success": true,
@@ -46,9 +47,11 @@ class MoveInOutApiController extends Controller
     public function list(Request $request)
     {
         try {
-            $query = MoveInOut::query()
-                ->where('type', 'move-in')
-                ->with(['building:id,name', 'flat:id,property_number'])
+                $query = MoveInOut::query();
+                if ($request->filled('type') && in_array($request->type, ['move-in', 'move-out'])) {
+                    $query->where('type', $request->type);
+                }
+                $query->with(['building:id,name', 'flat:id,property_number'])
                 ->orderByDesc('created_at');
 
             // Apply filters
@@ -96,11 +99,11 @@ class MoveInOutApiController extends Controller
     }
 
     /**
-     * @api {get} /move-in-out/{movein} Get Move-In/Out Details
+     * @api {get} /move-in-out/{id} Get Move-In/Out Details
      * @apiDescription
      * Fetch detailed information about a specific Move-In record.
      *
-     * @apiParam {Integer} movein MoveInOut ID
+     * @apiParam {Integer} id MoveInOut ID
      *
      * @apiSuccessExample {json} Success Response:
      * {
@@ -118,15 +121,15 @@ class MoveInOutApiController extends Controller
      *   "message": "Move-in record fetched successfully."
      * }
      */
-    public function show(MoveInOut $movein)
+    public function show(MoveInOut $id)
     {
         try {
-            $movein->load(['building:id,name', 'flat:id,property_number']);
+            $id->load(['building:id,name', 'flat:id,property_number']);
 
             return response()->json([
                 'success' => true,
                 'error' => [],
-                'data' => new MoveInOutResource($movein),
+                'data' => new MoveInOutResource($id),
                 'message' => 'Move-in record fetched successfully.'
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
