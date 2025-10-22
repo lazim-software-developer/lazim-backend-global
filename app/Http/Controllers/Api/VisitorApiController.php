@@ -100,11 +100,11 @@ class VisitorApiController extends Controller
     }
 
     /**
-     * @api {get} /visitor/{visitor} Get Visitor Details
+     * @api {get} /visitor/{id} Get Visitor Details
      * @apiDescription
      * Fetch detailed information about a specific visitor.
      *
-     * @apiParam {Integer} visitor Visitor ID
+     * @apiParam {Integer} id Visitor ID
      *
      * @apiSuccessExample {json} Success Response:
      * {
@@ -122,9 +122,20 @@ class VisitorApiController extends Controller
      *   "message": "Visitor record fetched successfully."
      * }
      */
-    public function show(Visitor $visitor)
+    public function show($id)
     {
         try {
+            $visitor = Visitor::find($id);
+
+            if (!$visitor) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Visitor not found.',
+                    'data' => null,
+                    'message' => 'Visitor record not found.'
+                ], Response::HTTP_NOT_FOUND);
+            }
+
             return response()->json([
                 'success' => true,
                 'error' => [],

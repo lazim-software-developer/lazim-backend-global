@@ -121,15 +121,24 @@ class MoveInOutApiController extends Controller
      *   "message": "Move-in record fetched successfully."
      * }
      */
-    public function show(MoveInOut $id)
+    public function show($id)
     {
         try {
-            $id->load(['building:id,name', 'flat:id,property_number']);
+             $moveInOut = MoveInOut::with(['building:id,name', 'flat:id,property_number'])->find($id);
+
+            if (!$moveInOut) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Record not found.',
+                    'data' => null,
+                    'message' => 'Move-in record not found.'
+                ], Response::HTTP_NOT_FOUND);
+            }
 
             return response()->json([
                 'success' => true,
                 'error' => [],
-                'data' => new MoveInOutResource($id),
+                'data' => new MoveInOutResource($moveInOut),
                 'message' => 'Move-in record fetched successfully.'
             ], Response::HTTP_OK);
         } catch (\Exception $e) {

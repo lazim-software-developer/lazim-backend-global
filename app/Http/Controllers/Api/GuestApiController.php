@@ -97,11 +97,11 @@ class GuestApiController extends Controller
     }
 
     /**
-     * @api {get} /guest/{guest} Get Guest Details
+     * @api {get} /guest/{id} Get Guest Details
      * @apiDescription
      * Fetch detailed information about a specific guest record.
      *
-     * @apiParam {Integer} guest Guest ID
+     * @apiParam {Integer} id Guest ID
      *
      * @apiSuccessExample {json} Success Response:
      * {
@@ -124,10 +124,19 @@ class GuestApiController extends Controller
      *   "message": "Guest record fetched successfully."
      * }
      */
-    public function show(Guest $guest)
+    public function show($id)
     {
         try {
-            $guest->load(['building:id,name', 'flat:id,property_number']);
+             $guest = Guest::with(['building:id,name', 'flat:id,property_number'])->find($id);
+
+            if (!$guest) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Record not found.',
+                    'data' => null,
+                    'message' => 'Guest record not found.'
+                ], Response::HTTP_NOT_FOUND);
+            }
 
             return response()->json([
                 'success' => true,

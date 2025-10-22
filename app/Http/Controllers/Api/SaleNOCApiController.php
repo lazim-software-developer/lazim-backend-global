@@ -96,11 +96,11 @@ class SaleNOCApiController extends Controller
     }
 
     /**
-     * @api {get} /sale-noc/{saleNoc} Get Sale NOC Details
+     * @api {get} /sale-noc/{id} Get Sale NOC Details
      * @apiDescription
      * Fetch detailed information about a specific Sale NOC record.
      *
-     * @apiParam {Integer} saleNoc Sale NOC ID
+     * @apiParam {Integer} id Sale NOC ID
      *
      * @apiSuccessExample {json} Success Response:
      * {
@@ -119,10 +119,19 @@ class SaleNOCApiController extends Controller
      *   "message": "Sale NOC record fetched successfully."
      * }
      */
-    public function show(SaleNOC $saleNoc)
+    public function show($id)
     {
         try {
-            $saleNoc->load(['building:id,name', 'flat:id,property_number']);
+            $saleNoc = SaleNOC::with(['building:id,name', 'flat:id,property_number'])->find($id);
+
+            if (!$saleNoc) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Record not found.',
+                    'data' => null,
+                    'message' => 'Sale NOC not found.'
+                ], Response::HTTP_NOT_FOUND);
+            }
 
             return response()->json([
                 'success' => true,

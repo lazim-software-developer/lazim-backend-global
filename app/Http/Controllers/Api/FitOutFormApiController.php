@@ -95,11 +95,11 @@ class FitOutFormApiController extends Controller
     }
 
     /**
-     * @api {get} /fitout/{fitout} Get Fit-Out Form Details
+     * @api {get} /fitout/{id} Get Fit-Out Form Details
      * @apiDescription
      * Fetch detailed information about a specific Fit-Out form.
      *
-     * @apiParam {Integer} fitout FitOutForm ID
+     * @apiParam {Integer} id FitOutForm ID
      *
      * @apiSuccessExample {json} Success Response:
      * {
@@ -117,10 +117,19 @@ class FitOutFormApiController extends Controller
      *   "message": "Fit-Out form record fetched successfully."
      * }
      */
-    public function show(FitOutForm $fitout)
+    public function show($id)
     {
         try {
-            $fitout->load(['building:id,name', 'flat:id,property_number']);
+            $fitout = FitOutForm::with(['building:id,name', 'flat:id,property_number'])->find($id);
+
+            if (!$fitout) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Record not found.',
+                    'data' => null,
+                    'message' => 'Fit-Out not found.'
+                ], Response::HTTP_NOT_FOUND);
+            }
 
             return response()->json([
                 'success' => true,
