@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\User;
 
-use App\Models\OwnerAssociation;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Forms\MoveInOut;
+use App\Models\OwnerAssociation;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProfileResource extends JsonResource
 {
@@ -16,6 +17,7 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $moveInOut = MoveInOut::where('user_id', $this->id)->latest()->first();
         $data = [
             'id'=>$this->id,
             'first_name' => $this->first_name,
@@ -33,6 +35,16 @@ class ProfileResource extends JsonResource
             'updated_at'=>$this->updated_at,
             'remember_token'=>$this->remember_token,
             'selectType'=> 'globalOa',
+
+            // Verification fields
+            'email_verified_status' => (bool) $this->email_verified,
+            'mobile_verified_status' => (bool) $this->phone_verified,
+
+            // Documents (from MoveInOut)
+            'passport_verified' => $moveInOut ? (bool) $moveInOut->passport : false,
+            'visa_verified' => $moveInOut ? (bool) $moveInOut->visa : false,
+            'eid_verified' => $moveInOut ? (bool) $moveInOut->eid : false,
+            'title_deed_or_ejari_verified' => $moveInOut ? ((bool) $moveInOut->title_deed || (bool) $moveInOut->ejari) : false,
 
         ];
         if($this->role->name == 'Security'){
