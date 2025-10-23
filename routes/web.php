@@ -64,8 +64,10 @@ Route::get('/download/import-report/{filename}', [BuildingImportController::clas
     ->where('filename', '.*');
 Route::get('/download/sample-flat-file', [FlatImportController::class, 'downloadSampleFile'])
     ->name('download.sample-flat-file');
-Route::get('/download/sample-owner-file', [OwnerImportController::class, 'downloadSampleFile'])
-    ->name('download.sample-owner-file');
+// Route::get('/download/sample-owner-file', [OwnerImportController::class, 'downloadSampleFile'])
+//     ->name('download.sample-owner-file');
+Route::get('/owners/export/csv', [OwnerImportController::class, 'downloadSampleFile'])->name('owners.export.csv');
+
 Route::get('/download/sample-budget-file', [BudgetImportController::class, 'downloadSampleBudgetFile'])
     ->name('download.sample-budget-file');
 
