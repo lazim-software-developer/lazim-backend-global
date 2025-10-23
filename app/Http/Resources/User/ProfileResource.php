@@ -36,16 +36,11 @@ class ProfileResource extends JsonResource
             'remember_token'=>$this->remember_token,
             'selectType'=> 'globalOa',
 
-            // Verification fields
-            'email_verified_status' => (bool) $this->email_verified,
-            'mobile_verified_status' => (bool) $this->phone_verified,
-
-            // Documents (from MoveInOut)
-            'passport_verified' => $moveInOut ? (bool) $moveInOut->passport : false,
-            'visa_verified' => $moveInOut ? (bool) $moveInOut->visa : false,
-            'eid_verified' => $moveInOut ? (bool) $moveInOut->eid : false,
-            'title_deed_or_ejari_verified' => $moveInOut ? ((bool) $moveInOut->title_deed || (bool) $moveInOut->ejari) : false,
-
+            // Document verification flags
+            'passport' => $this->documents->where('name', 'passport')->isNotEmpty(),
+            'visa' => $this->documents->where('name', 'visa')->isNotEmpty(),
+            'eid' => $this->documents->where('name', 'eid')->isNotEmpty(),
+            'title_deed' => $this->documents->where('name', 'title_deed')->isNotEmpty(), 
         ];
         if($this->role->name == 'Security'){
             $data['building_id'] = $this->pocs[0]->building_id;
