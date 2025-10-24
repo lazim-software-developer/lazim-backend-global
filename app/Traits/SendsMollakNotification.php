@@ -20,12 +20,10 @@ trait SendsMollakNotification
      * @param  string $title
      * @param  string $body
      * @param  string $type
-     * @param  string $resourceClass   // e.g. App\Filament\Resources\User\OwnerResource::class
      * @param  string[] $rolesToInclude // Roles to send notification to (e.g. ['Admin', 'Manager'])
      * @param  string|null $icon
      * @param  string|null $priority
-     * @param  string $urlAction // 'index', 'view', 'edit'
-     * @param  mixed|null $recordId
+     * @param  string $urlAction // URL to navigate to when notification is clicked
      */
     public function sendMollakNotification(
         ?int $ownerAssociationId,
@@ -36,7 +34,7 @@ trait SendsMollakNotification
         array $rolesToInclude = ['Admin'],
         ?string $icon = 'heroicon-o-bell',
         ?string $priority = 'Medium',
-        string $urlAction = 'edit',
+        string $urlAction = 'null',
     ): void 
     {  
         if (!$ownerAssociationId) {
