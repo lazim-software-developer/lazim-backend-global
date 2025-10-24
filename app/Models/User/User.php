@@ -120,6 +120,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         return $this->hasMany(Vendor::class, 'owner_id');
     }
 
+    public function buildings(): BelongsToMany
+    {
+        return $this->belongsToMany(Building::class)->withTimestamps();
+    }
+
     public function documents()
     {
         return $this->hasMany(Document::class, 'accepted_by');
