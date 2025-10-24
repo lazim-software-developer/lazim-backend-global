@@ -2,10 +2,13 @@
 
 namespace App\Traits;
 
-use App\Models\User;
-use App\Models\Role;
+use App\Models\User\User;
+use App\Models\OwnerAssociation;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
+use App\Filament\Resources\User\OwnerResource;
 
 trait SendsMollakNotification
 {
@@ -37,7 +40,7 @@ trait SendsMollakNotification
         string $urlAction = 'edit',
         $recordId = null
     ): void 
-    {
+    {  
         if (!$ownerAssociationId) {
             return;
         }
@@ -45,15 +48,20 @@ trait SendsMollakNotification
         $roleIds = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', $rolesToInclude)->pluck('id');
 
         $notifyTo = User::where('owner_association_id', $ownerAssociationId)
-            ->whereIn('role_id', $roleIds)
-            ->when(auth()->check(), fn($q) => $q->whereNot('id', auth()->id()))
+           ->whereIn('role_id', $roleIds)
+           ->when(auth()->check(), fn($q) => $q->whereNot('id', auth()->id()))
             ->get();
+
 
         if ($notifyTo->isEmpty()) {
             return;
         }
 
-        $url = $recordId ? $resourceClass::getUrl($urlAction, [$recordId]) : $resourceClass::getUrl($urlAction);
+       // $url = $recordId ? $resourceClass::getUrl($urlAction, [$recordId]) : $resourceClass::getUrl($urlAction);
+        $associationSlug = OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug;
+        // $url = $recordId
+        //     ? $resourceClass::getUrl($urlAction, [$associationSlug, $recordId])
+        //     : $resourceClass::getUrl($urlAction, [$associationSlug]);
 
         Notification::make()
             ->success()
@@ -68,7 +76,7 @@ trait SendsMollakNotification
                 Action::make('view')
                     ->button()
                     ->markAsRead()
-                    ->url($url),
+                   // ->url($url),
             ])
             ->sendToDatabase($notifyTo);
     }
