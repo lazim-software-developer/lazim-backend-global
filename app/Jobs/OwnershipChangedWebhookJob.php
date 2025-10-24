@@ -70,11 +70,13 @@ class OwnershipChangedWebhookJob implements ShouldQueue
                 title: 'New Owner',
                 body: 'Mollak has reported a new owner',
                 type: 'new_owner',
-                resourceClass: OwnerResource::class,
                 rolesToInclude: ['Admin'], 
                 icon: 'heroicon-o-user',
                 priority: 'Medium',
-                urlAction: 'edit'
+                urlAction : OwnerResource::getUrl('view', [
+                    'tenant' => $flat->ownerAssociation->slug ,
+                    'record' => $flat->ownerAssociation->id,
+                ]),
             );
         }
     } catch (\Exception $e) {

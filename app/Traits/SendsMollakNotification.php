@@ -33,12 +33,10 @@ trait SendsMollakNotification
         string $title,
         string $body,
         string $type,
-        string $resourceClass,
         array $rolesToInclude = ['Admin'],
         ?string $icon = 'heroicon-o-bell',
         ?string $priority = 'Medium',
         string $urlAction = 'edit',
-        $recordId = null
     ): void 
     {  
         if (!$ownerAssociationId) {
@@ -47,21 +45,14 @@ trait SendsMollakNotification
 
         $roleIds = Role::where('owner_association_id', $ownerAssociationId)->whereIn('name', $rolesToInclude)->pluck('id');
 
-        $notifyTo = User::where('owner_association_id', $ownerAssociationId)
+        $notifyTo = User::where('owner_association_id', 2)
            ->whereIn('role_id', $roleIds)
            ->when(auth()->check(), fn($q) => $q->whereNot('id', auth()->id()))
-            ->get();
-
+           ->get();
 
         if ($notifyTo->isEmpty()) {
             return;
         }
-
-       // $url = $recordId ? $resourceClass::getUrl($urlAction, [$recordId]) : $resourceClass::getUrl($urlAction);
-        $associationSlug = OwnerAssociation::where('id', $ownerAssociationId)->first()?->slug;
-        // $url = $recordId
-        //     ? $resourceClass::getUrl($urlAction, [$associationSlug, $recordId])
-        //     : $resourceClass::getUrl($urlAction, [$associationSlug]);
 
         Notification::make()
             ->success()
@@ -76,7 +67,7 @@ trait SendsMollakNotification
                 Action::make('view')
                     ->button()
                     ->markAsRead()
-                   // ->url($url),
+                    ->url($urlAction),
             ])
             ->sendToDatabase($notifyTo);
     }
