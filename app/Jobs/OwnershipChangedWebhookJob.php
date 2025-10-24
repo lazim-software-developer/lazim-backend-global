@@ -2,20 +2,23 @@
 
 namespace App\Jobs;
 
-use App\Models\ApartmentOwner;
-use App\Models\Building\Flat;
 use App\Models\FlatOwners;
+use App\Models\Building\Flat;
 use Illuminate\Bus\Queueable;
+use App\Models\ApartmentOwner;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Queue\SerializesModels;
+use App\Traits\SendsMollakNotification;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Filament\Resources\User\OwnerResource;
 
 class OwnershipChangedWebhookJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use SendsMollakNotification;
 
     /**
      * Create a new job instance.
@@ -60,6 +63,19 @@ class OwnershipChangedWebhookJob implements ShouldQueue
                     'active' => true
                 ]);
             }
+
+            $this->sendMollakNotification(
+                ownerAssociationId: $flat->owner_association_id,
+                buildingId: $flat->building_id,
+                title: 'New Owner',
+                body: 'Mollak has reported a new owner',
+                type: 'new_owner',
+                resourceClass: OwnerResource::class,
+                rolesToInclude: ['Admin'], 
+                icon: 'heroicon-o-user',
+                priority: 'Medium',
+                urlAction: 'edit'
+            );
         }
     } catch (\Exception $e) {
         Log::error('Failed to fetch ownership changed ');
